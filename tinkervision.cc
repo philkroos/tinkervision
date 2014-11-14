@@ -86,11 +86,6 @@ TFV_String result_string(TFV_Result code) {
     return api.result_string(code);
 }
 
-TFV_Void test_(void) {
-    auto& api = tfv::get_api();
-    return api.get_values();
-}
-
 TFV_Void stop_api(void) {
     auto& api = tfv::get_api();
     api.stop();

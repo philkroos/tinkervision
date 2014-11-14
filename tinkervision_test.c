@@ -34,7 +34,6 @@ int main(int argc, char* argv[]) {
     TFV_Byte min_hue = 200;
     TFV_Byte max_hue = 250;
 
-    test_();
     int test = 0;
     // Test 0: Camera should be available
     TFV_Result result = camera_available(cam);

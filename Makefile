@@ -7,7 +7,7 @@ LDFLAGS_LIB=-g -Wall -lstdc++  `pkg-config --libs opencv`
 TEST_OBJS=tinkervision_test.o tinkervision.o
 TEST=tinkervision_test.out
 LIB_OBJS=tinkervision.o api.o feature.o cameracontrol.o \
-	camera.o colortracker.o
+	camera.o colortracker.o window.o
 LIB=tinkervision
 
 lib: $(LIB)

@@ -38,8 +38,6 @@ TFV_Result camera_available(TFV_Id camera_id);
 
 TFV_String result_string(TFV_Result code);
 
-TFV_Void test_(void);
-
 TFV_Void stop_api(void);
 
 #ifdef __cplusplus

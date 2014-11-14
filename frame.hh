@@ -31,11 +31,11 @@ typedef struct Frame_ {
     int rows;
     int columns;
     TFV_ImageData* data;
-    Frame_(TFV_Id id, int rows, int columns)
+    Frame_(TFV_Id id, int rows, int columns, int channels)
         : id(id),
           rows(rows),
           columns(columns),
-          data(new TFV_ImageData[rows * columns]) {}
+          data(new TFV_ImageData[rows * columns * channels]) {}
 
     ~Frame_(void) {
         if (data) {
@@ -44,6 +44,6 @@ typedef struct Frame_ {
     }
 } Frame;
 
-using Frames = std::unordered_map<TFV_Id, Frame*>;
+using Frames = std::unordered_map<TFV_Int, Frame*>;
 };
 #endif /* FRAME_H */

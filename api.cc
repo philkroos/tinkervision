@@ -23,6 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <thread>
 #include <future>
 
+#ifdef DEV
+#include <opencv2/opencv.hpp>
+#endif  // DEV
+
 #include "api.hh"
 
 tfv::Api::Api(void) : camera_control_{TFV_MAX_USERS_PER_CAM} { (void)start(); }
@@ -53,24 +57,26 @@ bool tfv::Api::stop(void) {
     return not executor_.joinable();
 }
 
-/*
-void tfv::Api::terminate(void) {
-}
-*/
-
 void tfv::Api::execute(void) {
     while (active_) {
         if (colortracker_.active()) {
             // refresh frames
             for (auto& frame : frames_) {
-                // Ignoring bool here: Might be false if no active configuration
-                // exists for the camera.
+#ifdef DEV
+                auto grabbed =
+                    camera_control_.get_frame(frame.first, frame.second->data);
+                if (grabbed and frame.first == 0) {  // show cam0
+                    window.update(frame.second->data, frame.second->rows,
+                                  frame.second->columns);
+                }
+#else
                 (void)camera_control_.get_frame(frame.first,
                                                 frame.second->data);
+#endif
             }
             colortracker_.execute(frames_);
         } else {
-            std::cout << "No active tracker" << std::endl;
+            // no work currently, wait a sec
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
     }
@@ -79,25 +85,35 @@ void tfv::Api::execute(void) {
 tfv::Api& tfv::get_api(void) {
     static Api* api = nullptr;
 
-    // It would be easier to just return a static Api-instance from get_api.
-    // However, since the library is supposed to be run in the context of a
-    // damon, the calling context potentially does not finish for a long time.
-    // Therefore, watching the Api-usage with the following static inner context
-    // makes it possible to release the Api-ressource after some 'timeout'.
-    // For the user, this is transparent since the Api will only be released if
-    // it is inactive, in which case reinstantiating the Api will have the same
+    // It would be easier to just return a static
+    // Api-instance from get_api.
+    // However, since the library is supposed to be run in
+    // the context of a
+    // damon, the calling context potentially does not
+    // finish for a long time.
+    // Therefore, watching the Api-usage with the following
+    // static inner context
+    // makes it possible to release the Api-ressource after
+    // some 'timeout'.
+    // For the user, this is transparent since the Api will
+    // only be released if
+    // it is inactive, in which case reinstantiating the Api
+    // will have the same
     // result as would have accessing a 'sleeping' one.
     static auto exec = [](tfv::Api* api) {
-        auto timeout = std::chrono::seconds(5);
+        auto timeout = std::chrono::seconds(60);
         auto checkpoint = std::chrono::system_clock::now();
         while (true) {
             auto now = std::chrono::system_clock::now();
             if (api->active_components()) {
                 checkpoint = now;
             } else {
-                // Todo: Share some execution context to prevent the rare
-                // case of conflict with a get_api call; e.g. update the
-                // checkpoint from the outer context and lock it with a mutex.
+                // Todo: Share some execution context to
+                // prevent the rare
+                // case of conflict with a get_api call;
+                // e.g. update the
+                // checkpoint from the outer context and
+                // lock it with a mutex.
                 std::cout << "No active components" << std::endl;
                 if ((now - checkpoint) > timeout) {
                     std::cout << "Shutting down" << std::endl;
@@ -132,8 +148,10 @@ TFV_Result tfv::Api::colortracking_set(TFV_Id id, TFV_Id camera_id,
     if (tfv::check_configuration_settings(min_hue, max_hue, callback)) {
 
         /*
-          result = component_set(colortracker_, id, camera_id,
-                                       min_hue, max_hue, callback, context);
+          result = component_set(colortracker_, id,
+          camera_id,
+                                       min_hue, max_hue,
+          callback, context);
         */
         result = TFV_CAMERA_ACQUISITION_FAILED;
 
@@ -145,6 +163,13 @@ TFV_Result tfv::Api::colortracking_set(TFV_Id id, TFV_Id camera_id,
                                                 callback, context)) {
 
                 colortracker_.activate_configuration(id);
+                if (frames_.find(camera_id) == frames_.end()) {
+                    int rows, columns, channels = 0;
+                    camera_control_.get_properties(camera_id, rows, columns,
+                                                   channels);
+                    frames_[camera_id] =
+                        new Frame(camera_id, rows, columns, channels);
+                }
                 result = TFV_OK;
             } else {
                 camera_control_.safe_release(camera_id);
@@ -182,7 +207,13 @@ TFV_Result tfv::Api::colortracking_stop(TFV_Id id) {
         auto camera_id = configuration->camera_id;
         if (colortracker_.deactivate_configuration(id)) {
 
-            camera_control_.safe_release(camera_id);
+            auto users = camera_control_.safe_release(camera_id);
+            if (not users) {
+                if (frames_.find(camera_id) != frames_.end()) {
+                    delete frames_[camera_id];
+                    frames_.erase(camera_id);
+                }
+            }
             result = TFV_OK;
         }
     }

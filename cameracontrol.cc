@@ -47,10 +47,11 @@ bool tfv::CameraControl::acquire(TFV_Id camera_id) {
     auto result = false;
     auto camera = camera_map_.find(camera_id);
 
-    // if new cam_id, add cam_id to map but don't open cam it yet
+    // if new cam_id, add cam_id to map but don't open it yet
     if (camera == camera_map_.end()) {
-        // open new
-        camera_map_[camera_id] = new CameraUsbOpenCv(camera_id);
+        // open new; currently Opencv color-Usb-cams hardcoded
+        TFV_Byte constexpr channels = 3;
+        camera_map_[camera_id] = new CameraUsbOpenCv(camera_id, channels);
         camera = camera_map_.find(camera_id);
     }
 
@@ -104,32 +105,35 @@ void tfv::CameraControl::release(TFV_Id camera_id) {
 }
 
 // close
-void tfv::CameraControl::safe_release(TFV_Id camera_id) {
+TFV_Byte tfv::CameraControl::safe_release(TFV_Id camera_id) {
+    TFV_Byte users = 0;
 
     if (camera_user_count_.find(camera_id) != camera_user_count_.end()) {
         camera_user_count_[camera_id] =
             std::max(0, camera_user_count_[camera_id] - 1);
+        users = camera_user_count_[camera_id];
     }
 
     auto camera = camera_map_.find(camera_id);
 
     // No more users? Free the cam!
-    if (camera != camera_map_.end() and not camera_user_count_[camera_id]) {
+    if (camera != camera_map_.end() and not users) {
         if (camera->second) {
             camera->second->stop();
             delete camera->second;
             camera_map_.erase(camera_id);
         }
     }
+    return users;
 }
 
-bool tfv::CameraControl::get_frame_size(TFV_Id camera_id, int& rows,
-                                        int& columns) {
+bool tfv::CameraControl::get_properties(TFV_Id camera_id, int& height,
+                                        int& width, int& channels) {
     auto camera = camera_map_.find(camera_id);
     if (camera == camera_map_.end()) {
         return false;
     }
-    return camera->second->get_frame_size(rows, columns);
+    return camera->second->get_properties(height, width, channels);
 }
 
 bool tfv::CameraControl::get_frame(TFV_Id camera_id, TFV_ImageData* frame) {

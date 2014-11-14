@@ -22,9 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <chrono>
 #include <iostream>
 
-tfv::Camera::Camera(TFV_Id camera_id, int latency)
-    : camera_id_(camera_id), latency_(latency) {
+tfv::Camera::Camera(TFV_Id camera_id, int latency, int channels)
+    : camera_id_(camera_id), channels_(channels), latency_(latency) {
 
+    if (latency < 0) {
+        latency_ = 0;
+    }
     grabber_thread_ = std::thread(&Camera::grab_loop, this);
 }
 
@@ -39,6 +42,11 @@ void tfv::Camera::grab_loop(void) {
 }
 
 bool tfv::Camera::get_frame(TFV_ImageData* frame) {
+    if (not is_open() or width_ == -1 or channels_ == -1) {
+        // expecting the user to ask for frame properties in advance.
+        return false;
+    }
+
     std::lock_guard<std::mutex> lock(mutex_);
     return retrieve_frame(frame);
 }
@@ -51,17 +59,31 @@ void tfv::Camera::stop(void) {
     close();
 }
 
+tfv::CameraUsbOpenCv::CameraUsbOpenCv(TFV_Id camera_id, TFV_Byte channels)
+    : Camera(camera_id, latency_, static_cast<int>(channels)) {
+
+    if (channels == 1) {
+        flag_ = CV_8UC1;
+    } else if (channels != 3) {
+        channels_ = -1;  // invalid setting
+    }
+}
+
 tfv::CameraUsbOpenCv::~CameraUsbOpenCv(void) { close(); }
 
 bool tfv::CameraUsbOpenCv::open(void) {
-    camera_ = new cv::VideoCapture(camera_id_);
 
-    if (not camera_->isOpened()) {
-        close();
-        return false;
+    auto result = false;
+    if (channels_ == 1 or channels_ == 3) {
+        camera_ = new cv::VideoCapture(camera_id_);
     }
 
-    return true;
+    result = is_open();
+    if (not result) {
+        close();
+    }
+
+    return result;
 }
 
 bool tfv::CameraUsbOpenCv::is_open(void) {
@@ -76,7 +98,8 @@ void tfv::CameraUsbOpenCv::close(void) {
     camera_ = nullptr;
 }
 
-bool tfv::CameraUsbOpenCv::get_frame_size(int& rows, int& columns) {
+bool tfv::CameraUsbOpenCv::get_properties(int& height, int& width,
+                                          int& channels) {
     if (width_ == -1 or height_ == -1) {
         if (not is_open()) {
             return false;
@@ -84,8 +107,9 @@ bool tfv::CameraUsbOpenCv::get_frame_size(int& rows, int& columns) {
         width_ = static_cast<int>(camera_->get(CV_CAP_PROP_FRAME_WIDTH));
         height_ = static_cast<int>(camera_->get(CV_CAP_PROP_FRAME_HEIGHT));
     }
-    rows = height_;
-    columns = width_;
+    height = height_;
+    width = width_;
+    channels = channels_;
 
     return true;
 }
@@ -97,11 +121,6 @@ void tfv::CameraUsbOpenCv::grab_frame(void) {
 }
 
 bool tfv::CameraUsbOpenCv::retrieve_frame(TFV_ImageData* frame) {
-    if (width_ == -1 or height_ == -1) {
-        // expecting the user to ask for these values in advance.
-        return false;
-    }
-
-    cv::Mat container(width_, height_, CV_8UC1, frame);
+    cv::Mat container(height_, width_, flag_, frame);
     return camera_->retrieve(container);
 }

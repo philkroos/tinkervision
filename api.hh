@@ -28,6 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cameracontrol.hh"
 #include "colortracker.hh"
 
+#ifdef DEV
+#include "window.hh"
+#endif  // DEV
+
 namespace tfv {
 
 class Api {
@@ -61,20 +65,11 @@ public:
 
     TFV_Bool is_camera_available(TFV_Id camera_id);
 
-    void terminate(void);
-
-    void get_values(void) {
-        int a = 0;
-        int b = 0;
-        colortracker_.get_config(a, b);
-        std::cout << "GOT " << a << " AND " << b << std::endl;
-    }
-
 private:
     CameraControl camera_control_;
     TFVStringMap result_string_map_;
 
-    tfv::Frames frames_;
+    Frames frames_;
 
     Colortracker colortracker_;
 
@@ -82,15 +77,20 @@ private:
     void execute(void);
     bool active_ = true;
 
-    /*
-            TFV_Result component_stop (TVComponent& component, TFV_Id id);
+#ifdef DEV
 
-            template<typename... Args>
-            TFV_Result component_set(TVComponent& component,
-                                      TFV_Id id,
-                                      TFV_Id camera_id,
-                                      Args... args);
-    */
+    Window window{"API"};
+
+#endif  // DEV
+    /*
+    TFV_Result component_stop (TVComponent& component, TFV_Id id);
+
+    template<typename... Args>
+    TFV_Result component_set(TVComponent& component,
+                              TFV_Id id,
+                              TFV_Id camera_id,
+                              Args... args);
+*/
 };
 
 /*
