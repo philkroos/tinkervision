@@ -259,7 +259,7 @@ TFV_Result tfv::Api::component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
                 }
                 result = TFV_INVALID_CONFIGURATION;
                 Comp tmp(camera_id, args...);
-                if (tmp.valid()) {
+                if (tinkervision::valid<Comp>(args...)) {
                     (*component) = tmp;
 
                     components_[id]->activate();
@@ -272,7 +272,7 @@ TFV_Result tfv::Api::component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
                 std::lock_guard<std::mutex> lock(components_lock_);
                 components_[id] = new Comp(camera_id, args...);
             }
-            if (components_[id]->valid()) {
+            if (tinkervision::valid<Comp>(args...)) {
                 if (frames_.find(camera_id) == frames_.end()) {  // new cam
                     int rows, columns, channels = 0;
                     camera_control_.get_properties(camera_id, rows, columns,

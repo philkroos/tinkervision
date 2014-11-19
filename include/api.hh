@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "colortracking.hh"
 #include "component.hh"
 #include "frame.hh"
+#include "ressource.hh"
 
 #ifdef DEV
 #include "window.hh"
@@ -69,11 +70,20 @@ private:
     CameraControl camera_control_;
     TFVStringMap result_string_map_;
 
-    Frames frames_;
-
     using ComponentId = TFV_Id;
     using Components = std::map<ComponentId, tinkervision::Component*>;
     Components components_;
+/*
+    using ComponentBuffer =
+        tinkervision::SharedRessource<tinkervision::Component>;
+    ComponentBuffer component_buffer_;
+*/
+    Frames frames_;
+
+/*
+  using FrameBuffer = tinkervision::SharedRessource<tinkervision::Frame>;
+    FrameBuffer frame_buffer_;
+*/
 
     std::thread executor_;
     void execute(void);
