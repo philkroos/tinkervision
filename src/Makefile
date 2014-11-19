@@ -2,8 +2,8 @@ CCFLAGS=-Wall -Werror -g -O0 -std=c++11 -DDEV `pkg-config --cflags opencv` -I../
 ARFLAGS=-rcs
 LDFLAGS_LIB=-g -Wall -lstdc++  `pkg-config --libs opencv`
 
-OBJS=tinkervision.o api.o feature.o cameracontrol.o \
-	camera.o colortracker.o window.o
+OBJS=tinkervision.o api.o cameracontrol.o \
+	camera.o colortracking.o window.o
 LIB=tinkervision
 
 lib: $(LIB)

@@ -39,7 +39,8 @@ private:
         // 600...
         {TFV_UNCONFIGURED_ID, "Error - Feature-Id not configured"},
         {TFV_FEATURE_CONFIGURATION_FAILED,
-         "Error - Configuration of feature failed"}};
+         "Error - Configuration of feature failed"},
+        {TFV_INVALID_ID, "Error - ID is invalid"}};
 
 public:
     static constexpr TFV_String UNKNOWN_CODE{"Unknown result code"};

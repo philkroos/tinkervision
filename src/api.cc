@@ -22,20 +22,36 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <iostream>
 #include <thread>
 #include <future>
+#include <typeinfo>
 
 #ifdef DEV
 #include <opencv2/opencv.hpp>
 #endif  // DEV
 
 #include "api.hh"
+#include "colortracking.hh"
 
 tfv::Api::Api(void) : camera_control_{TFV_MAX_USERS_PER_CAM} { (void)start(); }
 
 tfv::Api::~Api(void) {
 
-    for (auto& frame : frames_) {
-        if (frame.second) {
-            delete frame.second;
+    {
+        std::lock_guard<std::mutex> lock(frame_lock_);
+
+        for (auto& frame : frames_) {
+            if (frame.second) {
+                delete frame.second;
+            }
+        }
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(components_lock_);
+
+        for (auto& component : components_) {
+            if (component.second) {
+                delete component.second;
+            }
         }
     }
 
@@ -59,12 +75,18 @@ bool tfv::Api::stop(void) {
 
 void tfv::Api::execute(void) {
     while (active_) {
-        if (colortracker_.active()) {
-            // refresh frames
+        // if (colortracker_.active()) {
+        // refresh frames
+        //        std::cout << "For " << frames_.size() << " frames" <<
+        // std::endl;
+        {
+            std::lock_guard<std::mutex> lock(frame_lock_);
             for (auto& frame : frames_) {
 #ifdef DEV
                 auto grabbed =
                     camera_control_.get_frame(frame.first, frame.second->data);
+                // std::cout << "Grabbed frame from cam " << frame.first <<
+                // std::endl;
                 if (grabbed and frame.first == 0) {  // show cam0
                     window.update(frame.second->data, frame.second->rows,
                                   frame.second->columns);
@@ -74,10 +96,26 @@ void tfv::Api::execute(void) {
                                                 frame.second->data);
 #endif
             }
-            colortracker_.execute(frames_);
-        } else {
-            // no work currently, wait a sec
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+            {
+                // Todo: make this lock specific; i.e. add a
+                // smart-pointer-like component-wrapper providing locking
+                std::lock_guard<std::mutex> lock(components_lock_);
+                for (auto& component : components_) {
+                    if (component.second->active()) {
+                        auto frame = frames_[component.second->camera_id()];
+                        // std::cout << "Passing frame " <<
+                        // component.second->camera_id()
+                        //           << std::endl;
+                        component.second->execute(frame->data, frame->rows,
+                                                  frame->columns);
+                        //        } else {
+                        // no work currently, wait a sec
+                        //            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                        //        }
+                    }
+                }
+            }
         }
     }
 }
@@ -143,40 +181,8 @@ TFV_Result tfv::Api::colortracking_set(TFV_Id id, TFV_Id camera_id,
                                        TFV_Callback callback,
                                        TFV_Context context) {
 
-    auto result = TFV_INVALID_CONFIGURATION;
-
-    if (tfv::check_configuration_settings(min_hue, max_hue, callback)) {
-
-        /*
-          result = component_set(colortracker_, id,
-          camera_id,
-                                       min_hue, max_hue,
-          callback, context);
-        */
-        result = TFV_CAMERA_ACQUISITION_FAILED;
-
-        if (camera_control_.acquire(camera_id)) {
-
-            result = TFV_FEATURE_CONFIGURATION_FAILED;
-
-            if (colortracker_.add_configuration(id, camera_id, min_hue, max_hue,
-                                                callback, context)) {
-
-                colortracker_.activate_configuration(id);
-                if (frames_.find(camera_id) == frames_.end()) {
-                    int rows, columns, channels = 0;
-                    camera_control_.get_properties(camera_id, rows, columns,
-                                                   channels);
-                    frames_[camera_id] =
-                        new Frame(camera_id, rows, columns, channels);
-                }
-                result = TFV_OK;
-            } else {
-                camera_control_.safe_release(camera_id);
-            }
-        }
-    }
-    return result;
+    return component_set<tinkervision::Colortracking>(
+        id, camera_id, min_hue, max_hue, callback, context);
 }
 
 TFV_Result tfv::Api::colortracking_get(TFV_Id id, TFV_Id& camera_id,
@@ -185,58 +191,24 @@ TFV_Result tfv::Api::colortracking_get(TFV_Id id, TFV_Id& camera_id,
 
     auto result = TFV_UNCONFIGURED_ID;
 
-    auto configuration = colortracker_.get_configuration(id);
-    if (configuration) {
-        camera_id = configuration->camera_id;
-        min_hue = configuration->min_hue;
-        max_hue = configuration->max_hue;
+    tinkervision::Colortracking* ct = nullptr;
+    result = component_get<tinkervision::Colortracking>(id, &ct);
 
-        result = TFV_OK;
+    if (ct) {
+        camera_id = ct->camera_id();
+        min_hue = ct->min_hue();
+        max_hue = ct->max_hue();
     }
 
     return result;
 }
 
 TFV_Result tfv::Api::colortracking_stop(TFV_Id id) {
-    //    return component_stop(colortracker_, id);
-    auto result = TFV_UNCONFIGURED_ID;
-
-    auto configuration = colortracker_.get_configuration(id);
-    if (configuration) {
-
-        auto camera_id = configuration->camera_id;
-        if (colortracker_.deactivate_configuration(id)) {
-
-            auto users = camera_control_.safe_release(camera_id);
-            if (not users) {
-                if (frames_.find(camera_id) != frames_.end()) {
-                    delete frames_[camera_id];
-                    frames_.erase(camera_id);
-                }
-            }
-            result = TFV_OK;
-        }
-    }
-    return result;
+    return component_stop<tinkervision::Colortracking>(id);
 }
 
 TFV_Result tfv::Api::colortracking_start(TFV_Id id) {
-    auto result = TFV_UNCONFIGURED_ID;
-
-    auto configuration = colortracker_.get_configuration(id);
-    if (configuration) {
-        result = TFV_CAMERA_ACQUISITION_FAILED;
-
-        if (camera_control_.acquire(configuration->camera_id)) {
-
-            // already checked with get_configuration
-            (void)colortracker_.activate_configuration(id);
-            result = TFV_OK;
-        } else {
-            camera_control_.safe_release(configuration->camera_id);
-        }
-    }
-    return result;
+    return component_start<tinkervision::Colortracking>(id);
 }
 
 TFV_Result tfv::Api::is_camera_available(TFV_Id camera_id) {
@@ -248,63 +220,149 @@ TFV_Result tfv::Api::is_camera_available(TFV_Id camera_id) {
     return result;
 }
 
-/*
-TFV_Result tfv::Api::component_start (TVComponent& component, TFV_Id id) {
-    auto result = TFV_UNCONFIGURED_ID;
-
-    auto configuration = component.get_configuration(id);
-    if (configuration) {
-        result = TFV_CAMERA_ACQUISITION_FAILED;
-
-        if (camera_control_.acquire(configuration->camera_id)) {
-
-            // already checked with get_configuration
-            (void)component.activate_configuration(id);
-            result = TFV_OK;
-        }
-        else {
-            camera_control_.safe_release(configuration->camera_id);
-        }
-    }
-    return result;
-}
-
-template<typename... Args>
-TFV_Result tfv::Api::component_set(TVComponent& component,
-                                          TFV_Id id,
-                                          TFV_Id camera_id,
-                                          Args... args) {
+template <typename Comp, typename... Args>
+TFV_Result tfv::Api::component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
     auto result = TFV_CAMERA_ACQUISITION_FAILED;
 
+    tinkervision::Component* component = nullptr;
+
+    // Todo: add configuration first, see _start
     if (camera_control_.acquire(camera_id)) {
 
         result = TFV_FEATURE_CONFIGURATION_FAILED;
 
-        if (component.add_configuration(id, camera_id, args)) {
+        auto it = components_.find(id);
+        if (it != components_.end()) {  // reconfiguration
 
-            component.activate_configuration(id);
-            result = TFV_OK;
-        }
-        else {
-            camera_control_.safe_release(camera_id);
+            auto cam_users = camera_control_.safe_release(camera_id);
+
+            component = it->second;
+            if (check_type<Comp>(component)) {
+                if (component->camera_id() != camera_id) {  // other cam
+                    if (not cam_users) {  // camera no longer used. Todo:
+                                          // Schedule
+                                          // this
+                        if (frames_.find(camera_id) != frames_.end()) {
+                            std::lock_guard<std::mutex> lock(frame_lock_);
+                            delete frames_[camera_id];
+                            frames_.erase(camera_id);
+                        }
+                    }
+                    int rows, columns, channels = 0;
+                    camera_control_.get_properties(camera_id, rows, columns,
+                                                   channels);
+                    {
+                        std::lock_guard<std::mutex> lock(frame_lock_);
+                        frames_[camera_id] =
+                            new Frame(camera_id, rows, columns, channels);
+                    }
+                }
+                result = TFV_INVALID_CONFIGURATION;
+                Comp tmp(camera_id, args...);
+                if (tmp.valid()) {
+                    (*component) = tmp;
+
+                    components_[id]->activate();
+                    result = TFV_OK;
+                }
+            }
+        } else {  // new configuration
+            result = TFV_INVALID_CONFIGURATION;
+            {
+                std::lock_guard<std::mutex> lock(components_lock_);
+                components_[id] = new Comp(camera_id, args...);
+            }
+            if (components_[id]->valid()) {
+                if (frames_.find(camera_id) == frames_.end()) {  // new cam
+                    int rows, columns, channels = 0;
+                    camera_control_.get_properties(camera_id, rows, columns,
+                                                   channels);
+                    {
+                        std::lock_guard<std::mutex> lock(frame_lock_);
+                        frames_[camera_id] =
+                            new Frame(camera_id, rows, columns, channels);
+                    }
+                }
+                components_[id]->activate();
+                result = TFV_OK;
+            } else {
+                {
+                    std::lock_guard<std::mutex> lock(components_lock_);
+                    delete components_[id];
+                    components_.erase(id);  // Todo: only schedule deletion here
+                    camera_control_.safe_release(camera_id);
+                }
+            }
         }
     }
+
     return result;
 }
 
-TFV_Result tfv::Api::component_stop (TVComponent& component, TFV_Id id) {
+template <typename Component>
+TFV_Result tfv::Api::component_get(TFV_Id id, Component** component) const {
+    auto result = TFV_UNCONFIGURED_ID;
+    auto it = components_.find(id);
+
+    if (it != components_.end()) {
+        result = TFV_INVALID_ID;
+
+        if (check_type<Component>(it->second)) {
+            result = TFV_OK;
+            *component = static_cast<Component*>(it->second);
+        }
+    }
+
+    return result;
+}
+
+template <typename Component>
+TFV_Result tfv::Api::component_start(TFV_Id id) {
     auto result = TFV_UNCONFIGURED_ID;
 
-    auto configuration = component.get_configuration(id);
-    if (configuration) {
+    auto it = components_.find(id);
+    if (it != components_.end()) {
 
-        auto camera_id = configuration->camera_id;
-        if (component.deactivate_configuration(id)) {
+        auto component = it->second;
+        result = TFV_INVALID_ID;
 
-            camera_control_.safe_release(camera_id);
-            result = TFV_OK;
+        if (check_type<Component>(component)) {
+            result = TFV_CAMERA_ACQUISITION_FAILED;
+
+            if (camera_control_.acquire(component->camera_id())) {
+
+                component->activate();
+                result = TFV_OK;
+
+            } else {
+                // Todo: if acquiring fails, there shouldn't be a need for
+                // explicit release
+                camera_control_.safe_release(component->camera_id());
+            }
         }
     }
     return result;
 }
-*/
+
+template <typename Component>
+TFV_Result tfv::Api::component_stop(TFV_Id id) {
+    auto result = TFV_UNCONFIGURED_ID;
+
+    auto it = components_.find(id);
+    if (it != components_.end()) {
+
+        auto const component = it->second;
+        auto const camera_id = component->camera_id();
+        component->deactivate();
+        auto users = camera_control_.safe_release(camera_id);
+        if (not users) {
+            if (frames_.find(camera_id) != frames_.end()) {
+                std::lock_guard<std::mutex> lock(frame_lock_);
+                delete frames_[camera_id];
+                frames_.erase(camera_id);
+            }
+        }
+        result = TFV_OK;
+    }
+    return result;
+}

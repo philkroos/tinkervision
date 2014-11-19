@@ -1,5 +1,5 @@
-CFLAGS=-Wall -Werror -g -O0 -ansi -pedantic -std=c99 -I../include
-LDFLAGS=-g -Wall -ltfv -lstdc++ `pkg-config --libs opencv` -L../bin
+CFLAGS=-Wall -Werror -g -O0 -ansi -pedantic -DDEV -std=c99 -I../include
+LDFLAGS=-g -Wall -DDEV -ltfv -lstdc++ `pkg-config --libs opencv` -L../bin
 
 OBJS=tinkervision_test.o
 TEST=tinkervision_test.out

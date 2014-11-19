@@ -23,10 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "strings.hh"
 #include "tinkervision_defines.h"
-#include "feature.hh"
-#include "tv_component.hh"
 #include "cameracontrol.hh"
-#include "colortracker.hh"
+#include "colortracking.hh"
+#include "component.hh"
+#include "frame.hh"
 
 #ifdef DEV
 #include "window.hh"
@@ -38,7 +38,7 @@ class Api {
 private:
     Api(void);
     friend tfv::Api& get_api(void);
-    bool active_components(void) { return active_ and colortracker_.active(); }
+    bool active_components(void) { return active_; }
 
 public:
     Api(Api const&) = delete;
@@ -71,26 +71,38 @@ private:
 
     Frames frames_;
 
-    Colortracker colortracker_;
+    using ComponentId = TFV_Id;
+    using Components = std::map<ComponentId, tinkervision::Component*>;
+    Components components_;
 
     std::thread executor_;
     void execute(void);
     bool active_ = true;
 
+    std::mutex frame_lock_;
+    std::mutex components_lock_;
 #ifdef DEV
 
     Window window{"API"};
 
 #endif  // DEV
-    /*
-    TFV_Result component_stop (TVComponent& component, TFV_Id id);
 
-    template<typename... Args>
-    TFV_Result component_set(TVComponent& component,
-                              TFV_Id id,
-                              TFV_Id camera_id,
-                              Args... args);
-*/
+    template <typename Component>
+    TFV_Result component_start(TFV_Id id);
+
+    template <typename Component>
+    TFV_Result component_stop(TFV_Id id);
+
+    template <typename Component, typename... Args>
+    TFV_Result component_set(TFV_Id id, TFV_Id camera_id, Args... args);
+
+    template <typename Component>
+    TFV_Result component_get(TFV_Id id, Component** component) const;
+
+    template <typename C>
+    bool check_type(tinkervision::Component* component) const {
+        return typeid(*component) == typeid(C);
+    }
 };
 
 /*

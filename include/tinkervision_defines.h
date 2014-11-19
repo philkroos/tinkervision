@@ -19,10 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <stdint.h>
 
-#ifdef DEV
-#include <iostream>
-#endif
-
 typedef int TFV_Bool;
 typedef void TFV_Void;
 typedef uint8_t TFV_Byte;
@@ -61,3 +57,4 @@ typedef void (*TFV_Callback)(TFV_Id, TFV_Int*, TFV_Int*, TFV_Int*, TFV_Int*,
 // Configuration errors: 600...
 #define TFV_UNCONFIGURED_ID 600
 #define TFV_FEATURE_CONFIGURATION_FAILED 601
+#define TFV_INVALID_ID 602
