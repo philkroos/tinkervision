@@ -102,8 +102,8 @@ void tfv::Api::execute(void) {
                 // smart-pointer-like component-wrapper providing locking
                 std::lock_guard<std::mutex> lock(components_lock_);
                 for (auto& component : components_) {
-                    if (component.second->active()) {
-                        auto frame = frames_[component.second->camera_id()];
+                    if (component.second->active) {
+                        auto frame = frames_[component.second->camera_id];
                         // std::cout << "Passing frame " <<
                         // component.second->camera_id()
                         //           << std::endl;
@@ -195,9 +195,9 @@ TFV_Result tfv::Api::colortracking_get(TFV_Id id, TFV_Id& camera_id,
     result = component_get<tinkervision::Colortracking>(id, &ct);
 
     if (ct) {
-        camera_id = ct->camera_id();
-        min_hue = ct->min_hue();
-        max_hue = ct->max_hue();
+        camera_id = ct->camera_id;
+        min_hue = ct->min_hue;
+        max_hue = ct->max_hue;
     }
 
     return result;
@@ -238,7 +238,7 @@ TFV_Result tfv::Api::component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
 
             component = it->second;
             if (check_type<Comp>(component)) {
-                if (component->camera_id() != camera_id) {  // other cam
+                if (component->camera_id != camera_id) {  // other cam
                     if (not cam_users) {  // camera no longer used. Todo:
                                           // Schedule
                                           // this
@@ -263,7 +263,7 @@ TFV_Result tfv::Api::component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
                     tinkervision::set<Comp>(static_cast<Comp*>(component),
                                             args...);
 
-                    components_[id]->activate();
+                    components_[id]->active = true;
                     result = TFV_OK;
                 }
             }
@@ -284,7 +284,7 @@ TFV_Result tfv::Api::component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
                             new Frame(camera_id, rows, columns, channels);
                     }
                 }
-                components_[id]->activate();
+                components_[id]->active = true;
                 result = TFV_OK;
             } else {
                 {
@@ -330,15 +330,15 @@ TFV_Result tfv::Api::component_start(TFV_Id id) {
         if (check_type<Component>(component)) {
             result = TFV_CAMERA_ACQUISITION_FAILED;
 
-            if (camera_control_.acquire(component->camera_id())) {
+            if (camera_control_.acquire(component->camera_id)) {
 
-                component->activate();
+                component->active = true;
                 result = TFV_OK;
 
             } else {
                 // Todo: if acquiring fails, there shouldn't be a need for
                 // explicit release
-                camera_control_.safe_release(component->camera_id());
+                camera_control_.safe_release(component->camera_id);
             }
         }
     }
@@ -353,8 +353,8 @@ TFV_Result tfv::Api::component_stop(TFV_Id id) {
     if (it != components_.end()) {
 
         auto const component = it->second;
-        auto const camera_id = component->camera_id();
-        component->deactivate();
+        auto const camera_id = component->camera_id;
+        component->active = false;
         auto users = camera_control_.safe_release(camera_id);
         if (not users) {
             if (frames_.find(camera_id) != frames_.end()) {

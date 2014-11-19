@@ -33,8 +33,8 @@ void tinkervision::set<tinkervision::Colortracking>(
 #ifdef DEV
     std::cout << "Colortracking::set" << std::endl;
 #endif  // DEV
-    ct->min_hue_ = min_hue;
-    ct->max_hue_ = max_hue;
-    ct->callback_ = callback;
-    ct->context_ = context;
+    ct->min_hue = min_hue;
+    ct->max_hue = max_hue;
+    ct->callback = callback;
+    ct->context = context;
 }

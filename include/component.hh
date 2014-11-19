@@ -24,25 +24,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tinkervision {
 
-class Component {
-private:
-    TFV_Id camera_id_;
-    bool active_;
+struct Component {
+    TFV_Id camera_id;
+    bool active;
 
-public:
-    Component(TFV_Id camera_id) : camera_id_(camera_id), active_(false) {}
+    Component(TFV_Id camera_id) : camera_id(camera_id), active(false) {}
     virtual ~Component(void) = default;
 
     Component(Component const& other) = delete;
     Component(Component&& other) = delete;
     Component& operator=(Component const& rhs) = delete;
     Component& operator=(Component&& rhs) = delete;
-
-    bool active(void) const { return active_; }
-    TFV_Id camera_id(void) const { return camera_id_; }
-
-    void activate(void) { active_ = true; }
-    void deactivate(void) { active_ = false; }
 
     virtual void execute(TFV_ImageData* data, TFV_Int rows,
                          TFV_Int columns) = 0;
