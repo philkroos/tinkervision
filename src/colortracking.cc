@@ -24,3 +24,17 @@ bool tinkervision::valid<tinkervision::Colortracking>(TFV_Byte& min_hue,
 #endif  // DEV
     return min_hue < max_hue and callback;
 }
+
+template <>
+void tinkervision::set<tinkervision::Colortracking>(
+    tinkervision::Colortracking* ct, TFV_Byte min_hue, TFV_Byte max_hue,
+    TFV_Callback callback, TFV_Context context) {
+
+#ifdef DEV
+    std::cout << "Colortracking::set" << std::endl;
+#endif  // DEV
+    ct->min_hue_ = min_hue;
+    ct->max_hue_ = max_hue;
+    ct->callback_ = callback;
+    ct->context_ = context;
+}

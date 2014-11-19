@@ -258,9 +258,10 @@ TFV_Result tfv::Api::component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
                     }
                 }
                 result = TFV_INVALID_CONFIGURATION;
-                Comp tmp(camera_id, args...);
+
                 if (tinkervision::valid<Comp>(args...)) {
-                    (*component) = tmp;
+                    tinkervision::set<Comp>(static_cast<Comp*>(component),
+                                            args...);
 
                     components_[id]->activate();
                     result = TFV_OK;

@@ -33,10 +33,10 @@ public:
     Component(TFV_Id camera_id) : camera_id_(camera_id), active_(false) {}
     virtual ~Component(void) = default;
 
-    Component(Component const& other) = default;
-    Component(Component&& other) = default;
-    Component& operator=(Component const& rhs) = default;
-    Component& operator=(Component&& rhs) = default;
+    Component(Component const& other) = delete;
+    Component(Component&& other) = delete;
+    Component& operator=(Component const& rhs) = delete;
+    Component& operator=(Component&& rhs) = delete;
 
     bool active(void) const { return active_; }
     TFV_Id camera_id(void) const { return camera_id_; }
@@ -52,5 +52,8 @@ template <typename T, typename... Args>
 bool valid(Args&... args) {
     return false;
 }
+
+template <typename T, typename... Args>
+void set(T* component, Args... args) {}
 };
 #endif /* COMPONENT_H */

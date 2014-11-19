@@ -24,13 +24,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tinkervision {
 class Colortracking : public Component {
-private:
+public:
     TFV_Byte min_hue_;
     TFV_Byte max_hue_;
     TFV_Callback callback_;
     TFV_Context context_;
 
-public:
     Colortracking(TFV_Id camera_id, TFV_Byte min_hue, TFV_Byte max_hue,
                   TFV_Callback callback, TFV_Context context)
         : Component(camera_id),
@@ -40,9 +39,9 @@ public:
           context_(context) {}
 
     virtual ~Colortracking(void) = default;
-    Colortracking(Colortracking const& other) = default;
+    Colortracking(Colortracking const& other) = delete;
     Colortracking(Colortracking&& other) = delete;
-    Colortracking& operator=(Colortracking const& rhs) = default;
+    Colortracking& operator=(Colortracking const& rhs) = delete;
     Colortracking& operator=(Colortracking&& rhs) = delete;
 
     TFV_Byte min_hue(void) const { return min_hue_; }
@@ -57,6 +56,9 @@ public:
 template <>
 bool valid<Colortracking>(TFV_Byte& min_hue, TFV_Byte& max_hue,
                           TFV_Callback& callback, TFV_Context& context);
+template <>
+void set<Colortracking>(Colortracking* ct, TFV_Byte min_hue, TFV_Byte max_hue,
+                        TFV_Callback callback, TFV_Context context);
 };
 
 #endif /* COLORTRACKING_H */
