@@ -143,3 +143,12 @@ bool tfv::CameraControl::get_frame(TFV_Id camera_id, TFV_ImageData* frame) {
     }
     return camera->second->get_frame(frame);
 }
+
+TFV_Byte tfv::CameraControl::get_users(TFV_Id camera_id) {
+    auto users = 0;
+    auto entry = camera_user_count_.find(camera_id);
+    if (entry != camera_user_count_.end()) {
+        users = entry->second;
+    }
+    return users;
+}

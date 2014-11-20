@@ -50,6 +50,8 @@ public:
                         int& channels);
     bool get_frame(TFV_Id camera_id, TFV_ImageData* frame);
 
+    TFV_Byte get_users(TFV_Id camera_id);
+
 private:
     using CamId = TFV_Id;
     using CamMap = std::map<CamId, Camera*>;

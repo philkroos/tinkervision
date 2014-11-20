@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
     result = colortracking_start(id2, cam2, min_hue, max_hue, tfcv_callback_id0,
                                  NULL);
 
-    printf("+ %d: Re-Configured feature id %d: Code %d (%s)\n", test++, id,
+    printf("+ %d: Configured feature id %d: Code %d (%s)\n", test++, id2,
            result, result_string(result));
 
     sleep(1);

@@ -190,17 +190,18 @@ TFV_Result tfv::Api::component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
         result = TFV_FEATURE_CONFIGURATION_FAILED;
 
         if (components_.managed(id)) {
-            auto cam_users = camera_control_.safe_release(camera_id);
+            auto cam_users = camera_control_.get_users(camera_id);
 
             component = components_[id];
             if (check_type<Comp>(component)) {
-                if (component->camera_id != camera_id) {  // other cam
-                    if (not cam_users) {  // camera no longer used. Todo:
+                if (component->camera_id != camera_id) {  // other cam requested
+                    if (cam_users == 1) {  // camera no longer used. Todo:
                                           // Schedule
                                           // this
                         if (frames_.managed(camera_id)) {
                             frames_.remove(camera_id, frames_[camera_id]);
                         }
+                        camera_control_.release(camera_id);
                     }
                     int rows, columns, channels = 0;
                     camera_control_.get_properties(camera_id, rows, columns,
@@ -293,12 +294,14 @@ TFV_Result tfv::Api::component_stop(TFV_Id id) {
         auto const component = components_[id];
         auto const camera_id = component->camera_id;
         component->active = false;
-        auto users = camera_control_.safe_release(camera_id);
-        if (not users) {
+        auto users = camera_control_.get_users(camera_id);
+        if (users == 1) {
             if (frames_.managed(camera_id)) {
                 frames_.remove(camera_id, frames_[camera_id]);
             }
+            camera_control_.release(camera_id);
         }
+
         result = TFV_OK;
     }
     return result;
