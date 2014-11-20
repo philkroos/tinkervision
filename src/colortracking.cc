@@ -1,3 +1,22 @@
+/*
+Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
+Copyright (C) 2014 philipp.kroos@fh-bielefeld.de
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
 #include "colortracking.hh"
 
 #ifdef DEV
@@ -5,23 +24,13 @@
 #endif
 
 void tinkervision::Colortracking::execute(TFV_ImageData* data, TFV_Int rows,
-                                          TFV_Int columns) {
-    // #ifdef DEV
-    //     std::cout << "Executing colortracking with cam,min,max: " <<
-    // camera_id()
-    //               << "," << std::to_string(min_hue_) << ","
-    //               << std::to_string(max_hue_) << std::endl;
-    // #endif
-}
+                                          TFV_Int columns) {}
 
 template <>
 bool tinkervision::valid<tinkervision::Colortracking>(TFV_Byte& min_hue,
                                                       TFV_Byte& max_hue,
                                                       TFV_Callback& callback,
                                                       TFV_Context& context) {
-#ifdef DEV
-    std::cout << "Colortracking::valid" << std::endl;
-#endif  // DEV
     return min_hue < max_hue and callback;
 }
 
@@ -30,9 +39,6 @@ void tinkervision::set<tinkervision::Colortracking>(
     tinkervision::Colortracking* ct, TFV_Byte min_hue, TFV_Byte max_hue,
     TFV_Callback callback, TFV_Context context) {
 
-#ifdef DEV
-    std::cout << "Colortracking::set" << std::endl;
-#endif  // DEV
     ct->min_hue = min_hue;
     ct->max_hue = max_hue;
     ct->callback = callback;

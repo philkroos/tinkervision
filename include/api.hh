@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include <map>
 #include <thread>
 #include <mutex>
 
@@ -27,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "colortracking.hh"
 #include "component.hh"
 #include "frame.hh"
-#include "ressource.hh"
+#include "shared_resource.hh"
 
 #ifdef DEV
 #include "window.hh"
@@ -70,20 +69,11 @@ private:
     CameraControl camera_control_;
     TFVStringMap result_string_map_;
 
-    using ComponentId = TFV_Id;
-    using Components = std::map<ComponentId, tinkervision::Component*>;
+    using Components = tfv::SharedResource<tinkervision::Component>;
     Components components_;
-/*
-    using ComponentBuffer =
-        tinkervision::SharedRessource<tinkervision::Component>;
-    ComponentBuffer component_buffer_;
-*/
-    Frames frames_;
 
-/*
-  using FrameBuffer = tinkervision::SharedRessource<tinkervision::Frame>;
-    FrameBuffer frame_buffer_;
-*/
+    using Frames = tfv::SharedResource<tfv::Frame>;
+    Frames frames_;
 
     std::thread executor_;
     void execute(void);
@@ -107,10 +97,10 @@ private:
     TFV_Result component_set(TFV_Id id, TFV_Id camera_id, Args... args);
 
     template <typename Component>
-    TFV_Result component_get(TFV_Id id, Component** component) const;
+    TFV_Result component_get(TFV_Id id, Component const** component) const;
 
     template <typename C>
-    bool check_type(tinkervision::Component* component) const {
+    bool check_type(tinkervision::Component const* component) const {
         return typeid(*component) == typeid(C);
     }
 };

@@ -135,8 +135,8 @@ int main(int argc, char* argv[]) {
 
     // Test 11: Stopping invalid feature
     result = colortracking_stop(invalid_id);
-    printf("# %d: Stopped invalid feature %d: Code %d (%s)\n", test++, id,
-           result, result_string(result));
+    printf("# %d: Stopped invalid feature %d: Code %d (%s)\n", test++,
+           invalid_id, result, result_string(result));
 
     // Test 12: 5 users per cam are configured
     cam = 0;
@@ -150,6 +150,7 @@ int main(int argc, char* argv[]) {
                result, result_string(result));
     }
 
+    sleep(1);
     // Stopping all is preferred; else libv4l2 might throw errors
 
     while (id) {

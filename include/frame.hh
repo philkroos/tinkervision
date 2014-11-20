@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define FRAME_H
 
 #include <unordered_map>
+#include <iostream>
 
 #include "tinkervision_defines.h"
 
@@ -35,7 +36,9 @@ typedef struct Frame_ {
         : id(id),
           rows(rows),
           columns(columns),
-          data(new TFV_ImageData[rows * columns * channels]) {}
+          data(new TFV_ImageData[rows * columns * channels]) {
+        std::cout << "Allocating frame " << id << std::endl;
+    }
 
     ~Frame_(void) {
         if (data) {
