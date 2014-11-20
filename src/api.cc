@@ -55,8 +55,8 @@ void tfv::Api::execute(void) {
             auto frame = frames_[id];
 #ifdef DEV
             auto grabbed = camera_control_.get_frame(id, frame->data);
-            if (grabbed and id == 0) {  // show cam0
-                window.update(frame->data, frame->rows, frame->columns);
+            if (grabbed) {
+                window.update(id, frame->data, frame->rows, frame->columns);
             }
 #else
             (void)camera_control_.get_frame(id, frame->data);

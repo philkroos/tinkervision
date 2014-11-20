@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifdef DEV
 
 #include <iostream>
+#include <map>
 
 #include <opencv2/opencv.hpp>
 
@@ -31,14 +32,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 namespace tfv {
 class Window {
 private:
-    std::string name;
+    std::map<TFV_Id, std::string> windows_;
+    std::string prefix = "Camera ";
 
 public:
-    explicit Window(std::string name) : name(name) { cv::namedWindow(name); }
-
-    void update(TFV_ImageData* data, int rows, int columns) {
+    void update(TFV_Id id, TFV_ImageData* data, int rows, int columns) {
+        if (windows_.find(id) == windows_.end()) {
+            windows_[id] = prefix + std::to_string(id) + " ";
+            cv::namedWindow(windows_[id]);
+        }
         cv::Mat frame(rows, columns, CV_8UC3, data);
-        cv::imshow(name, frame);
+        cv::imshow(windows_[id], frame);
         cv::waitKey(100);  // skip time to give window-update thread a chance
     }
 };

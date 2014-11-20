@@ -106,7 +106,18 @@ int main(int argc, char* argv[]) {
 
     sleep(1);
 
-    // Test 8: request for configuration details
+    // Test 8: Second camera
+    int id2 = 40;
+    int cam2 = 1;
+    result = colortracking_start(id2, cam2, min_hue, max_hue, tfcv_callback_id0,
+                                 NULL);
+
+    printf("+ %d: Re-Configured feature id %d: Code %d (%s)\n", test++, id,
+           result, result_string(result));
+
+    sleep(1);
+
+    // Test 9: request for configuration details
     cam = -1;
     min_hue = -1;
     min_hue = -1;
@@ -116,7 +127,7 @@ int main(int argc, char* argv[]) {
         "Cam-Id: %d, min-hue: %d, max-hue: %d\n",
         test++, id, result, result_string(result), cam, min_hue, max_hue);
 
-    // Test 9: request for details of invalid feature
+    // Test 10: request for details of invalid feature
     cam = -1;
     min_hue = -1;
     min_hue = -1;
@@ -127,18 +138,18 @@ int main(int argc, char* argv[]) {
         test++, invalid_id, result, result_string(result), cam, min_hue,
         max_hue);
 
-    // Test 10: Camera should still be available
+    // Test 11: Camera should still be available
     cam = 0;
     result = camera_available(cam);
     printf("+ %d: Requested camera %d, code %d (%s)\n", test++, cam, result,
            result_string(result));
 
-    // Test 11: Stopping invalid feature
+    // Test 12: Stopping invalid feature
     result = colortracking_stop(invalid_id);
     printf("# %d: Stopped invalid feature %d: Code %d (%s)\n", test++,
            invalid_id, result, result_string(result));
 
-    // Test 12: 5 users per cam are configured
+    // Test 13: 5 users per cam are configured
     cam = 0;
     min_hue = 0;
     while (id < 8) {
@@ -162,6 +173,13 @@ int main(int argc, char* argv[]) {
     printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id, result,
            result_string(result));
 
+    sleep(1);
+
+    result = colortracking_stop(id2);
+    printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id2, result,
+           result_string(result));
+
+    // Stopping manually is not necessary
     stop_api();
 
     sleep(10);

@@ -83,7 +83,7 @@ private:
     std::mutex components_lock_;
 #ifdef DEV
 
-    Window window{"API"};
+    Window window;
 
 #endif  // DEV
 
