@@ -80,7 +80,7 @@ protected:
 
 private:
     cv::VideoCapture* camera_ = nullptr;
-    TFV_Int const latency_ = 10;  // delay between grabbing of frames
-    TFV_Int flag_ = CV_8UC3;      // default: color
+    TFV_Int static const latency_ = 10;  // delay between grabbing of frames
+    TFV_Int flag_ = CV_8UC3;             // default: color
 };
 };

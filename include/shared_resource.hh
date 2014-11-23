@@ -47,8 +47,11 @@ public:
         allocated_[id] = new T(args...);
     }
 
-    void remove(TFV_Id id, Resource* resource) {
+    // Unchecked access to managed_[id], use with care!
+    void remove(TFV_Id id) {
+        Resource* resource = nullptr;
         {
+            resource = managed_[id];
             std::lock_guard<std::mutex> lock(managed_mutex_);
             managed_.erase(id);
         }

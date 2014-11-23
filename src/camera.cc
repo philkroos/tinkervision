@@ -47,8 +47,10 @@ bool tfv::Camera::get_frame(TFV_ImageData* frame) {
         return false;
     }
 
-    std::lock_guard<std::mutex> lock(mutex_);
-    return retrieve_frame(frame);
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return retrieve_frame(frame);
+    }
 }
 
 void tfv::Camera::stop(void) {
@@ -60,7 +62,8 @@ void tfv::Camera::stop(void) {
 }
 
 tfv::CameraUsbOpenCv::CameraUsbOpenCv(TFV_Id camera_id, TFV_Byte channels)
-    : Camera(camera_id, latency_, static_cast<int>(channels)) {
+    : Camera(camera_id, tfv::CameraUsbOpenCv::latency_,
+             static_cast<int>(channels)) {
 
     if (channels == 1) {
         flag_ = CV_8UC1;

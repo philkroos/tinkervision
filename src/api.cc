@@ -180,64 +180,69 @@ TFV_Result tfv::Api::is_camera_available(TFV_Id camera_id) {
 
 template <typename Comp, typename... Args>
 TFV_Result tfv::Api::component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
-    auto result = TFV_CAMERA_ACQUISITION_FAILED;
 
     tinkervision::Component* component = nullptr;
+    auto result = TFV_INVALID_CONFIGURATION;
 
-    // Todo: add configuration first, see _start
-    if (camera_control_.acquire(camera_id)) {
-
-        result = TFV_FEATURE_CONFIGURATION_FAILED;
-
-        if (components_.managed(id)) {
-            auto cam_users = camera_control_.get_users(camera_id);
+    if (tinkervision::valid<Comp>(args...)) {
+        if (components_.managed(id)) {  // reconfiguring requested
 
             component = components_[id];
             if (check_type<Comp>(component)) {
-                if (component->camera_id != camera_id) {  // other cam requested
-                    if (cam_users == 1) {  // camera no longer used. Todo:
-                                          // Schedule
-                                          // this
-                        if (frames_.managed(camera_id)) {
-                            frames_.remove(camera_id, frames_[camera_id]);
-                        }
-                        camera_control_.release(camera_id);
-                    }
-                    int rows, columns, channels = 0;
-                    camera_control_.get_properties(camera_id, rows, columns,
-                                                   channels);
-                    frames_.allocate(camera_id, camera_id, rows, columns,
-                                     channels);
-                }
-                result = TFV_INVALID_CONFIGURATION;
 
-                if (tinkervision::valid<Comp>(args...)) {
-                    tinkervision::set<Comp>(static_cast<Comp*>(component),
-                                            args...);
+                result = component_reset(component, camera_id, args...);
+            } else {
 
-                    result = TFV_OK;
-                }
+                result = TFV_INVALID_ID;
             }
-        } else {  // new configuration
-            result = TFV_INVALID_CONFIGURATION;
-            if (tinkervision::valid<Comp>(args...)) {
-                if (not frames_.managed(camera_id)) {  // new cam
-                    int rows, columns, channels = 0;
-                    camera_control_.get_properties(camera_id, rows, columns,
-                                                   channels);
-                    frames_.allocate(camera_id, camera_id, rows, columns,
-                                     channels);
-                }
+        } else {
+
+            result = TFV_CAMERA_ACQUISITION_FAILED;
+            if (camera_control_.acquire(camera_id)) {
+
+                allocate_frame(camera_id);
                 components_.allocate<Comp>(id, camera_id, args...);
                 result = TFV_OK;
-            } else {
-                components_.remove(id, components_[id]);
-                camera_control_.safe_release(camera_id);
             }
         }
     }
 
     return result;
+}
+
+template <typename Comp, typename... Args>
+TFV_Result tfv::Api::component_reset(Comp* component, TFV_Id camera_id,
+                                     Args... args) {
+    auto result = TFV_FEATURE_CONFIGURATION_FAILED;
+
+    if (component->camera_id != camera_id) {  // other cam requested
+
+        result = TFV_CAMERA_ACQUISITION_FAILED;
+        if (camera_control_.acquire(camera_id)) {
+
+            allocate_frame(camera_id);
+            if (1 == camera_control_.get_users(component->camera_id)) {
+
+                frames_.remove(component->camera_id);
+                camera_control_.release(component->camera_id);
+            }
+            tinkervision::set<Comp>(static_cast<Comp*>(component), args...);
+            result = TFV_OK;
+        }
+    } else {
+
+        tinkervision::set<Comp>(static_cast<Comp*>(component), args...);
+        result = TFV_OK;
+    }
+    return result;
+}
+
+void tfv::Api::allocate_frame(TFV_Id camera_id) {
+    if (not frames_.managed(camera_id)) {
+        int rows, columns, channels = 0;
+        camera_control_.get_properties(camera_id, rows, columns, channels);
+        frames_.allocate(camera_id, camera_id, rows, columns, channels);
+    }
 }
 
 template <typename Component>
@@ -274,11 +279,6 @@ TFV_Result tfv::Api::component_start(TFV_Id id) {
 
                 component->active = true;
                 result = TFV_OK;
-
-            } else {
-                // Todo: if acquiring fails, there shouldn't be a need for
-                // explicit release
-                camera_control_.safe_release(component->camera_id);
             }
         }
     }
@@ -295,9 +295,9 @@ TFV_Result tfv::Api::component_stop(TFV_Id id) {
         auto const camera_id = component->camera_id;
         component->active = false;
         auto users = camera_control_.get_users(camera_id);
-        if (users == 1) {
+        if (users == 1) {  // not using this camera anymore
             if (frames_.managed(camera_id)) {
-                frames_.remove(camera_id, frames_[camera_id]);
+                frames_.remove(camera_id);
             }
             camera_control_.release(camera_id);
         }

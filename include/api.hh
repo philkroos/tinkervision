@@ -58,7 +58,6 @@ public:
 
     TFV_Result colortracking_stop(TFV_Id id);
     TFV_Result colortracking_start(TFV_Id id);
-
     TFV_String result_string(TFV_Id code) const {
         return result_string_map_[code];
     }
@@ -96,6 +95,10 @@ private:
     template <typename Component, typename... Args>
     TFV_Result component_set(TFV_Id id, TFV_Id camera_id, Args... args);
 
+    template <typename Component, typename... Args>
+    TFV_Result component_reset(Component* component, TFV_Id camera_id,
+                               Args... args);
+
     template <typename Component>
     TFV_Result component_get(TFV_Id id, Component const** component) const;
 
@@ -103,6 +106,8 @@ private:
     bool check_type(tinkervision::Component const* component) const {
         return typeid(*component) == typeid(C);
     }
+
+    void allocate_frame(TFV_Id camera_id);
 };
 
 /*
@@ -132,6 +137,5 @@ private:
         }
     };
 */
-
 Api& get_api(void);
 };

@@ -47,37 +47,32 @@ bool tfv::CameraControl::acquire(TFV_Id camera_id) {
     auto result = false;
     auto camera = camera_map_.find(camera_id);
 
-    // if new cam_id, add cam_id to map but don't open it yet
-    if (camera == camera_map_.end()) {
-        // open new; currently Opencv color-Usb-cams hardcoded
-        TFV_Byte constexpr channels = 3;
-        camera_map_[camera_id] = new CameraUsbOpenCv(camera_id, channels);
-        camera = camera_map_.find(camera_id);
-    }
-
-    // only try to open cam if more users allowed for this id
     auto camera_user_count = camera_user_count_.find(camera_id);
-    if (camera_user_count != camera_user_count_.end()) {
+    if ((camera_user_count == camera_user_count_.end())or(
+            camera_user_count->second < max_users_per_cam_)) {
 
-        // Number of configurations per cam is limited
-        if (camera_user_count->second < max_users_per_cam_) {
-            if (camera->second->is_open() or camera->second->open()) {
-                camera_user_count->second++;
-                result = true;
-            }
+        if (camera == camera_map_.end()) {
+            // open new; currently Opencv color-Usb-cams hardcoded
+            TFV_Byte constexpr channels = 3;
+            camera_map_[camera_id] = new CameraUsbOpenCv(camera_id, channels);
+            camera = camera_map_.find(camera_id);
         }
-    } else if (camera->second->is_open() or camera->second->open()) {
-        camera_user_count_[camera_id] = 1;
-        result = true;
+
+        if (camera->second and(camera->second->is_open()
+                               or camera->second->open())) {
+            camera_user_count_[camera_id]++;
+            result = true;
+        }
     }
 
     // if cam cam_id is not used by now, remove it from the map
-    if (camera_user_count_.find(camera_id) == camera_user_count_.end()) {
-        if (camera_map_[camera_id]) {
-            camera_map_[camera_id]->stop();
-            delete camera_map_[camera_id];
-        }
+    if ((camera_user_count_.find(camera_id) == camera_user_count_.end())and(
+            camera_map_.find(camera_id) != camera_map_.end())) {
+
+        camera_map_[camera_id]->stop();
+        delete camera_map_[camera_id];
         camera_map_.erase(camera_id);
+        std::cout << "Camera deleted" << std::endl;
     }
 
     return result;

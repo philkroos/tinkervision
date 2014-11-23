@@ -106,13 +106,14 @@ int main(int argc, char* argv[]) {
 
     sleep(1);
 
-    // Test 8: Second camera
+    // Test 8: Second camera - ok if attached (and no usb-bus error...),
+    // highgui-error if not attached.
     int id2 = 40;
     int cam2 = 1;
     result = colortracking_start(id2, cam2, min_hue, max_hue, tfcv_callback_id0,
                                  NULL);
 
-    printf("+ %d: Configured feature id %d: Code %d (%s)\n", test++, id2,
+    printf("- %d: Configured feature id %d: Code %d (%s)\n", test++, id2,
            result, result_string(result));
 
     sleep(1);
