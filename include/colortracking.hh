@@ -20,6 +20,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef COLORTRACKING_H
 #define COLORTRACKING_H
 
+#ifdef DEV
+#include <iostream>
+#endif  // DEV
+
 #include "component.hh"
 
 namespace tfv {
@@ -29,13 +33,17 @@ struct Colortracking : public Component {
     TFV_Callback callback;
     TFV_Context context;
 
-    Colortracking(TFV_Id component_id, TFV_Id camera_id, TFV_Byte min_hue,
+    Colortracking(TFV_Id camera_id, TFV_Id component_id, TFV_Byte min_hue,
                   TFV_Byte max_hue, TFV_Callback callback, TFV_Context context)
         : Component(component_id, camera_id),
           min_hue(min_hue),
           max_hue(max_hue),
           callback(callback),
-          context(context) {}
+          context(context) {
+#ifdef DEV
+        std::cout << "Init colortracking id " << component_id << std::endl;
+#endif  // DEV
+    }
 
     virtual ~Colortracking(void) = default;
     Colortracking(Colortracking const& other) = delete;

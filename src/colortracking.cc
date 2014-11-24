@@ -24,7 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 
 void tfv::Colortracking::execute(TFV_ImageData* data, TFV_Int rows,
-                                 TFV_Int columns) {}
+                                 TFV_Int columns) {
+    callback(component_id, nullptr, nullptr, nullptr, nullptr, 0, nullptr);
+}
 
 template <>
 bool tfv::valid<tfv::Colortracking>(TFV_Byte& min_hue, TFV_Byte& max_hue,
