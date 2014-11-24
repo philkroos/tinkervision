@@ -37,16 +37,16 @@ typedef struct Frame_ {
           rows(rows),
           columns(columns),
           data(new TFV_ImageData[rows * columns * channels]) {
-        std::cout << "Allocating frame " << id << std::endl;
+        std::cout << "Allocating " << id << ", " << (void*)this << std::endl;
+        std::cout << "With rxc " << rows << "x" << columns << std::endl;
     }
-
     ~Frame_(void) {
+        std::cout << "Deleting " << id << ", " << (void*)this << std::endl;
+        std::cout << "With rxc " << rows << "x" << columns << std::endl;
         if (data) {
             delete[] data;
         }
     }
 } Frame;
-
-using Frames = std::unordered_map<TFV_Int, Frame*>;
-};
+}
 #endif /* FRAME_H */

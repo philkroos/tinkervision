@@ -28,9 +28,7 @@ namespace tfv {
 
 class CameraControl {
 public:
-    explicit CameraControl(TFV_Byte max_users_per_cam)
-        : max_users_per_cam_{max_users_per_cam} {}
-
+    CameraControl(void) = default;
     ~CameraControl(void);
 
     CameraControl(CameraControl const&) = delete;
@@ -39,8 +37,6 @@ public:
     bool is_available(TFV_Id camera_id);
     bool acquire(TFV_Id camera_id);
     bool is_open(TFV_Id camera_id);
-    // dec user count by 1, only close cam if unused
-    TFV_Byte safe_release(TFV_Id camera_id);
     // erase users of cam and close cam
     void release(TFV_Id camera_id);
     // also clear usermap
@@ -50,18 +46,10 @@ public:
                         int& channels);
     bool get_frame(TFV_Id camera_id, TFV_ImageData* frame);
 
-    TFV_Byte get_users(TFV_Id camera_id);
-
 private:
     using CamId = TFV_Id;
     using CamMap = std::map<CamId, Camera*>;
     CamMap camera_map_;
-
-    using Users = TFV_Byte;
-    using UserCount = std::map<CamId, Users>;
-    UserCount camera_user_count_;
-
-    TFV_Id max_users_per_cam_;
 };
 };
 

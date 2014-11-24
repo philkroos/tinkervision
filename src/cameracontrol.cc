@@ -25,20 +25,30 @@ void tfv::CameraControl::release_all(void) {
 
     for (auto& camera : camera_map_) {
         if (camera.second) {
+
             camera.second->stop();
             delete camera.second;
         }
     }
 
     camera_map_.clear();
-    camera_user_count_.clear();
 }
 
 bool tfv::CameraControl::is_available(TFV_Id camera_id) {
 
-    auto result = acquire(camera_id);
-    safe_release(camera_id);
+    auto result = false;
+    if (camera_map_.find(camera_id) != camera_map_.end()) {
 
+        auto cam = camera_map_[camera_id];
+        if (cam and(cam->is_open() or cam->open())) {
+
+            result = true;  // already open
+        }
+    } else if (acquire(camera_id)) {
+
+        release(camera_id);
+        result = true;  // opening possible
+    }
     return result;
 }
 
@@ -47,32 +57,18 @@ bool tfv::CameraControl::acquire(TFV_Id camera_id) {
     auto result = false;
     auto camera = camera_map_.find(camera_id);
 
-    auto camera_user_count = camera_user_count_.find(camera_id);
-    if ((camera_user_count == camera_user_count_.end())or(
-            camera_user_count->second < max_users_per_cam_)) {
+    if (camera == camera_map_.end()) {
+        // open new; currently Opencv color-Usb-cams hardcoded
 
-        if (camera == camera_map_.end()) {
-            // open new; currently Opencv color-Usb-cams hardcoded
-            TFV_Byte constexpr channels = 3;
-            camera_map_[camera_id] = new CameraUsbOpenCv(camera_id, channels);
-            camera = camera_map_.find(camera_id);
-        }
-
-        if (camera->second and(camera->second->is_open()
-                               or camera->second->open())) {
-            camera_user_count_[camera_id]++;
-            result = true;
-        }
+        TFV_Byte constexpr channels = 3;
+        camera_map_[camera_id] = new CameraUsbOpenCv(camera_id, channels);
+        camera = camera_map_.find(camera_id);
     }
 
-    // if cam cam_id is not used by now, remove it from the map
-    if ((camera_user_count_.find(camera_id) == camera_user_count_.end())and(
-            camera_map_.find(camera_id) != camera_map_.end())) {
+    if (camera->second and(camera->second->is_open()
+                           or camera->second->open())) {
 
-        camera_map_[camera_id]->stop();
-        delete camera_map_[camera_id];
-        camera_map_.erase(camera_id);
-        std::cout << "Camera deleted" << std::endl;
+        result = true;
     }
 
     return result;
@@ -90,42 +86,20 @@ void tfv::CameraControl::release(TFV_Id camera_id) {
 
     if (camera != camera_map_.end()) {
         if (camera->second) {
+
             camera->second->stop();
             delete camera->second;
         }
     }
 
     camera_map_.erase(camera_id);
-    camera_user_count_.erase(camera_id);
-}
-
-// close
-TFV_Byte tfv::CameraControl::safe_release(TFV_Id camera_id) {
-    TFV_Byte users = 0;
-
-    if (camera_user_count_.find(camera_id) != camera_user_count_.end()) {
-        camera_user_count_[camera_id] =
-            std::max(0, camera_user_count_[camera_id] - 1);
-        users = camera_user_count_[camera_id];
-    }
-
-    auto camera = camera_map_.find(camera_id);
-
-    // No more users? Free the cam!
-    if (camera != camera_map_.end() and not users) {
-        if (camera->second) {
-            camera->second->stop();
-            delete camera->second;
-            camera_map_.erase(camera_id);
-        }
-    }
-    return users;
 }
 
 bool tfv::CameraControl::get_properties(TFV_Id camera_id, int& height,
                                         int& width, int& channels) {
     auto camera = camera_map_.find(camera_id);
     if (camera == camera_map_.end()) {
+
         return false;
     }
     return camera->second->get_properties(height, width, channels);
@@ -134,16 +108,8 @@ bool tfv::CameraControl::get_properties(TFV_Id camera_id, int& height,
 bool tfv::CameraControl::get_frame(TFV_Id camera_id, TFV_ImageData* frame) {
     auto camera = camera_map_.find(camera_id);
     if (camera == camera_map_.end()) {
+
         return false;
     }
     return camera->second->get_frame(frame);
-}
-
-TFV_Byte tfv::CameraControl::get_users(TFV_Id camera_id) {
-    auto users = 0;
-    auto entry = camera_user_count_.find(camera_id);
-    if (entry != camera_user_count_.end()) {
-        users = entry->second;
-    }
-    return users;
 }

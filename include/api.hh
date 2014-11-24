@@ -34,6 +34,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
+using FrameWithUserCounter = struct FWUC {
+    tfv::Frame the_frame;
+    int user;
+
+    FWUC(TFV_Id id, int rows, int columns, int channels, int user)
+        : the_frame{id, rows, columns, channels}, user(user) {
+        std::cout << "Setting FWUC " << id << ", " << (void*)this << std::endl;
+    }
+
+    ~FWUC(void) { std::cout << "Deleting FWUC " << (void*)this << std::endl; }
+
+    TFV_ImageData* data() const { return the_frame.data; }
+    TFV_Int rows() const { return the_frame.rows; }
+    TFV_Int columns() const { return the_frame.columns; }
+};
+
 class Api {
 private:
     Api(void);
@@ -71,7 +87,7 @@ private:
     using Components = tfv::SharedResource<tinkervision::Component>;
     Components components_;
 
-    using Frames = tfv::SharedResource<tfv::Frame>;
+    using Frames = tfv::SharedResource<tfv::FrameWithUserCounter>;
     Frames frames_;
 
     std::thread executor_;
@@ -96,7 +112,7 @@ private:
     TFV_Result component_set(TFV_Id id, TFV_Id camera_id, Args... args);
 
     template <typename Component, typename... Args>
-    TFV_Result component_reset(Component* component, TFV_Id camera_id,
+    TFV_Result component_reset(Component& component, TFV_Id camera_id,
                                Args... args);
 
     template <typename Component>
@@ -107,7 +123,13 @@ private:
         return typeid(*component) == typeid(C);
     }
 
+    template <typename C>
+    bool check_type(tinkervision::Component const& component) const {
+        return typeid(component) == typeid(C);
+    }
+
     void allocate_frame(TFV_Id camera_id);
+    void release_frame(TFV_Id camera_id);
 };
 
 /*

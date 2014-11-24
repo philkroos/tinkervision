@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "colortracking.hh"
 #include "component.hh"
 
-tfv::Api::Api(void) : camera_control_{TFV_MAX_USERS_PER_CAM} { (void)start(); }
+tfv::Api::Api(void) { (void)start(); }
 
 tfv::Api::~Api(void) { stop(); }
 
@@ -54,21 +54,24 @@ void tfv::Api::execute(void) {
         for (auto id : frames_.managed_ids()) {
             auto frame = frames_[id];
 #ifdef DEV
-            auto grabbed = camera_control_.get_frame(id, frame->data);
+            auto grabbed = camera_control_.get_frame(id, frame->data());
             if (grabbed) {
-                window.update(id, frame->data, frame->rows, frame->columns);
+                window.update(id, frame->data(), frame->rows(),
+                              frame->columns());
             }
 #else
-            (void)camera_control_.get_frame(id, frame->data);
+            (void)camera_control_.get_frame(id, frame->data());
 #endif
         }
 
+        auto const& frames = const_cast<Frames const&>(frames_);
         for (auto id : components_.managed_ids()) {
-            auto const cam = components_[id]->camera_id;
-            if (not frames_.managed(cam)) continue;
+            auto const& cam = components_[id]->camera_id;
+            if (not frames.managed(cam)) continue;
 
-            auto const frame = frames_[cam];
-            components_[id]->execute(frame->data, frame->rows, frame->columns);
+            auto const& frame = frames[cam];
+            components_[id]->execute(frame.data(), frame.rows(),
+                                     frame.columns());
         }
 
         frames_.persist();
@@ -181,13 +184,12 @@ TFV_Result tfv::Api::is_camera_available(TFV_Id camera_id) {
 template <typename Comp, typename... Args>
 TFV_Result tfv::Api::component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
 
-    tinkervision::Component* component = nullptr;
     auto result = TFV_INVALID_CONFIGURATION;
 
     if (tinkervision::valid<Comp>(args...)) {
         if (components_.managed(id)) {  // reconfiguring requested
 
-            component = components_[id];
+            auto component = components_[id];
             if (check_type<Comp>(component)) {
 
                 result = component_reset(component, camera_id, args...);
@@ -211,7 +213,7 @@ TFV_Result tfv::Api::component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
 }
 
 template <typename Comp, typename... Args>
-TFV_Result tfv::Api::component_reset(Comp* component, TFV_Id camera_id,
+TFV_Result tfv::Api::component_reset(Comp& component, TFV_Id camera_id,
                                      Args... args) {
     auto result = TFV_FEATURE_CONFIGURATION_FAILED;
 
@@ -221,17 +223,13 @@ TFV_Result tfv::Api::component_reset(Comp* component, TFV_Id camera_id,
         if (camera_control_.acquire(camera_id)) {
 
             allocate_frame(camera_id);
-            if (1 == camera_control_.get_users(component->camera_id)) {
-
-                frames_.remove(component->camera_id);
-                camera_control_.release(component->camera_id);
-            }
-            tinkervision::set<Comp>(static_cast<Comp*>(component), args...);
+            release_frame(component->camera_id);
+            tinkervision::set<Comp>(static_cast<Comp*>(&component), args...);
             result = TFV_OK;
         }
     } else {
 
-        tinkervision::set<Comp>(static_cast<Comp*>(component), args...);
+        tinkervision::set<Comp>(static_cast<Comp*>(&component), args...);
         result = TFV_OK;
     }
     return result;
@@ -241,7 +239,22 @@ void tfv::Api::allocate_frame(TFV_Id camera_id) {
     if (not frames_.managed(camera_id)) {
         int rows, columns, channels = 0;
         camera_control_.get_properties(camera_id, rows, columns, channels);
-        frames_.allocate(camera_id, camera_id, rows, columns, channels);
+        auto const user = 1;
+        frames_.allocate(camera_id, camera_id, rows, columns, channels, user);
+    } else {
+        frames_[camera_id]->user++;
+    }
+}
+
+void tfv::Api::release_frame(TFV_Id camera_id) {
+    if (frames_.managed(camera_id)) {
+
+        frames_[camera_id]->user--;
+        if (not frames_[camera_id]->user) {
+
+            frames_.remove(camera_id);
+            camera_control_.release(camera_id);
+        }
     }
 }
 
@@ -252,11 +265,11 @@ TFV_Result tfv::Api::component_get(TFV_Id id,
 
     if (components_.managed(id)) {
         result = TFV_INVALID_ID;
-        auto* component_ = components_[id];
+        auto const& component_ = components_[id];
 
         if (check_type<Component>(component_)) {
             result = TFV_OK;
-            *component = static_cast<Component const*>(component_);
+            *component = static_cast<Component const*>(&component_);
         }
     }
 
@@ -291,17 +304,11 @@ TFV_Result tfv::Api::component_stop(TFV_Id id) {
 
     if (components_.managed(id)) {
 
-        auto const component = components_[id];
+        auto component = components_[id];
         auto const camera_id = component->camera_id;
         component->active = false;
-        auto users = camera_control_.get_users(camera_id);
-        if (users == 1) {  // not using this camera anymore
-            if (frames_.managed(camera_id)) {
-                frames_.remove(camera_id);
-            }
-            camera_control_.release(camera_id);
-        }
 
+        release_frame(camera_id);
         result = TFV_OK;
     }
     return result;

@@ -87,9 +87,9 @@ public:
         return managed_.find(id) != managed_.end();
     }
 
-    Resource* operator[](TFV_Id id) const {
+    Resource const& operator[](TFV_Id id) const {
         std::lock_guard<std::mutex> lock(managed_mutex_);
-        return managed_.find(id)->second;
+        return *(managed_.find(id)->second);
     }
 
     Resource* operator[](TFV_Id id) {
