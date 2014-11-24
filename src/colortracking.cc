@@ -23,21 +23,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <iostream>
 #endif
 
-void tinkervision::Colortracking::execute(TFV_ImageData* data, TFV_Int rows,
-                                          TFV_Int columns) {}
+void tfv::Colortracking::execute(TFV_ImageData* data, TFV_Int rows,
+                                 TFV_Int columns) {}
 
 template <>
-bool tinkervision::valid<tinkervision::Colortracking>(TFV_Byte& min_hue,
-                                                      TFV_Byte& max_hue,
-                                                      TFV_Callback& callback,
-                                                      TFV_Context& context) {
+bool tfv::valid<tfv::Colortracking>(TFV_Byte& min_hue, TFV_Byte& max_hue,
+                                    TFV_Callback& callback,
+                                    TFV_Context& context) {
     return min_hue < max_hue and callback;
 }
 
 template <>
-void tinkervision::set<tinkervision::Colortracking>(
-    tinkervision::Colortracking* ct, TFV_Byte min_hue, TFV_Byte max_hue,
-    TFV_Callback callback, TFV_Context context) {
+void tfv::set<tfv::Colortracking>(tfv::Colortracking* ct, TFV_Byte min_hue,
+                                  TFV_Byte max_hue, TFV_Callback callback,
+                                  TFV_Context context) {
 
     ct->min_hue = min_hue;
     ct->max_hue = max_hue;

@@ -84,7 +84,7 @@ private:
     CameraControl camera_control_;
     TFVStringMap result_string_map_;
 
-    using Components = tfv::SharedResource<tinkervision::Component>;
+    using Components = tfv::SharedResource<tfv::Component>;
     Components components_;
 
     using Frames = tfv::SharedResource<tfv::FrameWithUserCounter>;
@@ -119,12 +119,12 @@ private:
     TFV_Result component_get(TFV_Id id, Component const** component) const;
 
     template <typename C>
-    bool check_type(tinkervision::Component const* component) const {
+    bool check_type(tfv::Component const* component) const {
         return typeid(*component) == typeid(C);
     }
 
     template <typename C>
-    bool check_type(tinkervision::Component const& component) const {
+    bool check_type(tfv::Component const& component) const {
         return typeid(component) == typeid(C);
     }
 

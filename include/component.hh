@@ -22,13 +22,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision_defines.h"
 
-namespace tinkervision {
+namespace tfv {
 
 struct Component {
+    TFV_Id component_id;
     TFV_Id camera_id;
     bool active;
 
-    Component(TFV_Id camera_id) : camera_id(camera_id), active(false) {}
+    Component(TFV_Id component_id, TFV_Id camera_id)
+        : component_id(component_id), camera_id(camera_id), active(false) {}
     virtual ~Component(void) = default;
 
     Component(Component const& other) = delete;

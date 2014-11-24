@@ -22,16 +22,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "component.hh"
 
-namespace tinkervision {
+namespace tfv {
 struct Colortracking : public Component {
     TFV_Byte min_hue;
     TFV_Byte max_hue;
     TFV_Callback callback;
     TFV_Context context;
 
-    Colortracking(TFV_Id camera_id, TFV_Byte min_hue, TFV_Byte max_hue,
-                  TFV_Callback callback, TFV_Context context)
-        : Component(camera_id),
+    Colortracking(TFV_Id component_id, TFV_Id camera_id, TFV_Byte min_hue,
+                  TFV_Byte max_hue, TFV_Callback callback, TFV_Context context)
+        : Component(component_id, camera_id),
           min_hue(min_hue),
           max_hue(max_hue),
           callback(callback),

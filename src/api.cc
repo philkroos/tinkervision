@@ -142,8 +142,8 @@ TFV_Result tfv::Api::colortracking_set(TFV_Id id, TFV_Id camera_id,
                                        TFV_Callback callback,
                                        TFV_Context context) {
 
-    return component_set<tinkervision::Colortracking>(
-        id, camera_id, min_hue, max_hue, callback, context);
+    return component_set<tfv::Colortracking>(id, camera_id, min_hue, max_hue,
+                                             callback, context);
 }
 
 TFV_Result tfv::Api::colortracking_get(TFV_Id id, TFV_Id& camera_id,
@@ -152,8 +152,8 @@ TFV_Result tfv::Api::colortracking_get(TFV_Id id, TFV_Id& camera_id,
 
     auto result = TFV_UNCONFIGURED_ID;
 
-    tinkervision::Colortracking const* ct = nullptr;
-    result = component_get<tinkervision::Colortracking>(id, &ct);
+    tfv::Colortracking const* ct = nullptr;
+    result = component_get<tfv::Colortracking>(id, &ct);
 
     if (ct) {
         camera_id = ct->camera_id;
@@ -165,11 +165,11 @@ TFV_Result tfv::Api::colortracking_get(TFV_Id id, TFV_Id& camera_id,
 }
 
 TFV_Result tfv::Api::colortracking_stop(TFV_Id id) {
-    return component_stop<tinkervision::Colortracking>(id);
+    return component_stop<tfv::Colortracking>(id);
 }
 
 TFV_Result tfv::Api::colortracking_start(TFV_Id id) {
-    return component_start<tinkervision::Colortracking>(id);
+    return component_start<tfv::Colortracking>(id);
 }
 
 TFV_Result tfv::Api::is_camera_available(TFV_Id camera_id) {
@@ -186,7 +186,7 @@ TFV_Result tfv::Api::component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
 
     auto result = TFV_INVALID_CONFIGURATION;
 
-    if (tinkervision::valid<Comp>(args...)) {
+    if (tfv::valid<Comp>(args...)) {
         if (components_.managed(id)) {  // reconfiguring requested
 
             auto component = components_[id];
@@ -203,7 +203,7 @@ TFV_Result tfv::Api::component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
             if (camera_control_.acquire(camera_id)) {
 
                 allocate_frame(camera_id);
-                components_.allocate<Comp>(id, camera_id, args...);
+                components_.allocate<Comp>(id, camera_id, id, args...);
                 result = TFV_OK;
             }
         }
@@ -224,12 +224,12 @@ TFV_Result tfv::Api::component_reset(Comp& component, TFV_Id camera_id,
 
             allocate_frame(camera_id);
             release_frame(component->camera_id);
-            tinkervision::set<Comp>(static_cast<Comp*>(&component), args...);
+            tfv::set<Comp>(static_cast<Comp*>(&component), args...);
             result = TFV_OK;
         }
     } else {
 
-        tinkervision::set<Comp>(static_cast<Comp*>(&component), args...);
+        tfv::set<Comp>(static_cast<Comp*>(&component), args...);
         result = TFV_OK;
     }
     return result;
