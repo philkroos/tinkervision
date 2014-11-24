@@ -94,10 +94,9 @@ private:
 
     std::mutex frame_lock_;
     std::mutex components_lock_;
-#ifdef DEBUG
 
+#ifdef DEBUG_CAM
     Window window;
-
 #endif  // DEV
 
     template <typename Component>

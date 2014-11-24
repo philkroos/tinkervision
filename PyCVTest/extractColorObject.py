@@ -23,7 +23,7 @@ class HuePicker:
     def get_hue(self):
         return self.hue
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 wname = 'frame'
 cv2.namedWindow(wname)
 hp = HuePicker(wname)
@@ -35,11 +35,17 @@ size, base = cv2.getTextSize("HSV at %d/%d: 255-255-255" % (111, 111), face, sca
 width = size[0]
 height = size[1]
 
-# hsv range
+# hsv range (pink)
 range0_low = np.array([170, 50, 50])
 range0_high = np.array([180, 255, 255])
 range1_low = np.array([0, 50, 50])
 range1_high = np.array([10, 255, 255])
+
+# hsv range (light blue)
+range0_low = np.array([90, 50, 50])
+range0_high = np.array([95, 255, 255])
+range1_low = np.array([95, 50, 50])
+range1_high = np.array([100, 255, 255])
 
 video = True
 minrect = True

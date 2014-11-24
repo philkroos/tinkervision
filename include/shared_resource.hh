@@ -51,9 +51,9 @@ public:
     void remove(TFV_Id id) {
         Resource* resource = nullptr;
         {
-            resource = managed_[id];
             std::lock_guard<std::mutex> lock(managed_mutex_);
-            managed_.erase(id);
+            resource = managed_[id];
+            // managed_.erase(id);
         }
         {
             std::lock_guard<std::mutex> lock(garbage_mutex_);
@@ -63,19 +63,19 @@ public:
 
     void persist(void) {
         std::lock_guard<std::mutex> lock(allocation_mutex_);
+        std::lock_guard<std::mutex> lock(managed_mutex_);
         if (not allocated_.empty()) {
-            {
-                std::lock_guard<std::mutex> lock(managed_mutex_);
-                managed_.insert(allocated_.begin(), allocated_.end());
-            }
+            managed_.insert(allocated_.begin(), allocated_.end());
             allocated_.clear();
         }
     }
 
     void cleanup(void) {
         std::lock_guard<std::mutex> lock(garbage_mutex_);
+        std::lock_guard<std::mutex> lock(managed_mutex_);
         for (auto& resource : garbage_) {
             if (resource.second) {
+                managed_.erase(resource.first);
                 delete resource.second;
             }
         }

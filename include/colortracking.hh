@@ -23,15 +23,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifdef DEV
 #include <iostream>
 #endif  // DEV
+#ifdef DEBUG_COLORTRACKING
+#include "window.hh"
+#endif
 
 #include "component.hh"
 
 namespace tfv {
+
 struct Colortracking : public Component {
     TFV_Byte min_hue;
     TFV_Byte max_hue;
     TFV_Callback callback;
     TFV_Context context;
+    TFV_Byte min_hue0;
+    TFV_Byte max_hue0;
+    TFV_Byte min_saturation = 50;
+    TFV_Byte min_value = 50;
+    TFV_Byte max_saturation = 255;
+    TFV_Byte max_value = 255;
 
     Colortracking(TFV_Id camera_id, TFV_Id component_id, TFV_Byte min_hue,
                   TFV_Byte max_hue, TFV_Callback callback, TFV_Context context)
@@ -43,6 +53,10 @@ struct Colortracking : public Component {
 #ifdef DEV
         std::cout << "Init colortracking id " << component_id << std::endl;
 #endif  // DEV
+        if (min_hue > max_hue) {
+            min_hue0 = 0;
+            max_hue0 = COLORTRACK_MAXIMUM_HUE;
+        }
     }
 
     virtual ~Colortracking(void) = default;
@@ -52,6 +66,10 @@ struct Colortracking : public Component {
     Colortracking& operator=(Colortracking&& rhs) = delete;
 
     virtual void execute(TFV_ImageData* data, TFV_Int rows, TFV_Int columns);
+
+#ifdef DEBUG_COLORTRACKING
+    tfv::Window window;
+#endif  // DEBUG_COLORTRACKING
 };
 
 // called with the exact same parameter list as the constructor minus

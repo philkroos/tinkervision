@@ -62,8 +62,8 @@ int main(int argc, char* argv[]) {
     TFV_Id id = 0;
     TFV_Id cam = 0;
     TFV_Id invalid_id = 100;
-    TFV_Byte min_hue = 200;
-    TFV_Byte max_hue = 250;
+    TFV_Byte min_hue = 150;
+    TFV_Byte max_hue = 170;
 
     int test = 0;
     // Test 0: Camera should be available
@@ -228,7 +228,7 @@ int main(int argc, char* argv[]) {
            result_string(result));
 
     // Stopping manually is not necessary
-    stop_api();
+    // stop_api();
 
-    sleep(10);
+    // sleep(10);
 }

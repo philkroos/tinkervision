@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#ifdef DEBUG
+#if defined DEBUG_CAM || DEBUG_COLORTRACKING
 
 #include <iostream>
 #include <map>
@@ -43,6 +43,15 @@ public:
         }
         cv::Mat frame(rows, columns, CV_8UC3, data);
         cv::imshow(windows_[id], frame);
+        cv::waitKey(100);  // skip time to give window-update thread a chance
+    }
+
+    void update(TFV_Id id, cv::Mat const& image, int rows, int columns) {
+        if (windows_.find(id) == windows_.end()) {
+            windows_[id] = prefix + std::to_string(id) + " ";
+            cv::namedWindow(windows_[id]);
+        }
+        cv::imshow(windows_[id], image);
         cv::waitKey(100);  // skip time to give window-update thread a chance
     }
 };

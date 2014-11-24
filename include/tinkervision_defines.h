@@ -33,6 +33,9 @@ typedef void (*TFV_Callback)(TFV_Id, TFV_Int*, TFV_Int*, TFV_Int*, TFV_Int*,
 // TFV_RESULT feature_found (int feature_id, x[], y[], width[], height[], count,
 // Context opaque);
 
+// opencv hue-range 0 -
+#define COLORTRACK_MAXIMUM_HUE 180
+
 /* configurable values */
 
 // Each cam can be used for so much configurations
