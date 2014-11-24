@@ -1,4 +1,4 @@
-CFLAGS=-Wall -Werror -g -O0 -ansi -pedantic -DDEV -std=c99 -I../include
+CFLAGS=-Wall -Werror -g -O0 -ansi -pedantic -DDEV -std=c99 -D_POSIX_C_SOURCE=199309L -I../include
 LDFLAGS=-g -Wall -DDEV -ltfv -lstdc++ `pkg-config --libs opencv` -L../bin
 
 OBJS=tinkervision_test.o

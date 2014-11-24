@@ -39,11 +39,9 @@ using FrameWithUserCounter = struct FWUC {
     int user;
 
     FWUC(TFV_Id id, int rows, int columns, int channels, int user)
-        : the_frame{id, rows, columns, channels}, user(user) {
-        std::cout << "Setting FWUC " << id << ", " << (void*)this << std::endl;
-    }
+        : the_frame{id, rows, columns, channels}, user(user) {}
 
-    ~FWUC(void) { std::cout << "Deleting FWUC " << (void*)this << std::endl; }
+    ~FWUC(void) = default;
 
     TFV_ImageData* data() const { return the_frame.data; }
     TFV_Int rows() const { return the_frame.rows; }
@@ -96,7 +94,7 @@ private:
 
     std::mutex frame_lock_;
     std::mutex components_lock_;
-#ifdef DEV
+#ifdef DEBUG
 
     Window window;
 

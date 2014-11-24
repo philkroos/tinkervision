@@ -23,10 +23,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <iostream>
 #endif
 
+// member functions
+
 void tfv::Colortracking::execute(TFV_ImageData* data, TFV_Int rows,
                                  TFV_Int columns) {
-    callback(component_id, nullptr, nullptr, nullptr, nullptr, 0, nullptr);
+    // tracking max 10 objects
+    static const int max_objects = 10;
+    static int x[max_objects];
+    static int y[max_objects];
+    static int width[max_objects];
+    static int height[max_objects];
+
+    int objects = 1;
+    x[0] = y[0] = 100;
+    width[0] = height[0] = 100;
+    callback(component_id, x, y, width, height, objects, nullptr);
 }
+
+// free functions
 
 template <>
 bool tfv::valid<tfv::Colortracking>(TFV_Byte& min_hue, TFV_Byte& max_hue,

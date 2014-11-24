@@ -36,13 +36,8 @@ typedef struct Frame_ {
         : id(id),
           rows(rows),
           columns(columns),
-          data(new TFV_ImageData[rows * columns * channels]) {
-        std::cout << "Allocating " << id << ", " << (void*)this << std::endl;
-        std::cout << "With rxc " << rows << "x" << columns << std::endl;
-    }
+          data(new TFV_ImageData[rows * columns * channels]) {}
     ~Frame_(void) {
-        std::cout << "Deleting " << id << ", " << (void*)this << std::endl;
-        std::cout << "With rxc " << rows << "x" << columns << std::endl;
         if (data) {
             delete[] data;
         }

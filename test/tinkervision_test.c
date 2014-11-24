@@ -19,12 +19,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <stdio.h>
 #include <unistd.h>  // sleep (posix)
+#include <time.h>    // nanosleep (posix)
+
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
 
 #include "tinkervision.h"
 
-void tfcv_callback_id0(TFV_Id id, TFV_Int* x, TFV_Int* y, TFV_Int* width,
-                       TFV_Int* height, TFV_Byte count, TFV_Context context) {
-    printf("Callback for id %d with %d features\n", id, count);
+static int draw = 0;
+static IplImage* image = NULL;
+
+void tfcv_callback_id0(TFV_Id id, TFV_Int* xs, TFV_Int* ys, TFV_Int* widths,
+                       TFV_Int* heights, TFV_Byte count, TFV_Context context) {
+    // find main object
+    if (!draw) {
+        return;
+    }
+    int largest = 0;
+    int size_of_largest = 0;
+    for (int i = 0; i < count; ++i) {
+        if (widths[i] * heights[i] > size_of_largest) {
+            largest = i;
+        }
+    }
+
+    CvPoint ul;
+    CvPoint br;
+    ul.x = xs[largest];
+    ul.y = ys[largest];
+    br.x = ul.x + widths[largest];
+    br.y = ul.y + heights[largest];
+
+    printf("Id %d: Drawing at %d/%d %dx%d\n", id, ul.x, ul.y, widths[largest],
+           heights[largest]);
+
+    cvRectangle(image, ul, br, CV_RGB(255, 0, 0), 1, 8, 0);
+    cvShowImage("Result", image);
+    cvWaitKey(10);
 }
 
 int main(int argc, char* argv[]) {
@@ -170,14 +201,30 @@ int main(int argc, char* argv[]) {
         printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id--, result,
                result_string(result));
     }
-    result = colortracking_stop(id);
-    printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id, result,
-           result_string(result));
-
-    sleep(1);
 
     result = colortracking_stop(id2);
     printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id2, result,
+           result_string(result));
+
+    sleep(2);
+    printf(
+        "--- All features stopped but id 0; now showing results of tracking "
+        "---\n");
+    image = cvCreateImage(cvSize(640, 480), 8, 3);
+    cvZero(image);
+    cvNamedWindow("Result", CV_WINDOW_AUTOSIZE);
+    draw = 1;
+    struct timespec time = {0};
+    time.tv_sec = 0;
+    time.tv_nsec = 500000000L;
+    for (int i = 0; i < 20; i++) {
+        nanosleep(&time, (struct timespec*)NULL);
+    }
+    cvReleaseImage(&image);
+
+    // Stopping last feature
+    result = colortracking_stop(id);
+    printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id, result,
            result_string(result));
 
     // Stopping manually is not necessary

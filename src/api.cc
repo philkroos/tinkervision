@@ -53,7 +53,7 @@ void tfv::Api::execute(void) {
     while (active_) {
         for (auto id : frames_.managed_ids()) {
             auto frame = frames_[id];
-#ifdef DEV
+#ifdef DEBUG
             auto grabbed = camera_control_.get_frame(id, frame->data());
             if (grabbed) {
                 window.update(id, frame->data(), frame->rows(),
@@ -66,6 +66,9 @@ void tfv::Api::execute(void) {
 
         auto const& frames = const_cast<Frames const&>(frames_);
         for (auto id : components_.managed_ids()) {
+            if (not components_[id]->active) {
+                continue;
+            }
             auto const& cam = components_[id]->camera_id;
             if (not frames.managed(cam)) continue;
 
@@ -307,9 +310,10 @@ TFV_Result tfv::Api::component_stop(TFV_Id id) {
         auto component = components_[id];
         auto const camera_id = component->camera_id;
         component->active = false;
-
+        components_.remove(id);
         release_frame(camera_id);
         result = TFV_OK;
     }
+
     return result;
 }
