@@ -62,8 +62,8 @@ public:
     }
 
     void persist(void) {
-        std::lock_guard<std::mutex> lock(allocation_mutex_);
-        std::lock_guard<std::mutex> lock(managed_mutex_);
+        std::lock_guard<std::mutex> a_lock(allocation_mutex_);
+        std::lock_guard<std::mutex> m_lock(managed_mutex_);
         if (not allocated_.empty()) {
             managed_.insert(allocated_.begin(), allocated_.end());
             allocated_.clear();
@@ -71,8 +71,8 @@ public:
     }
 
     void cleanup(void) {
-        std::lock_guard<std::mutex> lock(garbage_mutex_);
-        std::lock_guard<std::mutex> lock(managed_mutex_);
+        std::lock_guard<std::mutex> g_lock(garbage_mutex_);
+        std::lock_guard<std::mutex> m_lock(managed_mutex_);
         for (auto& resource : garbage_) {
             if (resource.second) {
                 managed_.erase(resource.first);
