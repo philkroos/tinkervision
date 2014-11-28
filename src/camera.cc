@@ -124,6 +124,14 @@ void tfv::CameraUsbOpenCv::grab_frame(void) {
 }
 
 bool tfv::CameraUsbOpenCv::retrieve_frame(TFV_ImageData* frame) {
+    cv::Mat tmp;
     cv::Mat container(height_, width_, flag_, frame);
-    return camera_->retrieve(container);
+    auto result = camera_->retrieve(tmp);
+#ifdef DEV
+    result = result and(tmp.type() == container.type())
+        and(tmp.cols == container.cols) and(tmp.rows() == container.rows());
+
+#endif
+    tmp.copyTo(container);
+    return result;
 }

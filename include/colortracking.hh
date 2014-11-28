@@ -59,7 +59,7 @@ struct Colortracking : public Component {
         }
     }
 
-    virtual ~Colortracking(void) = default;
+    virtual ~Colortracking(void) {};
     Colortracking(Colortracking const& other) = delete;
     Colortracking(Colortracking&& other) = delete;
     Colortracking& operator=(Colortracking const& rhs) = delete;

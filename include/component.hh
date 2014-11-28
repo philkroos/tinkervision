@@ -31,7 +31,7 @@ struct Component {
 
     Component(TFV_Id component_id, TFV_Id camera_id)
         : component_id(component_id), camera_id(camera_id), active(true) {}
-    virtual ~Component(void) = default;
+    virtual ~Component(void) {};
 
     Component(Component const& other) = delete;
     Component(Component&& other) = delete;

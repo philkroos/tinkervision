@@ -33,6 +33,13 @@ void tfv::Colortracking::execute(TFV_ImageData* data, TFV_Int rows,
     cv::cvtColor(image, image, CV_BGR2HSV);
     cv::Mat mask(rows, columns, CV_8UC3);
 
+    /*
+    static int counter = 0;
+    std::string imgname = "ctexec_" + std::to_string(counter++) + ".jpg";
+    std::cout << "Writing image " << imgname << std::endl;
+    cv::imwrite(imgname, image);
+    */
+
     auto const split = min_hue > max_hue;
     cv::Scalar low(min_hue, min_saturation, min_value);
     cv::Scalar high(split ? max_hue0 : max_hue, max_saturation, max_value);
