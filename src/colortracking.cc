@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 void tfv::Colortracking::execute(TFV_ImageData* data, TFV_Int rows,
                                  TFV_Int columns) {
-    cv::Mat const image(rows, columns, CV_8UC3, data);
+    cv::Mat image(rows, columns, CV_8UC3, data);
     cv::cvtColor(image, image, CV_BGR2HSV);
     cv::Mat mask(rows, columns, CV_8UC3);
 
