@@ -23,7 +23,7 @@ class HuePicker:
     def get_hue(self):
         return self.hue
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 wname = 'frame'
 cv2.namedWindow(wname)
 hp = HuePicker(wname)

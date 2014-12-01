@@ -60,10 +60,10 @@ void tfcv_callback_id0(TFV_Id id, TFV_Int* xs, TFV_Int* ys, TFV_Int* widths,
 
 int main(int argc, char* argv[]) {
     TFV_Id id = 0;
-    TFV_Id cam = 0;
+    TFV_Id cam = 1;
     TFV_Id invalid_id = 100;
-    TFV_Byte min_hue = 150;
-    TFV_Byte max_hue = 170;
+    TFV_Byte min_hue = 100;
+    TFV_Byte max_hue = 110;
 
     int test = 0;
     // Test 0: Camera should be available
@@ -86,9 +86,9 @@ int main(int argc, char* argv[]) {
 
     printf("+ %d: Configured feature id %d: Code %d (%s)\n", test++, id, result,
            result_string(result));
-
     sleep(1);
 
+/*
     id += 1;
     result =
         colortracking_start(id, cam, min_hue, max_hue, tfcv_callback_id0, NULL);
@@ -207,6 +207,7 @@ int main(int argc, char* argv[]) {
            result_string(result));
 
     sleep(2);
+*/
     printf(
         "--- All features stopped but id 0; now showing results of tracking "
         "---\n");
