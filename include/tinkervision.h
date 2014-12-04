@@ -25,7 +25,8 @@ extern "C" {
 
 TFV_Result colortracking_start(TFV_Id feature_id, TFV_Id camera_id,
                                TFV_Byte min_hue, TFV_Byte max_hue,
-                               TFV_Callback callback, TFV_Context opaque);
+                               TFV_CallbackColortrack callback,
+                               TFV_Context opaque);
 
 TFV_Result colortracking_restart(TFV_Id feature_id);
 
@@ -38,7 +39,7 @@ TFV_Result camera_available(TFV_Id camera_id);
 
 TFV_String result_string(TFV_Result code);
 
-TFV_Void stop_api(void);
+TFV_Result stop_api(void);
 
 #ifdef __cplusplus
 }

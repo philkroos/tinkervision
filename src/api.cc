@@ -142,7 +142,7 @@ tfv::Api& tfv::get_api(void) {
 
 TFV_Result tfv::Api::colortracking_set(TFV_Id id, TFV_Id camera_id,
                                        TFV_Byte min_hue, TFV_Byte max_hue,
-                                       TFV_Callback callback,
+                                       TFV_CallbackColortrack callback,
                                        TFV_Context context) {
 
     return component_set<tfv::Colortracking>(id, camera_id, min_hue, max_hue,

@@ -20,18 +20,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdint.h>
 
 typedef int TFV_Bool;
-typedef void TFV_Void;
 typedef uint8_t TFV_Byte;
 typedef unsigned char TFV_ImageData;
-typedef int TFV_Int;
+
+// todo: make this smaller
+typedef int32_t TFV_Int;
+
 typedef const char* TFV_String;
 typedef TFV_Int TFV_Id;
 typedef TFV_Int TFV_Result;
 typedef void* TFV_Context;
-typedef void (*TFV_Callback)(TFV_Id, TFV_Int*, TFV_Int*, TFV_Int*, TFV_Int*,
-                             TFV_Byte, TFV_Context);
-// TFV_RESULT feature_found (int feature_id, x[], y[], width[], height[], count,
-// Context opaque);
+
+// todo: make this a functor
+typedef void (*TFV_CallbackColortrack)(TFV_Id, TFV_Int x, TFV_Int y,
+                                       TFV_Context);
 
 // opencv hue-range 0 -
 #define COLORTRACK_MAXIMUM_HUE 180

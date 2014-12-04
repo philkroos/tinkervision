@@ -26,7 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern "C" {
 
 TFV_Result colortracking_start(TFV_Id id, TFV_Id camera_id, TFV_Byte min_hue,
-                               TFV_Byte max_hue, TFV_Callback callback,
+                               TFV_Byte max_hue,
+                               TFV_CallbackColortrack callback,
                                TFV_Context context) {
 
     try {
@@ -87,8 +88,9 @@ TFV_String result_string(TFV_Result code) {
     return api.result_string(code);
 }
 
-TFV_Void stop_api(void) {
+TFV_Result stop_api(void) {
     auto& api = tfv::get_api();
     api.stop();
+    return TFV_OK;
 }
 }

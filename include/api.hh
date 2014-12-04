@@ -64,7 +64,8 @@ public:
     bool stop(void);
 
     TFV_Result colortracking_set(TFV_Id id, TFV_Id cam_id, TFV_Byte min_hue,
-                                 TFV_Byte max_hue, TFV_Callback callback,
+                                 TFV_Byte max_hue,
+                                 TFV_CallbackColortrack callback,
                                  TFV_Context context);
 
     TFV_Result colortracking_get(TFV_Id id, TFV_Id& cam_id, TFV_Byte& min_hue,

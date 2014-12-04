@@ -67,31 +67,33 @@ void tfv::Colortracking::execute(TFV_ImageData* data, TFV_Int rows,
                      cv::CHAIN_APPROX_SIMPLE);
     std::vector<cv::Point> polygon;
 
-    int x[contours.size()];
-    int y[contours.size()];
-    int width[contours.size()];
-    int height[contours.size()];
-
+    // find largest
+    int area = 0;
+    cv::Rect rect;
     for (size_t i = 0; i < contours.size(); i++) {
         cv::approxPolyDP(cv::Mat(contours[i]), polygon, 3, true);
-        auto rect = cv::boundingRect(polygon);
-        x[i] = rect.x;
-        y[i] = rect.y;
-        width[i] = rect.width;
-        height[i] = rect.height;
+        auto tmp = cv::boundingRect(polygon);
+        if (not area or(area < (tmp.width * tmp.height))) {
+            rect = tmp;
+            area = rect.width * rect.height;
+        }
     }
+
 #ifdef DEBUG_COLORTRACKING
     window.update(0, mask, rows, columns);
 #endif  // DEBUG_COLORTRACKING
 
-    callback(component_id, x, y, width, height, contours.size(), nullptr);
+    if (contours.size()) {  // call back with center of finding
+        callback(component_id, (rect.x + rect.width) / 2,
+                 (rect.y + rect.height) / 2, nullptr);
+    }
 }
 
 // free functions
 
 template <>
 bool tfv::valid<tfv::Colortracking>(TFV_Byte& min_hue, TFV_Byte& max_hue,
-                                    TFV_Callback& callback,
+                                    TFV_CallbackColortrack& callback,
                                     TFV_Context& context) {
     return (max_hue < COLORTRACK_MAXIMUM_HUE)and(
         min_hue < COLORTRACK_MAXIMUM_HUE) and callback;
@@ -99,7 +101,8 @@ bool tfv::valid<tfv::Colortracking>(TFV_Byte& min_hue, TFV_Byte& max_hue,
 
 template <>
 void tfv::set<tfv::Colortracking>(tfv::Colortracking* ct, TFV_Byte min_hue,
-                                  TFV_Byte max_hue, TFV_Callback callback,
+                                  TFV_Byte max_hue,
+                                  TFV_CallbackColortrack callback,
                                   TFV_Context context) {
     ct->min_hue = min_hue;
     ct->max_hue = max_hue;

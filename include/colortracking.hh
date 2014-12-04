@@ -34,7 +34,7 @@ namespace tfv {
 struct Colortracking : public Component {
     TFV_Byte min_hue;
     TFV_Byte max_hue;
-    TFV_Callback callback;
+    TFV_CallbackColortrack callback;
     TFV_Context context;
     TFV_Byte min_hue0;
     TFV_Byte max_hue0;
@@ -44,7 +44,8 @@ struct Colortracking : public Component {
     TFV_Byte max_value = 255;
 
     Colortracking(TFV_Id camera_id, TFV_Id component_id, TFV_Byte min_hue,
-                  TFV_Byte max_hue, TFV_Callback callback, TFV_Context context)
+                  TFV_Byte max_hue, TFV_CallbackColortrack callback,
+                  TFV_Context context)
         : Component(component_id, camera_id),
           min_hue(min_hue),
           max_hue(max_hue),
@@ -77,10 +78,11 @@ struct Colortracking : public Component {
 // here, the 'basecase' in component.hh will be used.
 template <>
 bool valid<Colortracking>(TFV_Byte& min_hue, TFV_Byte& max_hue,
-                          TFV_Callback& callback, TFV_Context& context);
+                          TFV_CallbackColortrack& callback,
+                          TFV_Context& context);
 template <>
 void set<Colortracking>(Colortracking* ct, TFV_Byte min_hue, TFV_Byte max_hue,
-                        TFV_Callback callback, TFV_Context context);
+                        TFV_CallbackColortrack callback, TFV_Context context);
 };
 
 #endif /* COLORTRACKING_H */
