@@ -50,37 +50,41 @@ bool tfv::Api::stop(void) {
 }
 
 void tfv::Api::execute(void) {
-    while (active_) {
-        for (auto id : frames_.managed_ids()) {
-            auto frame = frames_[id];
-#ifdef DEBUG
-            auto grabbed = camera_control_.get_frame(id, frame->data());
-            if (grabbed) {
-                window.update(id, frame->data(), frame->rows(),
-                              frame->columns());
-            }
+#ifdef DEBUG_CAM
+    auto update_frames = [this](TFV_Id id, tfv::FrameWithUserCounter& frame) {
+        auto grabbed = camera_control_.get_frame(id, frame.data());
+        if (grabbed) {
+            window.update(id, frame.data(), frame.rows(), frame.columns());
+        } else {
+            std::cout << "Could not grab frame" << std::endl;
+        }
+    };
+
 #else
-            (void)camera_control_.get_frame(id, frame->data());
+    // Refresh each camera
+    auto update_frames = [this](TFV_Id id, tfv::FrameWithUserCounter& frame) {
+        camera_control_.get_frame(id, frame.data());
+    };
 #endif
-        }
 
-        auto const& frames = const_cast<Frames const&>(frames_);
-        for (auto id : components_.managed_ids()) {
-            if (not components_[id]->active) {
-                continue;
+    // Execute each active component
+    auto const& frames = const_cast<Frames const&>(frames_);
+    auto update_components = [this, &frames](TFV_Id id,
+                                             tfv::Component& component) {
+        if (component.active) {
+            auto const& cam = component.camera_id;
+            if (frames.managed(cam)) {
+
+                auto const& frame = frames[cam];
+                component.execute(frame.data(), frame.rows(), frame.columns());
             }
-            auto const& cam = components_[id]->camera_id;
-            if (not frames.managed(cam)) continue;
-
-            auto const& frame = frames[cam];
-            components_[id]->execute(frame.data(), frame.rows(),
-                                     frame.columns());
         }
+    };
 
-        frames_.persist();
-        frames_.cleanup();
-        components_.persist();
-        components_.cleanup();
+    // mainloop
+    while (active_) {
+        frames_.exec_all(update_frames);
+        components_.exec_all(update_components);
     }
 }
 
@@ -255,7 +259,7 @@ void tfv::Api::release_frame(TFV_Id camera_id) {
         frames_[camera_id]->user--;
         if (not frames_[camera_id]->user) {
 
-            frames_.remove(camera_id);
+            frames_.free(camera_id);
             camera_control_.release(camera_id);
         }
     }
@@ -310,7 +314,7 @@ TFV_Result tfv::Api::component_stop(TFV_Id id) {
         auto component = components_[id];
         auto const camera_id = component->camera_id;
         component->active = false;
-        components_.remove(id);
+        components_.free(id);
         release_frame(camera_id);
         result = TFV_OK;
     }
