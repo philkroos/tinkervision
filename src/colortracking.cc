@@ -84,8 +84,9 @@ void tfv::Colortracking::execute(TFV_ImageData* data, TFV_Int rows,
 #endif  // DEBUG_COLORTRACKING
 
     if (contours.size()) {  // call back with center of finding
-        callback(component_id, (rect.x + rect.width) / 2,
-                 (rect.y + rect.height) / 2, nullptr);
+        auto const x = rect.x + (rect.width / 2);
+        auto const y = rect.y + (rect.height / 2);
+        callback(component_id, x, y, context);
     }
 }
 
