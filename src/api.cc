@@ -88,8 +88,18 @@ void tfv::Api::execute(void) {
 
     // mainloop
     while (active_) {
-        frames_.exec_all(update_frame);
-        components_.exec_all(update_component);
+        if (active_components()) {
+            frames_.exec_all(update_frame);
+            components_.exec_all(update_component);
+
+            // some buffertime for the outer thread to run
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+        else {
+            // keep a low profile if unused
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        }
+
         // Activate new and remove freed resources
         frames_.update();
         components_.update();

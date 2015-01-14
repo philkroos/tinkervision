@@ -66,10 +66,12 @@ public:
     void exec_all(std::function<void(TFV_Id, Resource&)> executor) {
         if (not managed_.size()) {
             return;
-        }
-        std::lock_guard<std::mutex> lock(managed_mutex_);
-        for (auto& resource : managed_) {
-            executor(resource.first, *resource.second);
+        } else {  // locked block
+
+            std::lock_guard<std::mutex> lock(managed_mutex_);
+            for (auto& resource : managed_) {
+                executor(resource.first, *resource.second);
+            }
         }
     }
 
@@ -184,6 +186,10 @@ public:
         return resource;
     }
 
+    // attention: not locked.
+    bool size(void) const {
+        return managed_.size();
+    }
 private:
     /**
      * Verbose access to the id of a resource-map.
@@ -249,6 +255,7 @@ private:
     ResourceMap garbage_;
     bool raw_access_ = false;
 
+    // "mutable members of const classes are modifiable" (en.cppreference.com)
     std::mutex mutable allocation_mutex_;
     std::mutex mutable garbage_mutex_;
     std::mutex mutable managed_mutex_;

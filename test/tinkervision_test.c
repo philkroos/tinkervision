@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
     printf("+ %d: Requested camera %d, code %d (%s)\n", test++, cam, result,
            result_string(result));
 
-    sleep(1);
+    sleep(15);
 
     // Test 1: Camera should not be available
     result = camera_available(invalid_id);

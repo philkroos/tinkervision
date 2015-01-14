@@ -51,7 +51,8 @@ class Api {
 private:
     Api(void);
     friend tfv::Api& get_api(void);
-    bool active_components(void) { return active_; }
+    bool active(void) const { return active_; }
+    bool active_components(void) const { return components_.size(); }
 
 public:
     Api(Api const&) = delete;
