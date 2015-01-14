@@ -61,7 +61,9 @@ bool tfv::CameraControl::acquire(TFV_Id camera_id) {
         // open new; currently Opencv color-Usb-cams hardcoded
 
         TFV_Byte constexpr channels = 3;
-        camera_map_[camera_id] = new CameraUsbOpenCv(camera_id, channels);
+        TFV_Int constexpr latency = -1;  // negative, so single-threaded
+        camera_map_[camera_id] =
+            new CameraUsbOpenCv(camera_id, channels, latency);
         camera = camera_map_.find(camera_id);
     }
 

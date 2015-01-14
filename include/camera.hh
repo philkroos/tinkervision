@@ -49,8 +49,11 @@ protected:
     int width_ = -1;
     int height_ = -1;
     int channels_ = -1;
+    int latency_ = 0;  // milliseconds b/w grabbing. If <0, single-threaded.
 
     virtual void grab_frame(void) = 0;
+
+    // These are Template Methods (Design Pattern)
     virtual bool retrieve_frame(TFV_ImageData* frame) = 0;
     virtual void close(void) = 0;
 
@@ -58,7 +61,6 @@ private:
     std::thread grabber_thread_;  // grab and retrieve frames in seperate thread
     std::mutex mutex_;            // either grab or retrieve
     bool active_ = true;
-    int latency_ = 0;  // milliseconds b/w grabbing
 
     void grab_loop(void);
 };
@@ -66,7 +68,7 @@ private:
 class CameraUsbOpenCv : public Camera {
 
 public:
-    CameraUsbOpenCv(TFV_Id camera_id, TFV_Byte channels);
+    CameraUsbOpenCv(TFV_Id camera_id, TFV_Byte channels, TFV_Int latency);
     virtual ~CameraUsbOpenCv(void);
 
     virtual bool open(void);
@@ -80,7 +82,6 @@ protected:
 
 private:
     cv::VideoCapture* camera_ = nullptr;
-    TFV_Int static const latency_ = 10;  // delay between grabbing of frames
-    TFV_Int flag_ = CV_8UC3;             // default: color
+    TFV_Int flag_ = CV_8UC3;  // default: color
 };
 };

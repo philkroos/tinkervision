@@ -25,10 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 tfv::Camera::Camera(TFV_Id camera_id, int latency, int channels)
     : camera_id_(camera_id), channels_(channels), latency_(latency) {
 
-    if (latency < 0) {
-        latency_ = 0;
+    latency_ = latency;
+    if (latency > 0) {  // multi-threaded
+        grabber_thread_ = std::thread(&Camera::grab_loop, this);
     }
-    grabber_thread_ = std::thread(&Camera::grab_loop, this);
 }
 
 void tfv::Camera::grab_loop(void) {
@@ -47,8 +47,10 @@ bool tfv::Camera::get_frame(TFV_ImageData* frame) {
         return false;
     }
 
-    {
+    if (latency_ > 0) {
         std::lock_guard<std::mutex> lock(mutex_);
+        return retrieve_frame(frame);
+    } else {  // single threaded
         return retrieve_frame(frame);
     }
 }
@@ -61,9 +63,9 @@ void tfv::Camera::stop(void) {
     close();
 }
 
-tfv::CameraUsbOpenCv::CameraUsbOpenCv(TFV_Id camera_id, TFV_Byte channels)
-    : Camera(camera_id, tfv::CameraUsbOpenCv::latency_,
-             static_cast<int>(channels)) {
+tfv::CameraUsbOpenCv::CameraUsbOpenCv(TFV_Id camera_id, TFV_Byte channels,
+                                      TFV_Int latency)
+    : Camera(camera_id, latency, static_cast<int>(channels)) {
 
     if (channels == 1) {
         flag_ = CV_8UC1;
@@ -128,6 +130,9 @@ void tfv::CameraUsbOpenCv::grab_frame(void) {
 }
 
 bool tfv::CameraUsbOpenCv::retrieve_frame(TFV_ImageData* frame) {
+    if (latency_ < 0) {  // single-threaded
+        grab_frame();
+    }
     cv::Mat container(height_, width_, flag_, frame);
 
     // can't fill container directly; retrieve initializes a new data block
