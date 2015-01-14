@@ -42,7 +42,6 @@ TFV_Result colortracking_start(TFV_Id id, TFV_Id camera_id, TFV_Byte min_hue,
 }
 
 TFV_Result colortracking_restart(TFV_Id feature_id) {
-    return TFV_NOT_IMPLEMENTED;
     try {
         auto& api = tfv::get_api();
         return api.component_start<tfv::Colortracking>(feature_id);

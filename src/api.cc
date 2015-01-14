@@ -50,7 +50,7 @@ bool tfv::Api::stop(void) {
 
 void tfv::Api::execute(void) {
 #ifdef DEBUG_CAM
-    auto update_frames = [this](TFV_Id id, tfv::FrameWithUserCounter& frame) {
+    auto update_frame = [this](TFV_Id id, tfv::FrameWithUserCounter& frame) {
         auto grabbed = camera_control_.get_frame(id, frame.data());
         if (grabbed) {
             window.update(id, frame.data(), frame.rows(), frame.columns());
@@ -90,10 +90,12 @@ void tfv::Api::execute(void) {
     while (active_) {
         frames_.exec_all(update_frame);
         components_.exec_all(update_component);
+        // Activate new and remove freed resources
+        frames_.update();
+        components_.update();
     }
 
     components_.exec_all(stop_component);  // this will also free the cameras
-    components_.free_all();
 }
 
 tfv::Api& tfv::get_api(void) {
@@ -159,22 +161,26 @@ TFV_Result tfv::Api::is_camera_available(TFV_Id camera_id) {
 }
 
 void tfv::Api::allocate_frame(TFV_Id camera_id) {
-    if (not frames_.managed(camera_id)) {
+    auto frame = frames_[camera_id];
+
+    if (frame) {
+        frame->user++;
+    } else {
         int rows, columns, channels = 0;
         camera_control_.get_properties(camera_id, rows, columns, channels);
         auto const user = 1;
         frames_.allocate(camera_id, camera_id, rows, columns, channels, user);
-    } else {
-        frames_[camera_id]->user++;
     }
 }
 
 void tfv::Api::release_frame(TFV_Id camera_id) {
-    if (frames_.managed(camera_id)) {
-
-        frames_[camera_id]->user--;
-        if (not frames_[camera_id]->user) {
-
+    auto frame =
+        frames_[camera_id];  // takes too long sometimes, see shared_resource
+    std::cout << "Release frame" << std::endl;
+    if (frame) {
+        frame->user--;
+        if (not frame->user) {
+            std::cout << "Release-free" << std::endl;
             frames_.free(camera_id);
             camera_control_.release(camera_id);
         }

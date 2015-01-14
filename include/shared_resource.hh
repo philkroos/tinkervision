@@ -64,9 +64,10 @@ public:
      * Executes a function on all active resources in turn.
      */
     void exec_all(std::function<void(TFV_Id, Resource&)> executor) {
+        if (not managed_.size()) {
+            return;
+        }
         std::lock_guard<std::mutex> lock(managed_mutex_);
-        persist();
-        cleanup();
         for (auto& resource : managed_) {
             executor(resource.first, *resource.second);
         }
@@ -78,6 +79,9 @@ public:
      * \return t if the resource was active.
      */
     void exec_one(TFV_Id id, std::function<void(Resource&)> executor) {
+        if (not managed_.size()) {
+            return;
+        }
         std::lock_guard<std::mutex> lock(managed_mutex_);
         auto it = managed_.find(id);
         if (it != managed_.end()) {
@@ -86,26 +90,9 @@ public:
         return it != managed_.end();
     }
 
-    void free_all(void) {
-        {
-            std::lock_guard<std::mutex> lock(allocation_mutex_);
-            for (auto& resource : allocated_) {
-                allocated_.erase(resource.first);
-                if (resource.second) {
-                    delete resource.second;
-                }
-            }
-        }
-        {
-            std::lock_guard<std::mutex> lock(managed_mutex_);
-            for (auto& resource : managed_) {
-                managed_.erase(resource.first);
-                if (resource.second) {
-                    delete resource.second;
-                }
-            }
-        }
-        garbage_.clear();
+    void update(void) {
+        persist();
+        cleanup();
     }
 
     /**
@@ -135,7 +122,9 @@ public:
     void free(TFV_Id id) {
         Resource* resource = nullptr;
         {
+            std::cout << "Waiting for managed_mutex_..." << std::endl;
             std::lock_guard<std::mutex> lock(managed_mutex_);
+            std::cout << "Got managed_mutex_." << std::endl;
             if (exists(managed_, id)) {
                 resource = managed_[id];
             }
@@ -147,7 +136,8 @@ public:
     }
 
     /**
-     * True if the resource id is active.
+     * Check whether a resource is active.
+     * \return True If the resource id is active.
      */
     bool managed(TFV_Id id) const {
         std::lock_guard<std::mutex> lock(managed_mutex_);
@@ -160,10 +150,16 @@ public:
      * of the retrieved resource reference is not thread-safe.  I.e.,
      * during usage of the resource it must not be free()'d and there
      * must not be a concurrent thread calling exec_all().
+     *
+     * \todo Mutex acquisition is not fair and so this method takes
+     * too long sometimes.
      */
     Resource const& operator[](TFV_Id id) const {
-        std::lock_guard<std::mutex> lock(managed_mutex_);
-        auto it = managed_.find(id);
+        ConstIterator it;
+        {
+            std::lock_guard<std::mutex> lock(managed_mutex_);
+            it = managed_.find(id);
+        }
         return *(it->second);
     }
 
@@ -174,11 +170,18 @@ public:
      * pointer is not thread-safe.  I.e., during usage of the resource
      * it must not be free()'d and there must not be a concurrent
      * thread calling exec_all().
+     *
+     * \todo Mutex acquisition is not fair and so this method takes
+     * too long sometimes.
      */
     Resource* operator[](TFV_Id id) {
-        std::lock_guard<std::mutex> lock(managed_mutex_);
-        auto it = managed_.find(id);
-        return (it == managed_.end()) ? nullptr : it->second;
+        Resource* resource = nullptr;
+        {
+            std::lock_guard<std::mutex> lock(managed_mutex_);
+            auto it = managed_.find(id);
+            resource = (it == managed_.end()) ? nullptr : it->second;
+        }
+        return resource;
     }
 
 private:
@@ -204,8 +207,8 @@ private:
      */
     void persist(void) {
         std::lock_guard<std::mutex> a_lock(allocation_mutex_);
-        // std::lock_guard<std::mutex> m_lock(managed_mutex_);
         if (not allocated_.empty()) {
+            std::lock_guard<std::mutex> m_lock(managed_mutex_);
             managed_.insert(allocated_.begin(), allocated_.end());
             allocated_.clear();
         }
@@ -216,9 +219,9 @@ private:
      */
     void cleanup(void) {
         std::lock_guard<std::mutex> g_lock(garbage_mutex_);
-        // std::lock_guard<std::mutex> m_lock(managed_mutex_);
         for (auto& resource : garbage_) {
             if (resource.second) {
+                std::lock_guard<std::mutex> m_lock(managed_mutex_);
                 managed_.erase(resource.first);
                 delete resource.second;
             }
@@ -244,6 +247,7 @@ private:
     ResourceMap allocated_;
     ResourceMap managed_;
     ResourceMap garbage_;
+    bool raw_access_ = false;
 
     std::mutex mutable allocation_mutex_;
     std::mutex mutable garbage_mutex_;

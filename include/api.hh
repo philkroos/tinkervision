@@ -76,21 +76,20 @@ public:
         auto result = TFV_INVALID_CONFIGURATION;
 
         if (tfv::valid<Comp>(args...)) {
-            if (components_.managed(id)) {  // reconfiguring requested
+            if (components_.managed(id)) {         // reconfiguring requested
+                auto component = components_[id];  // ptr
 
-                auto component = components_[id];
                 if (check_type<Comp>(component)) {
-
                     result = component_reset(component, camera_id, args...);
-                } else {
 
+                } else {
                     result = TFV_INVALID_ID;
                 }
+
             } else {
-
                 result = TFV_CAMERA_ACQUISITION_FAILED;
-                if (camera_control_.acquire(camera_id)) {
 
+                if (camera_control_.acquire(camera_id)) {
                     allocate_frame(camera_id);
                     components_.allocate<Comp>(id, camera_id, id, args...);
                     result = TFV_OK;
@@ -156,20 +155,37 @@ public:
         return result;
     }
 
+    /**
+     * Start a component which was already initialized by
+     * component_set().  This method succeeds if the component was
+     * already started or can be started.  This in turn is only
+     * possible if a component is registered under the given id, that
+     * component is of the type of the template parameter, and the
+     * camera set in the component can be acquired.
+     *
+     * \param[in] id The id of the component to start.
+     *
+     * \return TFV_UNCONFIGURED_ID if no component is registered with
+     * the given id; TFV_INVALID_ID if the registered component is not
+     * of the correct type; TFV_CAMERA_ACQUISATION_FAILED if the
+     * camera specified for the component is not available; TFV_OK iff
+     * the component is running after returning.
+     */
     template <typename Component>
     TFV_Result component_start(TFV_Id id) {
         auto result = TFV_UNCONFIGURED_ID;
 
         if (components_.managed(id)) {
-
             auto component = components_[id];
             result = TFV_INVALID_ID;
 
             if (check_type<Component>(component)) {
                 result = TFV_CAMERA_ACQUISITION_FAILED;
 
-                if (camera_control_.acquire(component->camera_id)) {
-
+                if (component->active) {
+                    result = TFV_OK;
+                } else if (camera_control_.acquire(component->camera_id)) {
+                    allocate_frame(component->camera_id);
                     component->active = true;
                     result = TFV_OK;
                 }
@@ -182,16 +198,17 @@ public:
     TFV_Result component_stop(TFV_Id id) {
         auto result = TFV_UNCONFIGURED_ID;
 
-        if (components_.managed(id)) {
+        auto component = components_[id];
+        if (component) {
+            result = TFV_INVALID_ID;
 
-            auto component = components_[id];
-            auto const camera_id = component->camera_id;
-            component->active = false;
-            components_.free(id);
-            release_frame(camera_id);
-            result = TFV_OK;
+            if (check_type<Component>(component)) {
+                auto const camera_id = component->camera_id;
+                component->active = false;
+                release_frame(camera_id);
+                result = TFV_OK;
+            }
         }
-
         return result;
     }
 
