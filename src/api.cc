@@ -144,99 +144,12 @@ tfv::Api& tfv::get_api(void) {
     return *api;
 }
 
-TFV_Result tfv::Api::colortracking_set(TFV_Id id, TFV_Id camera_id,
-                                       TFV_Byte min_hue, TFV_Byte max_hue,
-                                       TFV_CallbackColortrack callback,
-                                       TFV_Context context) {
-
-    return component_set<tfv::Colortracking>(id, camera_id, min_hue, max_hue,
-                                             callback, context);
-}
-
-TFV_Result tfv::Api::colortracking_get(TFV_Id id, TFV_Id& camera_id,
-                                       TFV_Byte& min_hue,
-                                       TFV_Byte& max_hue) const {
-
-    auto result = TFV_UNCONFIGURED_ID;
-
-    tfv::Colortracking const* ct = nullptr;
-    result = component_get<tfv::Colortracking>(id, &ct);
-
-    if (ct) {
-        tfv::get<tfv::Colortracking>(*ct, camera_id, min_hue, max_hue);
-    }
-
-    return result;
-}
-
-TFV_Result tfv::Api::colortracking_stop(TFV_Id id) {
-    return component_stop<tfv::Colortracking>(id);
-}
-
-TFV_Result tfv::Api::colortracking_start(TFV_Id id) {
-    return component_start<tfv::Colortracking>(id);
-}
-
 TFV_Result tfv::Api::is_camera_available(TFV_Id camera_id) {
     auto result = TFV_CAMERA_ACQUISITION_FAILED;
     if (camera_control_.is_available(camera_id)) {
         result = TFV_OK;
     }
 
-    return result;
-}
-
-template <typename Comp, typename... Args>
-TFV_Result tfv::Api::component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
-
-    auto result = TFV_INVALID_CONFIGURATION;
-
-    if (tfv::valid<Comp>(args...)) {
-        if (components_.managed(id)) {  // reconfiguring requested
-
-            auto component = components_[id];
-            if (check_type<Comp>(component)) {
-
-                result = component_reset(component, camera_id, args...);
-            } else {
-
-                result = TFV_INVALID_ID;
-            }
-        } else {
-
-            result = TFV_CAMERA_ACQUISITION_FAILED;
-            if (camera_control_.acquire(camera_id)) {
-
-                allocate_frame(camera_id);
-                components_.allocate<Comp>(id, camera_id, id, args...);
-                result = TFV_OK;
-            }
-        }
-    }
-
-    return result;
-}
-
-template <typename Comp, typename... Args>
-TFV_Result tfv::Api::component_reset(Comp& component, TFV_Id camera_id,
-                                     Args... args) {
-    auto result = TFV_FEATURE_CONFIGURATION_FAILED;
-
-    if (component->camera_id != camera_id) {  // other cam requested
-
-        result = TFV_CAMERA_ACQUISITION_FAILED;
-        if (camera_control_.acquire(camera_id)) {
-
-            allocate_frame(camera_id);
-            release_frame(component->camera_id);
-            tfv::set<Comp>(static_cast<Comp*>(&component), args...);
-            result = TFV_OK;
-        }
-    } else {
-
-        tfv::set<Comp>(static_cast<Comp*>(&component), args...);
-        result = TFV_OK;
-    }
     return result;
 }
 
@@ -261,61 +174,4 @@ void tfv::Api::release_frame(TFV_Id camera_id) {
             camera_control_.release(camera_id);
         }
     }
-}
-
-template <typename Component>
-TFV_Result tfv::Api::component_get(TFV_Id id,
-                                   Component const** component) const {
-    auto result = TFV_UNCONFIGURED_ID;
-
-    if (components_.managed(id)) {
-        result = TFV_INVALID_ID;
-        auto const& component_ = components_[id];
-
-        if (check_type<Component>(component_)) {
-            result = TFV_OK;
-            *component = static_cast<Component const*>(&component_);
-        }
-    }
-
-    return result;
-}
-
-template <typename Component>
-TFV_Result tfv::Api::component_start(TFV_Id id) {
-    auto result = TFV_UNCONFIGURED_ID;
-
-    if (components_.managed(id)) {
-
-        auto component = components_[id];
-        result = TFV_INVALID_ID;
-
-        if (check_type<Component>(component)) {
-            result = TFV_CAMERA_ACQUISITION_FAILED;
-
-            if (camera_control_.acquire(component->camera_id)) {
-
-                component->active = true;
-                result = TFV_OK;
-            }
-        }
-    }
-    return result;
-}
-
-template <typename Component>
-TFV_Result tfv::Api::component_stop(TFV_Id id) {
-    auto result = TFV_UNCONFIGURED_ID;
-
-    if (components_.managed(id)) {
-
-        auto component = components_[id];
-        auto const camera_id = component->camera_id;
-        component->active = false;
-        components_.free(id);
-        release_frame(camera_id);
-        result = TFV_OK;
-    }
-
-    return result;
 }

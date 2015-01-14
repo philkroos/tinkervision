@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "api.hh"
 #include "tinkervision.h"
+#include "colortracking.hh"
 
 extern "C" {
 
@@ -32,8 +33,8 @@ TFV_Result colortracking_start(TFV_Id id, TFV_Id camera_id, TFV_Byte min_hue,
 
     try {
         auto& api = tfv::get_api();
-        return api.colortracking_set(id, camera_id, min_hue, max_hue, callback,
-                                     context);
+        return api.component_set<tfv::Colortracking>(
+            id, camera_id, min_hue, max_hue, callback, context);
     }
     catch (...) {
         return TFV_INTERNAL_ERROR;
@@ -44,7 +45,7 @@ TFV_Result colortracking_restart(TFV_Id feature_id) {
     return TFV_NOT_IMPLEMENTED;
     try {
         auto& api = tfv::get_api();
-        return api.colortracking_start(feature_id);
+        return api.component_start<tfv::Colortracking>(feature_id);
     }
     catch (...) {
         return TFV_INTERNAL_ERROR;
@@ -54,7 +55,7 @@ TFV_Result colortracking_restart(TFV_Id feature_id) {
 TFV_Result colortracking_stop(TFV_Id feature_id) {
     try {
         auto& api = tfv::get_api();
-        return api.colortracking_stop(feature_id);
+        return api.component_stop<tfv::Colortracking>(feature_id);
     }
     catch (...) {
         return TFV_INTERNAL_ERROR;
@@ -65,8 +66,8 @@ TFV_Result colortracking_get(TFV_Id feature_id, TFV_Id* camera_id,
                              TFV_Byte* min_hue, TFV_Byte* max_hue) {
     try {
         auto& api = tfv::get_api();
-        return api.colortracking_get(feature_id, *camera_id, *min_hue,
-                                     *max_hue);
+        return api.component_get<tfv::Colortracking>(feature_id, *camera_id,
+                                                     *min_hue, *max_hue);
     }
     catch (...) {
         return TFV_INTERNAL_ERROR;
