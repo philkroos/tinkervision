@@ -70,9 +70,13 @@ tfv::CameraUsbOpenCv::CameraUsbOpenCv(TFV_Id camera_id, TFV_Byte channels)
     } else if (channels != 3) {
         channels_ = -1;  // invalid setting
     }
+    std::cout << "Constructing cam " << camera_id << std::endl;
 }
 
-tfv::CameraUsbOpenCv::~CameraUsbOpenCv(void) { close(); }
+tfv::CameraUsbOpenCv::~CameraUsbOpenCv(void) {
+    close();
+    std::cout << "Destroying cam " << camera_id_ << std::endl;
+}
 
 bool tfv::CameraUsbOpenCv::open(void) {
 
@@ -135,7 +139,7 @@ bool tfv::CameraUsbOpenCv::retrieve_frame(TFV_ImageData* frame) {
         and(tmp.cols == container.cols) and(tmp.rows() == container.rows());
 #endif
     if (retrieved) {
-      tmp.copyTo(container);
+        tmp.copyTo(container);
     }
 
     return retrieved;

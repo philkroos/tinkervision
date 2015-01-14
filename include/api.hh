@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "strings.hh"
 #include "tinkervision_defines.h"
 #include "cameracontrol.hh"
-#include "colortracking.hh"
 #include "component.hh"
 #include "frame.hh"
 #include "shared_resource.hh"
@@ -61,6 +60,14 @@ public:
     ~Api(void);
 
     bool start(void);
+
+    /**
+     * Stops all running components.  This is not necessary in general
+     * if the Api is being deconstructed in a controlled way. If,
+     * however, the client application should crash or exit without stopping
+     * all instantiated components, this can be used.
+     * \return True if the api stopped successfully.
+     */
     bool stop(void);
 
     template <typename Comp, typename... Args>

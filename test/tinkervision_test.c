@@ -156,7 +156,7 @@ int main(int argc, char* argv[]) {
         "Cam-Id: %d, min-hue: %d, max-hue: %d\n",
         test++, invalid_id, result, result_string(result), cam, min_hue,
         max_hue);
-    return 0;
+
     /*
 
     // Test 11: Camera should still be available
@@ -197,7 +197,7 @@ int main(int argc, char* argv[]) {
            result_string(result));
 
     sleep(2);
-*/
+
     printf(
         "--- All features stopped but id 0; now showing results of tracking "
         "---\n");
@@ -217,9 +217,11 @@ int main(int argc, char* argv[]) {
     result = colortracking_stop(id);
     printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id, result,
            result_string(result));
+    */
+    // Stopping manually is not necessary but can be used to stop active
+    // resources
+    // if a client app should have crashed.
+    stop_api();
 
-    // Stopping manually is not necessary
-    // stop_api();
-
-    // sleep(10);
+    sleep(4);
 }

@@ -86,6 +86,28 @@ public:
         return it != managed_.end();
     }
 
+    void free_all(void) {
+        {
+            std::lock_guard<std::mutex> lock(allocation_mutex_);
+            for (auto& resource : allocated_) {
+                allocated_.erase(resource.first);
+                if (resource.second) {
+                    delete resource.second;
+                }
+            }
+        }
+        {
+            std::lock_guard<std::mutex> lock(managed_mutex_);
+            for (auto& resource : managed_) {
+                managed_.erase(resource.first);
+                if (resource.second) {
+                    delete resource.second;
+                }
+            }
+        }
+        garbage_.clear();
+    }
+
     /**
      * Constructs a Resource with the arguments ...args.  Prior to
      * construction, it is checked if another resource is allocated

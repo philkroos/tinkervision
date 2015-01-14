@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif  // DEV
 
 #include "api.hh"
-#include "colortracking.hh"
 #include "component.hh"
 
 tfv::Api::Api(void) { (void)start(); }
@@ -61,16 +60,16 @@ void tfv::Api::execute(void) {
     };
 
 #else
-    // Refresh each camera
-    auto update_frames = [this](TFV_Id id, tfv::FrameWithUserCounter& frame) {
+    // Refresh camera
+    auto update_frame = [this](TFV_Id id, tfv::FrameWithUserCounter& frame) {
         camera_control_.get_frame(id, frame.data());
     };
 #endif
 
-    // Execute each active component
+    // Execute active component
     auto const& frames = const_cast<Frames const&>(frames_);
-    auto update_components = [this, &frames](TFV_Id id,
-                                             tfv::Component& component) {
+    auto update_component = [this, &frames](TFV_Id id,
+                                            tfv::Component& component) {
         if (component.active) {
             auto const& cam = component.camera_id;
             if (frames.managed(cam)) {
@@ -81,11 +80,20 @@ void tfv::Api::execute(void) {
         }
     };
 
+    // Stop component
+    auto stop_component = [this](TFV_Id id, tfv::Component& component) {
+        component.active = false;
+        release_frame(component.camera_id);
+    };
+
     // mainloop
     while (active_) {
-        frames_.exec_all(update_frames);
-        components_.exec_all(update_components);
+        frames_.exec_all(update_frame);
+        components_.exec_all(update_component);
     }
+
+    components_.exec_all(stop_component);  // this will also free the cameras
+    components_.free_all();
 }
 
 tfv::Api& tfv::get_api(void) {
@@ -94,18 +102,15 @@ tfv::Api& tfv::get_api(void) {
     // It would be easier to just return a static
     // Api-instance from get_api.
     // However, since the library is supposed to be run in
-    // the context of a
-    // damon, the calling context potentially does not
-    // finish for a long time.
+    // the context of a daemon, the calling context potentially
+    // does not finish for a long time.
     // Therefore, watching the Api-usage with the following
-    // static inner context
-    // makes it possible to release the Api-ressource after
-    // some 'timeout'.
+    // static inner context makes it possible to release the
+    // Api-ressource after some 'timeout'.
     // For the user, this is transparent since the Api will
-    // only be released if
-    // it is inactive, in which case reinstantiating the Api
-    // will have the same
-    // result as would have accessing a 'sleeping' one.
+    // only be released if it is inactive, in which case
+    // reinstantiating the Api will have the same result as
+    // would have accessing a 'sleeping' one.
     static auto exec = [](tfv::Api* api) {
         auto timeout = std::chrono::seconds(60);
         auto checkpoint = std::chrono::system_clock::now();

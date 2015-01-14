@@ -69,6 +69,9 @@ bool tfv::CameraControl::acquire(TFV_Id camera_id) {
                            or camera->second->open())) {
 
         result = true;
+    } else if (camera->second) {
+        delete camera->second;
+        camera_map_.erase(camera_id);
     }
 
     return result;
