@@ -115,3 +115,12 @@ void tfv::set<tfv::Colortracking>(tfv::Colortracking* ct, TFV_Byte min_hue,
         ct->max_hue0 = COLORTRACK_MAXIMUM_HUE;
     }
 }
+
+template <>
+void tfv::get<tfv::Colortracking>(tfv::Colortracking const& ct,
+                                  TFV_Id& camera_id, TFV_Byte& min_hue,
+                                  TFV_Byte& max_hue) {
+    camera_id = ct.camera_id;
+    min_hue = ct.min_hue;
+    max_hue = ct.max_hue;
+}

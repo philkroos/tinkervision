@@ -83,6 +83,10 @@ bool valid<Colortracking>(TFV_Byte& min_hue, TFV_Byte& max_hue,
 template <>
 void set<Colortracking>(Colortracking* ct, TFV_Byte min_hue, TFV_Byte max_hue,
                         TFV_CallbackColortrack callback, TFV_Context context);
+
+template <>
+void get<Colortracking>(Colortracking const& ct, TFV_Id& camera_id,
+                        TFV_Byte& min_hue, TFV_Byte& max_hue);
 };
 
 #endif /* COLORTRACKING_H */

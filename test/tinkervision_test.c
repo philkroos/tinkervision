@@ -49,8 +49,8 @@ int main(int argc, char* argv[]) {
     TFV_Id id = 0;
     TFV_Id cam = 1;
     TFV_Id invalid_id = 100;
-    TFV_Byte min_hue = 97;
-    TFV_Byte max_hue = 107;
+    TFV_Byte min_hue = 18;
+    TFV_Byte max_hue = 25;
 
     int test = 0;
     // Test 0: Camera should be available
@@ -75,137 +75,129 @@ int main(int argc, char* argv[]) {
            result_string(result));
     sleep(1);
 
+    id += 1;
+    result =
+        colortracking_start(id, cam, min_hue, max_hue, tfcv_callback_id0, NULL);
+
+    printf("+ %d: Configured feature id %d: Code %d (%s)\n", test++, id, result,
+           result_string(result));
+
+    sleep(1);
+
+    // Test 3: invalid configuration of new feature (min > max-hue)
+    result = colortracking_start(id + 1, cam, 100, 0, tfcv_callback_id0, NULL);
+
+    printf("# %d: Configuring invalid feature id %d: Code %d (%s)\n", test++,
+           invalid_id, result, result_string(result));
+
+    sleep(1);
+
+    // Test 4: invalid configuration (missing callback)
+    result = colortracking_start(id + 1, cam, 100, 0, tfcv_callback_id0, NULL);
+
+    printf("# %d: Configuring invalid feature id %d: Code %d (%s)\n", test++,
+           invalid_id, result, result_string(result));
+
+    sleep(1);
+
+    // Test 5: reconfiguration of a feature
+    result =
+        colortracking_start(id, cam, min_hue, max_hue, tfcv_callback_id0, NULL);
+
+    printf("+ %d: Re-Configured feature id %d: Code %d (%s)\n", test++, id,
+           result, result_string(result));
+
+    sleep(1);
+
+    // Test 6: stop and restart of a feature
     /*
+    result = colortracking_stop(id);
+    printf("+ %d: Stopped configured feature id %d: Code %d (%s)\n", test++, id,
+           result, result_string(result));
+    sleep(1);
+    */
+
+    // Test 7:
+    result = colortracking_restart(id);
+    printf("+ %d: Restarted configured feature id %d: Code %d (%s)\n", test++,
+           id, result, result_string(result));
+
+    sleep(1);
+
+    // Test 8: Second camera - ok if attached (and no usb-bus error...),
+    // highgui-error if not attached.
+    int id2 = 40;
+    int cam2 = 1;
+    result = colortracking_start(id2, cam2, min_hue, max_hue, tfcv_callback_id0,
+                                 NULL);
+
+    printf("- %d: Configured feature id %d: Code %d (%s)\n", test++, id2,
+           result, result_string(result));
+
+    sleep(1);
+
+    // Test 9: request for configuration details
+    cam = -1;
+    min_hue = -1;
+    min_hue = -1;
+    result = colortracking_get(id, &cam, &min_hue, &max_hue);
+    printf(
+        "+ %d: Got configured feature id %d: Code %d (%s)\n "
+        "Cam-Id: %d, min-hue: %d, max-hue: %d\n",
+        test++, id, result, result_string(result), cam, min_hue, max_hue);
+
+    // Test 10: request for details of invalid feature
+    cam = -1;
+    min_hue = -1;
+    min_hue = -1;
+    result = colortracking_get(invalid_id, &cam, &min_hue, &max_hue);
+    printf(
+        "# %d: Got configured feature id %d: Code %d (%s)\n "
+        "Cam-Id: %d, min-hue: %d, max-hue: %d\n",
+        test++, invalid_id, result, result_string(result), cam, min_hue,
+        max_hue);
+    return 0;
+    /*
+
+    // Test 11: Camera should still be available
+    cam = 0;
+    result = camera_available(cam);
+    printf("+ %d: Requested camera %d, code %d (%s)\n", test++, cam, result,
+           result_string(result));
+
+    // Test 12: Stopping invalid feature
+    result = colortracking_stop(invalid_id);
+    printf("# %d: Stopped invalid feature %d: Code %d (%s)\n", test++,
+           invalid_id, result, result_string(result));
+
+    // Test 13: 5 users per cam are configured
+    cam = 0;
+    min_hue = 0;
+    while (id < 8) {
         id += 1;
-        result =
-            colortracking_start(id, cam, min_hue, max_hue, tfcv_callback_id0,
-       NULL);
+        result = colortracking_start(id, cam, min_hue, max_hue,
+                                     tfcv_callback_id0, NULL);
 
         printf("+ %d: Configured feature id %d: Code %d (%s)\n", test++, id,
-       result,
-               result_string(result));
-
-        sleep(1);
-
-        // Test 3: invalid configuration of new feature (min > max-hue)
-        result = colortracking_start(id + 1, cam, 100, 0, tfcv_callback_id0,
-       NULL);
-
-        printf("# %d: Configuring invalid feature id %d: Code %d (%s)\n",
-       test++,
-               invalid_id, result, result_string(result));
-
-        sleep(1);
-
-        // Test 4: invalid configuration (missing callback)
-        result = colortracking_start(id + 1, cam, 100, 0, tfcv_callback_id0,
-       NULL);
-
-        printf("# %d: Configuring invalid feature id %d: Code %d (%s)\n",
-       test++,
-               invalid_id, result, result_string(result));
-
-        sleep(1);
-
-        // Test 5: reconfiguration of a feature
-        result =
-            colortracking_start(id, cam, min_hue, max_hue, tfcv_callback_id0,
-       NULL);
-
-        printf("+ %d: Re-Configured feature id %d: Code %d (%s)\n", test++, id,
                result, result_string(result));
+    }
 
-        sleep(1);
+    sleep(1);
+    // Stopping all is preferred; else libv4l2 might throw errors
 
-        // Test 6: stop and restart of a feature
+    while (id) {
         result = colortracking_stop(id);
-        printf("+ %d: Stopped configured feature id %d: Code %d (%s)\n", test++,
-       id,
-               result, result_string(result));
-
-        sleep(1);
-
-        // Test 7:
-        result = colortracking_restart(id);
-        printf("+ %d: Restarted configured feature id %d: Code %d (%s)\n",
-       test++,
-               id, result, result_string(result));
-
-        sleep(1);
-
-        // Test 8: Second camera - ok if attached (and no usb-bus error...),
-        // highgui-error if not attached.
-        int id2 = 40;
-        int cam2 = 1;
-        result = colortracking_start(id2, cam2, min_hue, max_hue,
-       tfcv_callback_id0,
-                                     NULL);
-
-        printf("- %d: Configured feature id %d: Code %d (%s)\n", test++, id2,
-               result, result_string(result));
-
-        sleep(1);
-
-        // Test 9: request for configuration details
-        cam = -1;
-        min_hue = -1;
-        min_hue = -1;
-        result = colortracking_get(id, &cam, &min_hue, &max_hue);
-        printf(
-            "+ %d: Got configured feature id %d: Code %d (%s)\n "
-            "Cam-Id: %d, min-hue: %d, max-hue: %d\n",
-            test++, id, result, result_string(result), cam, min_hue, max_hue);
-
-        // Test 10: request for details of invalid feature
-        cam = -1;
-        min_hue = -1;
-        min_hue = -1;
-        result = colortracking_get(invalid_id, &cam, &min_hue, &max_hue);
-        printf(
-            "# %d: Got configured feature id %d: Code %d (%s)\n "
-            "Cam-Id: %d, min-hue: %d, max-hue: %d\n",
-            test++, invalid_id, result, result_string(result), cam, min_hue,
-            max_hue);
-
-        // Test 11: Camera should still be available
-        cam = 0;
-        result = camera_available(cam);
-        printf("+ %d: Requested camera %d, code %d (%s)\n", test++, cam, result,
+        printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id--,
+   result,
                result_string(result));
+    }
 
-        // Test 12: Stopping invalid feature
-        result = colortracking_stop(invalid_id);
-        printf("# %d: Stopped invalid feature %d: Code %d (%s)\n", test++,
-               invalid_id, result, result_string(result));
+    result = colortracking_stop(id2);
+    printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id2, result,
+           result_string(result));
 
-        // Test 13: 5 users per cam are configured
-        cam = 0;
-        min_hue = 0;
-        while (id < 8) {
-            id += 1;
-            result = colortracking_start(id, cam, min_hue, max_hue,
-                                         tfcv_callback_id0, NULL);
-
-            printf("+ %d: Configured feature id %d: Code %d (%s)\n", test++, id,
-                   result, result_string(result));
-        }
-
-        sleep(1);
-        // Stopping all is preferred; else libv4l2 might throw errors
-
-        while (id) {
-            result = colortracking_stop(id);
-            printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id--,
-       result,
-                   result_string(result));
-        }
-
-        result = colortracking_stop(id2);
-        printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id2, result,
-               result_string(result));
-
-        sleep(2);
-    */
+    sleep(2);
+*/
     printf(
         "--- All features stopped but id 0; now showing results of tracking "
         "---\n");
@@ -216,7 +208,7 @@ int main(int argc, char* argv[]) {
     struct timespec time = {0};
     time.tv_sec = 0;
     time.tv_nsec = 500000000L;
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 40; i++) {
         nanosleep(&time, (struct timespec*)NULL);
     }
     cvReleaseImage(&image);

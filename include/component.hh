@@ -49,5 +49,8 @@ bool valid(Args&... args) {
 
 template <typename T, typename... Args>
 void set(T* component, Args... args) {}
+
+template <typename T, typename... Args>
+void get(T const& component, Args&... args) {}
 };
 #endif /* COMPONENT_H */

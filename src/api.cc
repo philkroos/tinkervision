@@ -163,9 +163,7 @@ TFV_Result tfv::Api::colortracking_get(TFV_Id id, TFV_Id& camera_id,
     result = component_get<tfv::Colortracking>(id, &ct);
 
     if (ct) {
-        camera_id = ct->camera_id;
-        min_hue = ct->min_hue;
-        max_hue = ct->max_hue;
+        tfv::get<tfv::Colortracking>(*ct, camera_id, min_hue, max_hue);
     }
 
     return result;

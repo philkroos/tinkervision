@@ -116,11 +116,23 @@ private:
     template <typename Component>
     TFV_Result component_get(TFV_Id id, Component const** component) const;
 
+    /**
+     * Predicate to check if the argument is of same type as the
+     * template parameter.
+     * \param[in] component The component to type-check.
+     * \return True if the types of the template parameter and argument match.
+     */
     template <typename C>
     bool check_type(tfv::Component const* component) const {
         return typeid(*component) == typeid(C);
     }
 
+    /**
+     * Predicate to check if the argument is of same type as the
+     * template parameter.
+     * \param[in] component The component to type-check.
+     * \return True if the types of the template parameter and argument match.
+     */
     template <typename C>
     bool check_type(tfv::Component const& component) const {
         return typeid(component) == typeid(C);
