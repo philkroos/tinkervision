@@ -20,6 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef CAMERACONTROL_H
 #define CAMERACONTROL_H
 
+#include <sys/stat.h>  // stat, for fast device_exists()
+#include <string>
+
 #include <opencv2/opencv.hpp>
 
 #include "camera.hh"
@@ -33,6 +36,12 @@ public:
 
     CameraControl(CameraControl const&) = delete;
     CameraControl& operator=(CameraControl const&) = delete;
+
+    inline bool device_exists(int number) {
+        struct stat buffer;
+        return (stat(std::string("/dev/video" + std::to_string(number)).c_str(),
+                     &buffer) == 0);
+    }
 
     bool is_available(TFV_Id camera_id);
     bool acquire(TFV_Id camera_id);

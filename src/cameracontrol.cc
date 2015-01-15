@@ -60,11 +60,13 @@ bool tfv::CameraControl::acquire(TFV_Id camera_id) {
     if (camera == camera_map_.end()) {
         // open new; currently Opencv color-Usb-cams hardcoded
 
-        TFV_Byte constexpr channels = 3;
-        TFV_Int constexpr latency = -1;  // negative, so single-threaded
-        camera_map_[camera_id] =
-            new CameraUsbOpenCv(camera_id, channels, latency);
-        camera = camera_map_.find(camera_id);
+        if (device_exists(camera_id)) {
+            TFV_Byte constexpr channels = 3;
+            TFV_Int constexpr latency = -1;  // negative, so single-threaded
+            camera_map_[camera_id] =
+                new CameraUsbOpenCv(camera_id, channels, latency);
+            camera = camera_map_.find(camera_id);
+        }
     }
 
     if (camera->second and(camera->second->is_open()
