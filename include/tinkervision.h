@@ -37,7 +37,14 @@ TFV_Result colortracking_get(TFV_Id feature_id, TFV_Id* camera_id,
 
 TFV_Result camera_available(TFV_Id camera_id);
 
-TFV_Result stop_api(void);
+// pause
+TFV_Result stop(void);
+
+// restart
+TFV_Result start(void);
+
+// shutdown
+TFV_Result quit(void);
 
 TFV_Result set_execution_latency(TFV_UInt milliseconds);
 

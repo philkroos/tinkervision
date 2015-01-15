@@ -83,9 +83,21 @@ TFV_Result camera_available(TFV_Id camera_id) {
     }
 }
 
-TFV_Result stop_api(void) {
+TFV_Result stop(void) {
     auto& api = tfv::get_api();
     api.stop();
+    return TFV_OK;
+}
+
+TFV_Result start(void) {
+    auto& api = tfv::get_api();
+    api.start();
+    return TFV_OK;
+}
+
+TFV_Result quit(void) {
+    auto& api = tfv::get_api();
+    api.quit();
     return TFV_OK;
 }
 

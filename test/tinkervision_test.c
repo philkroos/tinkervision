@@ -47,7 +47,8 @@ void tfcv_callback_id0(TFV_Id id, TFV_Int x, TFV_Int y, TFV_Context context) {
 
 int main(int argc, char* argv[]) {
     TFV_Id id = 0;
-    TFV_Id cam = 1;
+    TFV_Id cam = 0;
+    TFV_Id cam2 = (cam == 0 ? 2 : 0);
     TFV_Id invalid_id = 100;
     TFV_Byte min_hue = 18;
     TFV_Byte max_hue = 25;
@@ -88,22 +89,16 @@ int main(int argc, char* argv[]) {
     printf("+ %d: Configured feature id %d: Code %d (%s)\n", test++, id, result,
            result_string(result));
 
-    sleep(1);
+    sleep(5);
 
     // Test 3: Check CPU-load while this is running!
-    printf(
-        "Setting execution latency to 0 in 5 seconds, expect high "
-        "CPU-usage!\n");
-    sleep(5);
+    printf("Setting execution latency to 0, expect high CPU-usage!\n");
     (void)set_execution_latency(0);
-    sleep(10);
+    sleep(15);
 
-    printf(
-        "Setting execution latency to 500 (ms) in 5 seconds, CPU should "
-        "drop.\n");
-    sleep(5);
-    (void)set_execution_latency(500);
-    sleep(10);
+    printf("Setting execution latency to 100 (ms), CPU should drop.\n");
+    (void)set_execution_latency(100);
+    sleep(15);
 
     // Test 4: invalid configuration of new feature (min > max-hue)
     // Correction: Actually that is valid since the colorspace is circular.
@@ -164,7 +159,6 @@ int main(int argc, char* argv[]) {
     // Test 8: Second camera - ok if attached (and no usb-bus error...),
     // highgui-error if not attached.
     int id2 = 40;
-    int cam2 = (cam == 0 ? 1 : 0);
     result = colortracking_start(id2, cam2, min_hue, max_hue, tfcv_callback_id0,
                                  NULL);
 
@@ -194,13 +188,33 @@ int main(int argc, char* argv[]) {
         test++, invalid_id, result, result_string(result), cam, min_hue,
         max_hue);
 
-    /*
+    // Test 11: Try pausing and resuming execution; watch the camera activity.
+    result = stop();
+    printf("+ %d: Api stopped; cameras should be down for 5 seconds: %d (%s)\n",
+           test++, result, result_string(result));
+    sleep(5);
 
-    // Test 11: Camera should still be available
+    // Camera should still be available
     cam = 0;
     result = camera_available(cam);
-    printf("+ %d: Requested camera %d, code %d (%s)\n", test++, cam, result,
+    printf("+ %d: Requested camera %d, code %d (%s)\n", test, cam, result,
            result_string(result));
+
+    sleep(1);
+    result = start();
+    printf("+ %d: Resumed execution, cams should come up: %d (%s)\n", test,
+           result, result_string(result));
+
+    sleep(5);
+
+    // Failing: Reliance test: remove cam during execution!
+    // This fails since v4l assigns a different id once the cam is reattached!
+    /* printf( */
+    /*     "# %d: Remove the camera during execution and reattach it! (20 " */
+    /*     "seconds)\n", */
+    /*     test); */
+    /* sleep(20); */
+    /*
 
     // Test 12: Stopping invalid feature
     result = colortracking_stop(invalid_id);
@@ -258,7 +272,7 @@ int main(int argc, char* argv[]) {
     // Stopping manually is not necessary but can be used to stop active
     // resources
     // if a client app should have crashed.
-    stop_api();
+    quit();
 
     sleep(4);
 }

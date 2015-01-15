@@ -17,11 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifdef DEV
-#include <iostream>
-#include <opencv2/opencv.hpp>
-#endif  // DEV
-
 #include "api.hh"
 #include "component.hh"
 
@@ -30,6 +25,11 @@ tfv::Api::Api(void) { (void)start(); }
 tfv::Api::~Api(void) { stop(); }
 
 bool tfv::Api::start(void) {
+
+    // Allow mainloop to run
+    active_ = true;
+
+    // Start threaded execution of mainloop
     if (not executor_.joinable()) {
         executor_ = std::thread(&tfv::Api::execute, this);
     }
@@ -39,21 +39,43 @@ bool tfv::Api::start(void) {
 bool tfv::Api::stop(void) {
     if (executor_.joinable()) {
 
-        // Notify the threaded execution-context to stop
+        // Notify the threaded execution-context to stop and wait for it
         active_ = false;
-
-        // Wait for it being done with resource deallocation
         executor_.join();
+
+        // Release all unused resources. Keep the components' active state
+        // unchanged, so that restarting the loop resumes known context.
+        components_.exec_all([this](TFV_Id id, tfv::Component& component) {
+            release_frame(component.camera_id);
+        });
     }
 
     // Todo: possible to be false?
     return not executor_.joinable();
 }
 
+bool tfv::Api::quit(void) {
+
+    // stop execution of the main loop
+    auto success = stop();
+
+    if (success) {
+
+        // stop all components and release the resources
+        components_.exec_all([this](TFV_Id id, tfv::Component& component) {
+            component.active = false;
+            release_frame(component.camera_id);
+        });
+    }
+
+    return success;
+}
+
 void tfv::Api::execute(void) {
 #ifdef DEBUG_CAM
     auto update_frame = [this](TFV_Id id, tfv::FrameWithUserCounter& frame) {
         auto grabbed = camera_control_.get_frame(id, frame.data());
+        frame.set_frame_available(grabbed);
         if (grabbed) {
             window.update(id, frame.data(), frame.rows(), frame.columns());
         } else {
@@ -64,7 +86,7 @@ void tfv::Api::execute(void) {
 #else
     // Refresh camera
     auto update_frame = [this](TFV_Id id, tfv::FrameWithUserCounter& frame) {
-        camera_control_.get_frame(id, frame.data());
+        frame.set_frame_available(camera_control_.get_frame(id, frame.data()));
     };
 #endif
 
@@ -72,18 +94,37 @@ void tfv::Api::execute(void) {
     auto const& frames = const_cast<Frames const&>(frames_);
     auto update_component = [this, &frames](TFV_Id id,
                                             tfv::Component& component) {
-        if (component.active) {
-            auto const& cam = component.camera_id;
-            if (frames.managed(cam)) {
+        // skip paused components
+        if (not component.active) {
+            return;
+        }
 
-                auto const& frame = frames[cam];
+        auto const& cam = component.camera_id;
+        if (frames.managed(cam)) {
+
+            auto const& frame = frames[cam];
+            if (frame.frame_available) {
                 component.execute(frame.data(), frame.rows(), frame.columns());
+            } else {
+                // Free associated resources if no frame could be grabbed
+                release_frame(component.camera_id);
             }
+        } else {
+            // Try to get hold of needed resources. Maybe the cam got lost,
+            // or execution resumes after a stop().
+            // Fixme: this does not reliably work if an active usb-cam is being
+            // detached and reattached since video4linux assigns it another id
+            (void)allocate_frame(component.camera_id);
         }
     };
 
     // mainloop
     while (active_) {
+
+        // Activate new and remove freed resources
+        frames_.update();
+        components_.update();
+
         if (active_components()) {
             frames_.exec_all(update_frame);
             components_.exec_all(update_component);
@@ -93,26 +134,15 @@ void tfv::Api::execute(void) {
                 std::chrono::milliseconds(execution_latency_ms_));
 
         } else {
+            // hard-coded minimum latency
             auto const no_component_min_latency_ms =
-                std::chrono::milliseconds(500);
+                std::chrono::milliseconds(200);
 
             // keep a low profile if unused
             std::this_thread::sleep_for(
                 std::max(execution_latency_ms_, no_component_min_latency_ms));
         }
-
-        // Activate new and remove freed resources
-        frames_.update();
-        components_.update();
     }
-
-    // Stop component
-    auto stop_component = [this](TFV_Id id, tfv::Component& component) {
-        component.active = false;
-        release_frame(component.camera_id);
-    };
-
-    components_.exec_all(stop_component);  // this will also free the cameras
 }
 
 tfv::Api& tfv::get_api(void) {
@@ -181,27 +211,31 @@ TFV_Result tfv::Api::is_camera_available(TFV_Id camera_id) {
     return result;
 }
 
-void tfv::Api::allocate_frame(TFV_Id camera_id) {
-    auto frame = frames_[camera_id];
+bool tfv::Api::allocate_frame(TFV_Id camera_id) {
+    auto result = camera_control_.acquire(camera_id);
 
-    if (frame) {
-        frame->user++;
-    } else {
-        int rows, columns, channels = 0;
-        camera_control_.get_properties(camera_id, rows, columns, channels);
-        auto const user = 1;
-        frames_.allocate(camera_id, camera_id, rows, columns, channels, user);
+    if (result) {
+        auto frame = frames_[camera_id];
+
+        if (frame) {
+            frame->user++;
+        } else {
+            int rows, columns, channels = 0;
+            camera_control_.get_properties(camera_id, rows, columns, channels);
+            auto const user = 1;
+            frames_.allocate(camera_id, camera_id, rows, columns, channels,
+                             user);
+        }
     }
+    return result;
 }
 
 void tfv::Api::release_frame(TFV_Id camera_id) {
     auto frame =
         frames_[camera_id];  // takes too long sometimes, see shared_resource
-    std::cout << "Release frame" << std::endl;
     if (frame) {
         frame->user--;
         if (not frame->user) {
-            std::cout << "Release-free" << std::endl;
             frames_.free(camera_id);
             camera_control_.release(camera_id);
         }

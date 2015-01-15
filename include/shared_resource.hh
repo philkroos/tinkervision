@@ -124,9 +124,7 @@ public:
     void free(TFV_Id id) {
         Resource* resource = nullptr;
         {
-            std::cout << "Waiting for managed_mutex_..." << std::endl;
             std::lock_guard<std::mutex> lock(managed_mutex_);
-            std::cout << "Got managed_mutex_." << std::endl;
             if (exists(managed_, id)) {
                 resource = managed_[id];
             }
@@ -187,9 +185,8 @@ public:
     }
 
     // attention: not locked.
-    bool size(void) const {
-        return managed_.size();
-    }
+    bool size(void) const { return managed_.size(); }
+
 private:
     /**
      * Verbose access to the id of a resource-map.
