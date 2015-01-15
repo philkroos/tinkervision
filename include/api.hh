@@ -109,36 +109,26 @@ public:
     template <typename Comp, typename... Args>
     TFV_Result component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
 
-        if (except_) {
-            (void)quit();
-            return TFV_INTERNAL_ERROR;
-        }
-
         auto result = TFV_INVALID_CONFIGURATION;
 
         if (tfv::valid<Comp>(args...)) {
-            try {
-                if (components_.managed(id)) {  // reconfiguring requested
-                    auto component = components_[id];  // ptr
+            if (components_.managed(id)) {         // reconfiguring requested
+                auto component = components_[id];  // ptr
 
-                    if (check_type<Comp>(component)) {
-                        result = component_reset(component, camera_id, args...);
-
-                    } else {
-                        result = TFV_INVALID_ID;
-                    }
+                if (check_type<Comp>(component)) {
+                    result = component_reset(component, camera_id, args...);
 
                 } else {
-                    result = TFV_CAMERA_ACQUISITION_FAILED;
-
-                    if (allocate_frame(camera_id)) {
-                        components_.allocate<Comp>(id, camera_id, id, args...);
-                        result = TFV_OK;
-                    }
+                    result = TFV_INVALID_ID;
                 }
-            }
-            catch (...) {
-                result = TFV_INTERNAL_ERROR;
+
+            } else {
+                result = TFV_CAMERA_ACQUISITION_FAILED;
+
+                if (allocate_frame(camera_id)) {
+                    components_.allocate<Comp>(id, camera_id, id, args...);
+                    result = TFV_OK;
+                }
             }
         }
 
@@ -148,23 +138,13 @@ public:
     template <typename Component>
     TFV_Result component_get(TFV_Id id, TFV_Id& camera_id, TFV_Byte& min_hue,
                              TFV_Byte& max_hue) const {
-        if (except_) {
-            const_cast<tfv::Api*>(this)->quit();
-            return TFV_INTERNAL_ERROR;
-        }
-
         auto result = TFV_UNCONFIGURED_ID;
         Component const* ct = nullptr;
 
-        try {
-            result = get_component<Component>(id, &ct);
+        result = get_component<Component>(id, &ct);
 
-            if (ct) {
-                tfv::get<Component>(*ct, camera_id, min_hue, max_hue);
-            }
-        }
-        catch (...) {
-            result = TFV_INTERNAL_ERROR;
+        if (ct) {
+            tfv::get<Component>(*ct, camera_id, min_hue, max_hue);
         }
 
         return result;
@@ -188,31 +168,22 @@ public:
      */
     template <typename Component>
     TFV_Result component_start(TFV_Id id) {
-        if (except_) {
-            (void)quit();
-            return TFV_INTERNAL_ERROR;
-        }
         auto result = TFV_UNCONFIGURED_ID;
 
-        try {
-            if (components_.managed(id)) {
-                auto component = components_[id];
-                result = TFV_INVALID_ID;
+        if (components_.managed(id)) {
+            auto component = components_[id];
+            result = TFV_INVALID_ID;
 
-                if (check_type<Component>(component)) {
-                    result = TFV_CAMERA_ACQUISITION_FAILED;
+            if (check_type<Component>(component)) {
+                result = TFV_CAMERA_ACQUISITION_FAILED;
 
-                    if (component->active) {
-                        result = TFV_OK;
-                    } else if (allocate_frame(component->camera_id)) {
-                        component->active = true;
-                        result = TFV_OK;
-                    }
+                if (component->active) {
+                    result = TFV_OK;
+                } else if (allocate_frame(component->camera_id)) {
+                    component->active = true;
+                    result = TFV_OK;
                 }
             }
-        }
-        catch (...) {
-            result = TFV_INTERNAL_ERROR;
         }
 
         return result;
@@ -234,28 +205,19 @@ public:
      */
     template <typename Component>
     TFV_Result component_stop(TFV_Id id) {
-        if (except_) {
-            (void)quit();
-            return TFV_INTERNAL_ERROR;
-        }
         auto result = TFV_UNCONFIGURED_ID;
 
-        try {
-            auto component = components_[id];
-            if (component) {
-                result = TFV_INVALID_ID;
+        auto component = components_[id];
+        if (component) {
+            result = TFV_INVALID_ID;
 
-                if (check_type<Component>(component)) {
-                    auto const camera_id = component->camera_id;
-                    component->active = false;
-                    // free associated resources
-                    release_frame(camera_id);
-                    result = TFV_OK;
-                }
+            if (check_type<Component>(component)) {
+                auto const camera_id = component->camera_id;
+                component->active = false;
+                // free associated resources
+                release_frame(camera_id);
+                result = TFV_OK;
             }
-        }
-        catch (...) {
-            result = TFV_INTERNAL_ERROR;
         }
         return result;
     }
@@ -292,15 +254,11 @@ public:
      * \param ms The duration of the pauses in milliseconds.
      */
     TFV_Result set_execution_latency_ms(TFV_UInt ms) {
-        if (except_) {
-            return TFV_INTERNAL_ERROR;
-        }
         execution_latency_ms_ = std::chrono::milliseconds(ms);
         return TFV_OK;
     }
 
 private:
-    bool except_ = false;  ///< Whether a critical error occured in the mainloop
     CameraControl camera_control_;    ///< Camera access abstraction
     TFVStringMap result_string_map_;  ///< String mapping of Api-return values
 
