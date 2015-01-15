@@ -26,88 +26,52 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 extern "C" {
 
+//
+// General library functions
+//
+
+TFV_Result camera_available(TFV_Id camera_id) {
+    return tfv::get_api().is_camera_available(camera_id);
+}
+
+TFV_Result stop(void) { return tfv::get_api().stop(); }
+
+TFV_Result start(void) { return tfv::get_api().start(); }
+
+TFV_Result quit(void) { return tfv::get_api().quit(); }
+
+TFV_Result set_execution_latency(TFV_UInt milliseconds) {
+    return tfv::get_api().set_execution_latency_ms(milliseconds);
+}
+
+TFV_String result_string(TFV_Result code) {
+    return tfv::get_api().result_string(code);
+}
+
+//
+// Colortracking specific functions
+//
+
 TFV_Result colortracking_start(TFV_Id id, TFV_Id camera_id, TFV_Byte min_hue,
                                TFV_Byte max_hue,
                                TFV_CallbackColortrack callback,
                                TFV_Context context) {
 
-    try {
-        auto& api = tfv::get_api();
-        return api.component_set<tfv::Colortracking>(
-            id, camera_id, min_hue, max_hue, callback, context);
-    }
-    catch (...) {
-        return TFV_INTERNAL_ERROR;
-    }
+    return tfv::get_api().component_set<tfv::Colortracking>(
+        id, camera_id, min_hue, max_hue, callback, context);
 }
 
 TFV_Result colortracking_restart(TFV_Id feature_id) {
-    try {
-        auto& api = tfv::get_api();
-        return api.component_start<tfv::Colortracking>(feature_id);
-    }
-    catch (...) {
-        return TFV_INTERNAL_ERROR;
-    }
+    return tfv::get_api().component_start<tfv::Colortracking>(feature_id);
 }
 
 TFV_Result colortracking_stop(TFV_Id feature_id) {
-    try {
-        auto& api = tfv::get_api();
-        return api.component_stop<tfv::Colortracking>(feature_id);
-    }
-    catch (...) {
-        return TFV_INTERNAL_ERROR;
-    }
+    return tfv::get_api().component_stop<tfv::Colortracking>(feature_id);
 }
 
 TFV_Result colortracking_get(TFV_Id feature_id, TFV_Id* camera_id,
                              TFV_Byte* min_hue, TFV_Byte* max_hue) {
-    try {
-        auto& api = tfv::get_api();
-        return api.component_get<tfv::Colortracking>(feature_id, *camera_id,
-                                                     *min_hue, *max_hue);
-    }
-    catch (...) {
-        return TFV_INTERNAL_ERROR;
-    }
-}
-
-TFV_Result camera_available(TFV_Id camera_id) {
-    try {
-        auto& api = tfv::get_api();
-        return api.is_camera_available(camera_id);
-    }
-    catch (...) {
-        return TFV_INTERNAL_ERROR;
-    }
-}
-
-TFV_Result stop(void) {
-    auto& api = tfv::get_api();
-    api.stop();
-    return TFV_OK;
-}
-
-TFV_Result start(void) {
-    auto& api = tfv::get_api();
-    api.start();
-    return TFV_OK;
-}
-
-TFV_Result quit(void) {
-    auto& api = tfv::get_api();
-    api.quit();
-    return TFV_OK;
-}
-
-TFV_Result set_execution_latency(TFV_UInt milliseconds) {
-    auto& api = tfv::get_api();
-    return api.set_execution_latency_ms(milliseconds);
-}
-
-TFV_String result_string(TFV_Result code) {
-    auto& api = tfv::get_api();
-    return api.result_string(code);
+    return tfv::get_api().component_get<tfv::Colortracking>(
+        feature_id, *camera_id, *min_hue, *max_hue);
 }
 }

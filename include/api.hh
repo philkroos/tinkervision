@@ -109,81 +109,62 @@ public:
     template <typename Comp, typename... Args>
     TFV_Result component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
 
+        if (except_) {
+            (void)quit();
+            return TFV_INTERNAL_ERROR;
+        }
+
         auto result = TFV_INVALID_CONFIGURATION;
 
         if (tfv::valid<Comp>(args...)) {
-            if (components_.managed(id)) {         // reconfiguring requested
-                auto component = components_[id];  // ptr
+            try {
+                if (components_.managed(id)) {  // reconfiguring requested
+                    auto component = components_[id];  // ptr
 
-                if (check_type<Comp>(component)) {
-                    result = component_reset(component, camera_id, args...);
+                    if (check_type<Comp>(component)) {
+                        result = component_reset(component, camera_id, args...);
+
+                    } else {
+                        result = TFV_INVALID_ID;
+                    }
 
                 } else {
-                    result = TFV_INVALID_ID;
-                }
+                    result = TFV_CAMERA_ACQUISITION_FAILED;
 
-            } else {
-                result = TFV_CAMERA_ACQUISITION_FAILED;
-
-                if (allocate_frame(camera_id)) {
-                    components_.allocate<Comp>(id, camera_id, id, args...);
-                    result = TFV_OK;
+                    if (allocate_frame(camera_id)) {
+                        components_.allocate<Comp>(id, camera_id, id, args...);
+                        result = TFV_OK;
+                    }
                 }
+            }
+            catch (...) {
+                result = TFV_INTERNAL_ERROR;
             }
         }
 
-        return result;
-    }
-
-    template <typename Comp, typename... Args>
-    TFV_Result component_reset(Comp& component, TFV_Id camera_id,
-                               Args... args) {
-        auto result = TFV_FEATURE_CONFIGURATION_FAILED;
-
-        if (component->camera_id != camera_id) {  // other cam requested
-
-            result = TFV_CAMERA_ACQUISITION_FAILED;
-            if (allocate_frame(camera_id)) {
-                release_frame(component->camera_id);
-                tfv::set<Comp>(static_cast<Comp*>(&component), args...);
-                result = TFV_OK;
-            }
-        } else {
-
-            tfv::set<Comp>(static_cast<Comp*>(&component), args...);
-            result = TFV_OK;
-        }
         return result;
     }
 
     template <typename Component>
     TFV_Result component_get(TFV_Id id, TFV_Id& camera_id, TFV_Byte& min_hue,
                              TFV_Byte& max_hue) const {
-
-        auto result = TFV_UNCONFIGURED_ID;
-
-        Component const* ct = nullptr;
-        result = get_component<Component>(id, &ct);
-
-        if (ct) {
-            tfv::get<Component>(*ct, camera_id, min_hue, max_hue);
+        if (except_) {
+            const_cast<tfv::Api*>(this)->quit();
+            return TFV_INTERNAL_ERROR;
         }
 
-        return result;
-    }
-
-    template <typename Component>
-    TFV_Result get_component(TFV_Id id, Component const** component) const {
         auto result = TFV_UNCONFIGURED_ID;
+        Component const* ct = nullptr;
 
-        if (components_.managed(id)) {
-            result = TFV_INVALID_ID;
-            auto const& component_ = components_[id];
+        try {
+            result = get_component<Component>(id, &ct);
 
-            if (check_type<Component>(component_)) {
-                result = TFV_OK;
-                *component = static_cast<Component const*>(&component_);
+            if (ct) {
+                tfv::get<Component>(*ct, camera_id, min_hue, max_hue);
             }
+        }
+        catch (...) {
+            result = TFV_INTERNAL_ERROR;
         }
 
         return result;
@@ -207,23 +188,33 @@ public:
      */
     template <typename Component>
     TFV_Result component_start(TFV_Id id) {
+        if (except_) {
+            (void)quit();
+            return TFV_INTERNAL_ERROR;
+        }
         auto result = TFV_UNCONFIGURED_ID;
 
-        if (components_.managed(id)) {
-            auto component = components_[id];
-            result = TFV_INVALID_ID;
+        try {
+            if (components_.managed(id)) {
+                auto component = components_[id];
+                result = TFV_INVALID_ID;
 
-            if (check_type<Component>(component)) {
-                result = TFV_CAMERA_ACQUISITION_FAILED;
+                if (check_type<Component>(component)) {
+                    result = TFV_CAMERA_ACQUISITION_FAILED;
 
-                if (component->active) {
-                    result = TFV_OK;
-                } else if (allocate_frame(component->camera_id)) {
-                    component->active = true;
-                    result = TFV_OK;
+                    if (component->active) {
+                        result = TFV_OK;
+                    } else if (allocate_frame(component->camera_id)) {
+                        component->active = true;
+                        result = TFV_OK;
+                    }
                 }
             }
         }
+        catch (...) {
+            result = TFV_INTERNAL_ERROR;
+        }
+
         return result;
     }
 
@@ -237,32 +228,55 @@ public:
      *
      * \param id The id of the component to stop. The type of the associated
      * component has to match Component.
-     * \return TFV_OK if the component was stopped; TFV_UNCONFIGURED_ID if the
+     * \return TFV_OK if the component was stopped; TFV_UNCONFIGURED_ID if
+     *the
      * id is not registered; TFV_INVALID_ID if the types don't match.
      */
     template <typename Component>
     TFV_Result component_stop(TFV_Id id) {
+        if (except_) {
+            (void)quit();
+            return TFV_INTERNAL_ERROR;
+        }
         auto result = TFV_UNCONFIGURED_ID;
 
-        auto component = components_[id];
-        if (component) {
-            result = TFV_INVALID_ID;
+        try {
+            auto component = components_[id];
+            if (component) {
+                result = TFV_INVALID_ID;
 
-            if (check_type<Component>(component)) {
-                auto const camera_id = component->camera_id;
-                component->active = false;
-                // free associated resources
-                release_frame(camera_id);
-                result = TFV_OK;
+                if (check_type<Component>(component)) {
+                    auto const camera_id = component->camera_id;
+                    component->active = false;
+                    // free associated resources
+                    release_frame(camera_id);
+                    result = TFV_OK;
+                }
             }
+        }
+        catch (...) {
+            result = TFV_INTERNAL_ERROR;
         }
         return result;
     }
 
+    /**
+     * Convert Api return code to string.
+     * \param code The return code to be represented as string.
+     * \return The string representing code.
+     */
     TFV_String result_string(TFV_Id code) const {
         return result_string_map_[code];
     }
 
+    /**
+     * Check whether the camera specified by camera_id is available.
+     * The number corresponds to the device number in the linux system,
+     * i.e. /dev/video<camera_id>
+     * \param camera_id The id of the device to check.
+     * \result TFV_CAMERA_ACQUISITION_FAILED if the camera is not available,
+     * TFV_OK else.
+     */
     TFV_Result is_camera_available(TFV_Id camera_id);
 
     /**
@@ -278,11 +292,15 @@ public:
      * \param ms The duration of the pauses in milliseconds.
      */
     TFV_Result set_execution_latency_ms(TFV_UInt ms) {
+        if (except_) {
+            return TFV_INTERNAL_ERROR;
+        }
         execution_latency_ms_ = std::chrono::milliseconds(ms);
         return TFV_OK;
     }
 
 private:
+    bool except_ = false;  ///< Whether a critical error occured in the mainloop
     CameraControl camera_control_;    ///< Camera access abstraction
     TFVStringMap result_string_map_;  ///< String mapping of Api-return values
 
@@ -322,7 +340,8 @@ private:
      * Predicate to check if the argument is of same type as the
      * template parameter.
      * \param[in] component The component to type-check.
-     * \return True if the types of the template parameter and argument match.
+     * \return True if the types of the template parameter and argument
+     * match.
      */
     template <typename C>
     bool check_type(tfv::Component const* component) const {
@@ -333,7 +352,8 @@ private:
      * Predicate to check if the argument is of same type as the
      * template parameter.
      * \param[in] component The component to type-check.
-     * \return True if the types of the template parameter and argument match.
+     * \return True if the types of the template parameter and argument
+     * match.
      */
     template <typename C>
     bool check_type(tfv::Component const& component) const {
@@ -361,6 +381,44 @@ private:
      * \param camera_id The id of the camera to be accessed.
      */
     void release_frame(TFV_Id camera_id);
+
+    template <typename Comp, typename... Args>
+    TFV_Result component_reset(Comp& component, TFV_Id camera_id,
+                               Args... args) {
+        auto result = TFV_FEATURE_CONFIGURATION_FAILED;
+
+        if (component->camera_id != camera_id) {  // other cam requested
+
+            result = TFV_CAMERA_ACQUISITION_FAILED;
+            if (allocate_frame(camera_id)) {
+                release_frame(component->camera_id);
+                tfv::set<Comp>(static_cast<Comp*>(&component), args...);
+                result = TFV_OK;
+            }
+        } else {
+
+            tfv::set<Comp>(static_cast<Comp*>(&component), args...);
+            result = TFV_OK;
+        }
+        return result;
+    }
+
+    template <typename Component>
+    TFV_Result get_component(TFV_Id id, Component const** component) const {
+        auto result = TFV_UNCONFIGURED_ID;
+
+        if (components_.managed(id)) {
+            result = TFV_INVALID_ID;
+            auto const& component_ = components_[id];
+
+            if (check_type<Component>(component_)) {
+                result = TFV_OK;
+                *component = static_cast<Component const*>(&component_);
+            }
+        }
+
+        return result;
+    }
 };
 
 /*

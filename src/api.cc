@@ -29,6 +29,9 @@ bool tfv::Api::start(void) {
     // Allow mainloop to run
     active_ = true;
 
+    // Possible reset if exception occured
+    except_ = false;
+
     // Start threaded execution of mainloop
     if (not executor_.joinable()) {
         executor_ = std::thread(&tfv::Api::execute, this);
@@ -50,12 +53,14 @@ bool tfv::Api::stop(void) {
         });
     }
 
-    // Todo: possible to be false?
+    // Todo: possible to be false? - Yes, if the mainloop threw exception,
+    // right?
     return not executor_.joinable();
 }
 
 bool tfv::Api::quit(void) {
 
+    std::cout << "Quitting" << std::endl;
     // stop execution of the main loop
     auto success = stop();
 
@@ -119,29 +124,39 @@ void tfv::Api::execute(void) {
     };
 
     // mainloop
-    while (active_) {
+    try {
+        while (active_) {
 
-        // Activate new and remove freed resources
-        frames_.update();
-        components_.update();
+            // Activate new and remove freed resources
+            frames_.update();
+            components_.update();
 
-        if (active_components()) {
-            frames_.exec_all(update_frame);
-            components_.exec_all(update_component);
+            if (active_components()) {
+                frames_.exec_all(update_frame);
+                components_.exec_all(update_component);
 
-            // some buffertime for the outer thread to run
-            std::this_thread::sleep_for(
-                std::chrono::milliseconds(execution_latency_ms_));
+                // some buffertime for the outer thread to run
+                std::this_thread::sleep_for(
+                    std::chrono::milliseconds(execution_latency_ms_));
 
-        } else {
-            // hard-coded minimum latency
-            auto const no_component_min_latency_ms =
-                std::chrono::milliseconds(200);
+            } else {
+                // hard-coded minimum latency
+                auto const no_component_min_latency_ms =
+                    std::chrono::milliseconds(200);
 
-            // keep a low profile if unused
-            std::this_thread::sleep_for(
-                std::max(execution_latency_ms_, no_component_min_latency_ms));
+                // keep a low profile if unused
+                std::this_thread::sleep_for(std::max(
+                    execution_latency_ms_, no_component_min_latency_ms));
+            }
         }
+    }
+    catch (...) {
+        // \todo Exceptions in the mainloop are not treatable and have to
+        // lead to a complete reset of the library.
+        //
+        // Set the special api-value except_ to return the correct value from
+        // all interfaces except of start, stop and quit.
+        except_ = true;
     }
 }
 
@@ -203,6 +218,11 @@ tfv::Api& tfv::get_api(void) {
 }
 
 TFV_Result tfv::Api::is_camera_available(TFV_Id camera_id) {
+    if (except_) {
+        (void)quit();
+        return TFV_INTERNAL_ERROR;
+    }
+
     auto result = TFV_CAMERA_ACQUISITION_FAILED;
     if (camera_control_.is_available(camera_id)) {
         result = TFV_OK;
