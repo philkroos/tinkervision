@@ -17,12 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include <chrono>
-#include <iostream>
-#include <thread>
-#include <typeinfo>
-
 #ifdef DEV
+#include <iostream>
 #include <opencv2/opencv.hpp>
 #endif  // DEV
 
@@ -42,9 +38,15 @@ bool tfv::Api::start(void) {
 
 bool tfv::Api::stop(void) {
     if (executor_.joinable()) {
+
+        // Notify the threaded execution-context to stop
         active_ = false;
+
+        // Wait for it being done with resource deallocation
         executor_.join();
     }
+
+    // Todo: possible to be false?
     return not executor_.joinable();
 }
 
@@ -80,12 +82,6 @@ void tfv::Api::execute(void) {
         }
     };
 
-    // Stop component
-    auto stop_component = [this](TFV_Id id, tfv::Component& component) {
-        component.active = false;
-        release_frame(component.camera_id);
-    };
-
     // mainloop
     while (active_) {
         if (active_components()) {
@@ -93,17 +89,28 @@ void tfv::Api::execute(void) {
             components_.exec_all(update_component);
 
             // some buffertime for the outer thread to run
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        }
-        else {
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds(execution_latency_ms_));
+
+        } else {
+            auto const no_component_min_latency_ms =
+                std::chrono::milliseconds(500);
+
             // keep a low profile if unused
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            std::this_thread::sleep_for(
+                std::max(execution_latency_ms_, no_component_min_latency_ms));
         }
 
         // Activate new and remove freed resources
         frames_.update();
         components_.update();
     }
+
+    // Stop component
+    auto stop_component = [this](TFV_Id id, tfv::Component& component) {
+        component.active = false;
+        release_frame(component.camera_id);
+    };
 
     components_.exec_all(stop_component);  // this will also free the cameras
 }
@@ -137,9 +144,13 @@ tfv::Api& tfv::get_api(void) {
                 // e.g. update the
                 // checkpoint from the outer context and
                 // lock it with a mutex.
+#ifdef DEV
                 std::cout << "No active components" << std::endl;
+#endif
                 if ((now - checkpoint) > timeout) {
+#ifdef DEV
                     std::cout << "Shutting down" << std::endl;
+#endif // DEV
                     break;
                 }
             }

@@ -17,8 +17,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+/** \file api.hh
+
+    The internal interface of the Vision library is declared (and
+    partly defined) here.
+
+    The interface is provided by the class Api.
+*/
+
+#include <chrono>
 #include <thread>
 #include <mutex>
+#include <typeinfo>
 
 #include "strings.hh"
 #include "tinkervision_defines.h"
@@ -60,6 +70,13 @@ public:
 
     ~Api(void);
 
+    /**
+     * Starts execution of all active components.  This is only
+     * necessary if the Api had been stopped.  The method is
+     * automatically called during construction of the Api.
+     * \sa stop()
+     * \return True if the api started successfully.
+     */
     bool start(void);
 
     /**
@@ -67,6 +84,7 @@ public:
      * if the Api is being deconstructed in a controlled way. If,
      * however, the client application should crash or exit without stopping
      * all instantiated components, this can be used.
+     * \sa start()
      * \return True if the api stopped successfully.
      */
     bool stop(void);
@@ -217,28 +235,58 @@ public:
         return result_string_map_[code];
     }
 
-    TFV_Bool is_camera_available(TFV_Id camera_id);
+    TFV_Result is_camera_available(TFV_Id camera_id);
+
+    /**
+     * Set the time between the execution of active components.
+     * This is set to a default of 500ms, meaning that the mainloop
+     * pauses for half a second between two executions of the active
+     * components. It is recommended to keep it at a decent value
+     * because the CPU-load can be quite high with a too low value.
+     * \note If no component is active, a minimum latency of 500ms is
+     * hardcoded (with the value set here being used if larger).
+     * \param ms The duration of the pauses in milliseconds.
+     */
+    TFV_Result set_execution_latency_ms(TFV_UInt ms) {
+        execution_latency_ms_ = std::chrono::milliseconds(ms);
+        return TFV_OK;
+    }
 
 private:
-    CameraControl camera_control_;
-    TFVStringMap result_string_map_;
+    CameraControl camera_control_;    ///< Camera access abstraction
+    TFVStringMap result_string_map_;  ///< String mapping of Api-return values
 
+    /**
+     * Instantiation of the resource manager using the abstract base
+     * class of a vision-algorithm.
+     */
     using Components = tfv::SharedResource<tfv::Component>;
-    Components components_;
+    Components components_;  ///< RAII-style managed vision algorithms.
 
+    /**
+     * Instantiation of the resource manager with the counting camera
+     * frame container.
+     */
     using Frames = tfv::SharedResource<tfv::FrameWithUserCounter>;
-    Frames frames_;
+    Frames frames_;  ///< RAII-style managed frames, one per camera.
 
-    std::thread executor_;
-    void execute(void);
-    bool active_ = true;
-
-    std::mutex frame_lock_;
-    std::mutex components_lock_;
+    std::thread executor_;  ///< Mainloop-Context executing the components.
+    bool active_ = true;    ///< While true, the mainloop is running.
+    std::chrono::milliseconds execution_latency_ms_{
+        500};  ///< Pause between two executions of the mainloop
 
 #ifdef DEBUG_CAM
     Window window;
 #endif  // DEV
+
+    /**
+     * Threaded execution context of vision algorithms (components).
+     * This method is started asynchronously during construction of
+     * the Api and is running until deconstruction.  It is constantly
+     * grabbing frames from all active cameras, executing all active
+     * components and activating newly registered cameras and components.
+     */
+    void execute(void);
 
     /**
      * Predicate to check if the argument is of same type as the
@@ -262,7 +310,24 @@ private:
         return typeid(component) == typeid(C);
     }
 
+    /**
+     * Helper method for the instantiation of Frames.  A frame has to
+     * be allocated only once per camera, after that it can be reused
+     * by other components. This method cares for that.
+     *
+     * \param camera_id The id of the camera to be accessed.
+     */
     void allocate_frame(TFV_Id camera_id);
+
+    /**
+     * Helper method for the release of Frames.  A frame is allocated
+     * only once per camera, after that it is being reused by other
+     * components, increasing the usage-counter. This method reduces
+     * the count or, once reached 0, issues a release of the frame and
+     * the associated camera.
+     *
+     * \param camera_id The id of the camera to be accessed.
+     */
     void release_frame(TFV_Id camera_id);
 };
 

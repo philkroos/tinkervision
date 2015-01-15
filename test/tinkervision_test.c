@@ -52,6 +52,11 @@ int main(int argc, char* argv[]) {
     TFV_Byte min_hue = 18;
     TFV_Byte max_hue = 25;
 
+    // Performing some tests. The +/-/# signs in front of the output mean:
+    // + should have returned OK
+    // - should have returned an error
+    // # returns different, depending on some external context
+
     int test = 0;
     // Test 0: Camera should be available
     TFV_Result result = TFV_INTERNAL_ERROR;
@@ -59,11 +64,11 @@ int main(int argc, char* argv[]) {
     printf("+ %d: Requested camera %d, code %d (%s)\n", test++, cam, result,
            result_string(result));
 
-    sleep(15);
+    sleep(1);
 
     // Test 1: Camera should not be available
     result = camera_available(invalid_id);
-    printf("# %d: Requested camera %d, code %d (%s)\n", test++, invalid_id,
+    printf("- %d: Requested camera %d, code %d (%s)\n", test++, invalid_id,
            result, result_string(result));
 
     sleep(1);
@@ -85,7 +90,22 @@ int main(int argc, char* argv[]) {
 
     sleep(1);
 
-    // Test 3: invalid configuration of new feature (min > max-hue)
+    // Test 3: Check CPU-load while this is running!
+    printf(
+        "Setting execution latency to 0 in 5 seconds, expect high "
+        "CPU-usage!\n");
+    sleep(5);
+    (void)set_execution_latency(0);
+    sleep(10);
+
+    printf(
+        "Setting execution latency to 500 (ms) in 5 seconds, CPU should "
+        "drop.\n");
+    sleep(5);
+    (void)set_execution_latency(500);
+    sleep(10);
+
+    // Test 4: invalid configuration of new feature (min > max-hue)
     // Correction: Actually that is valid since the colorspace is circular.
     // result = colortracking_start(id + 1, cam, 100, 0, NULL, NULL);
 
@@ -97,7 +117,7 @@ int main(int argc, char* argv[]) {
     // Test 4: invalid configuration (missing callback)
     result = colortracking_start(id + 1, cam, 100, 0, NULL, NULL);
 
-    printf("# %d: Configuring invalid feature id %d: Code %d (%s)\n", test++,
+    printf("- %d: Configuring invalid feature id %d: Code %d (%s)\n", test++,
            invalid_id, result, result_string(result));
 
     sleep(1);
@@ -148,7 +168,7 @@ int main(int argc, char* argv[]) {
     result = colortracking_start(id2, cam2, min_hue, max_hue, tfcv_callback_id0,
                                  NULL);
 
-    printf("- %d: Configured feature id %d: Code %d (%s)\n", test++, id2,
+    printf("# %d: Configured feature id %d: Code %d (%s)\n", test++, id2,
            result, result_string(result));
 
     sleep(1);
@@ -169,7 +189,7 @@ int main(int argc, char* argv[]) {
     min_hue = -1;
     result = colortracking_get(invalid_id, &cam, &min_hue, &max_hue);
     printf(
-        "# %d: Got configured feature id %d: Code %d (%s)\n "
+        "- %d: Got configured feature id %d: Code %d (%s)\n "
         "Cam-Id: %d, min-hue: %d, max-hue: %d\n",
         test++, invalid_id, result, result_string(result), cam, min_hue,
         max_hue);

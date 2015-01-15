@@ -23,10 +23,11 @@ typedef int TFV_Bool;
 typedef uint8_t TFV_Byte;
 typedef unsigned char TFV_ImageData;
 
-// todo: make this smaller
+// todo: make this smaller?
 typedef int32_t TFV_Int;
 
 typedef const char* TFV_String;
+typedef unsigned TFV_UInt;
 typedef TFV_Int TFV_Id;
 typedef TFV_Int TFV_Result;
 typedef void* TFV_Context;

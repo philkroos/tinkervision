@@ -37,9 +37,11 @@ TFV_Result colortracking_get(TFV_Id feature_id, TFV_Id* camera_id,
 
 TFV_Result camera_available(TFV_Id camera_id);
 
-TFV_String result_string(TFV_Result code);
-
 TFV_Result stop_api(void);
+
+TFV_Result set_execution_latency(TFV_UInt milliseconds);
+
+TFV_String result_string(TFV_Result code);
 
 #ifdef __cplusplus
 }
