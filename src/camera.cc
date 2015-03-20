@@ -51,6 +51,7 @@ bool tfv::Camera::get_frame(TFV_ImageData* frame) {
         std::lock_guard<std::mutex> lock(mutex_);
         return retrieve_frame(frame);
     } else {  // single threaded
+        grab_frame();
         return retrieve_frame(frame);
     }
 }
@@ -126,9 +127,6 @@ void tfv::CameraUsbOpenCv::grab_frame(void) {
 }
 
 bool tfv::CameraUsbOpenCv::retrieve_frame(TFV_ImageData* frame) {
-    if (latency_ < 0) {  // single-threaded
-        grab_frame();
-    }
     cv::Mat container(height_, width_, flag_, frame);
 
     // can't fill container directly; retrieve initializes a new data block
