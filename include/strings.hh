@@ -40,7 +40,9 @@ private:
         {TFV_UNCONFIGURED_ID, "Error - Feature-Id not configured"},
         {TFV_FEATURE_CONFIGURATION_FAILED,
          "Error - Configuration of feature failed"},
-        {TFV_INVALID_ID, "Error - ID is invalid"}};
+        {TFV_INVALID_ID, "Error - ID is invalid"},
+        // 650..
+        {TFV_EXEC_THREAD_FAILURE, "Error - The main thread did not react"}};
 
 public:
     static constexpr TFV_String UNKNOWN_CODE{"Unknown result code"};
@@ -53,8 +55,7 @@ public:
             if (it != string_map_.end()) {
                 result = it->second;
             }
-        }
-        catch (...) {
+        } catch (...) {
             result = TFVStringMap::INTERNAL_ERROR;
         }
         return result;

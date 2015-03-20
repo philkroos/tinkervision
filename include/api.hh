@@ -80,9 +80,9 @@ public:
      * necessary if the Api had been stopped.  The method is
      * automatically called during construction of the Api.
      * \sa stop()
-     * \return True if execution started successfully.
+     * \return TFV_OK if execution started successfully.
      */
-    bool start(void);
+    TFV_Result start(void);
 
     /**
      * Halts (pauses) execution of the main-loop.  This will not do
@@ -92,9 +92,11 @@ public:
      * \note Even while the api is paused there can still be new components
      * registered. They will start execution once start() is called.
      * \sa quit() If the whole thing shall be stopped.
-     * \return True If execution halted successfully.
+     * \return A result code:
+     *     - TFV_OK when execution halted successfully.
+     *     - TFV_EXEC_THREAD_FAILURE when the thread is still running.
      */
-    bool stop(void);
+    TFV_Result stop(void);
 
     /**
      * Stops all running components.  This is not necessary in general
@@ -102,9 +104,11 @@ public:
      * however, the client application should crash or exit without stopping
      * all instantiated components, this can be used.
      * \sa start()
-     * \return True if execution stopped successfully.
+     * \return A result code:
+     *     - TFV_OK when execution halted successfully.
+     *     - TFV_EXEC_THREAD_FAILURE when the thread is still running.
      */
-    bool quit(void);
+    TFV_Result quit(void);
 
     template <typename Comp, typename... Args>
     TFV_Result component_set(TFV_Id id, TFV_Id camera_id, Args... args) {

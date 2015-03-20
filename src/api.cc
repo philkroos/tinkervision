@@ -24,7 +24,9 @@ tfv::Api::Api(void) { (void)start(); }
 
 tfv::Api::~Api(void) { stop(); }
 
-bool tfv::Api::start(void) {
+TFV_Result tfv::Api::start(void) {
+
+    auto result = TFV_EXEC_THREAD_FAILURE;
 
     // Allow mainloop to run
     active_ = true;
@@ -33,10 +35,17 @@ bool tfv::Api::start(void) {
     if (not executor_.joinable()) {
         executor_ = std::thread(&tfv::Api::execute, this);
     }
-    return executor_.joinable();
+
+    if (executor_.joinable()) {
+        result = TFV_OK;
+    }
+
+    return result;
 }
 
-bool tfv::Api::stop(void) {
+TFV_Result tfv::Api::stop(void) {
+    auto result = TFV_EXEC_THREAD_FAILURE;
+
     if (executor_.joinable()) {
 
         // Notify the threaded execution-context to stop and wait for it
@@ -50,17 +59,21 @@ bool tfv::Api::stop(void) {
         });
     }
 
-    // Todo: possible to be false?
-    return not executor_.joinable();
+    if (not executor_.joinable()) {
+        result = TFV_OK;
+    }
+
+    return result;
 }
 
-bool tfv::Api::quit(void) {
+TFV_Result tfv::Api::quit(void) {
 
     std::cout << "Quitting" << std::endl;
-    // stop execution of the main loop
-    auto success = stop();
 
-    if (success) {
+    // stop execution of the main loop
+    auto result = stop();
+
+    if (result == TFV_OK) {
 
         // stop all components and release the resources
         components_.exec_all([this](TFV_Id id, tfv::Component& component) {
@@ -69,7 +82,7 @@ bool tfv::Api::quit(void) {
         });
     }
 
-    return success;
+    return result;
 }
 
 void tfv::Api::execute(void) {
@@ -93,8 +106,8 @@ void tfv::Api::execute(void) {
 
     // Execute active component
     auto const& frames = const_cast<Frames const&>(frames_);
-    auto update_component = [this, &frames](TFV_Id id,
-                                            tfv::Component& component) {
+    auto update_component =
+        [this, &frames](TFV_Id id, tfv::Component& component) {
         // skip paused components
         if (not component.active) {
             return;
