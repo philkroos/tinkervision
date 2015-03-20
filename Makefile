@@ -1,16 +1,54 @@
-SUBDIRS = src test
+CCFLAGS	:=-Wall -Werror -g -O0 -std=gnu++11 -D_GLIBCXX_USE_NANOSLEEP
+ARFLAGS	:=-rcs
+LDFLAGS_LIB	:=-g -Wall -lstdc++  `pkg-config --libs opencv`
 
-.PHONY: subdirs $(SUBDIRS)
+# externals
+OCV_INC	:= `pkg-config --cflags opencv`
 
-subdirs: $(SUBDIRS)
+# structure
+MODULES	:= api camera modules
+BUILD_PREFIX	:= build
+BUILD_DIR	:= $(addprefix $(BUILD_PREFIX)/,$(MODULES))
+SRC_DIR	:= $(addprefix src/,$(MODULES))
+TEST_DIR	:= test
 
-$(SUBDIRS):
-	$(MAKE) -C $@
+# files
+SRC		:= $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cc))
+OBJ		:= $(patsubst src/%.cc,build/%.o,$(SRC))
+INC             := $(addprefix -I./include/,$(MODULES)) $(OCV_INC)
 
-test: src
-	cd test && make test
+# binary targets
+LIB		:= build/libtfv.a
+
+all: directories lib test
+.PHONY: test clean
+
+# search paths
+vpath %.cc $(SRC_DIR)
+
+# generates targets, called at bottom
+define make-goal
+$1/%.o: %.cc
+	$(CC) $(CCFLAGS) $(INC) -c $$< -o $$@
+endef
+
+# setup directory structure
+$(BUILD_DIR):
+	@mkdir -p $@
+
+directories: $(BUILD_DIR)
+
+
+# actual targets
+lib: $(OBJ)
+	$(AR) $(ARFLAGS) $(LIB) $(OBJ)
+
+test: $(LIB)
+	cd $(TEST_DIR) && make
 
 clean:
-	cd test && make clean
-	cd src && make clean
-	rm -rf bin
+	@rm -rf $(BUILD_PREFIX)
+	cd $(TEST_DIR) && make clean
+
+# generate rules
+$(foreach bdir,$(BUILD_DIR),$(eval $(call make-goal,$(bdir))))
