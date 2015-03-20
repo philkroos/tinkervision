@@ -61,7 +61,7 @@ bool tfv::CameraControl::acquire(TFV_Id camera_id) {
         // open new; currently Opencv color-Usb-cams hardcoded
 
         if (device_exists(camera_id)) {
-            camera_map_[camera_id] = new CameraUsbOpenCv(camera_id);
+            camera_map_[camera_id] = new OpenCvUSBCamera(camera_id);
             camera = camera_map_.find(camera_id);
         }
     }

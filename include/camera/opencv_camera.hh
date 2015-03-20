@@ -19,34 +19,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <opencv2/opencv.hpp>
 
-#include "tinkervision_defines.h"
+#include "camera.hh"
 
 namespace tfv {
 
-class Camera {
+class OpenCvUSBCamera : public Camera {
+
 public:
-    virtual ~Camera(void) { active_ = false; }
+    explicit OpenCvUSBCamera(TFV_Id camera_id);
+    virtual ~OpenCvUSBCamera(void) { close(); }
 
-    void stop(void);
-    bool get_frame(TFV_ImageData* frame);
-
-    virtual bool open(void) = 0;
-    virtual bool is_open(void) = 0;
-    virtual bool get_properties(int& height, int& width, int& channels) = 0;
+    virtual bool open(void);
+    virtual bool is_open(void);
+    virtual bool get_properties(int& height, int& width, int& channels);
 
 protected:
-    Camera(TFV_Id camera_id, int channels);
-
-    TFV_Id camera_id_;
-    int width_ = -1;
-    int height_ = -1;
-    int channels_ = -1;
-
-    // These are Template Methods (Design Pattern)
-    virtual bool retrieve_frame(TFV_ImageData* frame) = 0;
-    virtual void close(void) = 0;
+    virtual bool retrieve_frame(TFV_ImageData* frame);
+    virtual void close(void);
 
 private:
-    bool active_ = true;
+    cv::VideoCapture* camera_ = nullptr;
+    static const TFV_Int flag_ = CV_8UC3;  // default: color
 };
 }
