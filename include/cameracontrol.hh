@@ -23,8 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <sys/stat.h>  // stat, for fast device_exists()
 #include <string>
 
-#include <opencv2/opencv.hpp>
-
 #include "camera.hh"
 
 namespace tfv {

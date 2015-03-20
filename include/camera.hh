@@ -28,12 +28,7 @@ namespace tfv {
 
 class Camera {
 public:
-    virtual ~Camera(void) {
-        active_ = false;
-        if (grabber_thread_.joinable()) {
-            grabber_thread_.join();
-        }
-    }
+    virtual ~Camera(void) { active_ = false; }
 
     void stop(void);
     bool get_frame(TFV_ImageData* frame);
@@ -43,45 +38,37 @@ public:
     virtual bool get_properties(int& height, int& width, int& channels) = 0;
 
 protected:
-    Camera(TFV_Id camera_id, int latency, int channels);
+    Camera(TFV_Id camera_id, int channels);
 
     TFV_Id camera_id_;
     int width_ = -1;
     int height_ = -1;
     int channels_ = -1;
-    int latency_ = 0;  // milliseconds b/w grabbing. If <0, single-threaded.
-
-    virtual void grab_frame(void) = 0;
 
     // These are Template Methods (Design Pattern)
     virtual bool retrieve_frame(TFV_ImageData* frame) = 0;
     virtual void close(void) = 0;
 
 private:
-    std::thread grabber_thread_;  // grab and retrieve frames in seperate thread
-    std::mutex mutex_;            // either grab or retrieve
     bool active_ = true;
-
-    void grab_loop(void);
 };
 
 class CameraUsbOpenCv : public Camera {
 
 public:
-    CameraUsbOpenCv(TFV_Id camera_id, TFV_Byte channels, TFV_Int latency);
-    virtual ~CameraUsbOpenCv(void);
+    explicit CameraUsbOpenCv(TFV_Id camera_id);
+    virtual ~CameraUsbOpenCv(void) { close(); }
 
     virtual bool open(void);
     virtual bool is_open(void);
     virtual bool get_properties(int& height, int& width, int& channels);
 
 protected:
-    virtual void grab_frame(void);
     virtual bool retrieve_frame(TFV_ImageData* frame);
     virtual void close(void);
 
 private:
     cv::VideoCapture* camera_ = nullptr;
-    TFV_Int flag_ = CV_8UC3;  // default: color
+    static const TFV_Int flag_ = CV_8UC3;  // default: color
 };
 };

@@ -40,7 +40,7 @@ bool tfv::CameraControl::is_available(TFV_Id camera_id) {
     if (camera_map_.find(camera_id) != camera_map_.end()) {
 
         auto cam = camera_map_[camera_id];
-        if (cam and(cam->is_open() or cam->open())) {
+        if (cam and (cam->is_open() or cam->open())) {
 
             result = true;  // already open
         }
@@ -61,19 +61,16 @@ bool tfv::CameraControl::acquire(TFV_Id camera_id) {
         // open new; currently Opencv color-Usb-cams hardcoded
 
         if (device_exists(camera_id)) {
-            TFV_Byte constexpr channels = 3;
-            TFV_Int constexpr latency = -1;  // negative, so single-threaded
-            camera_map_[camera_id] =
-                new CameraUsbOpenCv(camera_id, channels, latency);
+            camera_map_[camera_id] = new CameraUsbOpenCv(camera_id);
             camera = camera_map_.find(camera_id);
         }
     }
 
-    if (camera->second and(camera->second->is_open()
-                           or camera->second->open())) {
+    if (camera != camera_map_.end() and camera->second and
+        (camera->second->is_open() or camera->second->open())) {
 
         result = true;
-    } else if (camera->second) {
+    } else if (camera != camera_map_.end() and camera->second) {
         delete camera->second;
         camera_map_.erase(camera_id);
     }

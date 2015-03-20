@@ -22,71 +22,35 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <chrono>
 #include <iostream>
 
-tfv::Camera::Camera(TFV_Id camera_id, int latency, int channels)
-    : camera_id_(camera_id), channels_(channels), latency_(latency) {
-
-    latency_ = latency;
-    if (latency > 0) {  // multi-threaded
-        grabber_thread_ = std::thread(&Camera::grab_loop, this);
-    }
-}
-
-void tfv::Camera::grab_loop(void) {
-    while (active_) {
-        {
-            std::lock_guard<std::mutex> lock(mutex_);
-            grab_frame();
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(latency_));
-    }
-}
+tfv::Camera::Camera(TFV_Id camera_id, int channels)
+    : camera_id_(camera_id), channels_(channels) {}
 
 bool tfv::Camera::get_frame(TFV_ImageData* frame) {
-    if (not is_open() or width_ == -1 or channels_ == -1) {
+    if (not is_open() or width_ == -1) {
         // expecting the user to ask for frame properties in advance.
         return false;
     }
 
-    if (latency_ > 0) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        return retrieve_frame(frame);
-    } else {  // single threaded
-        grab_frame();
-        return retrieve_frame(frame);
-    }
+    return retrieve_frame(frame);
 }
 
 void tfv::Camera::stop(void) {
     active_ = false;
-    if (grabber_thread_.joinable()) {
-        grabber_thread_.join();
-    }
     close();
 }
 
-tfv::CameraUsbOpenCv::CameraUsbOpenCv(TFV_Id camera_id, TFV_Byte channels,
-                                      TFV_Int latency)
-    : Camera(camera_id, latency, static_cast<int>(channels)) {
-
-    if (channels == 1) {
-        flag_ = CV_8UC1;
-    } else if (channels != 3) {
-        channels_ = -1;  // invalid setting
-    }
-}
-
-tfv::CameraUsbOpenCv::~CameraUsbOpenCv(void) { close(); }
+#define __TFV_CV_CAMERA_CHANNELS 3
+tfv::CameraUsbOpenCv::CameraUsbOpenCv(TFV_Id camera_id)
+    : Camera(camera_id, __TFV_CV_CAMERA_CHANNELS) {}
+#undef __TFV_CV_CAMERA_CHANNELS
 
 bool tfv::CameraUsbOpenCv::open(void) {
 
-    auto result = false;
-    if (channels_ == 1 or channels_ == 3) {
-        camera_ = new cv::VideoCapture(camera_id_);
-    }
+    camera_ = new cv::VideoCapture(camera_id_);
 
-    result = is_open();
+    auto result = is_open();
     if (not result) {
-        close();
+        stop();
     }
 
     return result;
@@ -106,40 +70,36 @@ void tfv::CameraUsbOpenCv::close(void) {
 
 bool tfv::CameraUsbOpenCv::get_properties(int& height, int& width,
                                           int& channels) {
+
+    bool known = false;
     if (width_ == -1 or height_ == -1) {
-        if (not is_open()) {
-            return false;
+        if (is_open()) {
+            width_ = static_cast<int>(camera_->get(CV_CAP_PROP_FRAME_WIDTH));
+            height_ = static_cast<int>(camera_->get(CV_CAP_PROP_FRAME_HEIGHT));
         }
-        width_ = static_cast<int>(camera_->get(CV_CAP_PROP_FRAME_WIDTH));
-        height_ = static_cast<int>(camera_->get(CV_CAP_PROP_FRAME_HEIGHT));
     }
     height = height_;
     width = width_;
     channels = channels_;
 
-    return true;
-}
-
-void tfv::CameraUsbOpenCv::grab_frame(void) {
-    if (is_open()) {
-        camera_->grab();
-    }
+    return known;
 }
 
 bool tfv::CameraUsbOpenCv::retrieve_frame(TFV_ImageData* frame) {
-    cv::Mat container(height_, width_, flag_, frame);
+    auto result = is_open();
 
-    // can't fill container directly; retrieve initializes a new data block
-    cv::Mat tmp;
-    auto retrieved = camera_->retrieve(tmp);
+    if (result) {
+        camera_->grab();
 
-#ifdef DEV
-    retrieved = retrieved and(tmp.type() == container.type())
-        and(tmp.cols == container.cols) and(tmp.rows() == container.rows());
-#endif
-    if (retrieved) {
-        tmp.copyTo(container);
+        cv::Mat container(height_, width_, flag_, frame);
+
+        // can't fill container directly; retrieve initializes a new data block
+        cv::Mat tmp;
+        result = camera_->retrieve(tmp);
+
+        if (result) {
+            tmp.copyTo(container);
+        }
     }
-
-    return retrieved;
+    return result;
 }
