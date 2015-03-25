@@ -118,9 +118,6 @@ bool tfv::CameraControl::get_properties(size_t& height, size_t& width,
 }
 
 void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ImageFormat format) {
-    std::cout << "Format " << format << " requested "
-              << " from " << image_.format << " at time " << image_.timestamp
-              << std::endl;
 
     // If the requested format is the same as provided by the camera, image_.
     if (format == image_.format) {
@@ -140,7 +137,7 @@ void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ImageFormat format) {
     });
 
     if (it == provided_formats_.end()) {
-        provided_formats_.push_back({image_.format, format});
+        provided_formats_.emplace_back(image_.format, format);
         it = --provided_formats_.end();
     }
 
@@ -191,8 +188,8 @@ bool tfv::CameraControl::_open_device() {
     for (; i < MAX_DEVICE; ++i) {
         if (_device_exists(i)) {
 
-            // camera_ = new V4L2USBCamera(i);
-            camera_ = new OpenCvUSBCamera(i);
+            camera_ = new V4L2USBCamera(i);
+            // camera_ = new OpenCvUSBCamera(i);
 
             fallback.active = not camera_->open();
             if (not fallback.active) {

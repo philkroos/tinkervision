@@ -137,8 +137,7 @@ private:
     Image image_;  ///< The image as obtained from the active camera module
 
     using ProvidedFormats = std::vector<Converter>;
-    ProvidedFormats provided_formats_{
-        Converter(ImageFormat::YUYV, ImageFormat::BGR888)};
+    ProvidedFormats provided_formats_;
 
     using FallbackImage = struct _ {
         Image image = {};

@@ -40,7 +40,13 @@ struct Clamp {
 class Converter;
 
 struct Convert {
+    Convert(void){};
     virtual ~Convert(void);
+    Convert(Convert const&) = delete;
+    Convert(Convert const&&) = delete;
+    Convert& operator=(Convert const&) = delete;
+    Convert& operator=(Convert const&&) = delete;
+
     Image const& operator()(Image const& source);
 
 protected:
@@ -250,8 +256,27 @@ private:
     Convert* bgr_to_rgb(void) { return new ConvertBGRToRGB(); }
     Convert* rgb_to_bgr(void) { return new ConvertRGBToBGR(); }
 
+private:  // These should really be just deleted, but current compiler has a
+          // bug. See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58249
+
 public:
     Converter(ImageFormat source, ImageFormat target);
+    Converter(Converter&& other) {
+        this->converter_ = other.converter_;
+        other.converter_ = nullptr;
+    }
+    Converter(Converter& other) {
+        this->converter_ = other.converter_;
+        other.converter_ = nullptr;
+    }
+    Converter& operator=(Converter const&) = delete;
+    Converter& operator=(Converter const&&) = delete;
+
+    // Converter(Converter const&) = delete;
+    // Converter(Converter const&&) = delete;
+    // Converter& operator=(Converter const&) = delete;
+    // Converter& operator=(Converter const&&) = delete;
+
     ~Converter(void);
 
     Image const& operator()(Image const& source) const;
