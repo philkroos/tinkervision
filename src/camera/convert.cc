@@ -1,3 +1,22 @@
+/*
+Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
+Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
 #include "convert.hh"
 
 #include <algorithm>
@@ -14,12 +33,12 @@ tfv::Convert::~Convert(void) {
 tfv::Image const& tfv::Convert::operator()(tfv::Image const& source) {
     if (not target) {
         size_t width, height, bytesize;
-        auto format = target_format(source, width, height, bytesize);
+        target_format_ = target_format(source, width, height, bytesize);
         target = new tfv::Image();
         target->width = width;
         target->height = height;
         target->bytesize = bytesize;
-        target->format = format;
+        target->format = target_format_;
         target->data = new TFV_ImageData[bytesize];
     }
     convert(source, *target);

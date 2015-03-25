@@ -1,6 +1,6 @@
 /*
 Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014 philipp.kroos@fh-bielefeld.de
+Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
-struct Colortracking : public Component {
+struct Colortracking : public BGRComponent {
     TFV_Byte min_hue;
     TFV_Byte max_hue;
     TFV_CallbackColortrack callback;
@@ -46,7 +46,7 @@ struct Colortracking : public Component {
 
     Colortracking(TFV_Id component_id, TFV_Byte min_hue, TFV_Byte max_hue,
                   TFV_CallbackColortrack callback, TFV_Context context)
-        : Component(component_id),
+        : BGRComponent(component_id),
           min_hue(min_hue),
           max_hue(max_hue),
           callback(callback),

@@ -1,6 +1,6 @@
 /*
 Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014 philipp.kroos@fh-bielefeld.de
+Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -117,7 +117,42 @@ bool tfv::CameraControl::get_properties(size_t& height, size_t& width,
     return result;
 }
 
-bool tfv::CameraControl::get_frame(tfv::Image& image) {
+void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ImageFormat format) {
+    std::cout << "Format " << format << " requested "
+              << " from " << image_.format << " at time " << image_.timestamp
+              << std::endl;
+
+    // If the requested format is the same as provided by the camera, image_.
+    if (format == image_.format) {
+        image = image_;
+        return;
+    }
+
+    // Else, check if a converter for the requested format already is
+    // instantiated. If not, insert a new one. Else, check if it contains a
+    // valid result with the same timestamp as image_. If, it has been run
+    // alread, just return the result. Else, run the converter.
+
+    auto it = std::find_if(provided_formats_.begin(), provided_formats_.end(),
+                           [&format](Converter const& converter) {
+
+        return converter.target_format() == format;
+    });
+
+    if (it == provided_formats_.end()) {
+        provided_formats_.push_back({image_.format, format});
+        it = --provided_formats_.end();
+    }
+
+    image = it->result();
+    if (image.format == tfv::ImageFormat::INVALID or
+        image.timestamp != image_.timestamp) {
+
+        image = (*it)(image_);
+    }
+}
+
+bool tfv::CameraControl::update_frame(void) {
 
     auto result = not stopped_;
 
@@ -132,15 +167,15 @@ bool tfv::CameraControl::get_frame(tfv::Image& image) {
         if (result) {
             if (not camera_) {
                 // std::cout << "Setting to fallback image" << std::endl;
-                image = fallback.image;
+                image_ = fallback.image;
                 result = true;
             } else {
-                result = camera_->get_frame(image);
+                result = camera_->get_frame(image_);
 
                 if (not result) {
-                    // give it a little time and try again
+                    // give it a little time, then give it a second try
                     std::this_thread::sleep_for(std::chrono::milliseconds(20));
-                    result = camera_->get_frame(image);
+                    result = camera_->get_frame(image_);
                 }
             }
         }

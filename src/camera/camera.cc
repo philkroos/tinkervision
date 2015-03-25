@@ -1,6 +1,6 @@
 /*
 Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014 philipp.kroos@fh-bielefeld.de
+Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "camera.hh"
 
+#include <chrono>
+
 tfv::Camera::Camera(TFV_Id camera_id) : camera_id_(camera_id) {}
 
 bool tfv::Camera::get_frame(tfv::Image& image) {
@@ -27,7 +29,20 @@ bool tfv::Camera::get_frame(tfv::Image& image) {
         return false;
     }
 
-    return retrieve_frame(image);
+    auto result = retrieve_frame(image);
+
+    if (result) {
+
+        // Todo? Let this be set by the actual camera module
+        image.timestamp =
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::high_resolution_clock::now().time_since_epoch())
+                .count();
+
+        image.format = image_format();
+    }
+
+    return result;
 }
 
 bool tfv::Camera::get_properties(size_t& height, size_t& width,

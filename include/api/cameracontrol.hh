@@ -1,6 +1,6 @@
 /*
 Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014 philipp.kroos@fh-bielefeld.de
+Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "opencv_camera.hh"
 #include "v4l2_camera.hh"
 #include "image.hh"
+#include "convert.hh"
 
 namespace tfv {
 
@@ -110,28 +111,43 @@ public:
     bool get_properties(size_t& height, size_t& width, size_t& bytesize);
 
     /**
-     * Grab a frame if a camera is available.
+     * Grab a frame if a camera is available.  Sets image_.
      * If the camera had been stopped before, tries to open it again; requests a
      * frame.
-     * \parm[out] tfv::Image for which, on success, all members are valid.
      * \return True if image acquisition succeeded.
      */
-    bool get_frame(tfv::Image& Image);
+    bool update_frame(void);
 
     /**
      * Add a number to the internal usercounter.
      */
     void add_user(size_t count) { usercount_ += count; }
 
+    /**
+     * Get the grabbed frame in the requested format.  This assumes that
+     * update_frame() has already been called.
+     * \parm[out] image The container will contain valid data after this method.
+     * \parm[in] format The format requested for the returned image.
+     */
+    void get_frame(Image& image, ImageFormat format);
+
 private:
     Camera* camera_ = nullptr;
+
+    Image image_;  ///< The image as obtained from the active camera module
+
+    using ProvidedFormats = std::vector<Converter>;
+    ProvidedFormats provided_formats_{
+        Converter(ImageFormat::YUYV, ImageFormat::BGR888)};
 
     using FallbackImage = struct _ {
         Image image = {};
         bool active = false;
     };
 
-    FallbackImage fallback;
+    FallbackImage fallback;  ///< Set to the last retrieved image on
+                             /// _close_device() and used for subsequent
+    /// get_frame() calls until the next successfull _open_device()
 
     int usercount_ = 0;
     bool stopped_ = false;

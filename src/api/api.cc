@@ -1,6 +1,6 @@
 /*
 Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014 philipp.kroos@fh-bielefeld.de
+Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -96,6 +96,8 @@ void tfv::Api::execute(void) {
             return;
         }
 
+        // retrieve the frame in the requested format and execute the component
+        camera_control_.get_frame(image_, component.expected_format());
         component.execute(image_);
     };
 
@@ -117,7 +119,7 @@ void tfv::Api::execute(void) {
             latency_ms =
                 std::max(execution_latency_ms_, with_component_min_latency_ms);
 
-            if (camera_control_.get_frame(image_)) {
+            if (camera_control_.update_frame()) {
 
                 components_.exec_all(update_component);
             } else {
