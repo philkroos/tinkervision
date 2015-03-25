@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tinkervision_defines.h"
 #include "cameracontrol.hh"
 #include "component.hh"
-#include "frame.hh"
+#include "image.hh"
 #include "shared_resource.hh"
 
 #if defined DEV or defined DEBUG_CAM
@@ -43,24 +43,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 
 namespace tfv {
-
-using FrameWithUserCounter = struct FWUC {
-    tfv::Frame the_frame;
-    int user;
-    TFV_Bool frame_available;
-
-    FWUC(TFV_Id id, int rows, int columns, int channels, int user)
-        : the_frame{id, rows, columns, channels}, user(user) {}
-
-    ~FWUC(void) = default;
-
-    TFV_ImageData* data(void) const { return the_frame.data; }
-    TFV_Int rows(void) const { return the_frame.rows; }
-    TFV_Int columns(void) const { return the_frame.columns; }
-    void set_frame_available(TFV_Bool available) {
-        frame_available = available;
-    }
-};
 
 class Api {
 private:
@@ -111,7 +93,7 @@ public:
     TFV_Result quit(void);
 
     template <typename Comp, typename... Args>
-    TFV_Result component_set(TFV_Id id, TFV_Id camera_id, Args... args) {
+    TFV_Result component_set(TFV_Id id, Args... args) {
 
         auto result = TFV_INVALID_CONFIGURATION;
 
@@ -119,18 +101,18 @@ public:
             if (components_.managed(id)) {         // reconfiguring requested
                 auto component = components_[id];  // ptr
 
-                if (check_type<Comp>(component)) {
-                    result = component_reset(component, camera_id, args...);
+                result = TFV_INVALID_ID;
 
-                } else {
-                    result = TFV_INVALID_ID;
+                if (check_type<Comp>(component)) {
+                    tfv::set<Comp>(static_cast<Comp*>(component), args...);
+                    result = TFV_OK;
                 }
 
-            } else {
+            } else {  // new component
                 result = TFV_CAMERA_ACQUISITION_FAILED;
 
-                if (allocate_frame(camera_id)) {
-                    components_.allocate<Comp>(id, camera_id, id, args...);
+                if (camera_control_.acquire()) {
+                    components_.allocate<Comp>(id, args...);
                     result = TFV_OK;
                 }
             }
@@ -140,7 +122,7 @@ public:
     }
 
     template <typename Component>
-    TFV_Result component_get(TFV_Id id, TFV_Id& camera_id, TFV_Byte& min_hue,
+    TFV_Result component_get(TFV_Id id, TFV_Byte& min_hue,
                              TFV_Byte& max_hue) const {
         auto result = TFV_UNCONFIGURED_ID;
         Component const* ct = nullptr;
@@ -148,7 +130,7 @@ public:
         result = get_component<Component>(id, &ct);
 
         if (ct) {
-            tfv::get<Component>(*ct, camera_id, min_hue, max_hue);
+            tfv::get<Component>(*ct, min_hue, max_hue);
         }
 
         return result;
@@ -181,12 +163,14 @@ public:
             if (check_type<Component>(component)) {
                 result = TFV_CAMERA_ACQUISITION_FAILED;
 
-                if (component->active) {
-                    result = TFV_OK;
-                } else if (allocate_frame(component->camera_id)) {
-                    component->active = true;
-                    result = TFV_OK;
-                }
+                components_.exec_one(id, [&result, this](tfv::Component& comp) {
+                    if (comp.active) {
+                        result = TFV_OK;
+                    } else if (camera_control_.acquire()) {
+                        comp.active = true;
+                        result = TFV_OK;
+                    }
+                });
             }
         }
 
@@ -197,15 +181,14 @@ public:
      * Pause a component. This will not remove the component but rather
      * prevent it from being executed. The id is still reserved and it's
      * a matter of calling component_start() to resume execution.
-     * \note The associated resources (namely the camera handle and the
-     * Frame-object) will be released to be usable in other contexts, so
-     * this influences success of component_start().
+     * \note The associated resources (namely the camera handle)
+     * will be released to be usable in other contexts, so
+     * this might prohibit restart of the component.
      *
      * \param id The id of the component to stop. The type of the associated
      * component has to match Component.
      * \return TFV_OK if the component was stopped; TFV_UNCONFIGURED_ID if
-     *the
-     * id is not registered; TFV_INVALID_ID if the types don't match.
+     * the id is not registered; TFV_INVALID_ID if the types don't match.
      */
     template <typename Component>
     TFV_Result component_stop(TFV_Id id) {
@@ -216,10 +199,10 @@ public:
             result = TFV_INVALID_ID;
 
             if (check_type<Component>(component)) {
-                auto const camera_id = component->camera_id;
-                component->active = false;
-                // free associated resources
-                release_frame(camera_id);
+                components_.exec_one(id, [this](tfv::Component& comp) {
+                    comp.active = false;
+                    camera_control_.release();
+                });
                 result = TFV_OK;
             }
         }
@@ -236,14 +219,11 @@ public:
     }
 
     /**
-     * Check whether the camera specified by camera_id is available.
-     * The number corresponds to the device number in the linux system,
-     * i.e. /dev/video<camera_id>
-     * \param camera_id The id of the device to check.
+     * Check if a camera is available in the system.
      * \result TFV_CAMERA_ACQUISITION_FAILED if the camera is not available,
      * TFV_OK else.
      */
-    TFV_Result is_camera_available(TFV_Id camera_id);
+    TFV_Result is_camera_available(void);
 
     /**
      * Set the time between the execution of active components.
@@ -258,13 +238,15 @@ public:
      * \param ms The duration of the pauses in milliseconds.
      */
     TFV_Result set_execution_latency_ms(TFV_UInt ms) {
-        execution_latency_ms_ = std::chrono::milliseconds(ms);
+        execution_latency_ms_ = ms;
         return TFV_OK;
     }
 
 private:
     CameraControl camera_control_;    ///< Camera access abstraction
     TFVStringMap result_string_map_;  ///< String mapping of Api-return values
+
+    Image image_;  ///< The default image
 
     /**
      * Instantiation of the resource manager using the abstract base
@@ -273,17 +255,9 @@ private:
     using Components = tfv::SharedResource<tfv::Component>;
     Components components_;  ///< RAII-style managed vision algorithms.
 
-    /**
-     * Instantiation of the resource manager with the counting camera
-     * frame container.
-     */
-    using Frames = tfv::SharedResource<tfv::FrameWithUserCounter>;
-    Frames frames_;  ///< RAII-style managed frames, one per camera.
-
     std::thread executor_;  ///< Mainloop-Context executing the components.
     bool active_ = true;    ///< While true, the mainloop is running.
-    std::chrono::milliseconds execution_latency_ms_{
-        100};  ///< Pause between two executions of the mainloop
+    unsigned execution_latency_ms_ = 100;  ///< Pause during mainloop
 
 #ifdef DEBUG_CAM
     Window window;
@@ -293,8 +267,8 @@ private:
      * Threaded execution context of vision algorithms (components).
      * This method is started asynchronously during construction of
      * the Api and is running until deconstruction.  It is constantly
-     * grabbing frames from all active cameras, executing all active
-     * components and activating newly registered cameras and components.
+     * grabbing frames from the active camera, executing all active
+     * components and activating newly registered components.
      */
     void execute(void);
 
@@ -323,47 +297,11 @@ private:
     }
 
     /**
-     * Helper method for the instantiation of Frames.  A frame has to
-     * be allocated only once per camera, after that it can be reused
-     * by other components. This method cares for that after successfull
-     * acquisition of a camera.
+     * Start the default camera or increase the usagecounter.
      *
-     * \param camera_id The id of the camera to be accessed.
-     * \return True if the camera could be acquired and the frame allocated.
+     * \return True if the camera could be acquired.
      */
-    bool allocate_frame(TFV_Id camera_id);
-
-    /**
-     * Helper method for the release of Frames.  A frame is allocated
-     * only once per camera, after that it is being reused by other
-     * components, increasing the usage-counter. This method reduces
-     * the count or, once reached 0, issues a release of the frame and
-     * the associated camera.
-     *
-     * \param camera_id The id of the camera to be accessed.
-     */
-    void release_frame(TFV_Id camera_id);
-
-    template <typename Comp, typename... Args>
-    TFV_Result component_reset(Comp& component, TFV_Id camera_id,
-                               Args... args) {
-        auto result = TFV_FEATURE_CONFIGURATION_FAILED;
-
-        if (component->camera_id != camera_id) {  // other cam requested
-
-            result = TFV_CAMERA_ACQUISITION_FAILED;
-            if (allocate_frame(camera_id)) {
-                release_frame(component->camera_id);
-                tfv::set<Comp>(static_cast<Comp*>(&component), args...);
-                result = TFV_OK;
-            }
-        } else {
-
-            tfv::set<Comp>(static_cast<Comp*>(&component), args...);
-            result = TFV_OK;
-        }
-        return result;
-    }
+    bool start_camera(void);
 
     template <typename Component>
     TFV_Result get_component(TFV_Id id, Component const** component) const {

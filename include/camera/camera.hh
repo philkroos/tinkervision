@@ -17,36 +17,44 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#ifndef CAMERA_H
+#define CAMERA_H
+
 #include <opencv2/opencv.hpp>
 
 #include "tinkervision_defines.h"
+#include "image.hh"
 
 namespace tfv {
 
 class Camera {
 public:
-    virtual ~Camera(void) { active_ = false; }
+    virtual ~Camera(void) = default;
 
     void stop(void);
-    bool get_frame(TFV_ImageData* frame);
+    bool get_frame(Image& frame);
+    bool get_properties(size_t& height, size_t& width, size_t& framebytesize);
 
     virtual bool open(void) = 0;
-    virtual bool is_open(void) = 0;
-    virtual bool get_properties(int& height, int& width, int& channels) = 0;
+    virtual bool is_open(void) const = 0;
+
+    virtual ImageFormat image_format(void) const = 0;
 
 protected:
-    Camera(TFV_Id camera_id, int channels);
+    Camera(TFV_Id camera_id);
 
     TFV_Id camera_id_;
-    int width_ = -1;
-    int height_ = -1;
-    int channels_ = -1;
 
-    // These are Template Methods (Design Pattern)
-    virtual bool retrieve_frame(TFV_ImageData* frame) = 0;
+    // These are Template Methods (Design Pattern), see implementation
+    // of the corresponding get_ methods.
+    virtual bool retrieve_frame(Image& frame) = 0;
+    virtual void retrieve_properties(size_t& height, size_t& width,
+                                     size_t& framebytesize) = 0;
     virtual void close(void) = 0;
 
 private:
     bool active_ = true;
 };
 }
+
+#endif /* CAMERA_H */

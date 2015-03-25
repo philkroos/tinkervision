@@ -17,9 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#ifndef OPENCV_CAMERA_H
+#define OPENCV_CAMERA_H
+
 #include <opencv2/opencv.hpp>
 
 #include "camera.hh"
+#include "image.hh"
 
 namespace tfv {
 
@@ -30,15 +34,26 @@ public:
     virtual ~OpenCvUSBCamera(void) { close(); }
 
     virtual bool open(void);
-    virtual bool is_open(void);
-    virtual bool get_properties(int& height, int& width, int& channels);
+    virtual bool is_open(void) const;
+    virtual ImageFormat image_format(void) const { return ImageFormat::BGR888; }
 
 protected:
-    virtual bool retrieve_frame(TFV_ImageData* frame);
+    virtual bool retrieve_frame(tfv::Image& frame);
+    virtual void retrieve_properties(size_t& height, size_t& width,
+                                     size_t& frame_bytesize);
     virtual void close(void);
 
 private:
     cv::VideoCapture* camera_ = nullptr;
     static const TFV_Int flag_ = CV_8UC3;  // default: color
+    cv::Mat container_;
+
+    size_t frame_width_ = 0;     ///< resolution width
+    size_t frame_height_ = 0;    ///< resolution height
+    size_t frame_bytesize_ = 0;  ///< size of data retrieved per frame
+
+    void _retrieve_properties(void);
 };
 }
+
+#endif /* OPENCV_CAMERA_H */

@@ -30,8 +30,8 @@ extern "C" {
 // General library functions
 //
 
-TFV_Result camera_available(TFV_Id camera_id) {
-    return tfv::get_api().is_camera_available(camera_id);
+TFV_Result camera_available(void) {
+    return tfv::get_api().is_camera_available();
 }
 
 TFV_Result stop(void) { return tfv::get_api().stop(); }
@@ -52,13 +52,12 @@ TFV_String result_string(TFV_Result code) {
 // Colortracking specific functions
 //
 
-TFV_Result colortracking_start(TFV_Id id, TFV_Id camera_id, TFV_Byte min_hue,
-                               TFV_Byte max_hue,
+TFV_Result colortracking_start(TFV_Id id, TFV_Byte min_hue, TFV_Byte max_hue,
                                TFV_CallbackColortrack callback,
                                TFV_Context context) {
 
     return tfv::get_api().component_set<tfv::Colortracking>(
-        id, camera_id, min_hue, max_hue, callback, context);
+        id, min_hue, max_hue, callback, context);
 }
 
 TFV_Result colortracking_restart(TFV_Id feature_id) {
@@ -69,9 +68,9 @@ TFV_Result colortracking_stop(TFV_Id feature_id) {
     return tfv::get_api().component_stop<tfv::Colortracking>(feature_id);
 }
 
-TFV_Result colortracking_get(TFV_Id feature_id, TFV_Id* camera_id,
-                             TFV_Byte* min_hue, TFV_Byte* max_hue) {
-    return tfv::get_api().component_get<tfv::Colortracking>(
-        feature_id, *camera_id, *min_hue, *max_hue);
+TFV_Result colortracking_get(TFV_Id feature_id, TFV_Byte* min_hue,
+                             TFV_Byte* max_hue) {
+    return tfv::get_api().component_get<tfv::Colortracking>(feature_id,
+                                                            *min_hue, *max_hue);
 }
 }

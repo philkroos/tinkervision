@@ -66,8 +66,8 @@ public:
     void exec_all(std::function<void(TFV_Id, Resource&)> executor) {
         if (not managed_.size()) {
             return;
-        } else {  // locked block
 
+        } else {
             std::lock_guard<std::mutex> lock(managed_mutex_);
             for (auto& resource : managed_) {
                 executor(resource.first, *resource.second);
@@ -89,7 +89,23 @@ public:
         if (it != managed_.end()) {
             executor(resource(it));
         }
-        return it != managed_.end();
+    }
+
+    /**
+     * Evaluates a predicate for each active resource and counts the number of
+     * true results.
+     * \parm[i] predicate A predicate.
+     * \return The number of true results over each active component.
+     */
+    size_t count(std::function<bool(Resource const&)> predicate) {
+        std::lock_guard<std::mutex> lock(managed_mutex_);
+        size_t count = 0;
+        for (auto const& resource : managed_) {
+            if (predicate(*resource.second)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     void update(void) {
@@ -113,7 +129,7 @@ public:
         if (exists(allocated_, id)) {
             return false;
         }
-        allocated_[id] = new T(args...);
+        allocated_[id] = new T(id, args...);
         return true;
     }
 
@@ -196,7 +212,7 @@ private:
     /**
      * Verbose access to the resource of a resource-map.
      */
-    TFV_Id resource(ConstIterator it) const { return it->second; }
+    Resource& resource(ConstIterator it) const { return *it->second; }
 
     /**
      * Verbose check if a  resource exists in a map.
@@ -252,7 +268,8 @@ private:
     ResourceMap garbage_;
     bool raw_access_ = false;
 
-    // "mutable members of const classes are modifiable" (en.cppreference.com)
+    // Needing to lock these sometimes in methods that do not change internal
+    // state, so declaring these mutable.
     std::mutex mutable allocation_mutex_;
     std::mutex mutable garbage_mutex_;
     std::mutex mutable managed_mutex_;

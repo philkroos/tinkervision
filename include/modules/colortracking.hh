@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 
 #include "component.hh"
+#include "image.hh"
 
 namespace tfv {
 
@@ -43,10 +44,9 @@ struct Colortracking : public Component {
     TFV_Byte max_saturation = 255;
     TFV_Byte max_value = 255;
 
-    Colortracking(TFV_Id camera_id, TFV_Id component_id, TFV_Byte min_hue,
-                  TFV_Byte max_hue, TFV_CallbackColortrack callback,
-                  TFV_Context context)
-        : Component(component_id, camera_id),
+    Colortracking(TFV_Id component_id, TFV_Byte min_hue, TFV_Byte max_hue,
+                  TFV_CallbackColortrack callback, TFV_Context context)
+        : Component(component_id),
           min_hue(min_hue),
           max_hue(max_hue),
           callback(callback),
@@ -60,21 +60,21 @@ struct Colortracking : public Component {
         }
     }
 
-    virtual ~Colortracking(void) {};
+    virtual ~Colortracking(void){};
     Colortracking(Colortracking const& other) = delete;
     Colortracking(Colortracking&& other) = delete;
     Colortracking& operator=(Colortracking const& rhs) = delete;
     Colortracking& operator=(Colortracking&& rhs) = delete;
 
-    virtual void execute(TFV_ImageData* data, TFV_Int rows, TFV_Int columns);
+    virtual void execute(tfv::Image const& image);
 
 #ifdef DEBUG_COLORTRACKING
     tfv::Window window;
 #endif  // DEBUG_COLORTRACKING
 };
 
-// called with the exact same parameter list as the constructor minus
-// the camera_id, and all args are references. If this is not correct
+// called with the exact same parameter list as the constructor,
+// and all args are references. If this is not correct
 // here, the 'basecase' in component.hh will be used.
 template <>
 bool valid<Colortracking>(TFV_Byte& min_hue, TFV_Byte& max_hue,
@@ -85,8 +85,8 @@ void set<Colortracking>(Colortracking* ct, TFV_Byte min_hue, TFV_Byte max_hue,
                         TFV_CallbackColortrack callback, TFV_Context context);
 
 template <>
-void get<Colortracking>(Colortracking const& ct, TFV_Id& camera_id,
-                        TFV_Byte& min_hue, TFV_Byte& max_hue);
+void get<Colortracking>(Colortracking const& ct, TFV_Byte& min_hue,
+                        TFV_Byte& max_hue);
 };
 
 #endif /* COLORTRACKING_H */

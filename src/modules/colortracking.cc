@@ -27,17 +27,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // member functions
 
-void tfv::Colortracking::execute(TFV_ImageData* data, TFV_Int rows,
-                                 TFV_Int columns) {
-    cv::Mat image(rows, columns, CV_8UC3, data);
-    cv::cvtColor(image, image, CV_BGR2HSV);
+void tfv::Colortracking::execute(tfv::Image const& image) {
+    const auto rows = image.height;
+    const auto columns = image.width;
+    const auto data = image.data;
+
+    cv::Mat cv_image(rows, columns, CV_8UC3, data);
+    cv::cvtColor(cv_image, cv_image, CV_BGR2HSV);
     cv::Mat mask(rows, columns, CV_8UC3);
 
     /*
     static int counter = 0;
     std::string imgname = "ctexec_" + std::to_string(counter++) + ".jpg";
-    std::cout << "Writing image " << imgname << std::endl;
-    cv::imwrite(imgname, image);
+    std::cout << "Writing cv_image " << imgname << std::endl;
+    cv::imwrite(imgname, cv_image);
     */
 
     auto const split = min_hue > max_hue;
@@ -47,13 +50,13 @@ void tfv::Colortracking::execute(TFV_ImageData* data, TFV_Int rows,
     if (split) {
         cv::Mat mask0(rows, columns, CV_8UC3);
         cv::Mat mask1(rows, columns, CV_8UC3);
-        cv::inRange(image, low, high, mask0);
+        cv::inRange(cv_image, low, high, mask0);
         low[0] = min_hue0;
         high[0] = max_hue;
-        cv::inRange(image, low, high, mask1);
+        cv::inRange(cv_image, low, high, mask1);
         cv::bitwise_or(mask0, mask1, mask);
     } else {
-        cv::inRange(image, low, high, mask);
+        cv::inRange(cv_image, low, high, mask);
     }
 
     // Opening
@@ -73,7 +76,7 @@ void tfv::Colortracking::execute(TFV_ImageData* data, TFV_Int rows,
     for (size_t i = 0; i < contours.size(); i++) {
         cv::approxPolyDP(cv::Mat(contours[i]), polygon, 3, true);
         auto tmp = cv::boundingRect(polygon);
-        if (not area or(area < (tmp.width * tmp.height))) {
+        if (not area or (area < (tmp.width * tmp.height))) {
             rect = tmp;
             area = rect.width * rect.height;
         }
@@ -96,8 +99,7 @@ template <>
 bool tfv::valid<tfv::Colortracking>(TFV_Byte& min_hue, TFV_Byte& max_hue,
                                     TFV_CallbackColortrack& callback,
                                     TFV_Context& context) {
-    return (max_hue < COLORTRACK_MAXIMUM_HUE)and(
-        min_hue < COLORTRACK_MAXIMUM_HUE) and callback;
+    return callback;
 }
 
 template <>
@@ -118,9 +120,7 @@ void tfv::set<tfv::Colortracking>(tfv::Colortracking* ct, TFV_Byte min_hue,
 
 template <>
 void tfv::get<tfv::Colortracking>(tfv::Colortracking const& ct,
-                                  TFV_Id& camera_id, TFV_Byte& min_hue,
-                                  TFV_Byte& max_hue) {
-    camera_id = ct.camera_id;
+                                  TFV_Byte& min_hue, TFV_Byte& max_hue) {
     min_hue = ct.min_hue;
     max_hue = ct.max_hue;
 }

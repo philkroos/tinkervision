@@ -19,16 +19,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "camera.hh"
 
-tfv::Camera::Camera(TFV_Id camera_id, int channels)
-    : camera_id_(camera_id), channels_(channels) {}
+tfv::Camera::Camera(TFV_Id camera_id) : camera_id_(camera_id) {}
 
-bool tfv::Camera::get_frame(TFV_ImageData* frame) {
-    if (not is_open() or width_ == -1) {
-        // expecting the user to ask for frame properties in advance.
+bool tfv::Camera::get_frame(tfv::Image& image) {
+    if (not is_open()) {
+        stop();
         return false;
     }
 
-    return retrieve_frame(frame);
+    return retrieve_frame(image);
+}
+
+bool tfv::Camera::get_properties(size_t& height, size_t& width,
+                                 size_t& framebytesize) {
+    if (is_open()) {
+        retrieve_properties(height, width, framebytesize);
+        return true;
+    }
+    return false;
 }
 
 void tfv::Camera::stop(void) {

@@ -20,37 +20,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
+#include <iostream>
+
 #include "tinkervision_defines.h"
+#include "image.hh"
 
 namespace tfv {
 
 struct Component {
     TFV_Id component_id;
-    TFV_Id camera_id;
     bool active;
 
-    Component(TFV_Id component_id, TFV_Id camera_id)
-        : component_id(component_id), camera_id(camera_id), active(true) {}
-    virtual ~Component(void) {};
+    explicit Component(TFV_Id component_id)
+        : component_id(component_id), active(true) {}
+    virtual ~Component(void){};
 
     Component(Component const& other) = delete;
     Component(Component&& other) = delete;
     Component& operator=(Component const& rhs) = delete;
     Component& operator=(Component&& rhs) = delete;
 
-    virtual void execute(TFV_ImageData* data, TFV_Int rows,
-                         TFV_Int columns) = 0;
+    virtual void execute(tfv::Image const& image) = 0;
 };
 
 template <typename T, typename... Args>
 bool valid(Args&... args) {
+    std::cout << "Warning, valid undefined" << std::endl;
     return false;
 }
 
 template <typename T, typename... Args>
-void set(T* component, Args... args) {}
+void set(T* component, Args... args) {
+    std::cout << "Warning, set undefined" << std::endl;
+}
 
 template <typename T, typename... Args>
-void get(T const& component, Args&... args) {}
+void get(T const& component, Args&... args) {
+    std::cout << "Warning, get undefined" << std::endl;
+}
 };
 #endif /* COMPONENT_H */

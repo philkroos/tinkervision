@@ -19,12 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "opencv_camera.hh"
 
-#define __TFV_CV_CAMERA_CHANNELS 3
-
-tfv::OpenCvUSBCamera::OpenCvUSBCamera(TFV_Id camera_id)
-    : Camera(camera_id, __TFV_CV_CAMERA_CHANNELS) {}
-
-#undef __TFV_CV_CAMERA_CHANNELS
+tfv::OpenCvUSBCamera::OpenCvUSBCamera(TFV_Id camera_id) : Camera(camera_id) {}
 
 bool tfv::OpenCvUSBCamera::open(void) {
 
@@ -32,13 +27,17 @@ bool tfv::OpenCvUSBCamera::open(void) {
 
     auto result = is_open();
     if (not result) {
-        stop();
+        close();
+    } else {
+        if (not frame_width_) {
+            _retrieve_properties();
+        }
     }
 
     return result;
 }
 
-bool tfv::OpenCvUSBCamera::is_open(void) {
+bool tfv::OpenCvUSBCamera::is_open(void) const {
     return camera_ and camera_->isOpened();
 }
 
@@ -47,41 +46,51 @@ void tfv::OpenCvUSBCamera::close(void) {
         camera_->release();
         delete camera_;
     }
+
     camera_ = nullptr;
 }
 
-bool tfv::OpenCvUSBCamera::get_properties(int& height, int& width,
-                                          int& channels) {
+void tfv::OpenCvUSBCamera::retrieve_properties(size_t& height, size_t& width,
+                                               size_t& frame_bytesize) {
 
-    bool known = false;
-    if (width_ == -1 or height_ == -1) {
-        if (is_open()) {
-            width_ = static_cast<int>(camera_->get(CV_CAP_PROP_FRAME_WIDTH));
-            height_ = static_cast<int>(camera_->get(CV_CAP_PROP_FRAME_HEIGHT));
-        }
-    }
-    height = height_;
-    width = width_;
-    channels = channels_;
-
-    return known;
+    _retrieve_properties();
+    height = frame_height_;
+    width = frame_width_;
+    frame_bytesize = frame_bytesize_;
 }
 
-bool tfv::OpenCvUSBCamera::retrieve_frame(TFV_ImageData* frame) {
-    auto result = is_open();
+bool tfv::OpenCvUSBCamera::retrieve_frame(tfv::Image& image) {
+    image.data = nullptr;
+    image.bytesize = 0;
 
+    auto result = is_open();
     if (result) {
+
+        _retrieve_properties();
         camera_->grab();
 
-        cv::Mat container(height_, width_, flag_, frame);
-
-        // can't fill container directly; retrieve initializes a new data block
-        cv::Mat tmp;
-        result = camera_->retrieve(tmp);
+        result = camera_->retrieve(container_);
 
         if (result) {
-            tmp.copyTo(container);
+            // assert:
+            // container_.cols * container_.elemSize() == bytesize
+
+            image.data = container_.data;
+            image.bytesize = frame_bytesize_;
+            image.width = frame_width_;
+            image.height = frame_height_;
         }
     }
+
     return result;
+}
+
+void tfv::OpenCvUSBCamera::_retrieve_properties(void) {
+
+    if (not frame_width_ and is_open()) {
+        frame_width_ = static_cast<int>(camera_->get(CV_CAP_PROP_FRAME_WIDTH));
+        frame_height_ =
+            static_cast<int>(camera_->get(CV_CAP_PROP_FRAME_HEIGHT));
+        frame_bytesize_ = frame_width_ * frame_height_ * 3;  // RGB
+    }
 }

@@ -1,6 +1,6 @@
 CCFLAGS	:=-Wall -Werror -g -O0 -std=gnu++11 -D_GLIBCXX_USE_NANOSLEEP
 ARFLAGS	:=-rcs
-LDFLAGS_LIB	:=-g -Wall -lstdc++  `pkg-config --libs opencv`
+LDFLAGS_LIB	:=-g -Wall -lstdc++  `pkg-config --libs opencv` -lv4l2
 
 # externals
 OCV_INC	:= `pkg-config --cflags opencv`

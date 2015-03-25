@@ -31,6 +31,14 @@ TFV_Result tfv::Api::start(void) {
     // Allow mainloop to run
     active_ = true;
 
+    auto active_count = components_.count(
+        [](tfv::Component const& component) { return component.active; });
+
+    camera_control_.acquire(active_count);
+
+    std::cout << "Restarting with " << active_count << " components"
+              << std::endl;
+
     // Start threaded execution of mainloop
     if (not executor_.joinable()) {
         executor_ = std::thread(&tfv::Api::execute, this);
@@ -55,7 +63,7 @@ TFV_Result tfv::Api::stop(void) {
         // Release all unused resources. Keep the components' active state
         // unchanged, so that restarting the loop resumes known context.
         components_.exec_all([this](TFV_Id id, tfv::Component& component) {
-            release_frame(component.camera_id);
+            camera_control_.release();
         });
     }
 
@@ -70,92 +78,66 @@ TFV_Result tfv::Api::quit(void) {
 
     std::cout << "Quitting" << std::endl;
 
+    // stop all components
+    components_.exec_all([this](
+        TFV_Id id, tfv::Component& component) { component.active = false; });
+
     // stop execution of the main loop
-    auto result = stop();
-
-    if (result == TFV_OK) {
-
-        // stop all components and release the resources
-        components_.exec_all([this](TFV_Id id, tfv::Component& component) {
-            component.active = false;
-            release_frame(component.camera_id);
-        });
-    }
-
-    return result;
+    return stop();
 }
 
 void tfv::Api::execute(void) {
-#ifdef DEBUG_CAM
-    auto update_frame = [this](TFV_Id id, tfv::FrameWithUserCounter& frame) {
-        auto grabbed = camera_control_.get_frame(id, frame.data());
-        frame.set_frame_available(grabbed);
-        if (grabbed) {
-            window.update(id, frame.data(), frame.rows(), frame.columns());
-        } else {
-            std::cout << "Could not grab frame" << std::endl;
-        }
-    };
-
-#else
-    // Refresh camera
-    auto update_frame = [this](TFV_Id id, tfv::FrameWithUserCounter& frame) {
-        frame.set_frame_available(camera_control_.get_frame(id, frame.data()));
-    };
-#endif
 
     // Execute active component
-    auto const& frames = const_cast<Frames const&>(frames_);
-    auto update_component =
-        [this, &frames](TFV_Id id, tfv::Component& component) {
+    auto update_component = [this](TFV_Id id, tfv::Component& component) {
+
         // skip paused components
         if (not component.active) {
             return;
         }
 
-        auto const& cam = component.camera_id;
-        if (frames.managed(cam)) {
-
-            auto const& frame = frames[cam];
-            if (frame.frame_available) {
-                component.execute(frame.data(), frame.rows(), frame.columns());
-            } else {
-                // Free associated resources if no frame could be grabbed
-                release_frame(component.camera_id);
-            }
-        } else {
-            // Try to get hold of needed resources. Maybe the cam got lost,
-            // or execution resumes after a stop().
-            // Fixme: this does not reliably work if an active usb-cam is being
-            // detached and reattached since video4linux assigns it another id
-            (void)allocate_frame(component.camera_id);
-        }
+        component.execute(image_);
     };
 
     // mainloop
+    unsigned const no_component_min_latency_ms = 200;
+    unsigned const with_component_min_latency_ms = 50;
+    auto latency_ms = no_component_min_latency_ms;
     while (active_) {
 
         // Activate new and remove freed resources
-        frames_.update();
         components_.update();
 
-        if (active_components()) {
-            frames_.exec_all(update_frame);
-            components_.exec_all(update_component);
+        if (active_components()) {  // This does not account for components
+            // being 'stopped', i.e. this is true even if all components are in
+            // paused state.  Then, camera_control_ will return the last image
+            // retrieved from the camera (and it will be ignored by
+            // update_component anyways)
 
-            // some buffertime for the outer thread to run
-            std::this_thread::sleep_for(
-                std::chrono::milliseconds(execution_latency_ms_));
+            latency_ms =
+                std::max(execution_latency_ms_, with_component_min_latency_ms);
+
+            if (camera_control_.get_frame(image_)) {
+
+                components_.exec_all(update_component);
+            } else {
+                // Log a warning
+            }
 
         } else {
-            // hard-coded minimum latency
-            auto const no_component_min_latency_ms =
-                std::chrono::milliseconds(200);
-
-            // keep a low profile if unused
-            std::this_thread::sleep_for(
-                std::max(execution_latency_ms_, no_component_min_latency_ms));
+            latency_ms =
+                std::max(execution_latency_ms_, no_component_min_latency_ms);
         }
+
+        // some buffertime for two reasons: first, the outer thread
+        // gets time to run second, the camera driver is probably not
+        // that fast and will fail if it is driven too fast.
+        //
+        // \todo The proper time to wait depends on the actual hardware and
+        // should at least consider the actual time the components
+        // need to execute.
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(latency_ms));
     }
 }
 
@@ -216,42 +198,11 @@ tfv::Api& tfv::get_api(void) {
     return *api;
 }
 
-TFV_Result tfv::Api::is_camera_available(TFV_Id camera_id) {
+TFV_Result tfv::Api::is_camera_available(void) {
     auto result = TFV_CAMERA_ACQUISITION_FAILED;
-    if (camera_control_.is_available(camera_id)) {
+    if (camera_control_.is_available()) {
         result = TFV_OK;
     }
 
     return result;
-}
-
-bool tfv::Api::allocate_frame(TFV_Id camera_id) {
-    auto result = camera_control_.acquire(camera_id);
-
-    if (result) {
-        auto frame = frames_[camera_id];
-
-        if (frame) {
-            frame->user++;
-        } else {
-            int rows, columns, channels = 0;
-            camera_control_.get_properties(camera_id, rows, columns, channels);
-            auto const user = 1;
-            frames_.allocate(camera_id, camera_id, rows, columns, channels,
-                             user);
-        }
-    }
-    return result;
-}
-
-void tfv::Api::release_frame(TFV_Id camera_id) {
-    auto frame =
-        frames_[camera_id];  // takes too long sometimes, see shared_resource
-    if (frame) {
-        frame->user--;
-        if (not frame->user) {
-            frames_.free(camera_id);
-            camera_control_.release(camera_id);
-        }
-    }
 }

@@ -1,19 +1,31 @@
-CFLAGS=-Wall -Werror -g -O0 -ansi -pedantic -std=c99 -D_POSIX_C_SOURCE=199309L -I../include/api
-LDFLAGS=-g -Wall -DDEV -L../build -ltfv -lstdc++ `pkg-config --libs opencv`
+CC=g++
+CFLAGS=-Wall -Werror -g -O0 -ansi -pedantic -std=c++11 -D_POSIX_C_SOURCE=199309L
 
-OBJ=tinkervision_test.o
+INC=-I../include/api -I../include/camera `pkg-config --cflags opencv`
+LDFLAGS=-g -Wall -DDEV -L../build -ltfv -lstdc++ `pkg-config --libs opencv` -lv4l2
+CONVLDFLAGS=-g -Wall -lstdc++ `pkg-config --libs opencv`
+
+TESTOBJ=tinkervision_test.o
 TEST=tfv-test.out
+CONVOBJ=tfv_conversions.o
+CONV=tfv-conversions.out
 
-all: test
+all: test conv
 
 test: $(TEST)
+conv: $(CONV)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $<
+	$(CC) $(CFLAGS) $(INC) -c $<
 
-$(TEST): $(OBJ)
-	$(CC) $(OBJ) $(LDFLAGS) -o $@
+%.o: %.cc
+	$(CC) $(CFLAGS) $(INC) -c $<
+
+$(TEST): $(TESTOBJ)
+	$(CC) $(CFLAGS) $(INC) $(TESTOBJ) -o $@ $(LDFLAGS)
+
+$(CONV): $(CONVOBJ)
+	$(CC) $(CFLAGS) $(INC) $(CONVOBJ) -o $@ $(CONVLDFLAGS)
 
 clean:
-	rm -f $(OBJ)
-	rm -f $(TEST)
+	rm -f $(OBJ) $(TESTOBJ) $(TEST) $(CONV)
