@@ -106,10 +106,10 @@ protected:
 struct YUVToRGB {
 private:
     Clamp<double, TFV_ImageData, 0, 255> clamp_;
-    double constexpr static coeff_r[3] = {298.082, 0, 458.942};
-    double constexpr static coeff_g[3] = {298.082, -54.592, -136.425};
-    double constexpr static coeff_b[3] = {298.082, 540.775, 0};
-    double constexpr static normalizer = 256.0;
+    int constexpr static coeff_r[3] = {298082, 0, 458942};
+    int constexpr static coeff_g[3] = {298082, -54592, -136425};
+    int constexpr static coeff_b[3] = {298082, 540775, 0};
+    double constexpr static normalizer = 256000.0;
 
 protected:
     void target_size(Image const& source, size_t& target_width,

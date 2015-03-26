@@ -89,9 +89,9 @@ void tfv::ConvertYUV422ToYUV420::convert_any(tfv::Image const& source,
     copy_u_or_v(u_ptr);
 }
 
-double constexpr tfv::YUVToRGB::coeff_r[];
-double constexpr tfv::YUVToRGB::coeff_g[];
-double constexpr tfv::YUVToRGB::coeff_b[];
+int constexpr tfv::YUVToRGB::coeff_r[];
+int constexpr tfv::YUVToRGB::coeff_g[];
+int constexpr tfv::YUVToRGB::coeff_b[];
 
 void tfv::YUVToRGB::target_size(tfv::Image const& source, size_t& target_width,
                                 size_t& target_height,
