@@ -65,7 +65,20 @@ tfv::V4L2USBCamera::V4L2USBCamera(TFV_Id camera_id) : Camera(camera_id) {
     frames_ = new v4l2::Frame[request_buffer_count_ * sizeof(v4l2::Frame)]();
 }
 
-tfv::V4L2USBCamera::~V4L2USBCamera(void) { _close_device(); }
+tfv::V4L2USBCamera::~V4L2USBCamera(void) {
+
+    close();
+
+    // un-mmap buffers
+    if (frames_) {
+        for (size_t i = 0; i < request_buffers_.count; ++i) {
+            v4l2::munmap(frames_[i].start, frames_[i].length);
+            frames_[i].mapped = false;
+        }
+    }
+
+    delete[] frames_;
+}
 
 bool tfv::V4L2USBCamera::is_open(void) const { return device_ != 0; }
 
@@ -135,12 +148,13 @@ bool tfv::V4L2USBCamera::select_best_available_settings(void) {
 
             // found no resolution at all
             coding_ = resolution_ = -1;
-            _close_device();
+            close();
 
         } else {
 
-            result = true;
+            // Not possible to set the framerate? Ok.
             (void)_set_highest_framerate(format.fmt.pix);
+            result = true;
         }
     }
     return result;
@@ -253,41 +267,29 @@ bool tfv::V4L2USBCamera::_set_highest_framerate(v4l2::PixelFormat& px_format) {
 }
 
 void tfv::V4L2USBCamera::close(void) {
-    if (device_) {
-        _close_device();
-    }
-
-    // deque all buffers
-    while (io_operation(device_, v4l2::deque_buffers, &buffer_))
-        ;
-
-    // un-mmap buffers
-    if (frames_) {
-        for (size_t i = 0; i < request_buffers_.count; ++i) {
-            v4l2::munmap(frames_[i].start, frames_[i].length);
-            frames_[i].mapped = false;
+    if (is_open()) {
+        if (device_) {
+            (void)io_operation(device_, v4l2::stream_off, &buffer_type_);
+            // ignore for now
         }
+
+        v4l2::close(device_);
+        device_ = 0;
     }
 
-    // cleanup and initializing
-    device_ = 0;
-    delete[] frames_;
-    frames_ = nullptr;
     running_ = false;
 }
 
 bool tfv::V4L2USBCamera::retrieve_frame(tfv::Image& frame) {
     auto result = false;
-    static const int timeout_secs = 1;
-    static const int timeout_usecs = 0;
-    static struct timeval tv = {timeout_secs, timeout_usecs};
 
     fd_set fds;
     FD_ZERO(&fds);
     FD_SET(device_, &fds);
 
     // device ready?
-    result = (select(device_ + 1, &fds, NULL, NULL, &tv) != -1);
+    result =
+        (select(device_ + 1, &fds, NULL, NULL, &device_wait_timeout_) != -1);
 
     if (result) {
         // Queue last read buffer
@@ -369,18 +371,6 @@ bool tfv::V4L2USBCamera::_start_capturing(void) {
     }
 
     return result;
-}
-
-void tfv::V4L2USBCamera::_close_device(void) {
-    if (is_open()) {
-        if (device_) {
-            (void)io_operation(device_, v4l2::stream_off, &buffer_type_);
-            // ignore for now
-        }
-
-        v4l2::close(device_);
-        device_ = 0;
-    }
 }
 
 bool tfv::V4L2USBCamera::_init_request_buffers(void) {

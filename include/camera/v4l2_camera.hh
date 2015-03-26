@@ -53,6 +53,7 @@ using Format = v4l2_format;
 using PixelFormat = v4l2_pix_format;
 using FrameIntervalEnum = v4l2_frmivalenum;
 using StreamParameter = v4l2_streamparm;
+using Timeout = struct timeval;
 
 // additional types
 using Frame = struct Frame {
@@ -151,6 +152,12 @@ private:
 
     int device_ = 0;  ///< camera device handle
 
+    static const int seconds = 5;
+    static const int microseconds = 0;
+    v4l2::Timeout device_wait_timeout_{
+        seconds,
+        microseconds};  ///< Timeout during request (select) of video device
+
     static const int request_buffer_count_ =
         4;  ///< Frame buffers provided to v4l
 
@@ -177,7 +184,6 @@ private:
 
     // helper
     bool _start_capturing(void);
-    void _close_device(void);
     int _capture_frame_byte_size(void);
     bool _init_request_buffers(void);
     inline void _init_info_buffer(int index);
