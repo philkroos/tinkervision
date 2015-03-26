@@ -173,7 +173,7 @@ int main(int argc, char* argv[]) {
     printf("+ %d: Requested camera, code %d (%s)\n", test, result,
            result_string(result));
 
-    sleep(1);
+    sleep(2);
     result = start();
     printf("+ %d: Resumed execution, cam should come up: %d (%s)\n", test,
            result, result_string(result));

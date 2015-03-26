@@ -20,21 +20,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "image.hh"
 
 std::ostream& tfv::operator<<(std::ostream& ost,
-                              tfv::ImageFormat const& format) {
+                              tfv::ColorSpace const& format) {
     switch (format) {
-        case tfv::ImageFormat::INVALID:
+        case tfv::ColorSpace::INVALID:
             ost << "INVALID";
             break;
-        case tfv::ImageFormat::YUYV:
+        case tfv::ColorSpace::YUYV:
             ost << "YUYV";
             break;
-        case tfv::ImageFormat::YV12:
+        case tfv::ColorSpace::YV12:
             ost << "YV12";
             break;
-        case tfv::ImageFormat::BGR888:
+        case tfv::ColorSpace::BGR888:
             ost << "BGR";
             break;
-        case tfv::ImageFormat::RGB888:
+        case tfv::ColorSpace::RGB888:
             ost << "RGB";
             break;
         default:

@@ -117,7 +117,7 @@ bool tfv::CameraControl::get_properties(size_t& height, size_t& width,
     return result;
 }
 
-void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ImageFormat format) {
+void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ColorSpace format) {
 
     // If the requested format is the same as provided by the camera, image_.
     if (format == image_.format) {
@@ -142,7 +142,7 @@ void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ImageFormat format) {
     }
 
     image = it->result();
-    if (image.format == tfv::ImageFormat::INVALID or
+    if (image.format == tfv::ColorSpace::INVALID or
         image.timestamp != image_.timestamp) {
 
         image = (*it)(image_);

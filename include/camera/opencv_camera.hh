@@ -35,7 +35,7 @@ public:
 
     virtual bool open(void);
     virtual bool is_open(void) const;
-    virtual ImageFormat image_format(void) const { return ImageFormat::BGR888; }
+    virtual ColorSpace image_format(void) const { return ColorSpace::BGR888; }
 
 protected:
     virtual bool retrieve_frame(tfv::Image& frame);

@@ -50,9 +50,9 @@ namespace tfv {
  * So the size of one image is height * width * 3.
  * - BGR888: The same as RGB888 but reordered.
  */
-enum class ImageFormat : char { INVALID, YUYV, /*YVYU,*/ YV12, BGR888, RGB888 };
+enum class ColorSpace : char { INVALID, YUYV, /*YVYU,*/ YV12, BGR888, RGB888 };
 
-std::ostream& operator<<(std::ostream& ost, ImageFormat const& format);
+std::ostream& operator<<(std::ostream& ost, ColorSpace const& format);
 
 using ImageData = unsigned char;
 using Timestamp = unsigned long;
@@ -63,7 +63,7 @@ struct Image {
     size_t bytesize = 0;
     ImageData* data = nullptr;
     Timestamp timestamp;
-    ImageFormat format = ImageFormat::INVALID;
+    ColorSpace format = ColorSpace::INVALID;
 };
 }
 

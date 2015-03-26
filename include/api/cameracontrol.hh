@@ -129,7 +129,7 @@ public:
      * \parm[out] image The container will contain valid data after this method.
      * \parm[in] format The format requested for the returned image.
      */
-    void get_frame(Image& image, ImageFormat format);
+    void get_frame(Image& image, ColorSpace format);
 
 private:
     Camera* camera_ = nullptr;

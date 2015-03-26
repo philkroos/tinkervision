@@ -66,7 +66,7 @@ int main() {
     original.width = width;
     original.height = height;
     original.bytesize = original.width * original.height * 2;
-    original.format = tfv::ImageFormat::YUYV;
+    original.format = tfv::ColorSpace::YUYV;
 
     if (yuyv.is_open() and size_t(yuyv.tellg()) == original.bytesize) {
 

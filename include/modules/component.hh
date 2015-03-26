@@ -40,7 +40,7 @@ struct Component {
     Component& operator=(Component const& rhs) = delete;
     Component& operator=(Component&& rhs) = delete;
 
-    virtual ImageFormat expected_format(void) const = 0;
+    virtual ColorSpace expected_format(void) const = 0;
 
     // Internal part of the interface that a concrete component has to
     // implement.  The rest is defined as free function after this class
@@ -66,34 +66,34 @@ void get(T const& component, Args&... args) {
     std::cout << "Warning, get undefined" << std::endl;
 }
 
-// Specializations for different ImageFormat values. Just derive e.g. from
+// Specializations for different ColorSpace values. Just derive e.g. from
 // BGRComponent.
 
-template <ImageFormat Format>
-struct ComponentWithImageFormat : public Component {
-    ComponentWithImageFormat(TFV_Id id) : Component(id) {}
-    virtual ~ComponentWithImageFormat(void) = default;
-    virtual ImageFormat expected_format(void) const { return Format; }
+template <ColorSpace Format>
+struct ComponentWithColorSpace : public Component {
+    ComponentWithColorSpace(TFV_Id id) : Component(id) {}
+    virtual ~ComponentWithColorSpace(void) = default;
+    virtual ColorSpace expected_format(void) const { return Format; }
 };
 
-struct BGRComponent : public ComponentWithImageFormat<ImageFormat::BGR888> {
+struct BGRComponent : public ComponentWithColorSpace<ColorSpace::BGR888> {
     virtual ~BGRComponent(void) = default;
-    BGRComponent(TFV_Id id) : ComponentWithImageFormat(id) {}
+    BGRComponent(TFV_Id id) : ComponentWithColorSpace(id) {}
 };
 
-struct RGBComponent : public ComponentWithImageFormat<ImageFormat::RGB888> {
+struct RGBComponent : public ComponentWithColorSpace<ColorSpace::RGB888> {
     virtual ~RGBComponent(void) = default;
-    RGBComponent(TFV_Id id) : ComponentWithImageFormat(id) {}
+    RGBComponent(TFV_Id id) : ComponentWithColorSpace(id) {}
 };
 
-struct YUYVComponent : public ComponentWithImageFormat<ImageFormat::YUYV> {
+struct YUYVComponent : public ComponentWithColorSpace<ColorSpace::YUYV> {
     virtual ~YUYVComponent(void) = default;
-    YUYVComponent(TFV_Id id) : ComponentWithImageFormat(id) {}
+    YUYVComponent(TFV_Id id) : ComponentWithColorSpace(id) {}
 };
 
-struct YV12Component : public ComponentWithImageFormat<ImageFormat::YV12> {
+struct YV12Component : public ComponentWithColorSpace<ColorSpace::YV12> {
     virtual ~YV12Component(void) = default;
-    YV12Component(TFV_Id id) : ComponentWithImageFormat(id) {}
+    YV12Component(TFV_Id id) : ComponentWithColorSpace(id) {}
 };
 };
 #endif /* COMPONENT_H */

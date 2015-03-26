@@ -38,7 +38,7 @@ public:
     virtual bool open(void) = 0;
     virtual bool is_open(void) const = 0;
 
-    virtual ImageFormat image_format(void) const = 0;
+    virtual ColorSpace image_format(void) const = 0;
 
 protected:
     Camera(TFV_Id camera_id);

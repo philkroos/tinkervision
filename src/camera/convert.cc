@@ -36,13 +36,13 @@ tfv::Image const& tfv::Convert::operator()(tfv::Image const& source) {
     return *target;
 }
 
-tfv::ImageFormat tfv::ConvertYUV422ToYUV420::target_format(
+tfv::ColorSpace tfv::ConvertYUV422ToYUV420::target_format(
     tfv::Image const& source, size_t& target_width, size_t& target_height,
     size_t& target_bytesize) const {
     target_width = source.width;
     target_height = source.height;
     target_bytesize = (source.bytesize >> 2) * 3;
-    return tfv::ImageFormat::YV12;
+    return tfv::ColorSpace::YV12;
 }
 
 // output is in order y-block, v-block, u-block
@@ -148,18 +148,18 @@ void tfv::YUYVToRGBType::convert(tfv::Image const& source,
     }
 }
 
-tfv::ImageFormat tfv::ConvertYUYVToRGB::target_format(
+tfv::ColorSpace tfv::ConvertYUYVToRGB::target_format(
     tfv::Image const& source, size_t& target_width, size_t& target_height,
     size_t& target_bytesize) const {
     target_size(source, target_width, target_height, target_bytesize);
-    return tfv::ImageFormat::RGB888;
+    return tfv::ColorSpace::RGB888;
 }
 
-tfv::ImageFormat tfv::ConvertYUYVToBGR::target_format(
+tfv::ColorSpace tfv::ConvertYUYVToBGR::target_format(
     tfv::Image const& source, size_t& target_width, size_t& target_height,
     size_t& target_bytesize) const {
     target_size(source, target_width, target_height, target_bytesize);
-    return tfv::ImageFormat::BGR888;
+    return tfv::ColorSpace::BGR888;
 }
 
 template <size_t r, size_t g, size_t b>
@@ -200,11 +200,11 @@ void tfv::YV12ToRGBType::convert(tfv::Image const& source,
     }
 }
 
-tfv::ImageFormat tfv::ConvertYV12ToRGB::target_format(
+tfv::ColorSpace tfv::ConvertYV12ToRGB::target_format(
     tfv::Image const& source, size_t& target_width, size_t& target_height,
     size_t& target_bytesize) const {
     target_size(source, target_width, target_height, target_bytesize);
-    return tfv::ImageFormat::RGB888;
+    return tfv::ColorSpace::RGB888;
 }
 
 void tfv::ConvertYV12ToRGB::convert(tfv::Image const& source,
@@ -212,11 +212,11 @@ void tfv::ConvertYV12ToRGB::convert(tfv::Image const& source,
     tfv::YV12ToRGBType::convert<0, 1, 2>(source, target);
 }
 
-tfv::ImageFormat tfv::ConvertYV12ToBGR::target_format(
+tfv::ColorSpace tfv::ConvertYV12ToBGR::target_format(
     tfv::Image const& source, size_t& target_width, size_t& target_height,
     size_t& target_bytesize) const {
     target_size(source, target_width, target_height, target_bytesize);
-    return tfv::ImageFormat::BGR888;
+    return tfv::ColorSpace::BGR888;
 }
 
 void tfv::ConvertYV12ToBGR::convert(tfv::Image const& source,
@@ -251,23 +251,23 @@ void tfv::RGBFromToBGR::convert(tfv::Image const& source,
     }
 }
 
-tfv::ImageFormat tfv::ConvertRGBToBGR::target_format(
+tfv::ColorSpace tfv::ConvertRGBToBGR::target_format(
     tfv::Image const& source, size_t& target_width, size_t& target_height,
     size_t& target_bytesize) const {
 
     target_size(source, target_width, target_height, target_bytesize);
-    return tfv::ImageFormat::BGR888;
+    return tfv::ColorSpace::BGR888;
 }
 
-tfv::ImageFormat tfv::ConvertBGRToRGB::target_format(
+tfv::ColorSpace tfv::ConvertBGRToRGB::target_format(
     tfv::Image const& source, size_t& target_width, size_t& target_height,
     size_t& target_bytesize) const {
 
     target_size(source, target_width, target_height, target_bytesize);
-    return tfv::ImageFormat::RGB888;
+    return tfv::ColorSpace::RGB888;
 }
 
-tfv::Converter::Converter(tfv::ImageFormat source, tfv::ImageFormat target) {
+tfv::Converter::Converter(tfv::ColorSpace source, tfv::ColorSpace target) {
     auto it = std::find_if(conversions_.begin(), conversions_.end(),
                            [&source, &target](Conversion const& conversion) {
 

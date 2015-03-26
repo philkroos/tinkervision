@@ -111,9 +111,9 @@ using frame_resolution = struct frame_resolution {
     size_t height;
 };
 
-using ImageFormatMapping = struct ImageFormatMapping {
+using ColorSpaceMapping = struct ColorSpaceMapping {
     const unsigned v4l2_id;
-    const tfv::ImageFormat tfv_id;
+    const tfv::ColorSpace tfv_id;
 };
 
 class V4L2USBCamera : public Camera {
@@ -123,7 +123,7 @@ public:
 
     virtual bool open(void);
     virtual bool is_open(void) const;
-    virtual ImageFormat image_format(void) const {
+    virtual ColorSpace image_format(void) const {
         return supported_codings_[coding_].tfv_id;
     }
 
@@ -136,10 +136,10 @@ protected:
     virtual void close(void);
 
 private:
-    std::array<ImageFormatMapping, 1> supported_codings_ = {{
-        {v4l2::YUYV, ImageFormat::YUYV},
+    std::array<ColorSpaceMapping, 1> supported_codings_ = {{
+        {v4l2::YUYV, ColorSpace::YUYV},
         // Got no hw supporting this to test it yet
-        //{v4l2::YV12, ImageFormat::YV12},
+        //{v4l2::YV12, ColorSpace::YV12},
     }};
 
     std::array<frame_resolution, 5> supported_resolutions_ = {{
