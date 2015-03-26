@@ -27,12 +27,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "window.hh"
 #endif
 
-#include "component.hh"
+#include "module.hh"
 #include "image.hh"
 
 namespace tfv {
 
-struct Colortracking : public BGRComponent {
+struct Colortracking : public BGRModule {
     TFV_Byte min_hue;
     TFV_Byte max_hue;
     TFV_CallbackColortrack callback;
@@ -44,15 +44,15 @@ struct Colortracking : public BGRComponent {
     TFV_Byte max_saturation = 255;
     TFV_Byte max_value = 255;
 
-    Colortracking(TFV_Id component_id, TFV_Byte min_hue, TFV_Byte max_hue,
+    Colortracking(TFV_Id module_id, TFV_Byte min_hue, TFV_Byte max_hue,
                   TFV_CallbackColortrack callback, TFV_Context context)
-        : BGRComponent(component_id),
+        : BGRModule(module_id),
           min_hue(min_hue),
           max_hue(max_hue),
           callback(callback),
           context(context) {
 #ifdef DEV
-        std::cout << "Init colortracking id " << component_id << std::endl;
+        std::cout << "Init colortracking id " << module_id << std::endl;
 #endif  // DEV
         if (min_hue > max_hue) {
             min_hue0 = 0;
@@ -75,7 +75,7 @@ struct Colortracking : public BGRComponent {
 
 // called with the exact same parameter list as the constructor,
 // and all args are references. If this is not correct
-// here, the 'basecase' in component.hh will be used.
+// here, the 'basecase' in module.hh will be used.
 template <>
 bool valid<Colortracking>(TFV_Byte& min_hue, TFV_Byte& max_hue,
                           TFV_CallbackColortrack& callback,

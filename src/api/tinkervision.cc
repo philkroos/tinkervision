@@ -56,21 +56,21 @@ TFV_Result colortracking_start(TFV_Id id, TFV_Byte min_hue, TFV_Byte max_hue,
                                TFV_CallbackColortrack callback,
                                TFV_Context context) {
 
-    return tfv::get_api().component_set<tfv::Colortracking>(
-        id, min_hue, max_hue, callback, context);
+    return tfv::get_api().module_set<tfv::Colortracking>(id, min_hue, max_hue,
+                                                         callback, context);
 }
 
 TFV_Result colortracking_restart(TFV_Id feature_id) {
-    return tfv::get_api().component_start<tfv::Colortracking>(feature_id);
+    return tfv::get_api().module_start<tfv::Colortracking>(feature_id);
 }
 
 TFV_Result colortracking_stop(TFV_Id feature_id) {
-    return tfv::get_api().component_stop<tfv::Colortracking>(feature_id);
+    return tfv::get_api().module_stop<tfv::Colortracking>(feature_id);
 }
 
 TFV_Result colortracking_get(TFV_Id feature_id, TFV_Byte* min_hue,
                              TFV_Byte* max_hue) {
-    return tfv::get_api().component_get<tfv::Colortracking>(feature_id,
-                                                            *min_hue, *max_hue);
+    return tfv::get_api().module_get<tfv::Colortracking>(feature_id, *min_hue,
+                                                         *max_hue);
 }
 }

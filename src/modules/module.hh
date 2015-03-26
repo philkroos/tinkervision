@@ -17,8 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef COMPONENT_H
-#define COMPONENT_H
+#ifndef MODULE_H
+#define MODULE_H
 
 #include <iostream>
 
@@ -27,28 +27,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
-struct Component {
-    TFV_Id component_id;
+struct Module {
+    TFV_Id module_id;
     bool active;
 
-    explicit Component(TFV_Id component_id)
-        : component_id(component_id), active(true) {}
-    virtual ~Component(void){};
+    explicit Module(TFV_Id module_id)
+        : module_id(module_id), active(true) {}
+    virtual ~Module(void){};
 
-    Component(Component const& other) = delete;
-    Component(Component&& other) = delete;
-    Component& operator=(Component const& rhs) = delete;
-    Component& operator=(Component&& rhs) = delete;
+    Module(Module const& other) = delete;
+    Module(Module&& other) = delete;
+    Module& operator=(Module const& rhs) = delete;
+    Module& operator=(Module&& rhs) = delete;
 
     virtual ColorSpace expected_format(void) const = 0;
 
-    // Internal part of the interface that a concrete component has to
+    // Internal part of the interface that a concrete module has to
     // implement.  The rest is defined as free function after this class
     // declaration.
     virtual void execute(tfv::Image const& image) = 0;
 };
 
-// Interface methods to be implemented by components
+// Interface methods to be implemented by modules
 
 template <typename T, typename... Args>
 bool valid(Args&... args) {
@@ -57,43 +57,43 @@ bool valid(Args&... args) {
 }
 
 template <typename T, typename... Args>
-void set(T* component, Args... args) {
+void set(T* module, Args... args) {
     std::cout << "Warning, set undefined" << std::endl;
 }
 
 template <typename T, typename... Args>
-void get(T const& component, Args&... args) {
+void get(T const& module, Args&... args) {
     std::cout << "Warning, get undefined" << std::endl;
 }
 
 // Specializations for different ColorSpace values. Just derive e.g. from
-// BGRComponent.
+// BGRModule.
 
 template <ColorSpace Format>
-struct ComponentWithColorSpace : public Component {
-    ComponentWithColorSpace(TFV_Id id) : Component(id) {}
-    virtual ~ComponentWithColorSpace(void) = default;
+struct ModuleWithColorSpace : public Module {
+    ModuleWithColorSpace(TFV_Id id) : Module(id) {}
+    virtual ~ModuleWithColorSpace(void) = default;
     virtual ColorSpace expected_format(void) const { return Format; }
 };
 
-struct BGRComponent : public ComponentWithColorSpace<ColorSpace::BGR888> {
-    virtual ~BGRComponent(void) = default;
-    BGRComponent(TFV_Id id) : ComponentWithColorSpace(id) {}
+struct BGRModule : public ModuleWithColorSpace<ColorSpace::BGR888> {
+    virtual ~BGRModule(void) = default;
+    BGRModule(TFV_Id id) : ModuleWithColorSpace(id) {}
 };
 
-struct RGBComponent : public ComponentWithColorSpace<ColorSpace::RGB888> {
-    virtual ~RGBComponent(void) = default;
-    RGBComponent(TFV_Id id) : ComponentWithColorSpace(id) {}
+struct RGBModule : public ModuleWithColorSpace<ColorSpace::RGB888> {
+    virtual ~RGBModule(void) = default;
+    RGBModule(TFV_Id id) : ModuleWithColorSpace(id) {}
 };
 
-struct YUYVComponent : public ComponentWithColorSpace<ColorSpace::YUYV> {
-    virtual ~YUYVComponent(void) = default;
-    YUYVComponent(TFV_Id id) : ComponentWithColorSpace(id) {}
+struct YUYVModule : public ModuleWithColorSpace<ColorSpace::YUYV> {
+    virtual ~YUYVModule(void) = default;
+    YUYVModule(TFV_Id id) : ModuleWithColorSpace(id) {}
 };
 
-struct YV12Component : public ComponentWithColorSpace<ColorSpace::YV12> {
-    virtual ~YV12Component(void) = default;
-    YV12Component(TFV_Id id) : ComponentWithColorSpace(id) {}
+struct YV12Module : public ModuleWithColorSpace<ColorSpace::YV12> {
+    virtual ~YV12Module(void) = default;
+    YV12Module(TFV_Id id) : ModuleWithColorSpace(id) {}
 };
 };
-#endif /* COMPONENT_H */
+#endif

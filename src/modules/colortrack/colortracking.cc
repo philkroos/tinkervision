@@ -89,7 +89,7 @@ void tfv::Colortracking::execute(tfv::Image const& image) {
     if (contours.size()) {  // call back with center of finding
         auto const x = rect.x + (rect.width / 2);
         auto const y = rect.y + (rect.height / 2);
-        callback(component_id, x, y, context);
+        callback(module_id, x, y, context);
     }
 }
 

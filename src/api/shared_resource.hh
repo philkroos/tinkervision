@@ -95,7 +95,7 @@ public:
      * Evaluates a predicate for each active resource and counts the number of
      * true results.
      * \parm[i] predicate A predicate.
-     * \return The number of true results over each active component.
+     * \return The number of true results over each active module.
      */
     size_t count(std::function<bool(Resource const&)> predicate) {
         std::lock_guard<std::mutex> lock(managed_mutex_);

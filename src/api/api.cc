@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include "api.hh"
-#include "component.hh"
+#include "module.hh"
 
 tfv::Api::Api(void) { (void)start(); }
 
@@ -31,13 +31,12 @@ TFV_Result tfv::Api::start(void) {
     // Allow mainloop to run
     active_ = true;
 
-    auto active_count = components_.count(
-        [](tfv::Component const& component) { return component.active; });
+    auto active_count =
+        modules_.count([](tfv::Module const& module) { return module.active; });
 
     camera_control_.acquire(active_count);
 
-    std::cout << "Restarting with " << active_count << " components"
-              << std::endl;
+    std::cout << "Restarting with " << active_count << " modules" << std::endl;
 
     // Start threaded execution of mainloop
     if (not executor_.joinable()) {
@@ -60,11 +59,10 @@ TFV_Result tfv::Api::stop(void) {
         active_ = false;
         executor_.join();
 
-        // Release all unused resources. Keep the components' active state
+        // Release all unused resources. Keep the modules' active state
         // unchanged, so that restarting the loop resumes known context.
-        components_.exec_all([this](TFV_Id id, tfv::Component& component) {
-            camera_control_.release();
-        });
+        modules_.exec_all([this](
+            TFV_Id id, tfv::Module& module) { camera_control_.release(); });
     }
 
     if (not executor_.joinable()) {
@@ -78,9 +76,9 @@ TFV_Result tfv::Api::quit(void) {
 
     std::cout << "Quitting" << std::endl;
 
-    // stop all components
-    components_.exec_all([this](
-        TFV_Id id, tfv::Component& component) { component.active = false; });
+    // stop all modules
+    modules_.exec_all(
+        [this](TFV_Id id, tfv::Module& module) { module.active = false; });
 
     // stop execution of the main loop
     return stop();
@@ -88,47 +86,47 @@ TFV_Result tfv::Api::quit(void) {
 
 void tfv::Api::execute(void) {
 
-    // Execute active component
-    auto update_component = [this](TFV_Id id, tfv::Component& component) {
+    // Execute active module
+    auto update_module = [this](TFV_Id id, tfv::Module& module) {
 
-        // skip paused components
-        if (not component.active) {
+        // skip paused modules
+        if (not module.active) {
             return;
         }
 
-        // retrieve the frame in the requested format and execute the component
-        camera_control_.get_frame(image_, component.expected_format());
-        component.execute(image_);
+        // retrieve the frame in the requested format and execute the module
+        camera_control_.get_frame(image_, module.expected_format());
+        module.execute(image_);
     };
 
     // mainloop
-    unsigned const no_component_min_latency_ms = 200;
-    unsigned const with_component_min_latency_ms = 50;
-    auto latency_ms = no_component_min_latency_ms;
+    unsigned const no_module_min_latency_ms = 200;
+    unsigned const with_module_min_latency_ms = 50;
+    auto latency_ms = no_module_min_latency_ms;
     while (active_) {
 
         // Activate new and remove freed resources
-        components_.update();
+        modules_.update();
 
-        if (active_components()) {  // This does not account for components
-            // being 'stopped', i.e. this is true even if all components are in
+        if (active_modules()) {  // This does not account for modules
+            // being 'stopped', i.e. this is true even if all modules are in
             // paused state.  Then, camera_control_ will return the last image
             // retrieved from the camera (and it will be ignored by
-            // update_component anyways)
+            // update_module anyways)
 
             latency_ms =
-                std::max(execution_latency_ms_, with_component_min_latency_ms);
+                std::max(execution_latency_ms_, with_module_min_latency_ms);
 
             if (camera_control_.update_frame()) {
 
-                components_.exec_all(update_component);
+                modules_.exec_all(update_module);
             } else {
                 // Log a warning
             }
 
         } else {
             latency_ms =
-                std::max(execution_latency_ms_, no_component_min_latency_ms);
+                std::max(execution_latency_ms_, no_module_min_latency_ms);
         }
 
         // some buffertime for two reasons: first, the outer thread
@@ -136,7 +134,7 @@ void tfv::Api::execute(void) {
         // that fast and will fail if it is driven too fast.
         //
         // \todo The proper time to wait depends on the actual hardware and
-        // should at least consider the actual time the components
+        // should at least consider the actual time the modules
         // need to execute.
 
         std::this_thread::sleep_for(std::chrono::milliseconds(latency_ms));
@@ -163,7 +161,7 @@ tfv::Api& tfv::get_api(void) {
         auto checkpoint = std::chrono::system_clock::now();
         while (true) {
             auto now = std::chrono::system_clock::now();
-            if (api->active_components()) {
+            if (api->active_modules()) {
                 checkpoint = now;
             } else {
                 // Todo: Share some execution context to
@@ -173,7 +171,7 @@ tfv::Api& tfv::get_api(void) {
                 // checkpoint from the outer context and
                 // lock it with a mutex.
 #ifdef DEV
-                std::cout << "No active components" << std::endl;
+                std::cout << "No active modules" << std::endl;
 #endif
                 if ((now - checkpoint) > timeout) {
 #ifdef DEV

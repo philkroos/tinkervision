@@ -19,10 +19,6 @@ SRC		:= $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cc))
 OBJ		:= $(patsubst src/%.cc,build/%.o,$(SRC))
 INC             := $(addprefix -I./src/,$(PARTS)) $(OCV_INC)
 
-$(info $$MODULES is [${MODULES}])
-$(info $$PARTS is [${PARTS}])
-$(info $$SRC_PREFIX is [${SRC_PREFIX}])
-
 
 # binary targets
 LIB		:= build/libtfv.a
