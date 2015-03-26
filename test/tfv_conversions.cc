@@ -58,14 +58,15 @@ int main() {
     std::ifstream yuyv("frame.raw",
                        std::ios::in | std::ios::binary | std::ios::ate);
 
-    tfv::Image original(tfv::ImageFormat::YUYV);
-
     auto width = 1280;
     auto height = 720;
+
+    tfv::Image original;
 
     original.width = width;
     original.height = height;
     original.bytesize = original.width * original.height * 2;
+    original.format = tfv::ImageFormat::YUYV;
 
     if (yuyv.is_open() and size_t(yuyv.tellg()) == original.bytesize) {
 

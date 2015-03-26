@@ -21,15 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <algorithm>
 
-tfv::ConvertRGBToBGR::ConvertRGBToBGR(void) {}
-tfv::ConvertRGBToBGR::~ConvertRGBToBGR(void) {}
-
-tfv::Convert::~Convert(void) {
-    if (target) {
-        delete target;
-    }
-}
-
 tfv::Image const& tfv::Convert::operator()(tfv::Image const& source) {
     if (not target) {
         size_t width, height, bytesize;
@@ -89,10 +80,6 @@ void tfv::ConvertYUV422ToYUV420::convert_any(tfv::Image const& source,
     copy_u_or_v(u_ptr);
 }
 
-int constexpr tfv::YUVToRGB::coeff_r[];
-int constexpr tfv::YUVToRGB::coeff_g[];
-int constexpr tfv::YUVToRGB::coeff_b[];
-
 void tfv::YUVToRGB::target_size(tfv::Image const& source, size_t& target_width,
                                 size_t& target_height,
                                 size_t& target_bytesize) const {
@@ -101,15 +88,35 @@ void tfv::YUVToRGB::target_size(tfv::Image const& source, size_t& target_width,
     target_bytesize = (source.width * source.height) * 3;  // 24 bit/pixel
 }
 
+int constexpr tfv::YUVToRGB::coeff_r[];
+int constexpr tfv::YUVToRGB::coeff_g[];
+int constexpr tfv::YUVToRGB::coeff_b[];
+
 template <size_t r, size_t g, size_t b>
-void tfv::YUVToRGB::convert(int const y, int const u, int const v,
-                            TFV_ImageData* rgb) const {
+void tfv::YUVToRGB::convert(int y, int u, int v, TFV_ImageData* rgb) const {
 
     // need indices 0,1,2
     static_assert(((r + g + b) == 3) and (r < 3) and (g < 3) and (b < 3) and
                       ((r == 0) or (g == 0) or (b == 0)),
                   "Need to provide rgb channels as 0, 1 and 2");
+    y = y - 16;
+    u = u - 128;
+    v = v - 128;
 
+    // Conversions from http://en.wikipedia.org/wiki/YUV, seem fine.
+    // HD:
+
+    *(rgb + r) = clamp_(y + 1.28033 * v);
+    *(rgb + g) = clamp_(y - 0.21482 * u - 0.38059 * v);
+    *(rgb + b) = clamp_(y + 2.21798 * u);
+    // SD:
+    /*
+    *(rgb + r) = clamp_(y + 1.3983 * v);
+    *(rgb + g) = clamp_(y - 0.39465 * u - 0.58060 * v);
+    *(rgb + b) = clamp_(y + 2.03211 * u);
+    */
+    // Kaufmann:
+    /*
     *(rgb + r) =
         clamp_((coeff_r[0] * y + coeff_r[1] * u + coeff_r[2] * v) / normalizer);
 
@@ -118,6 +125,7 @@ void tfv::YUVToRGB::convert(int const y, int const u, int const v,
 
     *(rgb + b) =
         clamp_((coeff_b[0] * y + coeff_b[1] * u + coeff_b[2] * v) / normalizer);
+    */
 }
 
 template <size_t r, size_t g, size_t b>
@@ -128,10 +136,10 @@ void tfv::YUYVToRGBType::convert(tfv::Image const& source,
 
     for (auto src = source.data; src < (source.data + source.bytesize);) {
 
-        int const y1 = static_cast<int>(*src++) - 16;
-        int const u = static_cast<int>(*src++) - 128;
-        int const y2 = static_cast<int>(*src++) - 16;
-        int const v = static_cast<int>(*src++) - 128;
+        int const y1 = static_cast<int>(*src++);
+        int const u = static_cast<int>(*src++);
+        int const y2 = static_cast<int>(*src++);
+        int const v = static_cast<int>(*src++);
 
         YUVToRGB::convert<r, g, b>(y1, u, v, to);
         to += 3;
@@ -182,9 +190,9 @@ void tfv::YV12ToRGBType::convert(tfv::Image const& source,
 
             // std::cout << row_y + j << "," << uv_idx << std::endl;
 
-            int const y = static_cast<int>(source.data[row_y + j]) - 16;
-            int const u = static_cast<int>(u_plane[uv_idx]) - 128;
-            int const v = static_cast<int>(v_plane[uv_idx]) - 128;
+            int const y = static_cast<int>(source.data[row_y + j]);
+            int const u = static_cast<int>(u_plane[uv_idx]);
+            int const v = static_cast<int>(v_plane[uv_idx]);
 
             YUVToRGB::convert<r, g, b>(y, u, v, to);
             to += 3;

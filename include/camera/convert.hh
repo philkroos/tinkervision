@@ -23,25 +23,49 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <array>
 #include <vector>
 #include <tuple>
+#include <limits>
 
 #include "image.hh"
 #include "tinkervision_defines.h"
 
 namespace tfv {
 
-template <typename In, typename Out, unsigned min, unsigned max>
+/** Restrict a value of type In to the range of type Out.
+ */
+template <typename In, typename Out>
 struct Clamp {
+private:
+    In const min_{static_cast<In>(std::numeric_limits<Out>::min())};
+    In const max_{static_cast<In>(std::numeric_limits<Out>::max())};
+
+public:
     Out constexpr operator()(In const& value) {
-        return static_cast<Out>((value < min) ? min : (value > max) ? max
-                                                                    : value);
+        return static_cast<Out>((value < min_) ? min_ : (value > max_) ? max_
+                                                                       : value);
     }
 };
 
+/**
+ * Restrict a value to the range of TFV_ImageData.
+ */
+template <typename In>
+struct ClampImageValue : public Clamp<In, TFV_ImageData> {};
+
+// forward declaration of Convert-wrapper (providing public interface to this
+// module)
 class Converter;
 
+/**
+ * Baseclass of all converters
+ */
 struct Convert {
-    Convert(void){};
-    virtual ~Convert(void);
+    Convert(void) = default;
+    virtual ~Convert(void) {
+        if (target) {
+            delete target;
+        }
+    }
+
     Convert(Convert const&) = delete;
     Convert(Convert const&&) = delete;
     Convert& operator=(Convert const&) = delete;
@@ -62,10 +86,17 @@ private:
     ImageFormat target_format_ = ImageFormat::INVALID;
 };
 
+//
+// Following: Converter from YCbCr to ...
+//
+
 /**
  * This converter is compressing the data.
  */
 struct ConvertYUV422ToYUV420 : public Convert {
+public:
+    virtual ~ConvertYUV422ToYUV420(void) = default;
+
 protected:
     virtual ImageFormat target_format(Image const& source, size_t& target_width,
                                       size_t& target_height,
@@ -85,6 +116,9 @@ protected:
 };
 
 struct ConvertYUYVToYV12 : public ConvertYUV422ToYUV420 {
+public:
+    virtual ~ConvertYUYVToYV12(void) = default;
+
 protected:
     virtual ImageFormat source_format(void) const { return ImageFormat::YUYV; }
     virtual void convert(Image const& source, Image& target) const {
@@ -93,19 +127,31 @@ protected:
 };
 
 /**
- * Y'CbCr in colorspace sRGB according to
- * http://linuxtv.org/downloads/v4l-dvb-apis/ch02s06.html#col-srgb:
- * Y' = 0.2990R' + 0.5870G' + 0.1140B'
- * Cb = -0.1687R' - 0.3313G' + 0.5B'
- * Cr = 0.5R' - 0.4187G' - 0.0813B'
- * but this is studio RGB according to [Kaufmann]. He puts:
+ * According to [Kaufmann], the conversion goes like this:
  * |R|    1  |298.082  0       458.942|   |Y' - 16 |
  * |G| =  -  |298.082 -54.592 -136.425| * |Cb - 128|
  * |B|   256 |298.082  540.775 0      |   |Cr - 128|
+ * (p319) for HDTV (>= 1280x720)
+ * and Wikipedia says (http://en.wikipedia.org/wiki/YUV):
+ * r = y + 1.28033 * v
+ * g = y - 0.21482 * u - 0.38059 * v
+ * b = y + 2.21798 * u
+ * for HD and for SD:
+ * r = y + 1.3983 * v
+ * g = y - 0.39465 * u - 0.58060 * v
+ * b = y + 2.03211 * u
+ * All are citing the same standard (BT.601 for SD, BT.709 for HD).
+ * Confusing. All seem to work fine.
+ * [Kaufmann] - Digital Video and HDTV Algorithms ... p313ff
  */
 struct YUVToRGB {
+public:
+    virtual ~YUVToRGB(void) {}
+    YUVToRGB(void) {}
+
 private:
-    Clamp<double, TFV_ImageData, 0, 255> clamp_;
+    ClampImageValue<double> clamp_;
+
     int constexpr static coeff_r[3] = {298082, 0, 458942};
     int constexpr static coeff_g[3] = {298082, -54592, -136425};
     int constexpr static coeff_b[3] = {298082, 540775, 0};
@@ -122,6 +168,8 @@ public:
 };
 
 struct YUYVToRGBType : public YUVToRGB {
+public:
+    virtual ~YUYVToRGBType(void) = default;
 
 protected:
     template <size_t r, size_t g, size_t b>
@@ -129,6 +177,8 @@ protected:
 };
 
 struct ConvertYUYVToRGB : public Convert, public YUYVToRGBType {
+public:
+    virtual ~ConvertYUYVToRGB(void) = default;
 
 protected:
     virtual ImageFormat source_format(void) const { return ImageFormat::YUYV; }
@@ -142,6 +192,8 @@ protected:
 };
 
 struct ConvertYUYVToBGR : public Convert, public YUYVToRGBType {
+public:
+    virtual ~ConvertYUYVToBGR(void) = default;
 
 protected:
     virtual ImageFormat source_format(void) const { return ImageFormat::YUYV; }
@@ -155,6 +207,9 @@ protected:
 };
 
 struct YV12ToRGBType : public Convert, public YUVToRGB {
+public:
+    virtual ~YV12ToRGBType(void) = default;
+
 protected:
     virtual ImageFormat source_format(void) const { return ImageFormat::YV12; }
 
@@ -163,6 +218,8 @@ protected:
 };
 
 struct ConvertYV12ToRGB : public YV12ToRGBType {
+public:
+    virtual ~ConvertYV12ToRGB(void) = default;
 
 protected:
     virtual ImageFormat target_format(Image const& source, size_t& target_width,
@@ -173,6 +230,8 @@ protected:
 };
 
 struct ConvertYV12ToBGR : public YV12ToRGBType {
+public:
+    virtual ~ConvertYV12ToBGR(void) = default;
 
 protected:
     virtual ImageFormat target_format(Image const& source, size_t& target_width,
@@ -182,13 +241,23 @@ protected:
     virtual void inline convert(Image const& source, Image& target) const;
 };
 
+//
+// Following: Converter from RGB to ...
+//
+
 struct RGBTypeConversion : public Convert {
+public:
+    virtual ~RGBTypeConversion(void) = default;
+
 protected:
     void target_size(Image const& source, size_t& target_width,
                      size_t& target_height, size_t& target_bytesize) const;
 };
 
 struct RGBFromToBGR : public Convert {
+public:
+    virtual ~RGBFromToBGR(void) = default;
+
 protected:
     void target_size(Image const& source, size_t& target_width,
                      size_t& target_height, size_t& target_bytesize) const;
@@ -198,8 +267,7 @@ protected:
 
 struct ConvertRGBToBGR : public RGBFromToBGR {
 public:
-    ConvertRGBToBGR(void);
-    virtual ~ConvertRGBToBGR(void);
+    virtual ~ConvertRGBToBGR(void) = default;
 
 protected:
     virtual ImageFormat source_format(void) const {
@@ -211,7 +279,14 @@ protected:
                                       size_t& target_bytesize) const;
 };
 
+//
+// Following: Converter from BGR to ...
+//
+
 struct ConvertBGRToRGB : public RGBFromToBGR {
+public:
+    virtual ~ConvertBGRToRGB(void) = default;
+
 protected:
     virtual ImageFormat source_format(void) const {
         return ImageFormat::BGR888;
@@ -222,6 +297,9 @@ protected:
                                       size_t& target_bytesize) const;
 };
 
+/**
+ * Public interface to this module
+ */
 class Converter {
 private:
     Convert* converter_;
@@ -261,21 +339,24 @@ private:  // These should really be just deleted, but current compiler has a
 
 public:
     Converter(ImageFormat source, ImageFormat target);
+
+    /**
+     * Providing move constructor to let this class be stored in STL-containers.
+     */
     Converter(Converter&& other) {
         this->converter_ = other.converter_;
         other.converter_ = nullptr;
     }
+
+    /**
+     * Providing copy constructor to let this class be stored in STL-containers.
+     */
     Converter(Converter& other) {
         this->converter_ = other.converter_;
         other.converter_ = nullptr;
     }
     Converter& operator=(Converter const&) = delete;
     Converter& operator=(Converter const&&) = delete;
-
-    // Converter(Converter const&) = delete;
-    // Converter(Converter const&&) = delete;
-    // Converter& operator=(Converter const&) = delete;
-    // Converter& operator=(Converter const&&) = delete;
 
     ~Converter(void);
 

@@ -3,7 +3,7 @@ CFLAGS=-Wall -Werror -g -O0 -ansi -pedantic -std=c++11 -D_POSIX_C_SOURCE=199309L
 
 INC=-I../include/api -I../include/camera `pkg-config --cflags opencv`
 LDFLAGS=-g -Wall -DDEV -L../build -ltfv -lstdc++ `pkg-config --libs opencv` -lv4l2
-CONVLDFLAGS=-g -Wall -lstdc++ `pkg-config --libs opencv`
+CONVLDFLAGS=-g -Wall -L../build -ltfv -lstdc++ `pkg-config --libs opencv`
 
 TESTOBJ=tinkervision_test.o
 TEST=tfv-test.out
@@ -28,4 +28,4 @@ $(CONV): $(CONVOBJ)
 	$(CC) $(CFLAGS) $(INC) $(CONVOBJ) -o $@ $(CONVLDFLAGS)
 
 clean:
-	rm -f $(OBJ) $(TESTOBJ) $(TEST) $(CONV)
+	rm -f $(CONVOBJ) $(TESTOBJ) $(TEST) $(CONV)
