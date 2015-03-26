@@ -6,16 +6,23 @@ LDFLAGS_LIB	:=-g -Wall -lstdc++  `pkg-config --libs opencv` -lv4l2
 OCV_INC	:= `pkg-config --cflags opencv`
 
 # structure
-MODULES	:= api camera modules
+MODULES	:= colortrack
+PARTS		:= api imaging modules $(addprefix modules/,$(MODULES))
 BUILD_PREFIX	:= build
-BUILD_DIR	:= $(addprefix $(BUILD_PREFIX)/,$(MODULES))
-SRC_DIR	:= $(addprefix src/,$(MODULES))
+BUILD_DIR	:= $(addprefix $(BUILD_PREFIX)/,$(PARTS))
+SRC_PREFIX	:= src
+SRC_DIR	:= $(addprefix $(SRC_PREFIX)/,$(PARTS))
 TEST_DIR	:= test
 
 # files
 SRC		:= $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cc))
 OBJ		:= $(patsubst src/%.cc,build/%.o,$(SRC))
-INC             := $(addprefix -I./include/,$(MODULES)) $(OCV_INC)
+INC             := $(addprefix -I./src/,$(PARTS)) $(OCV_INC)
+
+$(info $$MODULES is [${MODULES}])
+$(info $$PARTS is [${PARTS}])
+$(info $$SRC_PREFIX is [${SRC_PREFIX}])
+
 
 # binary targets
 LIB		:= build/libtfv.a

@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-Wall -Werror -g -O0 -ansi -pedantic -std=c++11 -D_POSIX_C_SOURCE=199309L
 
-INC=-I../include/api -I../include/camera `pkg-config --cflags opencv`
+INC=-I../src/api -I../src/imaging `pkg-config --cflags opencv`
 LDFLAGS=-g -Wall -DDEV -L../build -ltfv -lstdc++ `pkg-config --libs opencv` -lv4l2
 CONVLDFLAGS=-g -Wall -L../build -ltfv -lstdc++ `pkg-config --libs opencv`
 
