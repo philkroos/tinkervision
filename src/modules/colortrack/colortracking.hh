@@ -54,10 +54,6 @@ struct Colortracking : public BGRModule {
 #ifdef DEV
         std::cout << "Init colortracking id " << module_id << std::endl;
 #endif  // DEV
-        if (min_hue > max_hue) {
-            min_hue0 = 0;
-            max_hue0 = COLORTRACK_MAXIMUM_HUE;
-        }
     }
 
     virtual ~Colortracking(void){};
