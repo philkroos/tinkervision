@@ -55,7 +55,7 @@ void print_max_and_min_yuv(TFV_ImageData* data, size_t width, size_t height) {
 
 int main() {
     // This was recorded with `luvcview -d /dev/video1 -f YUYV -s 1280x720 -C`
-    std::ifstream yuyv("frame.raw",
+    std::ifstream yuyv("../frame.raw",
                        std::ios::in | std::ios::binary | std::ios::ate);
 
     auto width = 1280;
@@ -77,6 +77,7 @@ int main() {
         std::cout << "file is in memory: " << original.bytesize << " byte."
                   << std::endl;
     } else {
+        std::cout << "Input file frame.raw not found" << std::endl;
         return -1;
     }
 

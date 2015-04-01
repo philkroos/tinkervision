@@ -91,7 +91,6 @@ bool tfv::CameraControl::is_open(void) {
 
 void tfv::CameraControl::release(void) {
 
-    std::cout << "Release called" << std::endl;
     usercount_ = std::max(usercount_ - 1, 0);
 
     if (not usercount_ and camera_) {

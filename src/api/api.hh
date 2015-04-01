@@ -113,8 +113,13 @@ public:
                 result = TFV_CAMERA_ACQUISITION_FAILED;
 
                 if (camera_control_.acquire()) {
-                    modules_.allocate<Comp>(id, args...);
-                    result = TFV_OK;
+                    result = TFV_MODULE_INITIALIZATION_FAILED;
+
+                    if (modules_.allocate<Comp>(id, args...)) {
+                        result = TFV_OK;
+                    } else {
+                        camera_control_.release();
+                    }
                 }
             }
         }
@@ -322,32 +327,5 @@ private:
     }
 };
 
-/*
-    struct ApiRunner {
-        void operator()(Api* api) {
-            auto timeout = std::chrono::seconds(5);
-            auto checkpoint = std::chrono::system_clock::now();
-            auto now = std::chrono::system_clock::now();
-
-            while (true) {
-                now = std::chrono::system_clock::now();
-                if (api->active_modules()) {
-                    checkpoint = now;
-                }
-                else {
-                    std::cout << "No active modules" << std::endl;
-                    if ((now - checkpoint) > timeout) {
-                        std::cout << "Shutting down" << std::endl;
-                        break;
-                    }
-                }
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-            }
-            api->stop();
-            delete api;
-            api = nullptr;
-        }
-    };
-*/
 Api& get_api(void);
 };

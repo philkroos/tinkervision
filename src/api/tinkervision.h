@@ -50,6 +50,8 @@ TFV_Result set_execution_latency(TFV_UInt milliseconds);
 
 TFV_String result_string(TFV_Result code);
 
+TFV_Result streamer_stream(TFV_Id streamer_id);
+
 #ifdef __cplusplus
 }
 #endif

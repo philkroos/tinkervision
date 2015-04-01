@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef MODULE_H
 #define MODULE_H
 
-#include <iostream>
+#include <iostream>  // for development
 
 #include "tinkervision_defines.h"
 #include "image.hh"
@@ -31,10 +31,12 @@ struct Module {
     TFV_Id module_id;
     bool active;
 
-    explicit Module(TFV_Id module_id)
-        : module_id(module_id), active(true) {}
-    virtual ~Module(void){};
+    explicit Module(TFV_Id module_id) : module_id(module_id), active(true) {}
+    virtual ~Module(void) {
+        std::cout << "Destroying module " << module_id << std::endl;
+    }
 
+    // No copy allowed
     Module(Module const& other) = delete;
     Module(Module&& other) = delete;
     Module& operator=(Module const& rhs) = delete;

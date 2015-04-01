@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <functional>
 
 #include "tinkervision_defines.h"
+#include "exceptions.hh"
 
 namespace tfv {
 
@@ -129,7 +130,16 @@ public:
         if (exists(allocated_, id)) {
             return false;
         }
-        allocated_[id] = new T(id, args...);
+
+        try {
+            allocated_[id] = new T(id, args...);
+
+        } catch (tfv::ConstructionException const& ce) {
+            std::cout << ce.what() << std::endl;
+
+            // allocated_[id] does not exist
+            return false;
+        }
         return true;
     }
 
@@ -247,20 +257,6 @@ private:
         }
         garbage_.clear();
     }
-
-    // /**
-    //  * Returns a list of all active resources.
-    //  */
-    // std::vector<TFV_Id> managed_ids(void) const {
-    //     std::vector<TFV_Id> ids;
-    //     {
-    //         std::lock_guard<std::mutex> lock(managed_mutex_);
-    //         for (auto const& resource : managed_) {
-    //             ids.push_back(resource.first);
-    //         }
-    //     }
-    //     return ids;
-    // }
 
 private:
     ResourceMap allocated_;

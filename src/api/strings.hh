@@ -41,6 +41,8 @@ private:
         {TFV_FEATURE_CONFIGURATION_FAILED,
          "Error - Configuration of feature failed"},
         {TFV_INVALID_ID, "Error - ID is invalid"},
+        {TFV_MODULE_INITIALIZATION_FAILED,
+         "Error - Initialization of module failed"},
         // 650..
         {TFV_EXEC_THREAD_FAILURE, "Error - The main thread did not react"}};
 

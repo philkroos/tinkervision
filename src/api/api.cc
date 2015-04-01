@@ -17,12 +17,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "api.hh"
 #include "module.hh"
 
 tfv::Api::Api(void) { (void)start(); }
 
-tfv::Api::~Api(void) { stop(); }
+tfv::Api::~Api(void) { quit(); }
 
 TFV_Result tfv::Api::start(void) {
 
@@ -73,8 +76,6 @@ TFV_Result tfv::Api::stop(void) {
 }
 
 TFV_Result tfv::Api::quit(void) {
-
-    std::cout << "Quitting" << std::endl;
 
     // stop all modules
     modules_.exec_all(
@@ -141,63 +142,6 @@ void tfv::Api::execute(void) {
     }
 }
 
-tfv::Api& tfv::get_api(void) {
-    static Api* api = nullptr;
-
-    // It would be easier to just return a static
-    // Api-instance from get_api.
-    // However, since the library is supposed to be run in
-    // the context of a daemon, the calling context potentially
-    // does not finish for a long time.
-    // Therefore, watching the Api-usage with the following
-    // static inner context makes it possible to release the
-    // Api-ressource after some 'timeout'.
-    // For the user, this is transparent since the Api will
-    // only be released if it is inactive, in which case
-    // reinstantiating the Api will have the same result as
-    // would have accessing a 'sleeping' one.
-    static auto exec = [](tfv::Api* api) {
-        auto timeout = std::chrono::seconds(60);
-        auto checkpoint = std::chrono::system_clock::now();
-        while (true) {
-            auto now = std::chrono::system_clock::now();
-            if (api->active_modules()) {
-                checkpoint = now;
-            } else {
-                // Todo: Share some execution context to
-                // prevent the rare
-                // case of conflict with a get_api call;
-                // e.g. update the
-                // checkpoint from the outer context and
-                // lock it with a mutex.
-#ifdef DEV
-                std::cout << "No active modules" << std::endl;
-#endif
-                if ((now - checkpoint) > timeout) {
-#ifdef DEV
-                    std::cout << "Shutting down" << std::endl;
-#endif // DEV
-                    break;
-                }
-            }
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
-        if (api) {
-            delete api;
-        }
-        api = nullptr;
-    };
-
-    static std::thread api_runner;
-    if (not api) {
-        api = new Api;
-        api_runner = std::thread(exec, api);
-        api_runner.detach();
-    }
-
-    return *api;
-}
-
 TFV_Result tfv::Api::is_camera_available(void) {
     auto result = TFV_CAMERA_ACQUISITION_FAILED;
     if (camera_control_.is_available()) {
@@ -205,4 +149,31 @@ TFV_Result tfv::Api::is_camera_available(void) {
     }
 
     return result;
+}
+
+/*
+ * Lifetime management
+ */
+
+static tfv::Api* api = nullptr;
+
+tfv::Api& tfv::get_api(void) {
+    if (not api) {
+        api = new Api;
+    }
+
+    return *api;
+}
+
+__attribute__((constructor)) void startup(void) {
+    std::cout << "Constructing the Api on-demand" << std::endl;
+    // nothing to do
+    // api = new tfv::Api;
+}
+
+__attribute__((destructor)) void shutdown(void) {
+    std::cout << "De-Constructing the Api" << std::endl;
+    if (api) {
+        delete api;
+    }
 }

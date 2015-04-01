@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "api.hh"
 #include "tinkervision.h"
 #include "colortracking.hh"
+#include "stream.hh"
 
 extern "C" {
 
@@ -49,7 +50,7 @@ TFV_String result_string(TFV_Result code) {
 }
 
 //
-// Colortracking specific functions
+// Colortracking interface
 //
 
 TFV_Result colortracking_start(TFV_Id id, TFV_Byte min_hue, TFV_Byte max_hue,
@@ -72,5 +73,12 @@ TFV_Result colortracking_get(TFV_Id feature_id, TFV_Byte* min_hue,
                              TFV_Byte* max_hue) {
     return tfv::get_api().module_get<tfv::Colortracking>(feature_id, *min_hue,
                                                          *max_hue);
+}
+
+//
+// Streamer interface
+//
+TFV_Result streamer_stream(TFV_Id streamer_id) {
+    return tfv::get_api().module_set<tfv::Stream>(streamer_id);
 }
 }

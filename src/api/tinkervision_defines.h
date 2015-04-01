@@ -64,6 +64,7 @@ typedef void (*TFV_CallbackColortrack)(TFV_Id, TFV_Int x, TFV_Int y,
 #define TFV_UNCONFIGURED_ID 600
 #define TFV_FEATURE_CONFIGURATION_FAILED 601
 #define TFV_INVALID_ID 602
+#define TFV_MODULE_INITIALIZATION_FAILED 603
 
 // System thread errors: 650...
 #define TFV_EXEC_THREAD_FAILURE 650

@@ -1,31 +1,15 @@
-CC=g++
-CFLAGS=-Wall -Werror -g -O0 -ansi -pedantic -std=c++11 -D_POSIX_C_SOURCE=199309L
+COLORTRACK := colortrack
+STREAM := stream
+CONVERT := convert
 
-INC=-I../src/api -I../src/imaging `pkg-config --cflags opencv`
-LDFLAGS=-g -Wall -DDEV -L../build -ltfv -lstdc++ `pkg-config --libs opencv` -lv4l2
-CONVLDFLAGS=-g -Wall -L../build -ltfv -lstdc++ `pkg-config --libs opencv`
+ALL := $(COLORTRACK) $(STREAM) $(CONVERT)
 
-TESTOBJ=tinkervision_test.o
-TEST=tfv-test.out
-CONVOBJ=tfv_conversions.o
-CONV=tfv-conversions.out
-
-all: test conv
-
-test: $(TEST)
-conv: $(CONV)
-
-%.o: %.c
-	$(CC) $(CFLAGS) $(INC) -c $<
-
-%.o: %.cc
-	$(CC) $(CFLAGS) $(INC) -c $<
-
-$(TEST): $(TESTOBJ)
-	$(CC) $(CFLAGS) $(INC) $(TESTOBJ) -o $@ $(LDFLAGS)
-
-$(CONV): $(CONVOBJ)
-	$(CC) $(CFLAGS) $(INC) $(CONVOBJ) -o $@ $(CONVLDFLAGS)
+all:
+	@for test in $(ALL); do \
+		cd $$test && make && cd ..; \
+	done
 
 clean:
-	rm -f $(CONVOBJ) $(TESTOBJ) $(TEST) $(CONV)
+	@for test in $(ALL); do \
+		cd $$test && make clean && cd ..; \
+	done
