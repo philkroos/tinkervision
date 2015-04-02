@@ -31,3 +31,9 @@ auto
 
 # python
 *.pyc
+
+
+# media
+*.yuv
+*.raw
+*.h264

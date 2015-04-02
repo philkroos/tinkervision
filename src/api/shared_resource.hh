@@ -30,21 +30,17 @@ namespace tfv {
  * Map-based RAII-style resource manager providing (limited) thread-safety.
  *
  * Provides a manager for a pool of resources which are to be used in
- * multithreaded code.  Held resources are in one of the three states
- * allocated (after construction by a call to allocate()), active
- * (from allocated during an exec_all() or exec_one()) and removed
- * (from managed during an exec_all() or exec_one() if free() was
- * called for the resource).  allocate(), free(), with exec_all() and
- * exec() are thread-safe.  The latter are expected to be used to
- * execute code on the managed resources.  Resources are stored in a
- * map under an id and are retrievable by this id via the not
- * thread-safe operator[]-overloads.
- *
- * \see operator[]() for limitations of the thread-safety.
+ * multithreaded code.  Held resources are in one of three states:
+ * - allocated: after construction by a call to allocate()
+ * - active: from allocated during an exec_all() or exec_one()
+ * - removed: from managed during an exec_all() or exec_one() if free() was
+ * called for the resource.  All public functions but size() are thread-safe.
+ * \note Making use of the value returned by the operator[] overloads is no
+ * longer thread-safe.
  */
 template <typename Resource>
 class SharedResource {
-    using ResourceMap = std::unordered_map<TFV_Id, Resource*>;
+    using ResourceMap = std::unordered_map<TFV_Int, Resource*>;
     using Iterator = typename ResourceMap::iterator;
     using ConstIterator = typename ResourceMap::const_iterator;
 
@@ -63,8 +59,9 @@ public:
 
     /**
      * Executes a function on all active resources in turn.
+     * \parm[in] executor The function to be executed on each resource.
      */
-    void exec_all(std::function<void(TFV_Id, Resource&)> executor) {
+    void exec_all(std::function<void(TFV_Int, Resource&)> executor) {
         if (not managed_.size()) {
             return;
 
@@ -79,9 +76,11 @@ public:
     /**
      * Executes a function on a single resource, given that it is active.
      *
-     * \return t if the resource was active.
+     * \parm[in] id The id of the resource on which executor shall be executed.
+     * \parm[in] executor The function to be executed on the resource identified
+     * by id.
      */
-    void exec_one(TFV_Id id, std::function<void(Resource&)> executor) {
+    void exec_one(TFV_Int id, std::function<void(Resource&)> executor) {
         if (not managed_.size()) {
             return;
         }
@@ -95,7 +94,7 @@ public:
     /**
      * Evaluates a predicate for each active resource and counts the number of
      * true results.
-     * \parm[i] predicate A predicate.
+     * \parm[in] predicate A predicate.
      * \return The number of true results over each active module.
      */
     size_t count(std::function<bool(Resource const&)> predicate) {
@@ -125,7 +124,7 @@ public:
      * \return false if the id was already allocated.
      */
     template <typename T = Resource, typename... Args>
-    bool allocate(TFV_Id id, Args... args) {
+    bool allocate(TFV_Int id, Args... args) {
         std::lock_guard<std::mutex> lock(allocation_mutex_);
         if (exists(allocated_, id)) {
             return false;
@@ -147,7 +146,7 @@ public:
      * Marks the resource associated with id as removable.
      * The resource is still active, i.e. managed() would return t.
      */
-    void free(TFV_Id id) {
+    void free(TFV_Int id) {
         Resource* resource = nullptr;
         {
             std::lock_guard<std::mutex> lock(managed_mutex_);
@@ -162,10 +161,34 @@ public:
     }
 
     /**
+     * Removes each (active) resource for which a given predicate holds.
+     *
+     * \parm[in] predicate A predicate accepting a single resource cref.
+     * \return The number of resources removed.
+     */
+    size_t free_if(std::function<bool(Resource const& resource)> predicate) {
+        std::lock_guard<std::mutex> lock(managed_mutex_);
+
+        auto count = static_cast<size_t>(0);
+        for (auto it = managed_.cbegin(); it != managed_.cend();) {
+
+            if (predicate(resource(it))) {
+                garbage_[id(it)] = &resource(it);
+                managed_.erase(it++);
+                count++;
+            } else {
+                ++it;
+            }
+        }
+
+        return count;
+    }
+
+    /**
      * Check whether a resource is active.
      * \return True If the resource id is active.
      */
-    bool managed(TFV_Id id) const {
+    bool managed(TFV_Int id) const {
         std::lock_guard<std::mutex> lock(managed_mutex_);
         return exists(managed_, id);
     }
@@ -180,7 +203,7 @@ public:
      * \todo Mutex acquisition is not fair and so this method takes
      * too long sometimes.
      */
-    Resource const& operator[](TFV_Id id) const {
+    Resource const& operator[](TFV_Int id) const {
         ConstIterator it;
         {
             std::lock_guard<std::mutex> lock(managed_mutex_);
@@ -200,7 +223,7 @@ public:
      * \todo Mutex acquisition is not fair and so this method takes
      * too long sometimes.
      */
-    Resource* operator[](TFV_Id id) {
+    Resource* operator[](TFV_Int id) {
         Resource* resource = nullptr;
         {
             std::lock_guard<std::mutex> lock(managed_mutex_);
@@ -217,7 +240,7 @@ private:
     /**
      * Verbose access to the id of a resource-map.
      */
-    TFV_Id id(ConstIterator it) const { return it->first; }
+    TFV_Int id(ConstIterator it) const { return it->first; }
 
     /**
      * Verbose access to the resource of a resource-map.
@@ -227,7 +250,7 @@ private:
     /**
      * Verbose check if a  resource exists in a map.
      */
-    bool exists(ResourceMap const& map, TFV_Id id) const {
+    bool exists(ResourceMap const& map, TFV_Int id) const {
         return map.find(id) != map.end();
     }
 

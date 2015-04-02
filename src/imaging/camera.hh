@@ -41,7 +41,7 @@ public:
     virtual ColorSpace image_format(void) const = 0;
 
 protected:
-    Camera(TFV_Id camera_id);
+    explicit Camera(TFV_Id camera_id);
 
     TFV_Id camera_id_;
 

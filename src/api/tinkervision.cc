@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tinkervision.h"
 #include "colormatch.hh"
 #include "stream.hh"
+#include "record.hh"
 
 extern "C" {
 
@@ -81,4 +82,9 @@ TFV_Result colormatch_get(TFV_Id feature_id, TFV_Byte* min_hue,
 TFV_Result streamer_stream(TFV_Id streamer_id) {
     return tfv::get_api().module_set<tfv::Stream>(streamer_id);
 }
+
+//
+// Record interface
+//
+TFV_Result snapshot(void) { return tfv::get_api().module_set<tfv::Snapshot>(); }
 }

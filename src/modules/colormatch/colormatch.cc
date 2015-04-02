@@ -79,7 +79,7 @@ void tfv::Colormatch::execute(tfv::Image const& image) {
     if (contours.size()) {  // call back with center of finding
         auto const x = rect.x + (rect.width / 2);
         auto const y = rect.y + (rect.height / 2);
-        callback(module_id_, x, y, context);
+        callback(static_cast<TFV_Id>(module_id_), x, y, context);
     }
 }
 

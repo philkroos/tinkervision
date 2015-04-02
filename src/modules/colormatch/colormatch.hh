@@ -45,7 +45,7 @@ public:
     TFV_CallbackColormatch callback;
     TFV_Context context;
 
-    Colormatch(TFV_Id module_id, TFV_Byte min_hue, TFV_Byte max_hue,
+    Colormatch(TFV_Int module_id, TFV_Byte min_hue, TFV_Byte max_hue,
                TFV_CallbackColormatch callback, TFV_Context context)
         : BGRModule(module_id, "Colormatch"),
           user_min_hue(min_hue),

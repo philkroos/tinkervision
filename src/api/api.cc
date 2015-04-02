@@ -34,8 +34,8 @@ TFV_Result tfv::Api::start(void) {
     // Allow mainloop to run
     active_ = true;
 
-    auto active_count =
-        modules_.count([](tfv::Module const& module) { return module.active; });
+    auto active_count = modules_.count(
+        [](tfv::Module const& module) { return module.is_active(); });
 
     camera_control_.acquire(active_count);
 
@@ -65,7 +65,7 @@ TFV_Result tfv::Api::stop(void) {
         // Release all unused resources. Keep the modules' active state
         // unchanged, so that restarting the loop resumes known context.
         modules_.exec_all([this](
-            TFV_Id id, tfv::Module& module) { camera_control_.release(); });
+            TFV_Int id, tfv::Module& module) { camera_control_.release(); });
     }
 
     if (not executor_.joinable()) {
@@ -79,7 +79,7 @@ TFV_Result tfv::Api::quit(void) {
 
     // stop all modules
     modules_.exec_all(
-        [this](TFV_Id id, tfv::Module& module) { module.active = false; });
+        [this](TFV_Int id, tfv::Module& module) { module.deactivate(); });
 
     // stop execution of the main loop
     return stop();
@@ -88,10 +88,10 @@ TFV_Result tfv::Api::quit(void) {
 void tfv::Api::execute(void) {
 
     // Execute active module
-    auto update_module = [this](TFV_Id id, tfv::Module& module) {
+    auto update_module = [this](TFV_Int id, tfv::Module& module) {
 
         // skip paused modules
-        if (not module.active) {
+        if (not module.is_active()) {
             return;
         }
 
@@ -129,6 +129,11 @@ void tfv::Api::execute(void) {
             latency_ms =
                 std::max(execution_latency_ms_, no_module_min_latency_ms);
         }
+
+        // Finally propagate modules marked for removal
+        modules_.free_if([](tfv::Module const& module) {
+            return module.marked_for_removal();
+        });
 
         // some buffertime for two reasons: first, the outer thread
         // gets time to run second, the camera driver is probably not

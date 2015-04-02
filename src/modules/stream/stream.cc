@@ -26,7 +26,7 @@ tfv::Stream::~Stream(void) {
     (void)streamer_.get();
 }
 
-tfv::Stream::Stream(TFV_Id module_id) : YV12Module(module_id) {
+tfv::Stream::Stream(TFV_Int module_id) : YV12Module(module_id, "Stream") {
 
     task_scheduler_ = BasicTaskScheduler::createNew();
 

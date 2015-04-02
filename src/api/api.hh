@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <thread>
 #include <mutex>
 #include <typeinfo>
+#include <limits>
 
 #include "strings.hh"
 #include "tinkervision_defines.h"
@@ -93,38 +94,43 @@ public:
      */
     TFV_Result quit(void);
 
+    /**
+     * Insert and activate a module.
+     * Use this to instantiate a module without parameters which does not have
+     * to be referenced later, i.e. sth. like a single-shot module (e.g. module
+     * Snapshot).  The module will receive an internally generated unique id
+     * which can not conflict with the ids assignable by the user.
+     * \return
+     * - TFV_CAMERA_ACQUISITION_FAILED: if the camera is not available
+     * - TFV_MODULE_INITIALIZATION_FAILED: if an error occurs during allocation
+     *   of the module
+     * - TFV_OK: this should be expect.
+     */
+    template <typename Comp>
+    TFV_Result module_set(void) {
+        auto id = _next_internal_id();
+        return _module_set<Comp>(id);
+    }
+
+    /**
+     * Insert and activate or reconfigure a module.
+     * \parm[in] id The unique id of the module under which it may be identified
+     *   (i.e. in future calls to get/set/free...)
+     * \parm[in] ...args The module dependent list of constructor arguments
+     * \return
+     * - TFV_INVALID_CONFIGURATION: if the arguments can not be used to
+     *   construct a valid module of type Comp
+     * - TFV_INVALID_ID: if a module with the given id already exists but is not
+     *   of type Comp
+     * - TFV_CAMERA_ACQUISITION_FAILED: if a new module shall be constructed but
+     *   the camera is not available
+     * - TFV_MODULE_INITIALIZATION_FAILED: if an error occurs during allocation
+     *   of the module
+     * - TFV_OK: this should be expect.
+     */
     template <typename Comp, typename... Args>
     TFV_Result module_set(TFV_Id id, Args... args) {
-
-        auto result = TFV_INVALID_CONFIGURATION;
-
-        if (tfv::valid<Comp>(args...)) {
-            if (modules_.managed(id)) {      // reconfiguring requested
-                auto module = modules_[id];  // ptr
-
-                result = TFV_INVALID_ID;
-
-                if (check_type<Comp>(module)) {
-                    tfv::set<Comp>(static_cast<Comp*>(module), args...);
-                    result = TFV_OK;
-                }
-
-            } else {  // new module
-                result = TFV_CAMERA_ACQUISITION_FAILED;
-
-                if (camera_control_.acquire()) {
-                    result = TFV_MODULE_INITIALIZATION_FAILED;
-
-                    if (modules_.allocate<Comp>(id, args...)) {
-                        result = TFV_OK;
-                    } else {
-                        camera_control_.release();
-                    }
-                }
-            }
-        }
-
-        return result;
+        return _module_set<Comp>(static_cast<TFV_Int>(id), args...);
     }
 
     template <typename Module>
@@ -133,7 +139,7 @@ public:
         auto result = TFV_UNCONFIGURED_ID;
         Module const* ct = nullptr;
 
-        result = get_module<Module>(id, &ct);
+        result = _get_module<Module>(static_cast<TFV_Int>(id), &ct);
 
         if (ct) {
             tfv::get<Module>(*ct, min_hue, max_hue);
@@ -159,8 +165,9 @@ public:
      * the module is running after returning.
      */
     template <typename Module>
-    TFV_Result module_start(TFV_Id id) {
+    TFV_Result module_start(TFV_Id module_id) {
         auto result = TFV_UNCONFIGURED_ID;
+        auto id = static_cast<TFV_Int>(module_id);
 
         if (modules_.managed(id)) {
             auto module = modules_[id];
@@ -170,7 +177,7 @@ public:
                 result = TFV_CAMERA_ACQUISITION_FAILED;
 
                 modules_.exec_one(id, [&result, this](tfv::Module& comp) {
-                    if (comp.active()) {
+                    if (comp.is_active()) {
                         result = TFV_OK;
                     } else if (camera_control_.acquire()) {
                         comp.activate();
@@ -186,19 +193,24 @@ public:
     /**
      * Pause a module. This will not remove the module but rather
      * prevent it from being executed. The id is still reserved and it's
-     * a matter of calling module_start() to resume execution.
+     * a matter of calling module_start() to resume execution.  To actually
+     * remove the module, call module_remove.
      * \note The associated resources (namely the camera handle)
-     * will be released to be usable in other contexts, so
-     * this might prohibit restart of the module.
+     * will be released (once) to be usable in other contexts, so
+     * this might prohibit restart of the module. If however the camera is used
+     * by other modules as well, it will stay open.
      *
      * \param id The id of the module to stop. The type of the associated
      * module has to match Module.
-     * \return TFV_OK if the module was stopped; TFV_UNCONFIGURED_ID if
-     * the id is not registered; TFV_INVALID_ID if the types don't match.
+     * \return
+     *  - TFV_OK if the module was stopped and marked for removal
+     *  - TFV_UNCONFIGURED_ID if the id is not registered
+     *  - TFV_INVALID_ID if the types don't match
      */
     template <typename Module>
-    TFV_Result module_stop(TFV_Id id) {
+    TFV_Result module_stop(TFV_Id module_id) {
         auto result = TFV_UNCONFIGURED_ID;
+        auto id = static_cast<TFV_Int>(module_id);
 
         auto module = modules_[id];
         if (module) {
@@ -207,6 +219,40 @@ public:
             if (check_type<Module>(module)) {
                 modules_.exec_one(id, [this](tfv::Module& comp) {
                     comp.deactivate();
+                    camera_control_.release();
+                });
+                result = TFV_OK;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Stop and remove a module.  After this, the id is no longer valid.
+     * \note The associated resources (namely the camera handle)
+     * will be released (once) to be usable in other contexts. This might
+     * free the actual device if it is not used by another module.
+     *
+     * \param id The id of the module to stop. The type of the associated
+     * module has to match Module.
+     * \return
+     *  - TFV_OK if the module was stopped and marked for removal
+     *  - TFV_UNCONFIGURED_ID if the id is not registered
+     *  - TFV_INVALID_ID if the types don't match
+     */
+    template <typename Module>
+    TFV_Result module_remove(TFV_Id module_id) {
+        auto result = TFV_UNCONFIGURED_ID;
+        auto id = static_cast<TFV_Int>(module_id);
+
+        auto module = modules_[id];
+        if (module) {
+            result = TFV_INVALID_ID;
+
+            if (check_type<Module>(module)) {
+                modules_.exec_one(id, [this](tfv::Module& comp) {
+                    comp.deactivate();
+                    comp.mark_for_removal();
                     camera_control_.release();
                 });
                 result = TFV_OK;
@@ -310,7 +356,7 @@ private:
     bool start_camera(void);
 
     template <typename Module>
-    TFV_Result get_module(TFV_Id id, Module const** module) const {
+    TFV_Result _get_module(TFV_Int id, Module const** module) const {
         auto result = TFV_UNCONFIGURED_ID;
 
         if (modules_.managed(id)) {
@@ -325,7 +371,46 @@ private:
 
         return result;
     }
+
+    template <typename Comp, typename... Args>
+    TFV_Result _module_set(TFV_Int id, Args... args) {
+
+        auto result = TFV_INVALID_CONFIGURATION;
+
+        if (tfv::valid<Comp>(args...)) {
+            if (modules_.managed(id)) {      // reconfiguring requested
+                auto module = modules_[id];  // ptr
+
+                result = TFV_INVALID_ID;
+
+                if (check_type<Comp>(module)) {
+                    tfv::set<Comp>(static_cast<Comp*>(module), args...);
+                    result = TFV_OK;
+                }
+
+            } else {  // new module
+                result = TFV_CAMERA_ACQUISITION_FAILED;
+
+                if (camera_control_.acquire()) {
+                    result = TFV_MODULE_INITIALIZATION_FAILED;
+
+                    if (modules_.allocate<Comp>(id, args...)) {
+                        result = TFV_OK;
+                    } else {
+                        camera_control_.release();
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    TFV_Int _next_internal_id(void) const {
+        static TFV_Int internal_id{std::numeric_limits<TFV_Id>::max() + 1};
+        return internal_id++;
+    }
 };
 
 Api& get_api(void);
-};
+}

@@ -51,6 +51,8 @@ TFV_String result_string(TFV_Result code);
 
 TFV_Result streamer_stream(TFV_Id streamer_id);
 
+TFV_Result snapshot(void);
+
 #ifdef __cplusplus
 }
 #endif

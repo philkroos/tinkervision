@@ -35,7 +35,7 @@ namespace tfv {
 
 struct Stream : public YV12Module {
 
-    explicit Stream(TFV_Id module_id);
+    explicit Stream(TFV_Int module_id);
 
     virtual ~Stream(void);
 

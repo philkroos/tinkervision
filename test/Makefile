@@ -1,8 +1,9 @@
-COLORTRACK := colormatch
-STREAM := stream
-CONVERT := convert
+COLORTRACK	:= colormatch
+STREAM		:= stream
+CONVERT	:= convert
+RECORD		:= record
 
-ALL := $(COLORTRACK) $(STREAM) $(CONVERT)
+ALL		:= $(COLORTRACK) $(STREAM) $(CONVERT) $(RECORD)
 
 all:
 	@for test in $(ALL); do \
