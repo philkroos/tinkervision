@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "api.hh"
 #include "tinkervision.h"
-#include "colortracking.hh"
+#include "colormatch.hh"
 #include "stream.hh"
 
 extern "C" {
@@ -50,29 +50,29 @@ TFV_String result_string(TFV_Result code) {
 }
 
 //
-// Colortracking interface
+// Colormatch interface
 //
 
-TFV_Result colortracking_start(TFV_Id id, TFV_Byte min_hue, TFV_Byte max_hue,
-                               TFV_CallbackColortrack callback,
-                               TFV_Context context) {
+TFV_Result colormatch_start(TFV_Id id, TFV_Byte min_hue, TFV_Byte max_hue,
+                            TFV_CallbackColormatch callback,
+                            TFV_Context context) {
 
-    return tfv::get_api().module_set<tfv::Colortracking>(id, min_hue, max_hue,
-                                                         callback, context);
+    return tfv::get_api().module_set<tfv::Colormatch>(id, min_hue, max_hue,
+                                                      callback, context);
 }
 
-TFV_Result colortracking_restart(TFV_Id feature_id) {
-    return tfv::get_api().module_start<tfv::Colortracking>(feature_id);
+TFV_Result colormatch_restart(TFV_Id feature_id) {
+    return tfv::get_api().module_start<tfv::Colormatch>(feature_id);
 }
 
-TFV_Result colortracking_stop(TFV_Id feature_id) {
-    return tfv::get_api().module_stop<tfv::Colortracking>(feature_id);
+TFV_Result colormatch_stop(TFV_Id feature_id) {
+    return tfv::get_api().module_stop<tfv::Colormatch>(feature_id);
 }
 
-TFV_Result colortracking_get(TFV_Id feature_id, TFV_Byte* min_hue,
-                             TFV_Byte* max_hue) {
-    return tfv::get_api().module_get<tfv::Colortracking>(feature_id, *min_hue,
-                                                         *max_hue);
+TFV_Result colormatch_get(TFV_Id feature_id, TFV_Byte* min_hue,
+                          TFV_Byte* max_hue) {
+    return tfv::get_api().module_get<tfv::Colormatch>(feature_id, *min_hue,
+                                                      *max_hue);
 }
 
 //

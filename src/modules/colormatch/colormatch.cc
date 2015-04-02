@@ -17,17 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include "colortracking.hh"
+#include "colormatch.hh"
 
 #include <opencv2/opencv.hpp>
 
-#ifdef DEV
-#include <iostream>
-#endif
-
 // member functions
 
-void tfv::Colortracking::execute(tfv::Image const& image) {
+void tfv::Colormatch::execute(tfv::Image const& image) {
     const auto rows = image.height;
     const auto columns = image.width;
     const auto data = image.data;
@@ -36,23 +32,21 @@ void tfv::Colortracking::execute(tfv::Image const& image) {
     cv::cvtColor(cv_image, cv_image, CV_BGR2HSV);
     cv::Mat mask(rows, columns, CV_8UC3);
 
-    /*
-    static int counter = 0;
-    std::string imgname = "ctexec_" + std::to_string(counter++) + ".jpg";
-    std::cout << "Writing cv_image " << imgname << std::endl;
-    cv::imwrite(imgname, cv_image);
-    */
-
+    // The hue-range is circular, i.e. it is possible that for a requested color
+    // range, the minimum hue > maximum hue. In that case, the range is divided
+    // into (min, 180) and (0, max), where 180 is the absolute maximum hue used
+    // by opencv (actually, the wrap-around point since the range is circular).
     auto const split = min_hue > max_hue;
-    cv::Scalar low(min_hue, min_saturation, min_value);
-    cv::Scalar high(split ? max_hue0 : max_hue, max_saturation, max_value);
+
+    cv::Scalar low(user_min_hue, min_saturation, min_value);
+    cv::Scalar high(split ? max_hue : user_max_hue, max_saturation, max_value);
 
     if (split) {
         cv::Mat mask0(rows, columns, CV_8UC3);
         cv::Mat mask1(rows, columns, CV_8UC3);
         cv::inRange(cv_image, low, high, mask0);
-        low[0] = min_hue0;
-        high[0] = max_hue;
+        low[0] = min_hue;
+        high[0] = user_max_hue;
         cv::inRange(cv_image, low, high, mask1);
         cv::bitwise_or(mask0, mask1, mask);
     } else {
@@ -82,45 +76,36 @@ void tfv::Colortracking::execute(tfv::Image const& image) {
         }
     }
 
-#ifdef DEBUG_COLORTRACKING
-    window.update(0, mask, rows, columns);
-#endif  // DEBUG_COLORTRACKING
-
     if (contours.size()) {  // call back with center of finding
         auto const x = rect.x + (rect.width / 2);
         auto const y = rect.y + (rect.height / 2);
-        callback(module_id, x, y, context);
+        callback(module_id_, x, y, context);
     }
 }
 
 // free functions
 
 template <>
-bool tfv::valid<tfv::Colortracking>(TFV_Byte& min_hue, TFV_Byte& max_hue,
-                                    TFV_CallbackColortrack& callback,
-                                    TFV_Context& context) {
+bool tfv::valid<tfv::Colormatch>(TFV_Byte& min_hue, TFV_Byte& max_hue,
+                                 TFV_CallbackColormatch& callback,
+                                 TFV_Context& context) {
     return callback;
 }
 
 template <>
-void tfv::set<tfv::Colortracking>(tfv::Colortracking* ct, TFV_Byte min_hue,
-                                  TFV_Byte max_hue,
-                                  TFV_CallbackColortrack callback,
-                                  TFV_Context context) {
-    ct->min_hue = min_hue;
-    ct->max_hue = max_hue;
+void tfv::set<tfv::Colormatch>(tfv::Colormatch* ct, TFV_Byte min_hue,
+                               TFV_Byte max_hue,
+                               TFV_CallbackColormatch callback,
+                               TFV_Context context) {
+    ct->user_min_hue = min_hue;
+    ct->user_max_hue = max_hue;
     ct->callback = callback;
     ct->context = context;
-
-    if (min_hue > max_hue) {
-        ct->min_hue0 = 0;
-        ct->max_hue0 = COLORTRACK_MAXIMUM_HUE;
-    }
 }
 
 template <>
-void tfv::get<tfv::Colortracking>(tfv::Colortracking const& ct,
-                                  TFV_Byte& min_hue, TFV_Byte& max_hue) {
-    min_hue = ct.min_hue;
-    max_hue = ct.max_hue;
+void tfv::get<tfv::Colormatch>(tfv::Colormatch const& ct, TFV_Byte& min_hue,
+                               TFV_Byte& max_hue) {
+    min_hue = ct.user_min_hue;
+    max_hue = ct.user_max_hue;
 }

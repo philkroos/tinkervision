@@ -170,10 +170,10 @@ public:
                 result = TFV_CAMERA_ACQUISITION_FAILED;
 
                 modules_.exec_one(id, [&result, this](tfv::Module& comp) {
-                    if (comp.active) {
+                    if (comp.active()) {
                         result = TFV_OK;
                     } else if (camera_control_.acquire()) {
-                        comp.active = true;
+                        comp.activate();
                         result = TFV_OK;
                     }
                 });
@@ -206,7 +206,7 @@ public:
 
             if (check_type<Module>(module)) {
                 modules_.exec_one(id, [this](tfv::Module& comp) {
-                    comp.active = false;
+                    comp.deactivate();
                     camera_control_.release();
                 });
                 result = TFV_OK;

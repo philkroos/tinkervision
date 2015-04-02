@@ -27,13 +27,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
-struct Module {
-    TFV_Id module_id;
-    bool active;
+class Module {
+private:
+    std::string type_;
+    bool active_;
 
-    explicit Module(TFV_Id module_id) : module_id(module_id), active(true) {}
+protected:
+    TFV_Id module_id_;
+
+    Module(TFV_Id module_id, std::string type)
+        : type_(type), active_(true), module_id_(module_id) {}
+
+public:
     virtual ~Module(void) {
-        std::cout << "Destroying module " << module_id << std::endl;
+        std::cout << "Destroying module " << module_id_ << " (" << type_ << ")"
+                  << std::endl;
     }
 
     // No copy allowed
@@ -48,6 +56,10 @@ struct Module {
     // implement.  The rest is defined as free function after this class
     // declaration.
     virtual void execute(tfv::Image const& image) = 0;
+
+    bool active(void) const { return active_; }
+    void activate(void) { active_ = true; }
+    void deactivate(void) { active_ = false; }
 };
 
 // Interface methods to be implemented by modules
@@ -73,29 +85,29 @@ void get(T const& module, Args&... args) {
 
 template <ColorSpace Format>
 struct ModuleWithColorSpace : public Module {
-    ModuleWithColorSpace(TFV_Id id) : Module(id) {}
+    ModuleWithColorSpace(TFV_Id id, std::string type) : Module(id, type) {}
     virtual ~ModuleWithColorSpace(void) = default;
     virtual ColorSpace expected_format(void) const { return Format; }
 };
 
 struct BGRModule : public ModuleWithColorSpace<ColorSpace::BGR888> {
     virtual ~BGRModule(void) = default;
-    BGRModule(TFV_Id id) : ModuleWithColorSpace(id) {}
+    BGRModule(TFV_Id id, std::string type) : ModuleWithColorSpace(id, type) {}
 };
 
 struct RGBModule : public ModuleWithColorSpace<ColorSpace::RGB888> {
     virtual ~RGBModule(void) = default;
-    RGBModule(TFV_Id id) : ModuleWithColorSpace(id) {}
+    RGBModule(TFV_Id id, std::string type) : ModuleWithColorSpace(id, type) {}
 };
 
 struct YUYVModule : public ModuleWithColorSpace<ColorSpace::YUYV> {
     virtual ~YUYVModule(void) = default;
-    YUYVModule(TFV_Id id) : ModuleWithColorSpace(id) {}
+    YUYVModule(TFV_Id id, std::string type) : ModuleWithColorSpace(id, type) {}
 };
 
 struct YV12Module : public ModuleWithColorSpace<ColorSpace::YV12> {
     virtual ~YV12Module(void) = default;
-    YV12Module(TFV_Id id) : ModuleWithColorSpace(id) {}
+    YV12Module(TFV_Id id, std::string type) : ModuleWithColorSpace(id, type) {}
 };
 };
 #endif

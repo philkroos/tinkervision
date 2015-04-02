@@ -1,4 +1,4 @@
-COLORTRACK := colortrack
+COLORTRACK := colormatch
 STREAM := stream
 CONVERT := convert
 

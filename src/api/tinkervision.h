@@ -23,17 +23,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern "C" {
 #endif
 
-TFV_Result colortracking_start(TFV_Id feature_id, TFV_Byte min_hue,
-                               TFV_Byte max_hue,
-                               TFV_CallbackColortrack callback,
-                               TFV_Context opaque);
+TFV_Result colormatch_start(TFV_Id feature_id, TFV_Byte min_hue,
+                            TFV_Byte max_hue, TFV_CallbackColormatch callback,
+                            TFV_Context opaque);
 
-TFV_Result colortracking_restart(TFV_Id feature_id);
+TFV_Result colormatch_restart(TFV_Id feature_id);
 
-TFV_Result colortracking_stop(TFV_Id feature_id);
+TFV_Result colormatch_stop(TFV_Id feature_id);
 
-TFV_Result colortracking_get(TFV_Id feature_id, TFV_Byte* min_hue,
-                             TFV_Byte* max_hue);
+TFV_Result colormatch_get(TFV_Id feature_id, TFV_Byte* min_hue,
+                          TFV_Byte* max_hue);
 
 TFV_Result camera_available(void);
 

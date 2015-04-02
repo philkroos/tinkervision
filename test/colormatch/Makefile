@@ -4,8 +4,8 @@ CCFLAGS := -Wall -Werror -g -O0 -ansi -pedantic -std=c++11 -D_POSIX_C_SOURCE=199
 INC	:= -I../../src/api -I../../src/imaging `pkg-config --cflags opencv`
 LDFLAGS := -g -Wall -L../../build -ltfv -lstdc++ -lv4l2 `pkg-config --libs opencv`
 
-OBJ	:= tfv_colortrack.o
-OUT	:= tfv-colortrack
+OBJ	:= tfv_colormatch.o
+OUT	:= tfv-colormatch
 
 all: test
 

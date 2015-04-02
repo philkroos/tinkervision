@@ -33,16 +33,11 @@ typedef TFV_Int TFV_Result;
 typedef void* TFV_Context;
 
 // todo: make this a functor
-typedef void (*TFV_CallbackColortrack)(TFV_Id, TFV_Int x, TFV_Int y,
+typedef void (*TFV_CallbackColormatch)(TFV_Id, TFV_Int x, TFV_Int y,
                                        TFV_Context);
 
 // opencv hue-range 0 -
-#define COLORTRACK_MAXIMUM_HUE 180
-
-/* configurable values */
-
-// Each cam can be used for so much configurations
-#define TFV_MAX_USERS_PER_CAM 5
+#define COLORMATCH_MAXIMUM_HUE 180
 
 /* result codes */
 
