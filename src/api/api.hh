@@ -34,7 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "strings.hh"
 #include "tinkervision_defines.h"
 #include "cameracontrol.hh"
-#include "module.hh"
+#include "executable.hh"
+#include "dummy.hh"
 #include "image.hh"
 
 #include "shared_resource.hh"
@@ -108,9 +109,10 @@ public:
      */
     template <typename Comp>
     TFV_Result module_set(void) {
-        auto id = _next_internal_id();
-        return _module_set<Comp>(id);
+        return _module_set<Comp>(_next_internal_id());
     }
+
+    TFV_Result start_idle(void) { return module_set<Dummy>(); }
 
     /**
      * Insert and activate or reconfigure a module.
@@ -263,8 +265,8 @@ public:
 
     /**
      * Convert Api return code to string.
-     * \param code The return code to be represented as string.
-     * \return The string representing code.
+     * \param[in] code The return code to be represented as string.
+     * \return The string representing code
      */
     TFV_String result_string(TFV_Id code) const {
         return result_string_map_[code];
@@ -272,10 +274,29 @@ public:
 
     /**
      * Check if a camera is available in the system.
-     * \result TFV_CAMERA_ACQUISITION_FAILED if the camera is not available,
-     * TFV_OK else.
+     * \return
+     *  - TFV_CAMERA_ACQUISITION_FAILED if the camera is not available,
+     *  - TFV_OK else
      */
-    TFV_Result is_camera_available(void);
+    TFV_Result is_camera_available(void) {
+        return camera_control_.is_available() ? TFV_OK
+                                              : TFV_CAMERA_ACQUISITION_FAILED;
+    }
+
+    /**
+     * Retrieve the frame settings from the camera. This can only work if the
+     * camera was opened already
+     * \param[out] width The framewidth in pixels
+     * \param[out] width The frameheight in pixels
+     * \return
+     *  - TFV_CAMERA_NOT_AVAILABLE if the camera is not open
+     *  - TFV_OK else.
+     */
+    TFV_Result resolution(TFV_Size& width, TFV_Size& height) {
+        return camera_control_.get_resolution(width, height)
+                   ? TFV_OK
+                   : TFV_CAMERA_NOT_AVAILABLE;
+    }
 
     /**
      * Set the time between the execution of active modules.

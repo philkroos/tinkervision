@@ -26,8 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <BasicUsageEnvironment.hh>
 #include <GroupsockHelper.hh>
 
-#include "module.hh"
-#include "image.hh"
+#include "executable.hh"
+
 #include "h264_media_session.hh"
 #include "h264_encoder.hh"
 

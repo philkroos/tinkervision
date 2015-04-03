@@ -48,7 +48,7 @@ protected:
     // These are Template Methods (Design Pattern), see implementation
     // of the corresponding get_ methods.
     virtual bool retrieve_frame(Image& frame) = 0;
-    virtual void retrieve_properties(size_t& height, size_t& width,
+    virtual void retrieve_properties(size_t& width, size_t& height,
                                      size_t& framebytesize) = 0;
     virtual void close(void) = 0;
 

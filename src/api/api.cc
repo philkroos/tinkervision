@@ -95,9 +95,13 @@ void tfv::Api::execute(void) {
             return;
         }
 
-        // retrieve the frame in the requested format and execute the module
-        camera_control_.get_frame(image_, module.expected_format());
-        module.execute(image_);
+        if (module.is_executable()) {
+
+            auto& executable = static_cast<Executable&>(module);
+            // retrieve the frame in the requested format and execute the module
+            camera_control_.get_frame(image_, executable.expected_format());
+            executable.execute(image_);
+        }
     };
 
     // mainloop
@@ -145,15 +149,6 @@ void tfv::Api::execute(void) {
 
         std::this_thread::sleep_for(std::chrono::milliseconds(latency_ms));
     }
-}
-
-TFV_Result tfv::Api::is_camera_available(void) {
-    auto result = TFV_CAMERA_ACQUISITION_FAILED;
-    if (camera_control_.is_available()) {
-        result = TFV_OK;
-    }
-
-    return result;
 }
 
 /*

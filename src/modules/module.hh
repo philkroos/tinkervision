@@ -54,19 +54,14 @@ public:
     Module& operator=(Module const& rhs) = delete;
     Module& operator=(Module&& rhs) = delete;
 
-    virtual ColorSpace expected_format(void) const = 0;
-
-    // Internal part of the interface that a concrete module has to
-    // implement.  The rest is defined as free function after this class
-    // declaration.
-    virtual void execute(tfv::Image const& image) = 0;
-
     bool is_active(void) const noexcept { return active_; }
     void activate(void) noexcept { active_ = true; }
     void deactivate(void) noexcept { active_ = false; }
 
     bool marked_for_removal(void) const noexcept { return marked_for_removal_; }
     void mark_for_removal(void) noexcept { marked_for_removal_ = true; }
+
+    virtual bool is_executable(void) const noexcept = 0;
 };
 
 // Interface methods to be implemented by modules
@@ -86,35 +81,5 @@ template <typename T, typename... Args>
 void get(T const& module, Args&... args) {
     std::cout << "Warning, get undefined" << std::endl;
 }
-
-// Specializations for different ColorSpace values. Just derive e.g. from
-// BGRModule.
-
-template <ColorSpace Format>
-struct ModuleWithColorSpace : public Module {
-    ModuleWithColorSpace(TFV_Int id, std::string type) : Module(id, type) {}
-    virtual ~ModuleWithColorSpace(void) = default;
-    virtual ColorSpace expected_format(void) const { return Format; }
-};
-
-struct BGRModule : public ModuleWithColorSpace<ColorSpace::BGR888> {
-    virtual ~BGRModule(void) = default;
-    BGRModule(TFV_Int id, std::string type) : ModuleWithColorSpace(id, type) {}
-};
-
-struct RGBModule : public ModuleWithColorSpace<ColorSpace::RGB888> {
-    virtual ~RGBModule(void) = default;
-    RGBModule(TFV_Int id, std::string type) : ModuleWithColorSpace(id, type) {}
-};
-
-struct YUYVModule : public ModuleWithColorSpace<ColorSpace::YUYV> {
-    virtual ~YUYVModule(void) = default;
-    YUYVModule(TFV_Int id, std::string type) : ModuleWithColorSpace(id, type) {}
-};
-
-struct YV12Module : public ModuleWithColorSpace<ColorSpace::YV12> {
-    virtual ~YV12Module(void) = default;
-    YV12Module(TFV_Int id, std::string type) : ModuleWithColorSpace(id, type) {}
-};
-};
+}
 #endif

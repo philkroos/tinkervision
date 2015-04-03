@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <opencv2/opencv.hpp>
 
-#include "module.hh"
-#include "image.hh"
+#include "executable.hh"
 
 namespace tfv {
 

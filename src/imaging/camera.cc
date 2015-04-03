@@ -45,10 +45,10 @@ bool tfv::Camera::get_frame(tfv::Image& image) {
     return result;
 }
 
-bool tfv::Camera::get_properties(size_t& height, size_t& width,
+bool tfv::Camera::get_properties(size_t& width, size_t& height,
                                  size_t& framebytesize) {
     if (is_open()) {
-        retrieve_properties(height, width, framebytesize);
+        retrieve_properties(width, height, framebytesize);
         return true;
     }
     return false;

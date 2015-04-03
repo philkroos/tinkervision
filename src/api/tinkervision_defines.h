@@ -30,6 +30,7 @@ typedef const char* TFV_String;
 typedef unsigned TFV_UInt;
 typedef TFV_Short TFV_Id;
 typedef TFV_Int TFV_Result;
+typedef size_t TFV_Size;
 typedef void* TFV_Context;
 
 // todo: make this a functor?
@@ -59,6 +60,7 @@ typedef void (*TFV_CallbackMotiondetect)(TFV_Id, TFV_Int x_topleft,
 
 // Camera errors: 550...
 #define TFV_CAMERA_ACQUISITION_FAILED 550
+#define TFV_CAMERA_NOT_AVAILABLE 551
 
 // Configuration errors: 600...
 #define TFV_UNCONFIGURED_ID 600

@@ -116,6 +116,11 @@ bool tfv::CameraControl::get_properties(size_t& height, size_t& width,
     return result;
 }
 
+bool tfv::CameraControl::get_resolution(size_t& width, size_t& height) {
+    size_t bytesize;  // ignored
+    return get_properties(width, height, bytesize);
+}
+
 void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ColorSpace format) {
 
     // If the requested format is the same as provided by the camera, image_.

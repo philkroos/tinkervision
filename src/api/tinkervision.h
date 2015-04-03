@@ -36,8 +36,6 @@ TFV_Result colormatch_stop(TFV_Id feature_id);
 TFV_Result colormatch_get(TFV_Id feature_id, TFV_Byte* min_hue,
                           TFV_Byte* max_hue);
 
-TFV_Result camera_available(void);
-
 // motiondetect
 
 TFV_Result motiondetect_start(TFV_Id feature_id,
@@ -46,10 +44,44 @@ TFV_Result motiondetect_start(TFV_Id feature_id,
 
 // api
 
+TFV_Result camera_available(void);
+
+/**
+ * Starts a dummy module keeping the Api up and running even if no 'real' module
+ * is active.  This can be used to block the camera or if the resolution has to
+ * be known before any module is running.  Subsequent calls will not start
+ * another dummy.  The Dummy, once started, can only be quit by calling quit().
+ * \return TFV_Ok if the dummy module was started or already running
+ */
+TFV_Result start_idle(void);
+
+/**
+ * Request the resolution of the camera frames.  This can only be called once
+ * the camera is active, so in particular, if the resolution needs to be known
+ * before a module can be started, start_idle() must be called.
+ * \return
+ *  - TFV_Ok if width and height are valid
+ *  - TFV_CAMERA_NOT_AVAILABLE else
+ */
+TFV_Result get_resolution(TFV_Size& width, TFV_Size& height);
+
+/**
+ * Pause the Api, deactivating but not disabling every module.  The camera will
+ * be released and no further callbacks will be called, but on start(), the Api
+ * will be found in the exact same state as left (assuming that the camera can
+ * be acquired again).
+ */
 TFV_Result stop(void);
 
 TFV_Result start(void);
 
+/**
+ * Stop all modules and shutdown the api.  This is generally not necessary if
+ * the client application terminates in controlled ways.  However, the
+ * application should implement a kill-signal handler which calls quit.  Else
+ * there is no way to shutdown the Api correctly in case of the client being
+ * killed.
+ */
 TFV_Result quit(void);
 
 TFV_Result set_execution_latency(TFV_UInt milliseconds);

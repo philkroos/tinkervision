@@ -35,7 +35,8 @@ private:
         {TFV_INTERNAL_ERROR, "Error - Unknown internal error"},
         {TFV_INVALID_CONFIGURATION, "Error - Invalid feature configuration"},
         // 550...
-        {TFV_CAMERA_ACQUISITION_FAILED, "Error - Camera not available"},
+        {TFV_CAMERA_ACQUISITION_FAILED, "Error - Device could not be opened"},
+        {TFV_CAMERA_NOT_AVAILABLE, "Error - Camera not available"},
         // 600...
         {TFV_UNCONFIGURED_ID, "Error - Feature-Id not configured"},
         {TFV_FEATURE_CONFIGURATION_FAILED,

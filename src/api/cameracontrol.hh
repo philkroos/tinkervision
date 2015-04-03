@@ -111,6 +111,15 @@ public:
     bool get_properties(size_t& height, size_t& width, size_t& bytesize);
 
     /**
+     * Retrieves the frame properties from an opened device. No effect on
+     * visible state.
+     * \param[out] height (visible) image height, i.e. in pixel
+     * \param[out] width (visible) image width, i.e. in pixel
+     * \return False if no camera is opened or retrieving the values fails.
+     */
+    bool get_resolution(size_t& width, size_t& height);
+
+    /**
      * Grab a frame if a camera is available.  Sets image_.
      * If the camera had been stopped before, tries to open it again; requests a
      * frame.

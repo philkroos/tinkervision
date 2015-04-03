@@ -48,10 +48,28 @@ void tfv_motiondetect_callback(TFV_Id id, TFV_Int x_topleft, TFV_Int y_topleft,
 
 int main(int argc, char* argv[]) {
 
-    image = cvCreateImage(cvSize(1280, 720), 8, 3);
+    // Start an idle process in the api to get access to the frame parameters
+    auto result = start_idle();
+
+    if (result) {
+        printf("Starting the idle process failed with %d: %s", result,
+               result_string(result));
+        exit(-1);
+    }
+
+    size_t width, height;
+    result = get_resolution(width, height);
+
+    if (result) {
+        printf("Retrieving the framesize failed with %d: %s", result,
+               result_string(result));
+        exit(-1);
+    }
+
+    image = cvCreateImage(cvSize(width, height), 8, 3);
     cvNamedWindow("Motion", CV_WINDOW_AUTOSIZE);
 
-    auto result = motiondetect_start(0, tfv_motiondetect_callback, nullptr);
+    result = motiondetect_start(0, tfv_motiondetect_callback, nullptr);
 
     if (not result) {
         printf(
