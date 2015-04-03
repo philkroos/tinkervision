@@ -2,7 +2,7 @@ CC		:= g++
 CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -D_GLIBCXX_USE_NANOSLEEP -fPIC
 
 # structure
-MODULES         := colormatch stream record
+MODULES         := colormatch stream record motiondetect
 PARTS		:= api imaging modules $(addprefix modules/,$(MODULES))
 BUILD_PREFIX	:= build
 BUILD_DIR	:= $(addprefix $(BUILD_PREFIX)/,$(PARTS))

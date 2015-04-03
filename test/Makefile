@@ -2,8 +2,9 @@ COLORTRACK	:= colormatch
 STREAM		:= stream
 CONVERT	:= convert
 RECORD		:= record
+MOTIONDETECT	:= motiondetect
 
-ALL		:= $(COLORTRACK) $(STREAM) $(CONVERT) $(RECORD)
+ALL		:= $(COLORTRACK) $(STREAM) $(CONVERT) $(RECORD) $(MOTIONDETECT)
 
 all:
 	@for test in $(ALL); do \

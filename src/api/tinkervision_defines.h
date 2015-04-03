@@ -32,9 +32,14 @@ typedef TFV_Short TFV_Id;
 typedef TFV_Int TFV_Result;
 typedef void* TFV_Context;
 
-// todo: make this a functor
+// todo: make this a functor?
 typedef void (*TFV_CallbackColormatch)(TFV_Id, TFV_Int x, TFV_Int y,
                                        TFV_Context);
+
+typedef void (*TFV_CallbackMotiondetect)(TFV_Id, TFV_Int x_topleft,
+                                         TFV_Int y_topleft,
+                                         TFV_Int x_bottomright,
+                                         TFV_Int y_bottomright, TFV_Context);
 
 // opencv hue-range 0 -
 #define COLORMATCH_MAXIMUM_HUE 180

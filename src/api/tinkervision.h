@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern "C" {
 #endif
 
+// colormatch
+
 TFV_Result colormatch_start(TFV_Id feature_id, TFV_Byte min_hue,
                             TFV_Byte max_hue, TFV_CallbackColormatch callback,
                             TFV_Context opaque);
@@ -36,20 +38,29 @@ TFV_Result colormatch_get(TFV_Id feature_id, TFV_Byte* min_hue,
 
 TFV_Result camera_available(void);
 
-// pause
+// motiondetect
+
+TFV_Result motiondetect_start(TFV_Id feature_id,
+                              TFV_CallbackMotiondetect callback,
+                              TFV_Context opaque);
+
+// api
+
 TFV_Result stop(void);
 
-// restart
 TFV_Result start(void);
 
-// shutdown
 TFV_Result quit(void);
 
 TFV_Result set_execution_latency(TFV_UInt milliseconds);
 
 TFV_String result_string(TFV_Result code);
 
+// streamer
+
 TFV_Result streamer_stream(TFV_Id streamer_id);
+
+// record
 
 TFV_Result snapshot(void);
 
