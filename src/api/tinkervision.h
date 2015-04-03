@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern "C" {
 #endif
 
-// colormatch
+/* colormatch */
 
 TFV_Result colormatch_start(TFV_Id feature_id, TFV_Byte min_hue,
                             TFV_Byte max_hue, TFV_CallbackColormatch callback,
@@ -36,13 +36,13 @@ TFV_Result colormatch_stop(TFV_Id feature_id);
 TFV_Result colormatch_get(TFV_Id feature_id, TFV_Byte* min_hue,
                           TFV_Byte* max_hue);
 
-// motiondetect
+/* motiondetect */
 
 TFV_Result motiondetect_start(TFV_Id feature_id,
                               TFV_CallbackMotiondetect callback,
                               TFV_Context opaque);
 
-// api
+/* api */
 
 TFV_Result camera_available(void);
 
@@ -63,7 +63,7 @@ TFV_Result start_idle(void);
  *  - TFV_Ok if width and height are valid
  *  - TFV_CAMERA_NOT_AVAILABLE else
  */
-TFV_Result get_resolution(TFV_Size& width, TFV_Size& height);
+TFV_Result get_resolution(TFV_Size* width, TFV_Size* height);
 
 /**
  * Pause the Api, deactivating but not disabling every module.  The camera will
@@ -88,11 +88,11 @@ TFV_Result set_execution_latency(TFV_UInt milliseconds);
 
 TFV_String result_string(TFV_Result code);
 
-// streamer
+/* streamer */
 
 TFV_Result streamer_stream(TFV_Id streamer_id);
 
-// record
+/* record */
 
 TFV_Result snapshot(void);
 

@@ -39,8 +39,8 @@ TFV_Result camera_available(void) {
 
 TFV_Result start_idle(void) { return tfv::get_api().start_idle(); }
 
-TFV_Result get_resolution(TFV_Size& width, TFV_Size& height) {
-    return tfv::get_api().resolution(width, height);
+TFV_Result get_resolution(TFV_Size* width, TFV_Size* height) {
+    return tfv::get_api().resolution(*width, *height);
 }
 
 TFV_Result stop(void) { return tfv::get_api().stop(); }

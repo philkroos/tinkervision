@@ -18,8 +18,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include <stdio.h>
-#include <unistd.h>  // sleep (posix)
-#include <time.h>    // nanosleep (posix)
+#include <unistd.h>
+#include <time.h>
 
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
@@ -32,14 +32,19 @@ void tfv_motiondetect_callback(TFV_Id id, TFV_Int x_topleft, TFV_Int y_topleft,
                                TFV_Int x_bottomright, TFV_Int y_bottomright,
                                TFV_Context context) {
 
-    auto topleft = CvPoint{x_topleft, y_topleft};
-    auto bottomright = CvPoint{x_bottomright, y_bottomright};
-    auto thickness = 2;
-    auto linetype = CV_AA;
-    auto shift = 0;
-    auto color = CV_RGB(255, 0, 0);
+    int thickness = 2;
+    int linetype = CV_AA;
+    int shift = 0;
+    CvPoint topleft;
+    CvPoint bottomright;
 
-    cvRectangle(image, topleft, bottomright, color, thickness, linetype, shift);
+    topleft.x = x_topleft;
+    topleft.y = y_topleft;
+    bottomright.x = x_bottomright;
+    bottomright.y = y_bottomright;
+
+    cvRectangle(image, topleft, bottomright, CV_RGB(255, 0, 0), thickness,
+                linetype, shift);
 
     cvShowImage("Motion", image);
     cvWaitKey(10);
@@ -48,8 +53,14 @@ void tfv_motiondetect_callback(TFV_Id id, TFV_Int x_topleft, TFV_Int y_topleft,
 
 int main(int argc, char* argv[]) {
 
-    // Start an idle process in the api to get access to the frame parameters
-    auto result = start_idle();
+    /* Framedimensions */
+    size_t width, height;
+
+    /* Runtime of program */
+    int runtime = 20;
+
+    /* Start an idle process in the api to get access to the frame parameters */
+    TFV_Result result = start_idle();
 
     if (result) {
         printf("Starting the idle process failed with %d: %s", result,
@@ -57,13 +68,12 @@ int main(int argc, char* argv[]) {
         exit(-1);
     }
 
-    // Just to verify that only one dummy started (monitor the "Destroying ..."
-    // messages on quit). This should give an OK here.
+    /* Just to verify that only one dummy started (monitor the "Destroying ..."
+       messages on quit). This should give an OK here. */
     printf("Starting the idle process again: %s\n",
            result_string(start_idle()));
 
-    size_t width, height;
-    result = get_resolution(width, height);
+    result = get_resolution(&width, &height);
 
     if (result) {
         printf("Retrieving the framesize failed with %d: %s", result,
@@ -74,9 +84,9 @@ int main(int argc, char* argv[]) {
     image = cvCreateImage(cvSize(width, height), 8, 3);
     cvNamedWindow("Motion", CV_WINDOW_AUTOSIZE);
 
-    result = motiondetect_start(0, tfv_motiondetect_callback, nullptr);
+    result = motiondetect_start(0, tfv_motiondetect_callback, NULL);
 
-    if (not result) {
+    if (!result) {
         printf(
             "Motiondetection initialized; this will take a few secs to "
             "adjust\n");
@@ -86,9 +96,10 @@ int main(int argc, char* argv[]) {
         exit(-1);
     }
 
-    auto dur = 20;
-    printf("Detecting motion for %d secs\n", dur);
-    sleep(dur);
+    printf("Detecting motion for %d secs\n", runtime);
+    sleep(runtime);
 
     cvReleaseImage(&image);
+
+    return 0;
 }

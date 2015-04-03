@@ -23,7 +23,7 @@ typedef int TFV_Bool;
 typedef uint8_t TFV_Byte;
 typedef unsigned char TFV_ImageData;
 
-using TFV_Short = int16_t;
+typedef int16_t TFV_Short;
 typedef int32_t TFV_Int;
 
 typedef const char* TFV_String;
@@ -33,7 +33,6 @@ typedef TFV_Int TFV_Result;
 typedef size_t TFV_Size;
 typedef void* TFV_Context;
 
-// todo: make this a functor?
 typedef void (*TFV_CallbackColormatch)(TFV_Id, TFV_Int x, TFV_Int y,
                                        TFV_Context);
 
@@ -42,31 +41,28 @@ typedef void (*TFV_CallbackMotiondetect)(TFV_Id, TFV_Int x_topleft,
                                          TFV_Int x_bottomright,
                                          TFV_Int y_bottomright, TFV_Context);
 
-// opencv hue-range 0 -
-#define COLORMATCH_MAXIMUM_HUE 180
-
 /* result codes */
 
-// General 'ok' results
+/* General 'ok' results */
 #define TFV_OK 0
 #define TFV_NEW_FEATURE_CONFIGURED 10
 #define TFV_FEATURE_RECONFIGURED 11
 
-// General errors: 500...
+/* General errors: 500... */
 #define TFV_NOT_IMPLEMENTED 500
 #define TFV_INTERNAL_ERROR 501
 #define TFV_UNKNOWN_ERROR 502
 #define TFV_INVALID_CONFIGURATION 503
 
-// Camera errors: 550...
+/* Camera errors: 550... */
 #define TFV_CAMERA_ACQUISITION_FAILED 550
 #define TFV_CAMERA_NOT_AVAILABLE 551
 
-// Configuration errors: 600...
+/* Configuration errors: 600... */
 #define TFV_UNCONFIGURED_ID 600
 #define TFV_FEATURE_CONFIGURATION_FAILED 601
 #define TFV_INVALID_ID 602
 #define TFV_MODULE_INITIALIZATION_FAILED 603
 
-// System thread errors: 650...
+/* System thread errors: 650... */
 #define TFV_EXEC_THREAD_FAILURE 650
