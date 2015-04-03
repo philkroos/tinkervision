@@ -32,7 +32,10 @@ tfv::Image const& tfv::Convert::operator()(tfv::Image const& source) {
         target->format = target_format_;
         target->data = new TFV_ImageData[bytesize];
     }
+
     convert(source, *target);
+    target->timestamp = source.timestamp;
+
     return *target;
 }
 

@@ -132,7 +132,7 @@ void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ColorSpace format) {
     // Else, check if a converter for the requested format already is
     // instantiated. If not, insert a new one. Else, check if it contains a
     // valid result with the same timestamp as image_. If, it has been run
-    // alread, just return the result. Else, run the converter.
+    // already, just return the result. Else, run the converter.
 
     auto it = std::find_if(provided_formats_.begin(), provided_formats_.end(),
                            [&format](Converter const& converter) {
@@ -149,6 +149,7 @@ void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ColorSpace format) {
     if (image.format == tfv::ColorSpace::INVALID or
         image.timestamp != image_.timestamp) {
 
+        // conversion
         image = (*it)(image_);
     }
 }
@@ -170,6 +171,7 @@ bool tfv::CameraControl::update_frame(void) {
                 // std::cout << "Setting to fallback image" << std::endl;
                 image_ = fallback.image;
                 result = true;
+
             } else {
                 result = camera_->get_frame(image_);
 
