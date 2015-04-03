@@ -18,8 +18,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include <stdio.h>
-#include <unistd.h>  // sleep (posix)
-#include <time.h>    // nanosleep (posix)
+#include <unistd.h>  /* sleep (posix) */
+#include <time.h>    /* nanosleep (posix) */
 
 #include "tinkervision.h"
 
@@ -29,7 +29,9 @@ int main(int argc, char* argv[]) {
     printf("Started streamer with result %d: %s\n", result,
            result_string(result));
 
-    if (not result) {
+    if (!result) {
         sleep(5);
     }
+
+    return 0;
 }

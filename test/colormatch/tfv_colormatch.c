@@ -18,8 +18,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include <stdio.h>
-#include <unistd.h>  // sleep (posix)
-#include <time.h>    // nanosleep (posix)
+#include <unistd.h> /* sleep (posix) */
+#include <time.h>   /* nanosleep (posix) */
 
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
@@ -30,15 +30,16 @@ static int draw = 0;
 static IplImage* image = NULL;
 
 void tfcv_callback_id0(TFV_Id id, TFV_Int x, TFV_Int y, TFV_Context context) {
+    CvPoint center;
+
     if (!draw) {
         return;
     }
 
-    CvPoint center;
     center.x = x;
     center.y = y;
 
-    // printf("Id %d: Drawing at %d/%d\n", id, center.x, center.y);
+    /* printf("Id %d: Drawing at %d/%d\n", id, center.x, center.y); */
 
     cvCircle(image, center, 5, CV_RGB(255, 0, 0), 2, CV_AA, 0);
     cvShowImage("Result", image);
@@ -50,14 +51,19 @@ int main(int argc, char* argv[]) {
     TFV_Id invalid_id = 100;
     TFV_Byte min_hue = 18;
     TFV_Byte max_hue = 25;
+    struct timespec time = {0};
+    int i;
+    size_t width, height; /* framesize */
 
-    // Performing some tests. The +/-/# signs in front of the output mean:
-    // + should have returned OK
-    // - should have returned an error
-    // # returns different, depending on some external context
+    /*
+      Performing some tests. The +/-/# signs in front of the output mean:
+       + should have returned OK
+       - should have returned an error
+       # returns different, depending on some external context
+    */
 
     int test = 0;
-    // Test 0: Camera should be available
+    /* Test 0: Camera should be available */
     TFV_Result result = TFV_INTERNAL_ERROR;
     result = camera_available();
     printf("+ %d: Requested camera, code %d (%s)\n", test++, result,
@@ -65,7 +71,7 @@ int main(int argc, char* argv[]) {
 
     sleep(1);
 
-    // Test 2: configuration of two new features
+    /* Test 2: configuration of two new features */
     result = colormatch_start(id, min_hue, max_hue, tfcv_callback_id0, NULL);
 
     printf("+ %d: Configured feature id %d: Code %d (%s)\n", test++, id, result,
@@ -80,7 +86,7 @@ int main(int argc, char* argv[]) {
 
     sleep(5);
 
-    // Test 3: Check CPU-load while this is running!
+    /* Test 3: Check CPU-load while this is running! */
     printf("Setting execution latency to max, expect high CPU-usage!\n");
     (void)set_execution_latency(0);
     sleep(15);
@@ -89,7 +95,7 @@ int main(int argc, char* argv[]) {
     (void)set_execution_latency(100);
     sleep(15);
 
-    // Test 4: invalid configuration (missing callback)
+    /* Test 4: invalid configuration (missing callback) */
     result = colormatch_start(id + 1, 100, 0, NULL, NULL);
 
     printf("- %d: Configuring invalid feature id %d: Code %d (%s)\n", test++,
@@ -97,7 +103,7 @@ int main(int argc, char* argv[]) {
 
     sleep(1);
 
-    // Test 5: reconfiguration of a feature
+    /* Test 5: reconfiguration of a feature */
     result = colormatch_start(id, min_hue, max_hue, tfcv_callback_id0, NULL);
 
     printf("+ %d: Re-Configured feature id %d: Code %d (%s)\n", test++, id,
@@ -105,7 +111,7 @@ int main(int argc, char* argv[]) {
 
     sleep(1);
 
-    // Test 6: stop and restart of a feature
+    /* Test 6: stop and restart of a feature */
     id = 0;
     printf("Stopping id %d...\n", id);
     result = colormatch_stop(id);
@@ -119,8 +125,15 @@ int main(int argc, char* argv[]) {
     printf("+ %d: Stopped configured feature id %d: Code %d (%s)\n", test++, id,
            result, result_string(result));
 
-    sleep(3);  // cam down?
+    sleep(3); /* cam down? */
 
+    printf("Restarting id %d...\n", id);
+    result = colormatch_restart(id);
+    printf("+ %d: Restarted configured feature id %d: Code %d (%s)\n", test++,
+           id, result, result_string(result));
+
+    id = 0;
+    sleep(1);
     printf("Restarting id %d...\n", id);
     result = colormatch_restart(id);
     printf("+ %d: Restarted configured feature id %d: Code %d (%s)\n", test++,
@@ -128,23 +141,23 @@ int main(int argc, char* argv[]) {
 
     sleep(1);
 
-    // Test 7: Restart running feature
+    /* Test 7: Restart running feature */
     result = colormatch_restart(id);
     printf("+ %d: Restarted configured feature id %d: Code %d (%s)\n", test++,
            id, result, result_string(result));
 
     sleep(1);
 
-    // Test 8: Second camera - ok if attached (and no usb-bus error...),
-    // highgui-error if not attached.
-    // int id2 = 40;
-    // result = colormatch_start(id2, cam2, min_hue, max_hue,
-    // tfcv_callback_id0,
-    //                            NULL);
-    //
-    // ## 03-24-2015: Removed the option to have several cams.
+    /* Test 8: Second camera - ok if attached (and no usb-bus error...),
+       highgui-error if not attached.
+       int id2 = 40;
+       result = colormatch_start(id2, cam2, min_hue, max_hue,
+     tfcv_callback_id0,
+                                NULL);
 
-    // Test 9: request for configuration details
+     ## 03-24-2015: Removed the option to have several cams. */
+
+    /* Test 9: request for configuration details */
     min_hue = -1;
     min_hue = -1;
     result = colormatch_get(id, &min_hue, &max_hue);
@@ -153,7 +166,7 @@ int main(int argc, char* argv[]) {
         "min-hue: %d, max-hue: %d\n",
         test++, id, result, result_string(result), min_hue, max_hue);
 
-    // Test 10: request for details of invalid feature
+    /* Test 10: request for details of invalid feature */
     min_hue = -1;
     min_hue = -1;
     result = colormatch_get(invalid_id, &min_hue, &max_hue);
@@ -162,13 +175,14 @@ int main(int argc, char* argv[]) {
         "min-hue: %d, max-hue: %d\n",
         test++, invalid_id, result, result_string(result), min_hue, max_hue);
 
-    // Test 11: Try pausing and resuming execution; watch the camera activity.
+    /* Test 11: Try pausing and resuming execution; watch the camera activity.
+     */
     result = stop();
     printf("+ %d: Api stopped; cameras should be down for 5 seconds: %d (%s)\n",
            test++, result, result_string(result));
     sleep(5);
 
-    // Camera should still be available
+    /* Camera should still be available */
     result = camera_available();
     printf("+ %d: Requested camera, code %d (%s)\n", test, result,
            result_string(result));
@@ -180,78 +194,67 @@ int main(int argc, char* argv[]) {
 
     sleep(5);
 
-    // Failing: Reliance test: remove cam during execution!
+    /* Failing: Reliance test: remove cam during execution! */
 
-    // ### 03-24-2015: To be checked again, should work now.
+    /* ### 03-24-2015: To be checked again, should work now. */
 
-    // This fails since v4l assigns a different id once the cam is reattached!
-    /* printf( */
-    /*     "# %d: Remove the camera during execution and reattach it! (20 " */
-    /*     "seconds)\n", */
-    /*     test); */
-    /* sleep(20); */
     /*
+      This fails since v4l assigns a different id once the cam is reattached!
+     */
+    /* printf(
+         "# %d: Remove the camera during execution and reattach it! (20 "
+         "seconds)\n",
+         test);
+     sleep(20);
+    */
 
-    // Test 12: Stopping invalid feature
+    /* Test 12: Stopping invalid feature */
     result = colormatch_stop(invalid_id);
     printf("# %d: Stopped invalid feature %d: Code %d (%s)\n", test++,
            invalid_id, result, result_string(result));
 
-    // Test 13: 5 users per cam are configured
+    /* Test 13: 5 users per cam are configured */
 
-    // ### 03-24-2015: Removed that limit
-
-    cam = 0;
-    min_hue = 0;
-    while (id < 8) {
-        id += 1;
-        result = colormatch_start(id, cam, min_hue, max_hue,
-                                     tfcv_callback_id0, NULL);
-
-        printf("+ %d: Configured feature id %d: Code %d (%s)\n", test++, id,
-               result, result_string(result));
-    }
+    /* ### 03-24-2015: Removed that limit */
 
     sleep(1);
-    // Stopping all is preferred; else libv4l2 might throw errors
+    /* Stopping all is preferred; else libv4l2 might throw errors */
 
     while (id) {
         result = colormatch_stop(id);
-        printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id--,
-   result,
+        printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id--, result,
                result_string(result));
     }
-
-    result = colormatch_stop(id2);
-    printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id2, result,
-           result_string(result));
 
     sleep(2);
 
     printf(
         "--- All features stopped but id 0; now showing results of tracking "
         "---\n");
-    image = cvCreateImage(cvSize(640, 480), 8, 3);
+
+    get_resolution(&width, &height);
+    image = cvCreateImage(cvSize(width, height), 8, 3);
     cvZero(image);
     cvNamedWindow("Result", CV_WINDOW_AUTOSIZE);
     draw = 1;
-    struct timespec time = {0};
+
     time.tv_sec = 0;
     time.tv_nsec = 500000000L;
-    for (int i = 0; i < 40; i++) {
+    for (i = 0; i < 40; i++) {
         nanosleep(&time, (struct timespec*)NULL);
     }
     cvReleaseImage(&image);
 
-    // Stopping last feature
+    /* Stopping last feature */
     result = colormatch_stop(id);
     printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id, result,
            result_string(result));
-    */
-    // Stopping manually is not necessary but can be used to stop active
-    // resources
-    // if a client app should have crashed.
+
+    /* Stopping manually is not necessary but can be used to stop active
+       resources if a client app should have crashed. */
     quit();
 
-    sleep(4);
+    sleep(2);
+
+    return 0;
 }
