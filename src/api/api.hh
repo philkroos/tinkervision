@@ -112,7 +112,15 @@ public:
         return _module_set<Comp>(_next_internal_id());
     }
 
-    TFV_Result start_idle(void) { return module_set<Dummy>(); }
+    TFV_Result start_idle(void) {
+        auto result = TFV_OK;  // optimistic because startable only once
+
+        if (not idle_process_running_) {
+            result = module_set<Dummy>();
+        }
+        idle_process_running_ = (result == TFV_OK);
+        return result;
+    }
 
     /**
      * Insert and activate or reconfigure a module.
@@ -316,8 +324,9 @@ public:
     }
 
 private:
-    CameraControl camera_control_;    ///< Camera access abstraction
-    TFVStringMap result_string_map_;  ///< String mapping of Api-return values
+    CameraControl camera_control_;      ///< Camera access abstraction
+    TFVStringMap result_string_map_;    ///< String mapping of Api-return values
+    bool idle_process_running_{false};  ///< Dummy module activated?
 
     Image image_;  ///< The default image
 
@@ -331,10 +340,6 @@ private:
     std::thread executor_;  ///< Mainloop-Context executing the modules.
     bool active_ = true;    ///< While true, the mainloop is running.
     unsigned execution_latency_ms_ = 100;  ///< Pause during mainloop
-
-#ifdef DEBUG_CAM
-    Window window;
-#endif  // DEV
 
     /**
      * Threaded execution context of vision algorithms (modules).

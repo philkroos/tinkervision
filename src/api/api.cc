@@ -81,6 +81,9 @@ TFV_Result tfv::Api::quit(void) {
     modules_.exec_all(
         [this](TFV_Int id, tfv::Module& module) { module.deactivate(); });
 
+    // This included the dummy module
+    idle_process_running_ = false;
+
     // stop execution of the main loop
     return stop();
 }

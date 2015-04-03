@@ -57,6 +57,11 @@ int main(int argc, char* argv[]) {
         exit(-1);
     }
 
+    // Just to verify that only one dummy started (monitor the "Destroying ..."
+    // messages on quit). This should give an OK here.
+    printf("Starting the idle process again: %s\n",
+           result_string(start_idle()));
+
     size_t width, height;
     result = get_resolution(width, height);
 
