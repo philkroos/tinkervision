@@ -35,7 +35,7 @@ namespace tfv {
 
 struct Stream : public Executable {
 
-    explicit Stream(TFV_Int module_id);
+    Stream(TFV_Int module_id, Module::Tag tags);
 
     virtual ~Stream(void);
 

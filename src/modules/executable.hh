@@ -24,16 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 class Executable : public Module {
+private:
+    static auto constexpr TagExecutable = Module::Tag::Executable;
 
 protected:
-    Executable(TFV_Int id, std::string type) : Module(id, type) {}
+    Executable(TFV_Int id, std::string type, Module::Tag tags)
+        : Module(id, type, tags |= TagExecutable) {}
 
 public:
     virtual ~Executable(void) = default;
-
-    // Implementation of Module
-
-    virtual bool is_executable(void) const noexcept { return true; }
 
     // Interface that a concrete module has to implement.  The rest is defined
     // as free function after this class

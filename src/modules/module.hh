@@ -24,23 +24,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision_defines.h"
 #include "image.hh"
+#include "bitflag.hh"
 
 namespace tfv {
 
 class Module {
+public:
+    enum class Tag : unsigned {
+        None = 0x00,
+        Executable = 0x01,
+        Fx = 0x02,
+        ExecAndRemove = 0x04,
+        ExecAndDisable = 0x08,
+        Removable = 0x10
+    };
+
 private:
     std::string type_;
     bool active_;
+    Module::Tag tags_;
 
 protected:
     TFV_Int module_id_;
-    TFV_Bool marked_for_removal_;  ///< if set, the Api will remove this module
+
+    Module(TFV_Int module_id, std::string type, Tag tags)
+        : type_{type}, active_{true}, tags_{tags}, module_id_{module_id} {}
 
     Module(TFV_Int module_id, std::string type)
-        : type_{type},
-          active_{true},
-          module_id_{module_id},
-          marked_for_removal_{false} {}
+        : Module(module_id, type, Tag::None) {}
 
 public:
     virtual ~Module(void) {
@@ -54,18 +65,17 @@ public:
     Module& operator=(Module const& rhs) = delete;
     Module& operator=(Module&& rhs) = delete;
 
-    bool is_active(void) const noexcept { return active_; }
-    void activate(void) noexcept { active_ = true; }
-    void deactivate(void) noexcept { active_ = false; }
+    bool enabled(void) const noexcept { return active_; }
+    void enable(void) noexcept { active_ = true; }
+    void disable(void) noexcept { active_ = false; }
 
-    bool marked_for_removal(void) const noexcept { return marked_for_removal_; }
-    void mark_for_removal(void) noexcept { marked_for_removal_ = true; }
-
-    virtual bool is_executable(void) const noexcept = 0;
+    Tag const& tags(void) const { return tags_; }
+    void tag(Tag tags) { tags_ |= tags; }
 };
 
+// helper for compile time check
 template <typename T>
-struct dependent_false : std::false_type {};
+struct false_for_type : std::false_type {};
 
 // Interface methods to be implemented by modules
 
@@ -73,7 +83,7 @@ template <typename T, typename... Args>
 bool valid(Args&... args) {
 
     // compiler message if this method is undefined for a module
-    static_assert(dependent_false<T>::value, "Undefined interface valid");
+    static_assert(false_for_type<T>::value, "Undefined interface valid");
 
     // will never occur
     return false;

@@ -42,9 +42,9 @@ public:
     TFV_CallbackMotiondetect callback_;
     TFV_Context context_;
 
-    Motiondetect(TFV_Int module_id, TFV_CallbackMotiondetect callback,
-                 TFV_Context context)
-        : Executable{module_id, "Motiondetect"},
+    Motiondetect(TFV_Int module_id, Module::Tag tags,
+                 TFV_CallbackMotiondetect callback, TFV_Context context)
+        : Executable{module_id, "Motiondetect", tags},
           callback_{callback},
           context_{context} {}
 

@@ -28,8 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 namespace tfv {
 
 struct Snapshot : public Executable {
+private:
+    static constexpr auto TagRunOnce = Module::Tag::ExecAndDisable;
 
-    explicit Snapshot(TFV_Int id) : Executable(id, "Snapshot") {}
+public:
+    Snapshot(TFV_Int id, Module::Tag tags)
+        : Executable(id, "Snapshot", tags |= TagRunOnce) {}
 
     virtual void execute(tfv::Image const& image) {
         try {
@@ -50,9 +54,6 @@ struct Snapshot : public Executable {
         } catch (...) {
             // ignore
         }
-
-        // remove itself from execution loop
-        Module::mark_for_removal();
     }
 
     virtual ColorSpace expected_format(void) const { return ColorSpace::YV12; }

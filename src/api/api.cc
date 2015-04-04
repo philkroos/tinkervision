@@ -35,7 +35,7 @@ TFV_Result tfv::Api::start(void) {
     active_ = true;
 
     auto active_count = modules_.count(
-        [](tfv::Module const& module) { return module.is_active(); });
+        [](tfv::Module const& module) { return module.enabled(); });
 
     camera_control_.acquire(active_count);
 
@@ -79,7 +79,7 @@ TFV_Result tfv::Api::quit(void) {
 
     // stop all modules
     modules_.exec_all(
-        [this](TFV_Int id, tfv::Module& module) { module.deactivate(); });
+        [this](TFV_Int id, tfv::Module& module) { module.disable(); });
 
     // This included the dummy module
     idle_process_running_ = false;
@@ -94,16 +94,26 @@ void tfv::Api::execute(void) {
     auto update_module = [this](TFV_Int id, tfv::Module& module) {
 
         // skip paused modules
-        if (not module.is_active()) {
+        if (not module.enabled()) {
             return;
         }
 
-        if (module.is_executable()) {
+        if (module.tags() & Module::Tag::Executable) {
 
             auto& executable = static_cast<Executable&>(module);
             // retrieve the frame in the requested format and execute the module
             camera_control_.get_frame(image_, executable.expected_format());
             executable.execute(image_);
+
+            auto& tags = module.tags();
+            if (tags & Module::Tag::ExecAndRemove) {
+                module.tag(Module::Tag::Removable);
+                camera_control_.release();
+
+            } else if (tags & Module::Tag::ExecAndDisable) {
+                module.disable();
+                camera_control_.release();
+            }
         }
     };
 
@@ -139,7 +149,7 @@ void tfv::Api::execute(void) {
 
         // Finally propagate modules marked for removal
         modules_.free_if([](tfv::Module const& module) {
-            return module.marked_for_removal();
+            return module.tags() & Module::Tag::Removable;
         });
 
         // some buffertime for two reasons: first, the outer thread

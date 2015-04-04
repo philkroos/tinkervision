@@ -17,19 +17,33 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef DUMMY_H
-#define DUMMY_H
+#ifndef BITFLAG_H
+#define BITFLAG_H
 
-#include "module.hh"
+#include <type_traits>
 
-namespace tfv {
-class Dummy : public Module {
-public:
-    Dummy(TFV_Int id, Module::Tag tags) : Module(id, "Dummy", tags) {}
-};
+/**
+ * \file bitflag.hh:
+ * Helpermethods to perform bitwise operations on a c++11-style scoped-enum
+ */
 
-template <>
-bool valid<Dummy>(void);
+template <typename Bits>
+inline Bits operator|(Bits lhs, Bits rhs) {
+    using T = typename std::underlying_type<Bits>::type;
+    return static_cast<Bits>(static_cast<T>(lhs) | static_cast<T>(rhs));
 }
 
-#endif /* DUMMY_H */
+template <typename Bits>
+inline bool operator&(Bits lhs, Bits rhs) {
+    using T = typename std::underlying_type<Bits>::type;
+    return static_cast<T>(lhs) & static_cast<T>(rhs);
+}
+
+template <typename Bits>
+inline Bits& operator|=(Bits& lhs, Bits rhs) {
+    using T = typename std::underlying_type<Bits>::type;
+    lhs = static_cast<Bits>(static_cast<T>(lhs) | static_cast<T>(rhs));
+    return lhs;
+}
+
+#endif /* BITFLAG_H */

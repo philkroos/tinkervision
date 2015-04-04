@@ -98,7 +98,7 @@ public:
     /**
      * Insert and activate a module.
      * Use this to instantiate a module without parameters which does not have
-     * to be referenced later, i.e. sth. like a single-shot module (e.g. module
+     * to be referenced later and is a single-shot module (e.g. module
      * Snapshot).  The module will receive an internally generated unique id
      * which can not conflict with the ids assignable by the user.
      * \return
@@ -108,15 +108,27 @@ public:
      * - TFV_OK: this should be expect.
      */
     template <typename Comp>
-    TFV_Result module_set(void) {
-        return _module_set<Comp>(_next_internal_id());
+    TFV_Result module_once(void) {
+        return _module_set<Comp>(_next_internal_id(),
+                                 Module::Tag::ExecAndRemove);
     }
 
+    /**
+     * Start an idle process, i.e. a module which will never be executed.  This
+     * is a lightweight module which will not trigger frame grabbing. However,
+     * once started, it will keep the camera device blocked so it may be used to
+     * hold on the camera handle even if no 'real' module is running.  This
+     * dummy process can not be referred to since the assigned id is not
+     * retreivable by the user, and it is (currently) not deactivatable unless
+     * quit() is called.  Also, the process will only be started once, no matter
+     * how often this method gets called.
+     * \return TFV_OK if the process is running afterwards
+     */
     TFV_Result start_idle(void) {
         auto result = TFV_OK;  // optimistic because startable only once
 
         if (not idle_process_running_) {
-            result = module_set<Dummy>();
+            result = _module_set<Dummy>(_next_internal_id(), Module::Tag::None);
         }
         idle_process_running_ = (result == TFV_OK);
         return result;
@@ -140,7 +152,8 @@ public:
      */
     template <typename Comp, typename... Args>
     TFV_Result module_set(TFV_Id id, Args... args) {
-        return _module_set<Comp>(static_cast<TFV_Int>(id), args...);
+        return _module_set<Comp>(static_cast<TFV_Int>(id), Module::Tag::None,
+                                 args...);
     }
 
     template <typename Module>
@@ -187,10 +200,10 @@ public:
                 result = TFV_CAMERA_ACQUISITION_FAILED;
 
                 modules_.exec_one(id, [&result, this](tfv::Module& comp) {
-                    if (comp.is_active()) {
+                    if (comp.enabled()) {
                         result = TFV_OK;
                     } else if (camera_control_.acquire()) {
-                        comp.activate();
+                        comp.enable();
                         result = TFV_OK;
                     }
                 });
@@ -228,7 +241,7 @@ public:
 
             if (check_type<Module>(module)) {
                 modules_.exec_one(id, [this](tfv::Module& comp) {
-                    comp.deactivate();
+                    comp.disable();
                     camera_control_.release();
                 });
                 result = TFV_OK;
@@ -261,8 +274,8 @@ public:
 
             if (check_type<Module>(module)) {
                 modules_.exec_one(id, [this](tfv::Module& comp) {
-                    comp.deactivate();
-                    comp.mark_for_removal();
+                    comp.disable();
+                    comp.tag(Module::Tag::Removable);
                     camera_control_.release();
                 });
                 result = TFV_OK;
@@ -399,7 +412,7 @@ private:
     }
 
     template <typename Comp, typename... Args>
-    TFV_Result _module_set(TFV_Int id, Args... args) {
+    TFV_Result _module_set(TFV_Int id, Module::Tag tags, Args... args) {
 
         auto result = TFV_INVALID_CONFIGURATION;
 
@@ -420,7 +433,7 @@ private:
                 if (camera_control_.acquire()) {
                     result = TFV_MODULE_INITIALIZATION_FAILED;
 
-                    if (modules_.allocate<Comp>(id, args...)) {
+                    if (modules_.allocate<Comp>(id, tags, args...)) {
                         result = TFV_OK;
                     } else {
                         camera_control_.release();

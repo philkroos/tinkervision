@@ -44,9 +44,10 @@ public:
     TFV_CallbackColormatch callback;
     TFV_Context context;
 
-    Colormatch(TFV_Int module_id, TFV_Byte min_hue, TFV_Byte max_hue,
-               TFV_CallbackColormatch callback, TFV_Context context)
-        : Executable(module_id, "Colormatch"),
+    Colormatch(TFV_Int module_id, Module::Tag tags, TFV_Byte min_hue,
+               TFV_Byte max_hue, TFV_CallbackColormatch callback,
+               TFV_Context context)
+        : Executable(module_id, "Colormatch", tags),
           user_min_hue(min_hue),
           user_max_hue(max_hue),
           callback(callback),

@@ -26,7 +26,8 @@ tfv::Stream::~Stream(void) {
     (void)streamer_.get();
 }
 
-tfv::Stream::Stream(TFV_Int module_id) : Executable(module_id, "Stream") {
+tfv::Stream::Stream(TFV_Int module_id, Module::Tag tags)
+    : Executable(module_id, "Stream", tags) {
 
     task_scheduler_ = BasicTaskScheduler::createNew();
 
