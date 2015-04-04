@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <mutex>
 #include <typeinfo>
 #include <limits>
+#include <functional>
 
 #include "strings.hh"
 #include "tinkervision_defines.h"
@@ -160,12 +161,12 @@ public:
     TFV_Result module_get(TFV_Id id, TFV_Byte& min_hue,
                           TFV_Byte& max_hue) const {
         auto result = TFV_UNCONFIGURED_ID;
-        Module const* ct = nullptr;
+        Module const* module = nullptr;
 
-        result = _get_module<Module>(static_cast<TFV_Int>(id), &ct);
+        result = _get_module<Module>(static_cast<TFV_Int>(id), &module);
 
-        if (ct) {
-            tfv::get<Module>(*ct, min_hue, max_hue);
+        if (module) {
+            tfv::get<Module>(*module, min_hue, max_hue);
         }
 
         return result;
@@ -423,7 +424,26 @@ private:
                 result = TFV_INVALID_ID;
 
                 if (check_type<Comp>(module)) {
-                    tfv::set<Comp>(static_cast<Comp*>(module), args...);
+
+                    // GCC4.7 does not support binding of ...args to lambdas yet
+                    // so this is the workaround to get the arguments into the
+                    // execution context (which expects a 1-parameter func)
+
+                    auto two_parameter =
+                        [this](tfv::Module& module, Args... args) {
+                        tfv::set<Comp>(static_cast<Comp*>(&module), args...);
+                        if (not module.enabled()) {
+                            if (camera_control_.acquire()) {
+                                module.enable();
+                            }
+                        }
+                    };
+                    auto one_parameter =  // currying
+                        std::bind(two_parameter, std::placeholders::_1,
+                                  args...);
+
+                    modules_.exec_one(id, one_parameter);
+
                     result = TFV_OK;
                 }
 

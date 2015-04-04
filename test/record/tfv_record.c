@@ -18,19 +18,40 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include <stdio.h>
-#include <unistd.h>  /* sleep (posix) */
-#include <time.h>    /* nanosleep (posix) */
+#include <unistd.h> /* sleep (posix) */
+#include <time.h>   /* nanosleep (posix) */
 
 #include "tinkervision.h"
 
-
+/* This program has to enable and disable the camera 4 times, each time taking a
+ * single snapshot (in program folder, increasing timestamps).
+ */
 int main(int argc, char* argv[]) {
-    TFV_Result result = snapshot();
+    TFV_Id id = 20;
+
+    /* Take a snapshot with a one-shot-then-release-module.
+       As of 04-04-2015, the output should show the destructor being called */
+    TFV_Result result = singleshot();
     printf("Requested a snapshot with result %d: %s\n", result,
            result_string(result));
 
-    sleep(1);
-    result = snapshot();
+    sleep(2);
+
+    /* Another one, same as above. */
+    result = singleshot();
+    printf("Requested a snapshot with result %d: %s\n", result,
+           result_string(result));
+
+    sleep(2);
+
+    /* Now assign an id, the module should stay alive but disabled (i.e. cam
+     * down) */
+    result = snapshot(id);
+    printf("Requested a snapshot with result %d: %s\n", result,
+           result_string(result));
+
+    sleep(2);
+    result = snapshot(id);
     printf("Requested a snapshot with result %d: %s\n", result,
            result_string(result));
 

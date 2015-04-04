@@ -94,7 +94,9 @@ TFV_Result streamer_stream(TFV_Id streamer_id);
 
 /* record */
 
-TFV_Result snapshot(void);
+TFV_Result singleshot(void);
+
+TFV_Result snapshot(TFV_Id module_id);
 
 #ifdef __cplusplus
 }

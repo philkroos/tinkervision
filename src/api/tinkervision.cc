@@ -105,5 +105,11 @@ TFV_Result streamer_stream(TFV_Id streamer_id) {
 // Record interface
 //
 
-TFV_Result snapshot(void) { return tfv::get_api().module_set<tfv::Snapshot>(); }
+TFV_Result singleshot(void) {
+    return tfv::get_api().module_once<tfv::Snapshot>();
+}
+
+TFV_Result snapshot(TFV_Id module_id) {
+    return tfv::get_api().module_set<tfv::Snapshot>(module_id);
+}
 }
