@@ -33,13 +33,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
-struct Stream : public YV12Module {
+struct Stream : public Executable {
 
     explicit Stream(TFV_Int module_id);
 
     virtual ~Stream(void);
 
     virtual void execute(tfv::Image const& image);
+
+    virtual ColorSpace expected_format(void) const { return ColorSpace::YV12; }
 
 private:
     TaskScheduler* task_scheduler_ = nullptr;

@@ -27,9 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
-struct Snapshot : public YV12Module {
+struct Snapshot : public Executable {
 
-    explicit Snapshot(TFV_Int id) : YV12Module(id, "Snapshot") {}
+    explicit Snapshot(TFV_Int id) : Executable(id, "Snapshot") {}
 
     virtual void execute(tfv::Image const& image) {
         try {
@@ -54,6 +54,8 @@ struct Snapshot : public YV12Module {
         // remove itself from execution loop
         Module::mark_for_removal();
     }
+
+    virtual ColorSpace expected_format(void) const { return ColorSpace::YV12; }
 };
 
 template <>

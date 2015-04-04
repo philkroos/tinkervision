@@ -40,40 +40,5 @@ public:
     virtual ColorSpace expected_format(void) const = 0;
     virtual void execute(tfv::Image const& image) = 0;
 };
-
-// Specializations for different ColorSpace values. Just derive e.g. from
-// BGRModule.
-
-template <ColorSpace Format>
-struct ExecutableWithColorSpace : public Executable {
-    ExecutableWithColorSpace(TFV_Int id, std::string type)
-        : Executable(id, type) {}
-    virtual ~ExecutableWithColorSpace(void) = default;
-    virtual ColorSpace expected_format(void) const { return Format; }
-};
-
-struct BGRModule : public ExecutableWithColorSpace<ColorSpace::BGR888> {
-    virtual ~BGRModule(void) = default;
-    BGRModule(TFV_Int id, std::string type)
-        : ExecutableWithColorSpace(id, type) {}
-};
-
-struct RGBModule : public ExecutableWithColorSpace<ColorSpace::RGB888> {
-    virtual ~RGBModule(void) = default;
-    RGBModule(TFV_Int id, std::string type)
-        : ExecutableWithColorSpace(id, type) {}
-};
-
-struct YUYVModule : public ExecutableWithColorSpace<ColorSpace::YUYV> {
-    virtual ~YUYVModule(void) = default;
-    YUYVModule(TFV_Int id, std::string type)
-        : ExecutableWithColorSpace(id, type) {}
-};
-
-struct YV12Module : public ExecutableWithColorSpace<ColorSpace::YV12> {
-    virtual ~YV12Module(void) = default;
-    YV12Module(TFV_Int id, std::string type)
-        : ExecutableWithColorSpace(id, type) {}
-};
 }
 #endif /* EXECUTABLE_H */

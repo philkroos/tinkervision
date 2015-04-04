@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
-struct Motiondetect : public BGRModule {
+struct Motiondetect : public Executable {
 private:
     // see <opencv-source>/modules/video/src/bgfg_gaussmix2.cpp
     int history_{20};      // default constructor: 500
@@ -44,12 +44,16 @@ public:
 
     Motiondetect(TFV_Int module_id, TFV_CallbackMotiondetect callback,
                  TFV_Context context)
-        : BGRModule{module_id, "Motiondetect"},
+        : Executable{module_id, "Motiondetect"},
           callback_{callback},
           context_{context} {}
 
     virtual ~Motiondetect(void) = default;
     virtual void execute(tfv::Image const& image);
+
+    virtual ColorSpace expected_format(void) const {
+        return ColorSpace::BGR888;
+    }
 };
 
 template <>

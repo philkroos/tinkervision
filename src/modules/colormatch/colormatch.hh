@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
-struct Colormatch : public BGRModule {
+struct Colormatch : public Executable {
 private:
     // arbitrary values; bringing good results
     TFV_Byte const min_saturation{50};
@@ -46,7 +46,7 @@ public:
 
     Colormatch(TFV_Int module_id, TFV_Byte min_hue, TFV_Byte max_hue,
                TFV_CallbackColormatch callback, TFV_Context context)
-        : BGRModule(module_id, "Colormatch"),
+        : Executable(module_id, "Colormatch"),
           user_min_hue(min_hue),
           user_max_hue(max_hue),
           callback(callback),
@@ -54,6 +54,9 @@ public:
 
     virtual ~Colormatch(void) = default;
     virtual void execute(tfv::Image const& image);
+    virtual ColorSpace expected_format(void) const {
+        return ColorSpace::BGR888;
+    }
 };
 
 // called with the exact same parameter list as the constructor,
