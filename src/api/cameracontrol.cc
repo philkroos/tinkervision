@@ -168,9 +168,10 @@ bool tfv::CameraControl::update_frame(void) {
 
         if (result) {
             if (not camera_) {
-                // std::cout << "Setting to fallback image" << std::endl;
-                image_ = fallback.image;
-                result = true;
+                if (fallback.active) {
+                    image_ = fallback.image;
+                }
+                result = fallback.active;
 
             } else {
                 result = camera_->get_frame(image_);
@@ -214,10 +215,28 @@ void tfv::CameraControl::_close_device() {
 
     // Save the last image in case it is requested again.
     // This is a precaution to prevent possible race conditions
-    // and simplify interface usage if being accessed from several threads
-    // without making things overcomplicated here.
+    // and to simplify interface usage if being accessed from several threads
+    // without making things overcomplicated.
+
     if (camera_) {
-        fallback.active = camera_->get_frame(fallback.image);
+
+        if (fallback.image.data) {
+            delete[] fallback.image.data;
+        }
+
+        Image temp;
+        fallback.active = camera_->get_frame(temp);
+
+        if (fallback.active) {  // image retrieved
+
+            // copies the image properties
+            fallback.image = temp;
+
+            // create a deep copy of the data
+            fallback.image.data = new TFV_ImageData[fallback.image.bytesize];
+            std::copy_n(temp.data, fallback.image.bytesize,
+                        fallback.image.data);
+        }
         camera_->stop();
 
         delete camera_;

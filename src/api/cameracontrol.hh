@@ -151,6 +151,12 @@ private:
     using FallbackImage = struct _ {
         Image image = {};
         bool active = false;
+
+        ~_(void) {
+            if (image.data) {
+                delete[] image.data;
+            }
+        }
     };
 
     FallbackImage fallback;  ///< Set to the last retrieved image on
