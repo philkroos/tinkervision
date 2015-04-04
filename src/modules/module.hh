@@ -64,22 +64,19 @@ public:
     virtual bool is_executable(void) const noexcept = 0;
 };
 
+template <typename T>
+struct dependent_false : std::false_type {};
+
 // Interface methods to be implemented by modules
 
 template <typename T, typename... Args>
 bool valid(Args&... args) {
-    std::cout << "Warning, valid undefined" << std::endl;
+
+    // compiler message if this method is undefined for a module
+    static_assert(dependent_false<T>::value, "Undefined interface valid");
+
+    // will never occur
     return false;
-}
-
-template <typename T, typename... Args>
-void set(T* module, Args... args) {
-    std::cout << "Warning, set undefined" << std::endl;
-}
-
-template <typename T, typename... Args>
-void get(T const& module, Args&... args) {
-    std::cout << "Warning, get undefined" << std::endl;
 }
 }
 #endif
