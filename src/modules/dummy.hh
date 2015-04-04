@@ -28,8 +28,6 @@ public:
     Dummy(TFV_Int id, Module::Tag tags) : Module(id, "Dummy", tags) {}
 };
 
-template <>
-bool valid<Dummy>(void);
+DECLARE_EMPTY_INTERFACE(Dummy)
 }
-
 #endif /* DUMMY_H */

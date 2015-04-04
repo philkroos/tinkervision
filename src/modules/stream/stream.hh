@@ -60,8 +60,7 @@ private:
         0;  ///< signal for the streamer library to stop the event loop
 };
 
-template <>
-bool valid<Stream>(void);
-};
+DECLARE_EMPTY_INTERFACE(Stream)
+}
 
 #endif /* STREAM_H */

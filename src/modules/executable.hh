@@ -41,17 +41,5 @@ public:
     virtual ColorSpace expected_format(void) const = 0;
     virtual void execute(tfv::Image const& image) = 0;
 };
-
-// Optional interface to be provided if the concrete module has parameters
-
-template <typename T, typename... Args>
-void set(T* module, Args... args) {
-    std::cout << "Warning, set undefined" << std::endl;
-}
-
-template <typename T, typename... Args>
-void get(T const& module, Args&... args) {
-    std::cout << "Warning, get undefined" << std::endl;
-}
 }
 #endif /* EXECUTABLE_H */
