@@ -17,19 +17,25 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#include <chrono>
+
 #include "stream.hh"
 #include "exceptions.hh"
 
 IMPLEMENT_EMPTY_INTERFACE(Stream)
 
 tfv::Stream::~Stream(void) {
-    std::cout << "Destroying module Stream" << std::endl;
     killswitch_ = 1;
-    (void)streamer_.get();
+    context_.quit = true;
+
+    std::chrono::milliseconds span(100);
+    while (streamer_.wait_for(span) == std::future_status::timeout)
+        ;
+    streamer_.get();
 }
 
 tfv::Stream::Stream(TFV_Int module_id, Module::Tag tags)
-    : Executable(module_id, "Stream", tags) {
+    : Executable(module_id, "Stream", tags), context_(ExecutionContext::get()) {
 
     task_scheduler_ = BasicTaskScheduler::createNew();
 
@@ -41,36 +47,34 @@ tfv::Stream::Stream(TFV_Int module_id, Module::Tag tags)
         throw ConstructionException("Stream",
                                     usage_environment_->getResultMsg());
     }
+
     session_ = ServerMediaSession::createNew(*usage_environment_, streamname_,
                                              streamname_, streamtypename_);
 }
 
 void tfv::Stream::execute(tfv::Image const& image) {
     if (not subsession_) {
-        std::cout << std::endl << "Initializing encoder" << std::endl;
-        encoder_.initialize(image.width, image.height, 10);  // FPS!
 
-        // ugly thing to share the encoder
+        context_.encoder.initialize(image.width, image.height, 10);  // FPS!
+
         subsession_ =
-            tfv::H264MediaSession::createNew(*usage_environment_, encoder_);
+            tfv::H264MediaSession::createNew(*usage_environment_, context_);
 
         session_->addSubsession(subsession_);
         rtsp_server_->addServerMediaSession(session_);
 
-        auto url = std::string{rtsp_server_->rtspURL(session_)};
-
-        std::cout << "Play the stream using " << url << std::endl;
-        // asynchronous_execution(
-        //     [this](void) { this->task_scheduler_->doEventLoop(); });
         streamer_ = std::async(std::launch::async, [this](void) {
             task_scheduler_->doEventLoop(&killswitch_);
         });
-        std::cout << "After starting streamer" << std::endl;
+
+        std::cout << "Play the stream using " << rtsp_server_->rtspURL(session_)
+                  << std::endl;
     }
 
     // if no one is watching anyway, discard old data
-    if (encoder_.nals_encoded() > 10) {  // arbitrary
-        encoder_.discard_all();
+    if (context_.encoder.nals_encoded() > 10) {  // arbitrary
+        context_.encoder.discard_all();
     }
-    encoder_.add_frame(image.data);
+
+    context_.encoder.add_frame(image.data);
 }

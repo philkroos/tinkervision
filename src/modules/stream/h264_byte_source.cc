@@ -2,9 +2,10 @@
 
 #include "h264_byte_source.hh"
 
-tfv::H264ByteSource* tfv::H264ByteSource::createNew(UsageEnvironment& env,
-                                                    tfv::H264Encoder& encoder) {
-    return new tfv::H264ByteSource(env, encoder);
+tfv::H264ByteSource* tfv::H264ByteSource::createNew(
+    UsageEnvironment& env, tfv::ExecutionContext& context) {
+
+    return new tfv::H264ByteSource{env, context};
 }
 
 EventTriggerId tfv::H264ByteSource::eventTriggerId = 0;
@@ -12,8 +13,8 @@ EventTriggerId tfv::H264ByteSource::eventTriggerId = 0;
 unsigned tfv::H264ByteSource::referenceCount = 0;
 
 tfv::H264ByteSource::H264ByteSource(UsageEnvironment& env,
-                                    tfv::H264Encoder& encoder)
-    : FramedSource(env), encoder_(encoder) {
+                                    tfv::ExecutionContext& context)
+    : FramedSource{env}, context_(context) {
 
     if (referenceCount == 0) {
     }
@@ -42,19 +43,19 @@ void tfv::H264ByteSource::deliverFrame0(void* clientData) {
 
 void tfv::H264ByteSource::doGetNextFrame() {
 
-    while (nals_.empty()) {
-        encoder_.get_nals(nals_);
+    while (not context_.quit and nals_.empty()) {
+        context_.encoder.get_nals(nals_);
 
         gettimeofday(&currentTime, NULL);
     }
 
-    if (not nals_.empty()) {
+    if (not context_.quit and not nals_.empty()) {
         deliverFrame();
     }
 }
 
 void tfv::H264ByteSource::deliverFrame() {
-    if (!isCurrentlyAwaitingData()) {
+    if (!isCurrentlyAwaitingData() or context_.quit) {
         return;
     } else if (nals_.empty()) {
         return;

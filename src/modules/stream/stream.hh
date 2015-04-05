@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "executable.hh"
 
+#include "execution_context.hh"
 #include "h264_media_session.hh"
 #include "h264_encoder.hh"
 
@@ -54,8 +55,11 @@ private:
     const char* streamtypename_{"H.264 stream"};
 
     H264MediaSession* subsession_ = nullptr;
-    H264Encoder encoder_;
-    std::future<void> streamer_;
+    ExecutionContext& context_;
+
+    using AsyncTask = std::future<void>;
+    AsyncTask streamer_;
+
     char killswitch_ =
         0;  ///< signal for the streamer library to stop the event loop
 };

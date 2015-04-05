@@ -22,18 +22,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <iostream>
 
 tfv::H264MediaSession* tfv::H264MediaSession::createNew(
-    UsageEnvironment& env, tfv::H264Encoder& encoder) {
+    UsageEnvironment& env, tfv::ExecutionContext& context) {
 
-    return new tfv::H264MediaSession(env, encoder);
+    return new tfv::H264MediaSession(env, context);
 }
 
 tfv::H264MediaSession::H264MediaSession(UsageEnvironment& env,
-                                        tfv::H264Encoder& encoder)
+                                        tfv::ExecutionContext& context)
     : OnDemandServerMediaSubsession(env, REUSE_FIRST_SOURCE),
       aux_SDP_line_(NULL),
       done_flag_(0),
       dummy_sink_(NULL),
-      encoder_(encoder) {}
+      context_(context) {}
 
 tfv::H264MediaSession::~H264MediaSession(void) { delete[] aux_SDP_line_; }
 
@@ -56,13 +56,14 @@ void tfv::H264MediaSession::check_for_aux_sdp_line() {
     char const* dasl;
     if (aux_SDP_line_ != NULL) {
         setDoneFlag();
+
     } else if (dummy_sink_ != NULL &&
                (dasl = dummy_sink_->auxSDPLine()) != NULL) {
-        std::cout << "getting from dummysink" << std::endl;
+
         aux_SDP_line_ = strDup(dasl);
-        std::cout << "auxsdline: " << aux_SDP_line_ << std::endl;
         dummy_sink_ = NULL;
         setDoneFlag();
+
     } else {
         std::cout << "checking again later" << std::endl;
         int uSecsDelay = 100000;
@@ -92,8 +93,10 @@ FramedSource* tfv::H264MediaSession::createNewStreamSource(
     /// \todo Adjust this with encoder settings
     estBitRate = 90000;
 
+    OutPacketBuffer::maxSize = 100000;
+
     tfv::H264ByteSource* source =
-        tfv::H264ByteSource::createNew(envir(), encoder_);
+        tfv::H264ByteSource::createNew(envir(), context_);
 
     return H264VideoStreamDiscreteFramer::createNew(envir(), source);
 }

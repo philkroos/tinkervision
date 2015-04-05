@@ -24,17 +24,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <FramedSource.hh>
 
+#include "execution_context.hh"
 #include "h264_encoder.hh"
 
 namespace tfv {
 class H264ByteSource : public FramedSource {
 public:
     static H264ByteSource* createNew(UsageEnvironment& env,
-                                     tfv::H264Encoder& encoder);
+                                     tfv::ExecutionContext& context);
     static EventTriggerId eventTriggerId;
 
 protected:
-    H264ByteSource(UsageEnvironment& env, tfv::H264Encoder& encoder);
+    H264ByteSource(UsageEnvironment& env, tfv::ExecutionContext& context);
     virtual ~H264ByteSource(void);
 
 private:
@@ -46,7 +47,7 @@ private:
     static unsigned referenceCount;
     std::queue<x264::Nal> nals_;
     timeval currentTime;
-    H264Encoder& encoder_;
+    ExecutionContext& context_;
 };
 }
 #endif /* H264BYTESOURCE_H */

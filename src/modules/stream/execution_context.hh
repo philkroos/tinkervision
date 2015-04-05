@@ -1,6 +1,6 @@
 /*
 Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014 philipp.kroos@fh-bielefeld.de
+Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,21 +17,34 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include <stdio.h>
-#include <unistd.h>  /* sleep (posix) */
-#include <time.h>    /* nanosleep (posix) */
+#ifndef EXECUTION_CONTEXT_H
+#define EXECUTION_CONTEXT_H
 
-#include "tinkervision.h"
+#include "h264_encoder.hh"
 
+namespace tfv {
 
-int main(int argc, char* argv[]) {
-    TFV_Result result = streamer_stream(0);
-    printf("Started streamer with result %d: %s\n", result,
-           result_string(result));
+struct ExecutionContext {
+    H264Encoder encoder;
+    bool quit = false;
 
-    if (!result) {
-        sleep(20);
+    static ExecutionContext& get(void) {
+        if (not ExecutionContext::singleton_) {
+            singleton_ = new ExecutionContext{};
+        }
+        return *ExecutionContext::singleton_;
     }
 
-    return 0;
+    ~ExecutionContext(void) {
+        if (ExecutionContext::singleton_) {
+            delete ExecutionContext::singleton_;
+        }
+    }
+
+private:
+    ExecutionContext(void) = default;
+    static ExecutionContext* singleton_;
+};
 }
+
+#endif

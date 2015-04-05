@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <liveMedia.hh>
 #include <OnDemandServerMediaSubsession.hh>
 
+#include "execution_context.hh"
 #include "h264_byte_source.hh"
 #include "h264_encoder.hh"
 
@@ -33,12 +34,14 @@ namespace tfv {
 class H264MediaSession : public OnDemandServerMediaSubsession {
 public:
     static H264MediaSession* createNew(UsageEnvironment& env,
-                                       tfv::H264Encoder& encoder);
+                                       ExecutionContext& conteext);
+
     void check_for_aux_sdp_line(void);
     void after_playing_dummy(void);
+    void setDone(void) { done_flag_ = 1; }
 
 protected:
-    H264MediaSession(UsageEnvironment& env, tfv::H264Encoder& encoder);
+    H264MediaSession(UsageEnvironment& env, tfv::ExecutionContext& context);
     virtual ~H264MediaSession(void);
     void setDoneFlag() { done_flag_ = ~0; }
 
@@ -58,7 +61,7 @@ private:
     char done_flag_;
     RTPSink* dummy_sink_;
 
-    H264Encoder& encoder_;
+    ExecutionContext& context_;
 };
 }
 
