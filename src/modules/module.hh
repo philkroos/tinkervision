@@ -66,8 +66,8 @@ public:
     Module& operator=(Module&& rhs) = delete;
 
     bool enabled(void) const noexcept { return active_; }
-    void enable(void) noexcept { active_ = true; }
-    void disable(void) noexcept { active_ = false; }
+    virtual void enable(void) noexcept { active_ = true; }
+    virtual void disable(void) noexcept { active_ = false; }
 
     Tag const& tags(void) const { return tags_; }
     void tag(Tag tags) { tags_ |= tags; }
