@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <mutex>
 #include <unordered_map>
+#include <forward_list>
 #include <functional>
 
 #include "tinkervision_defines.h"
@@ -26,25 +27,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
-/**
- * Map-based RAII-style resource manager providing (limited) thread-safety.
- *
- * Provides a manager for a pool of resources which are to be used in
- * multithreaded code.  Held resources are in one of three states:
- * - allocated: after construction by a call to allocate()
- * - active: from allocated during an exec_all() or exec_one()
- * - removed: from managed during an exec_all() or exec_one() if free() was
- * called for the resource.  All public functions but size() are thread-safe.
- * \note Making use of the value returned by the operator[] overloads is no
- * longer thread-safe.
- */
 template <typename Resource>
 class SharedResource {
     using ResourceMap = std::unordered_map<TFV_Int, Resource*>;
+    using ResourceList = std::forward_list<TFV_Int>;
     using Iterator = typename ResourceMap::iterator;
     using ConstIterator = typename ResourceMap::const_iterator;
 
 public:
+    using value_type = Resource;
+
     ~SharedResource(void) {
         for (auto const& resource : allocated_) {
             if (resource.second) delete resource.second;
@@ -58,7 +50,7 @@ public:
     }
 
     /**
-     * Executes a function on all active resources in turn.
+     * Execute a function on all active resources in turn.
      * \parm[in] executor The function to be executed on each resource.
      */
     void exec_all(std::function<void(TFV_Int, Resource&)> executor) {
@@ -74,7 +66,7 @@ public:
     }
 
     /**
-     * Executes a function on a single resource, given that it is active.
+     * Execute a function on a single resource, given that it is active.
      *
      * \parm[in] id The id of the resource on which executor shall be executed.
      * \parm[in] executor The function to be executed on the resource identified
@@ -92,7 +84,7 @@ public:
     }
 
     /**
-     * Evaluates a predicate for each active resource and counts the number of
+     * Evaluate a predicate for each active resource and counts the number of
      * true results.
      * \parm[in] predicate A predicate.
      * \return The number of true results over each active module.
@@ -123,8 +115,11 @@ public:
      *
      * \return false if the id was already allocated.
      */
-    template <typename T = Resource, typename... Args>
+    template <typename T, typename... Args>
     bool allocate(TFV_Int id, Args... args) {
+        static_assert(std::is_convertible<T*, Resource*>::value,
+                      "Wrong type passed to allocate");
+
         std::lock_guard<std::mutex> lock(allocation_mutex_);
         if (exists(allocated_, id)) {
             return false;
@@ -152,6 +147,8 @@ public:
             std::lock_guard<std::mutex> lock(managed_mutex_);
             if (exists(managed_, id)) {
                 resource = managed_[id];
+                managed_.erase(id);
+                ids_managed_.remove(id);
             }
         }
         if (resource) {
@@ -173,7 +170,9 @@ public:
         for (auto it = managed_.cbegin(); it != managed_.cend();) {
 
             if (predicate(resource(it))) {
-                garbage_[id(it)] = &resource(it);
+                auto const resource_id = id(it);
+                garbage_[resource_id] = &resource(it);
+                ids_managed_.remove(resource_id);
                 managed_.erase(it++);
                 count++;
             } else {
@@ -261,6 +260,9 @@ private:
         std::lock_guard<std::mutex> a_lock(allocation_mutex_);
         if (not allocated_.empty()) {
             std::lock_guard<std::mutex> m_lock(managed_mutex_);
+            for (auto& resource : allocated_) {
+                ids_managed_.push_front(resource.first);
+            }
             managed_.insert(allocated_.begin(), allocated_.end());
             allocated_.clear();
         }
@@ -270,22 +272,23 @@ private:
      * Deactivates all resources marked as removable and deletes them.
      */
     void cleanup(void) {
-        std::lock_guard<std::mutex> g_lock(garbage_mutex_);
-        for (auto& resource : garbage_) {
-            if (resource.second) {
-                std::lock_guard<std::mutex> m_lock(managed_mutex_);
-                managed_.erase(resource.first);
-                delete resource.second;
+        if (not garbage_.empty()) {
+            std::lock_guard<std::mutex> g_lock(garbage_mutex_);
+
+            for (auto& resource : garbage_) {
+                if (resource.second) {
+                    delete resource.second;
+                }
             }
+            garbage_.clear();
         }
-        garbage_.clear();
     }
 
 private:
-    ResourceMap allocated_;
-    ResourceMap managed_;
-    ResourceMap garbage_;
-    bool raw_access_ = false;
+    ResourceMap allocated_;     ///< After allocate(), before persist()
+    ResourceMap managed_;       ///< After persist(), available for exec*
+    ResourceMap garbage_;       ///< After free(), before cleanup()
+    ResourceList ids_managed_;  ///< Sorted access to the active resources
 
     // Needing to lock these sometimes in methods that do not change internal
     // state, so declaring these mutable.
@@ -293,4 +296,4 @@ private:
     std::mutex mutable garbage_mutex_;
     std::mutex mutable managed_mutex_;
 };
-};
+}
