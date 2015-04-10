@@ -73,6 +73,7 @@ bool tfv::CameraControl::acquire(void) {
 
     if (open) {
         usercount_++;
+        // std::cout << "Now " << usercount_ << " users." << std::endl;
     }
 
     return open;
@@ -92,6 +93,7 @@ bool tfv::CameraControl::is_open(void) {
 void tfv::CameraControl::release(void) {
 
     usercount_ = std::max(usercount_ - 1, 0);
+    // std::cout << usercount_ << " users left" << std::endl;
 
     if (not usercount_ and camera_) {
         std::lock_guard<std::mutex> camera_lock(camera_mutex_);

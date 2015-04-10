@@ -47,6 +47,10 @@ TFV_Result stop(void) { return tfv::get_api().stop(); }
 
 TFV_Result start(void) { return tfv::get_api().start(); }
 
+TFV_Result chain(TFV_Id first, TFV_Id second) {
+    return tfv::get_api().chain(first, second);
+}
+
 TFV_Result quit(void) { return tfv::get_api().quit(); }
 
 TFV_Result set_execution_latency(TFV_UInt milliseconds) {

@@ -29,13 +29,12 @@ namespace tfv {
 
 template <typename Resource>
 class SharedResource {
-    using ResourceMap = std::unordered_map<TFV_Int, Resource*>;
-    using ResourceList = std::forward_list<TFV_Int>;
-    using Iterator = typename ResourceMap::iterator;
-    using ConstIterator = typename ResourceMap::const_iterator;
-
 public:
     using value_type = Resource;
+    using ResourceMap = std::unordered_map<TFV_Int, value_type*>;
+    using IdList = std::forward_list<TFV_Int>;
+    using Iterator = typename ResourceMap::iterator;
+    using ConstIterator = typename ResourceMap::const_iterator;
 
     ~SharedResource(void) {
         for (auto const& resource : allocated_) {
@@ -59,9 +58,14 @@ public:
 
         } else {
             std::lock_guard<std::mutex> lock(managed_mutex_);
-            for (auto& resource : managed_) {
-                executor(resource.first, *resource.second);
+            for (auto& id : ids_managed_) {
+                executor(id, *managed_[id]);
             }
+            /*
+                        for (auto& resource : managed_) {
+                            executor(resource.first, *resource.second);
+                        }
+            */
         }
     }
 
@@ -98,6 +102,27 @@ public:
             }
         }
         return count;
+    }
+
+    bool sort(TFV_Id first, TFV_Id second) {
+        if (not managed(first) or not managed(second)) {
+            return false;
+        }
+
+        std::lock_guard<std::mutex> lock(managed_mutex_);
+        auto it_second =
+            std::find(std::begin(ids_managed_), std::end(ids_managed_), second);
+        auto it_first =
+            std::find(std::begin(ids_managed_), std::end(ids_managed_), first);
+
+        if (it_second != std::begin(ids_managed_)) {
+            ids_managed_.erase_after(std::prev(it_second));
+        } else {
+            ids_managed_.erase_after(ids_managed_.before_begin());
+        }
+
+        ids_managed_.insert_after(it_first, second);
+        return true;
     }
 
     void update(void) {
@@ -232,7 +257,21 @@ public:
         return resource;
     }
 
-    // attention: not locked.
+    void sort_manually(std::function<void(IdList& ids)> sorter) {
+        std::lock_guard<std::mutex> lock(managed_mutex_);
+        sorter(ids_managed_);
+    }
+
+    // attention: The following not locked.
+
+    Resource& access_unlocked(TFV_Int id) {
+        Resource* resource = nullptr;
+        auto it = managed_.find(id);
+        resource = (it == managed_.end()) ? nullptr : it->second;
+
+        return *resource;
+    }
+
     bool size(void) const { return managed_.size(); }
 
 private:
@@ -272,25 +311,44 @@ private:
      * Deactivates all resources marked as removable and deletes them.
      */
     void cleanup(void) {
-        if (not garbage_.empty()) {
-            std::lock_guard<std::mutex> g_lock(garbage_mutex_);
+        locked_call(garbage_mutex_, [this](ResourceMap& garbage) {
+                                        if (not garbage_.empty()) {
 
-            for (auto& resource : garbage_) {
-                if (resource.second) {
-                    delete resource.second;
-                }
-            }
-            garbage_.clear();
-        }
+                                            for (auto& resource : garbage) {
+                                                if (resource.second) {
+                                                    delete resource.second;
+                                                }
+                                            }
+                                            garbage.clear();
+                                        }
+                                    },
+                    garbage_);
+    }
+
+    template <typename Mutex, typename Func>
+    void locked_call(Mutex& mutex, Func function) {
+        using MutexGuard = std::lock_guard<Mutex>;
+        MutexGuard lock(mutex);
+        function();
+    }
+
+    template <typename Mutex, typename Func, typename... Args>
+    auto locked_call(Mutex& mutex, Func function, Args&... args)
+        -> decltype(function(args...)) {
+
+        using MutexGuard = std::lock_guard<Mutex>;
+        MutexGuard lock(mutex);
+        return function(args...);
     }
 
 private:
-    ResourceMap allocated_;     ///< After allocate(), before persist()
-    ResourceMap managed_;       ///< After persist(), available for exec*
-    ResourceMap garbage_;       ///< After free(), before cleanup()
-    ResourceList ids_managed_;  ///< Sorted access to the active resources
+    ResourceMap allocated_;  ///< After allocate(), before persist()
+    ResourceMap managed_;    ///< After persist(), available for exec*
+    ResourceMap garbage_;    ///< After free(), before cleanup()
+    IdList ids_managed_;     ///< Sorted access to the active resources
 
-    // Needing to lock these sometimes in methods that do not change internal
+    // Needing to lock these sometimes in methods that do not change
+    // internal
     // state, so declaring these mutable.
     std::mutex mutable allocation_mutex_;
     std::mutex mutable garbage_mutex_;

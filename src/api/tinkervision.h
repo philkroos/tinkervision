@@ -75,6 +75,8 @@ TFV_Result stop(void);
 
 TFV_Result start(void);
 
+TFV_Result chain(TFV_Id first, TFV_Id second);
+
 /**
  * Stop all modules and shutdown the api.  This is generally not necessary if
  * the client application terminates in controlled ways.  However, the

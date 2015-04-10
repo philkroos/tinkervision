@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <typeinfo>
 #include <limits>
 #include <functional>
+#include <atomic>
 
 #include "strings.hh"
 #include "tinkervision_defines.h"
@@ -337,10 +338,13 @@ public:
         return TFV_OK;
     }
 
+    TFV_Result chain(TFV_Id first, TFV_Id second);
+
 private:
     CameraControl camera_control_;      ///< Camera access abstraction
     TFVStringMap result_string_map_;    ///< String mapping of Api-return values
     bool idle_process_running_{false};  ///< Dummy module activated?
+    std::atomic_char chained_{0};       ///< Sequential execution?
 
     Image image_;  ///< The default image
 

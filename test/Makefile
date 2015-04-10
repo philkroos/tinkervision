@@ -3,8 +3,10 @@ STREAM		:= stream
 CONVERT	:= convert
 RECORD		:= record
 MOTIONDETECT	:= motiondetect
+CHAIN		:= chain
 
-ALL		:= $(COLORTRACK) $(STREAM) $(CONVERT) $(RECORD) $(MOTIONDETECT)
+ALL		:= $(COLORTRACK) $(STREAM) $(CONVERT) \
+		   $(RECORD) $(MOTIONDETECT) $(CHAIN)
 
 all:
 	@for test in $(ALL); do \

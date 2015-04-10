@@ -36,7 +36,8 @@ public:
         Fx = 0x02,
         ExecAndRemove = 0x04,
         ExecAndDisable = 0x08,
-        Removable = 0x10
+        Removable = 0x10,
+        Sequential = 0x20
     };
 
 private:
@@ -66,8 +67,19 @@ public:
     Module& operator=(Module&& rhs) = delete;
 
     bool enabled(void) const noexcept { return active_; }
-    virtual void enable(void) noexcept { active_ = true; }
-    virtual void disable(void) noexcept { active_ = false; }
+
+    // return previous state
+    bool enable(void) noexcept { return switch_active(true); }
+
+    // return previous state
+    bool disable(void) noexcept { return switch_active(false); }
+
+    // return false if previous state was the same
+    bool switch_active(bool to_state) {
+        auto was_active = active_;
+        active_ = to_state;
+        return not(was_active == active_);
+    }
 
     Tag const& tags(void) const { return tags_; }
     void tag(Tag tags) { tags_ |= tags; }

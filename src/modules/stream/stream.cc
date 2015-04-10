@@ -72,9 +72,10 @@ void tfv::Stream::execute(tfv::Image const& image) {
     }
 
     // if no one is watching anyway, discard old data
-    if (context_.encoder.nals_encoded() > 10) {  // arbitrary
+    if (context_.encoder.nals_encoded() > 10) {  // arbitrary 10
         context_.encoder.discard_all();
     }
 
+    /// \todo check for constant frame dimensions
     context_.encoder.add_frame(image.data);
 }
