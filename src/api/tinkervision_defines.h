@@ -23,7 +23,7 @@ typedef int TFV_Bool;
 typedef uint8_t TFV_Byte;
 typedef unsigned char TFV_ImageData;
 
-typedef int16_t TFV_Short;
+typedef int8_t TFV_Short;
 typedef int32_t TFV_Int;
 
 typedef const char* TFV_String;

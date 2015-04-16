@@ -2,7 +2,7 @@ CC	:= gcc
 CCFLAGS := -Wall -Werror -g -O0 -ansi -pedantic -D_POSIX_C_SOURCE=199309L
 
 INC	:= -I../../src/api -I../../src/imaging `pkg-config --cflags opencv`
-LDFLAGS := -g -Wall -L../../build -ltfv -lstdc++ -lv4l2 `pkg-config --libs opencv`
+LDFLAGS := -g -Wall -L../../build -ltfv -lstdc++ -lm -lv4l2 `pkg-config --libs opencv`
 
 OBJ	:= tfv_motiondetect.o
 OUT	:= tfv-motiondetect

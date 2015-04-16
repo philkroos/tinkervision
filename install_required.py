@@ -86,6 +86,7 @@ if __name__ == '__main__':
             clean = True
 
     requirements = {
+        'libv4l-dev' : apt-get,
         'libopencv-dev' : apt_get,
         'libx264-dev' : apt_get,
         'https://github.com/hackeron/live555.git' : live

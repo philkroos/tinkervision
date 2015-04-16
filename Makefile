@@ -17,7 +17,7 @@ LIVE_MODULES	:= BasicUsageEnvironment UsageEnvironment groupsock liveMedia
 LIBS_LIVE       := $(addprefix -l,$(LIVE_MODULES))
 LIBS_X264	:= -lx264
 LIBS_OPENCV	:= `pkg-config --libs opencv`
-LIBS_SYSTEM	:= -lstdc++ -lv4l2
+LIBS_SYSTEM	:= -lstdc++ -lv4l2 -lm
 LDFLAGS	:= $(LIBS_SYSTEM) $(LIBS_OPENCV) $(LIBS_X264) $(LIBS_LIVE)
 
 # Header

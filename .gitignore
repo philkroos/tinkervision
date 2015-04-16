@@ -37,3 +37,6 @@ auto
 *.yuv
 *.raw
 *.h264
+
+# On-device-testing-temporaries
+test/red-brick/python-bindings-generator/python/unzipped/
