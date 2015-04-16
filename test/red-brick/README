@@ -1,0 +1,9 @@
+This subdirectory contains files necessary for testing of the inclusion into the
+Redbrick-API.
+	- python-bindings-generator: subset of the TF-generators repository
+	  (https://github.com/Tinkerforge/generators).
+	  The file configs/brick_red_config.py is adjusted to support the
+	  vision-library. Most of the rest has been removed from the repo,
+	  and only the Python bindings were kept.
+	- scripts: Files to test the bindings, either on-device or remotely.
+	  In general, they should work in both cases IF the host-ip is corrected.
