@@ -40,7 +40,7 @@ TFV_Result tfv::Api::start(void) {
 
     camera_control_.acquire(active_count);
 
-    std::cout << "Restarting with " << active_count << " modules" << std::endl;
+    // std::cout << "Restarting with " << active_count << " modules" << std::endl;
 
     // Start threaded execution of mainloop
     if (not executor_.joinable()) {
@@ -173,14 +173,14 @@ TFV_Result tfv::Api::chain(TFV_Id first, TFV_Id second) {
     auto result = TFV_INVALID_ID;
 
     if (first == second) {
-        std::cout << "Won't chain identical" << std::endl;
+        // std::cout << "Won't chain identical" << std::endl;
         return result;
     }
 
     auto id_first = static_cast<TFV_Int>(first);
     auto id_second = static_cast<TFV_Int>(second);
     auto was_chained_ = chained_.fetch_or(1);
-    std::cout << "Api::chain, chained: " << (bool)was_chained_ << std::endl;
+    // std::cout << "Api::chain, chained: " << (bool)was_chained_ << std::endl;
 
     auto find_iter_before = [&](Modules::IdList const& list, TFV_Int element) {
 
@@ -212,7 +212,7 @@ TFV_Result tfv::Api::chain(TFV_Id first, TFV_Id second) {
 
         if (not was_chained_) {  // starting new chain
 
-            std::cout << "New chain" << std::endl;
+            // std::cout << "New chain" << std::endl;
             ids.erase_after(before_first);
             ids.erase_after(before_second);
             ids.push_front(id_second);
@@ -223,7 +223,7 @@ TFV_Result tfv::Api::chain(TFV_Id first, TFV_Id second) {
         } else if (modules_.access_unlocked(*it_second).tags() &
                    Module::Tag::Sequential) {  // second was already chained
 
-            std::cout << "Second was chained" << std::endl;
+            // std::cout << "Second was chained" << std::endl;
             ids.erase_after(before_first);
             ids.insert_after(before_second, id_first);
             modules_.access_unlocked(*it_first).tag(Module::Tag::Sequential);
@@ -231,14 +231,14 @@ TFV_Result tfv::Api::chain(TFV_Id first, TFV_Id second) {
         } else if (modules_.access_unlocked(*it_first).tags() &
                    Module::Tag::Sequential) {  // first was already chained
 
-            std::cout << "First was chained" << std::endl;
+            // std::cout << "First was chained" << std::endl;
             ids.erase_after(before_second);
             ids.insert_after(it_first, id_second);
             modules_.access_unlocked(*it_second).tag(Module::Tag::Sequential);
 
         } else {  // none was chained. This is an error since a chain is
                   // active.
-            std::cout << "Won't chain unchained" << std::endl;
+            // std::cout << "Won't chain unchained" << std::endl;
             return;
         }
 
@@ -282,13 +282,13 @@ tfv::Api& tfv::get_api(void) {
 }
 
 __attribute__((constructor)) void startup(void) {
-    std::cout << "Constructing the Api on-demand" << std::endl;
+    // std::cout << "Constructing the Api on-demand" << std::endl;
     // nothing to do
     // api = new tfv::Api;
 }
 
 __attribute__((destructor)) void shutdown(void) {
-    std::cout << "De-Constructing the Api" << std::endl;
+    // std::cout << "De-Constructing the Api" << std::endl;
     if (api) {
         delete api;
     }

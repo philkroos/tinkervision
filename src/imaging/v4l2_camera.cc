@@ -65,6 +65,13 @@ tfv::V4L2USBCamera::V4L2USBCamera(TFV_Id camera_id) : Camera(camera_id) {
     frames_ = new v4l2::Frame[request_buffer_count_ * sizeof(v4l2::Frame)]();
 }
 
+tfv::V4L2USBCamera::V4L2USBCamera(TFV_Id camera_id, size_t framewidth,
+                                  size_t frameheight)
+    : Camera(camera_id, framewidth, frameheight) {
+    // zero-initialize buffers for the frames to be grabbed
+    frames_ = new v4l2::Frame[request_buffer_count_ * sizeof(v4l2::Frame)]();
+}
+
 tfv::V4L2USBCamera::~V4L2USBCamera(void) {
 
     close();
@@ -97,7 +104,12 @@ bool tfv::V4L2USBCamera::open(void) {
     }
 
     if (device_) {
-        if (not select_best_available_settings() or (not _start_capturing())) {
+        if (requested_settings()) {
+            if (not _select_requested_settings() or (not _start_capturing())) {
+                close();
+            }
+        } else if (not select_best_available_settings() or
+                   (not _start_capturing())) {
             close();
         }
     }
@@ -135,6 +147,34 @@ void tfv::V4L2USBCamera::_retrieve_properties(void) {
     }
 }
 
+bool tfv::V4L2USBCamera::_select_requested_settings(void) {
+    auto ok = false;
+
+    if (is_open()) {  // Todo: errornumber?
+
+        v4l2::Format format;
+        format.type = buffer_type_;
+
+        auto width = requested_framewidth();
+        auto height = requested_frameheight();
+
+        for (size_t i = 0; i < supported_resolutions_.size(); ++i) {
+            if ((supported_resolutions_[i].width == width) and
+                (supported_resolutions_[i].height == height)) {
+
+                ok = _set_format_and_resolution(
+                    format, 0, i);  // only one format currently
+            }
+        }
+        if (ok) {
+            (void)_set_highest_framerate(format.fmt.pix);
+        }
+    }
+
+    return ok;
+    // return ok or select_best_available_settings(); ?
+}
+
 bool tfv::V4L2USBCamera::select_best_available_settings(void) {
     auto result = false;
 
@@ -158,6 +198,26 @@ bool tfv::V4L2USBCamera::select_best_available_settings(void) {
         }
     }
     return result;
+}
+
+bool tfv::V4L2USBCamera::_set_format_and_resolution(v4l2::Format& format,
+                                                    size_t format_index,
+                                                    size_t resolution_index) {
+    auto& px_format = format.fmt.pix;
+    px_format.width = supported_resolutions_[resolution_index].width;
+    px_format.height = supported_resolutions_[resolution_index].height;
+    px_format.pixelformat = supported_codings_[format_index].v4l2_id;
+    px_format.field = v4l2::PROGRESSIVE;
+    px_format.bytesperline = 0;  // lets the driver set it
+
+    if (io_operation(device_, v4l2::set_format, &format)) {
+
+        coding_ = format_index;
+        resolution_ = resolution_index;
+    }
+
+    return (coding_ == static_cast<int>(format_index)) and
+           (resolution_ == static_cast<int>(resolution_index));
 }
 
 bool tfv::V4L2USBCamera::_set_best_format_and_resolution(v4l2::Format& format) {

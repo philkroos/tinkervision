@@ -67,8 +67,8 @@ void tfv::Stream::execute(tfv::Image const& image) {
             task_scheduler_->doEventLoop(&killswitch_);
         });
 
-        std::cout << "Play the stream using " << rtsp_server_->rtspURL(session_)
-                  << std::endl;
+        // std::cout << "Play the stream using " << rtsp_server_->rtspURL(session_)
+        //           << std::endl;
     }
 
     // if no one is watching anyway, discard old data

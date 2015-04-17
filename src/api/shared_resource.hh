@@ -154,7 +154,7 @@ public:
             allocated_[id] = new T(id, args...);
 
         } catch (tfv::ConstructionException const& ce) {
-            std::cout << ce.what() << std::endl;
+            // std::cout << ce.what() << std::endl;
 
             // allocated_[id] does not exist
             return false;

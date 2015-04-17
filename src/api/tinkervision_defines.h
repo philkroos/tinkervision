@@ -57,6 +57,7 @@ typedef void (*TFV_CallbackMotiondetect)(TFV_Id, TFV_Int x_topleft,
 /* Camera errors: 550... */
 #define TFV_CAMERA_ACQUISITION_FAILED 550
 #define TFV_CAMERA_NOT_AVAILABLE 551
+#define TFV_CAMERA_SETTINGS_FAILED 552
 
 /* Configuration errors: 600... */
 #define TFV_UNCONFIGURED_ID 600

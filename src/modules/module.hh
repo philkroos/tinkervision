@@ -56,8 +56,8 @@ protected:
 
 public:
     virtual ~Module(void) {
-        std::cout << "Destroying module " << module_id_ << " (" << type_ << ")"
-                  << std::endl;
+        // std::cout << "Destroying module " << module_id_ << " (" << type_ << ")"
+        //           << std::endl;
     }
 
     // No copy allowed

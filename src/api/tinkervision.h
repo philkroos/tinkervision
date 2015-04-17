@@ -55,6 +55,12 @@ TFV_Result camera_available(void);
  */
 TFV_Result start_idle(void);
 
+TFV_Result preselect_framesize(TFV_Size width, TFV_Size height);
+
+TFV_Result restart_id(TFV_Id id);
+
+TFV_Result stop_id(TFV_Id id);
+
 /**
  * Request the resolution of the camera frames.  This can only be called once
  * the camera is active, so in particular, if the resolution needs to be known

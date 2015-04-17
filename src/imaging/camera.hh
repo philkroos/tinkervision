@@ -42,10 +42,16 @@ public:
 
 protected:
     explicit Camera(TFV_Id camera_id);
-
+    Camera(TFV_Id camera_id, size_t framewidth, size_t frameheight);
     TFV_Id camera_id_;
 
-    // These are Template Methods (Design Pattern), see implementation
+    bool requested_settings(void) const { return requested_width_ != 0; }
+
+    size_t requested_framewidth(void) const { return requested_width_; }
+
+    size_t requested_frameheight(void) const { return requested_height_; }
+
+    // These are Template Methods, see implementation
     // of the corresponding get_ methods.
     virtual bool retrieve_frame(Image& frame) = 0;
     virtual void retrieve_properties(size_t& width, size_t& height,
@@ -53,7 +59,9 @@ protected:
     virtual void close(void) = 0;
 
 private:
-    bool active_ = true;
+    bool active_{true};
+    size_t requested_width_{0};
+    size_t requested_height_{0};
 };
 }
 

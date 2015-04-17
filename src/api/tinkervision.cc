@@ -37,11 +37,17 @@ TFV_Result camera_available(void) {
     return tfv::get_api().is_camera_available();
 }
 
+TFV_Result preselect_framesize(TFV_Size width, TFV_Size height) {
+    return tfv::get_api().preselect_framesize(width, height);
+}
+
 TFV_Result start_idle(void) { return tfv::get_api().start_idle(); }
 
 TFV_Result get_resolution(TFV_Size* width, TFV_Size* height) {
     return tfv::get_api().resolution(*width, *height);
 }
+
+TFV_Result stop_module(TFV_Id id) { return tfv::get_api().stop_id(id); }
 
 TFV_Result stop(void) { return tfv::get_api().stop(); }
 
@@ -60,6 +66,10 @@ TFV_Result set_execution_latency(TFV_UInt milliseconds) {
 TFV_String result_string(TFV_Result code) {
     return tfv::get_api().result_string(code);
 }
+
+TFV_Result restart_id(TFV_Id id) { return tfv::get_api().start_id(id); }
+
+TFV_Result stop_id(TFV_Id id) { return tfv::get_api().stop_id(id); }
 
 //
 // Colormatch interface

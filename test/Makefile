@@ -4,9 +4,11 @@ CONVERT	:= convert
 RECORD		:= record
 MOTIONDETECT	:= motiondetect
 CHAIN		:= chain
+GENERAL	:= general
 
 ALL		:= $(COLORTRACK) $(STREAM) $(CONVERT) \
-		   $(RECORD) $(MOTIONDETECT) $(CHAIN)
+		   $(RECORD) $(MOTIONDETECT) $(CHAIN) \
+		   $(GENERAL)
 
 all:
 	@for test in $(ALL); do \

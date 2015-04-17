@@ -116,13 +116,32 @@ public:
     }
 
     /**
-     * Start an idle process, i.e. a module which will never be executed.  This
-     * is a lightweight module which will not trigger frame grabbing. However,
-     * once started, it will keep the camera device blocked so it may be used to
+     * Preselect the framesize. This can only be successfull if the camera is
+     * not active currently, i.e. if the API is in a stopped state and no module
+     * is active.
+     * \return
+     * - TFV_CAMERA_SETTINGS_FAILED if there are active modules already
+     * - TFV_OK else
+     */
+    TFV_Result preselect_framesize(TFV_Size width, TFV_Size height) {
+        return camera_control_.preselect_framesize(width, height)
+                   ? TFV_OK
+                   : TFV_CAMERA_SETTINGS_FAILED;
+    }
+
+    /**
+     * Start an idle process, i.e. a module which will never be executed.
+     * This
+     * is a lightweight module which will not trigger frame grabbing.
+     * However,
+     * once started, it will keep the camera device blocked so it may be
+     * used to
      * hold on the camera handle even if no 'real' module is running.  This
      * dummy process can not be referred to since the assigned id is not
-     * retreivable by the user, and it is (currently) not deactivatable unless
-     * quit() is called.  Also, the process will only be started once, no matter
+     * retreivable by the user, and it is (currently) not deactivatable
+     * unless
+     * quit() is called.  Also, the process will only be started once, no
+     * matter
      * how often this method gets called.
      * \return TFV_OK if the process is running afterwards
      */
@@ -138,17 +157,21 @@ public:
 
     /**
      * Insert and activate or reconfigure a module.
-     * \parm[in] id The unique id of the module under which it may be identified
+     * \parm[in] id The unique id of the module under which it may be
+     * identified
      *   (i.e. in future calls to get/set/free...)
      * \parm[in] ...args The module dependent list of constructor arguments
      * \return
      * - TFV_INVALID_CONFIGURATION: if the arguments can not be used to
      *   construct a valid module of type Comp
-     * - TFV_INVALID_ID: if a module with the given id already exists but is not
+     * - TFV_INVALID_ID: if a module with the given id already exists but is
+     * not
      *   of type Comp
-     * - TFV_CAMERA_ACQUISITION_FAILED: if a new module shall be constructed but
+     * - TFV_CAMERA_ACQUISITION_FAILED: if a new module shall be constructed
+     * but
      *   the camera is not available
-     * - TFV_MODULE_INITIALIZATION_FAILED: if an error occurs during allocation
+     * - TFV_MODULE_INITIALIZATION_FAILED: if an error occurs during
+     * allocation
      *   of the module
      * - TFV_OK: this should be expect.
      */
@@ -179,7 +202,7 @@ public:
      * already started or can be started.  This in turn is only
      * possible if a module is registered under the given id, that
      * module is of the type of the template parameter, and the
-     * camera set in the module can be acquired.
+     * camera can be acquired.
      *
      * \param[in] id The id of the module to start.
      *
@@ -216,13 +239,49 @@ public:
     }
 
     /**
+     * Start a module which was already initialized by
+     * module_set().  This method succeeds if the module was
+     * already started or can be started.  This in turn is only
+     * possible if a module is registered under the given id
+     * and the camera can be acquired.
+     *
+     * \param[in] id The id of the module to start.
+     *
+     * \return TFV_UNCONFIGURED_ID if no module is registered with
+     * the given id; TFV_INVALID_ID if the registered module is not
+     * of the correct type; TFV_CAMERA_ACQUISATION_FAILED if the
+     * camera specified for the module is not available; TFV_OK iff
+     * the module is running after returning.
+     */
+    TFV_Result start_id(TFV_Id module_id) {
+        auto result = TFV_UNCONFIGURED_ID;
+        auto id = static_cast<TFV_Int>(module_id);
+
+        if (modules_.managed(id)) {
+            result = TFV_CAMERA_ACQUISITION_FAILED;
+
+            modules_.exec_one(id, [&result, this](tfv::Module& comp) {
+                if (comp.enabled()) {
+                    result = TFV_OK;
+                } else if (camera_control_.acquire()) {
+                    comp.enable();
+                    result = TFV_OK;
+                }
+            });
+        }
+
+        return result;
+    }
+
+    /**
      * Pause a module. This will not remove the module but rather
      * prevent it from being executed. The id is still reserved and it's
      * a matter of calling module_start() to resume execution.  To actually
      * remove the module, call module_remove.
      * \note The associated resources (namely the camera handle)
      * will be released (once) to be usable in other contexts, so
-     * this might prohibit restart of the module. If however the camera is used
+     * this might prohibit restart of the module. If however the camera is
+     *used
      * by other modules as well, it will stay open.
      *
      * \param id The id of the module to stop. The type of the associated
@@ -253,6 +312,37 @@ public:
     }
 
     /**
+     * Pause a module. This will not remove the module but rather
+     * prevent it from being executed. The id is still reserved and it's
+     * a matter of calling start_id() to resume execution.  To actually
+     * remove the module, call remove_id().
+     * \note The associated resources (namely the camera handle)
+     * will be released (once) to be usable in other contexts, so
+     * this might prohibit restart of the module. If however the camera is
+     * used by other modules as well, it will stay open.
+     *
+     * \param id The id of the module to stop. The type of the associated
+     * module has to match Module.
+     * \return
+     *  - TFV_OK if the module was stopped and marked for removal
+     *  - TFV_UNCONFIGURED_ID if the id is not registered
+     */
+    TFV_Result stop_id(TFV_Id module_id) {
+        auto result = TFV_UNCONFIGURED_ID;
+        auto id = static_cast<TFV_Int>(module_id);
+
+        if (modules_.managed(id)) {
+
+            modules_.exec_one(id, [this](tfv::Module& comp) {
+                comp.disable();
+                camera_control_.release();
+            });
+            result = TFV_OK;
+        }
+        return result;
+    }
+
+    /**
      * Stop and remove a module.  After this, the id is no longer valid.
      * \note The associated resources (namely the camera handle)
      * will be released (once) to be usable in other contexts. This might
@@ -271,7 +361,7 @@ public:
         auto id = static_cast<TFV_Int>(module_id);
 
         auto module = modules_[id];
-        if (module) {
+        if (modules_.managed(id)) {
             result = TFV_INVALID_ID;
 
             if (check_type<Module>(module)) {
@@ -282,6 +372,34 @@ public:
                 });
                 result = TFV_OK;
             }
+        }
+        return result;
+    }
+
+    /**
+     * Stop and remove a module.  After this, the id is no longer valid.
+     * \note The associated resources (namely the camera handle)
+     * will be released (once) to be usable in other contexts. This might
+     * free the actual device if it is not used by another module.
+     *
+     * \param id The id of the module to stop. The type of the associated
+     * module has to match Module.
+     * \return
+     *  - TFV_OK if the module was stopped and marked for removal
+     *  - TFV_UNCONFIGURED_ID if the id is not registered
+     */
+    TFV_Result remove_id(TFV_Id module_id) {
+        auto result = TFV_UNCONFIGURED_ID;
+        auto id = static_cast<TFV_Int>(module_id);
+
+        if (modules_[id]) {
+
+            modules_.exec_one(id, [this](tfv::Module& comp) {
+                comp.disable();
+                comp.tag(Module::Tag::Removable);
+                camera_control_.release();
+            });
+            result = TFV_OK;
         }
         return result;
     }
@@ -307,7 +425,8 @@ public:
     }
 
     /**
-     * Retrieve the frame settings from the camera. This can only work if the
+     * Retrieve the frame settings from the camera. This can only work if
+     * the
      * camera was opened already
      * \param[out] width The framewidth in pixels
      * \param[out] width The frameheight in pixels
@@ -429,8 +548,10 @@ private:
 
                 if (check_type<Comp>(module)) {
 
-                    // GCC4.7 does not support binding of ...args to lambdas yet
-                    // so this is the workaround to get the arguments into the
+                    // GCC4.7 does not support binding of ...args to lambdas
+                    // yet
+                    // so this is the workaround to get the arguments into
+                    // the
                     // execution context (which expects a 1-parameter func)
 
                     auto two_parameter =

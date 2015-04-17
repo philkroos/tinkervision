@@ -42,6 +42,15 @@ bool tfv::CameraControl::is_available(void) {
     return result;
 }
 
+bool tfv::CameraControl::preselect_framesize(size_t framewidth,
+                                             size_t frameheight) {
+    if (not usercount_) {
+        requested_width_ = framewidth;
+        requested_height_ = frameheight;
+    }
+    return not usercount_;
+}
+
 bool tfv::CameraControl::acquire(size_t user) {
     auto result = false;
 
@@ -190,14 +199,15 @@ bool tfv::CameraControl::update_frame(void) {
     return result;
 }
 
-bool tfv::CameraControl::_open_device() {
+bool tfv::CameraControl::_open_device(void) {
     static const auto MAX_DEVICE = 5;
     auto i = 0;
 
+    // selecting the first available device
     for (; i < MAX_DEVICE; ++i) {
         if (_device_exists(i)) {
 
-            camera_ = new V4L2USBCamera(i);
+            camera_ = new V4L2USBCamera(i, requested_width_, requested_height_);
             // camera_ = new OpenCvUSBCamera(i);
 
             fallback.active = not camera_->open();

@@ -118,7 +118,8 @@ using ColorSpaceMapping = struct ColorSpaceMapping {
 
 class V4L2USBCamera : public Camera {
 public:
-    V4L2USBCamera(TFV_Id camera_id);
+    explicit V4L2USBCamera(TFV_Id camera_id);
+    V4L2USBCamera(TFV_Id camera_id, size_t framewidth, size_t frameheight);
     virtual ~V4L2USBCamera(void);
 
     virtual bool open(void);
@@ -187,6 +188,9 @@ private:
     int _capture_frame_byte_size(void);
     bool _init_request_buffers(void);
     inline void _init_info_buffer(int index);
+    bool _set_format_and_resolution(v4l2::Format& format, size_t format_index,
+                                    size_t resolution_index);
+    bool _select_requested_settings(void);
     bool _set_best_format_and_resolution(v4l2::Format& format);
     bool _set_highest_framerate(v4l2::PixelFormat& px_format);
     void _retrieve_properties(void);
@@ -199,11 +203,11 @@ private:
 
         auto result = io_control_(device_handle, request, arg);
         if (not result) {
-            auto err = io_control_.result;
-            std::cout << "Error " << strerror(err) << "(" << err
-                      << "), which is "
-                      << (ignorable == err ? "ignorable" : "not ignorable")
-                      << " for request " << request.name << std::endl;
+            // auto err = io_control_.result;
+            // std::cout << "Error " << strerror(err) << "(" << err
+            //           << "), which is "
+            //           << (ignorable == err ? "ignorable" : "not ignorable")
+            //           << " for request " << request.name << std::endl;
         }
         return result;
     }

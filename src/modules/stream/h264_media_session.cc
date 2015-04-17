@@ -65,7 +65,7 @@ void tfv::H264MediaSession::check_for_aux_sdp_line() {
         setDoneFlag();
 
     } else {
-        std::cout << "checking again later" << std::endl;
+        // std::cout << "checking again later" << std::endl;
         int uSecsDelay = 100000;
         nextTask() = envir().taskScheduler().scheduleDelayedTask(
             uSecsDelay, (TaskFunc*)checkForAuxSDPLine, this);
@@ -76,7 +76,7 @@ char const* tfv::H264MediaSession::getAuxSDPLine(RTPSink* rtpSink,
                                                  FramedSource* inputSource) {
     if (aux_SDP_line_ == NULL) {
         if (dummy_sink_ == NULL) {
-            std::cout << "Start playing dummy sink" << std::endl;
+            // std::cout << "Start playing dummy sink" << std::endl;
             dummy_sink_ = rtpSink;
             dummy_sink_->startPlaying(*inputSource, afterPlayingDummy, this);
             checkForAuxSDPLine(this);

@@ -23,6 +23,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 tfv::Camera::Camera(TFV_Id camera_id) : camera_id_(camera_id) {}
 
+tfv::Camera::Camera(TFV_Id camera_id, size_t requested_width,
+                    size_t requested_height)
+    : camera_id_{camera_id},
+      requested_width_{requested_width},
+      requested_height_{requested_height} {
+
+    if (not requested_height) {
+        requested_width_ = 0;
+    }
+}
+
 bool tfv::Camera::get_frame(tfv::Image& image) {
     if (not is_open()) {
         stop();

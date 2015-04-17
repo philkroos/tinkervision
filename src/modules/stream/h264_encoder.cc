@@ -47,7 +47,9 @@ void tfv::H264Encoder::initialize(std::size_t framewidth,
 
     framesize_ = framewidth * frameheight;
     x264_param_default_preset(&parameter_, "ultrafast", "zerolatency");
-    // parameter_.i_log_level = X264_LOG_INFO;
+
+    // Header x264 in http://git.videolan.org/?p=x264.git;a=summary
+    parameter_.i_log_level = X264_LOG_NONE;
     parameter_.i_threads = 1;
     parameter_.i_width = framewidth;
     parameter_.i_height = frameheight;

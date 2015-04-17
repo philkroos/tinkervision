@@ -51,6 +51,14 @@ public:
     bool is_available(void);
 
     /**
+     * Request a framesize to be set when initializing the camera.
+     * This will only work if no camera is running already.
+     * \param[in] framewidth Width requested
+     * \param[in] framheight Height requested
+     */
+    bool preselect_framesize(size_t framewidth, size_t frameheight);
+
+    /**
      * Check if (any) cameradevice is available, acquire it if necessary.
      * If no device is open already, seeks for a possible device, opens it,
      * increases the usercount.  No effects on visible state if opening fails.
@@ -142,6 +150,8 @@ public:
 
 private:
     Camera* camera_ = nullptr;
+    size_t requested_width_{0};
+    size_t requested_height_{0};
 
     Image image_;  ///< The image as obtained from the active camera module
 
@@ -174,7 +184,7 @@ private:
 
     std::mutex camera_mutex_;  //< This locks access to the private methods
 
-    bool _open_device();
+    bool _open_device(void);
     void _close_device();
 };
 };

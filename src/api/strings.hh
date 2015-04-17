@@ -37,6 +37,8 @@ private:
         // 550...
         {TFV_CAMERA_ACQUISITION_FAILED, "Error - Device could not be opened"},
         {TFV_CAMERA_NOT_AVAILABLE, "Error - Camera not available"},
+        {TFV_CAMERA_SETTINGS_FAILED,
+         "Error - Setting camera properties failed"},
         // 600...
         {TFV_UNCONFIGURED_ID, "Error - Feature-Id not configured"},
         {TFV_FEATURE_CONFIGURATION_FAILED,
