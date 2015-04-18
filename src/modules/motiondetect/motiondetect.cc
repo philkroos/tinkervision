@@ -38,7 +38,9 @@ void tfv::Motiondetect::execute(tfv::Image const& image) {
     if (framecounter_++ >
         history_) {  // ignore the first frames to adjust to surroundings
 
-        if (contours.size() > min_contour_count_) {
+        results_ = contours.size() > min_contour_count_;
+        if (results_) {
+
             std::vector<cv::Point> all_points;
             for (auto const& points : contours) {
                 for (auto const& point : points) {
@@ -46,11 +48,23 @@ void tfv::Motiondetect::execute(tfv::Image const& image) {
                 }
             }
 
-            auto rect = cv::boundingRect(all_points);
-            callback_(static_cast<TFV_Id>(module_id_), rect.tl().x, rect.tl().y,
-                      rect.br().x - rect.tl().x, rect.br().y - rect.tl().y,
-                      context_);
+            rect_ = cv::boundingRect(all_points);
         }
+    }
+}
+
+void tfv::Motiondetect::callback(void) const {
+    if (results_) {
+        callback_(static_cast<TFV_Id>(module_id_), rect_.tl().x, rect_.tl().y,
+                  rect_.br().x - rect_.tl().x, rect_.br().y - rect_.tl().y,
+                  context_);
+    }
+}
+
+void tfv::Motiondetect::apply(tfv::Image& image) const {
+    if (results_) {
+        cv::Mat frame(image.height, image.width, CV_8UC3, image.data);
+        cv::rectangle(frame, rect_, cv::Scalar(255, 0, 0), 3);
     }
 }
 

@@ -95,8 +95,12 @@ TFV_Result tfv::Api::quit(void) {
 
 void tfv::Api::execute(void) {
 
+    using DelayedApplyableModules = std::vector<int>;
+
+    DelayedApplyableModules delayed_application;
+
     // Execute active module
-    auto update_module = [this](TFV_Int id, tfv::Module& module) {
+    auto update_module = [&](TFV_Int id, tfv::Module& module) {
 
         // skip paused modules
         if (not module.enabled()) {
@@ -113,6 +117,22 @@ void tfv::Api::execute(void) {
             executable.execute(image_);
 
             auto& tags = module.tags();
+
+            if (tags & Module::Tag::Analysis) {
+                static_cast<Analysis&>(module).callback();
+                delayed_application.push_back(module.id());
+
+            } else if (chained_ and
+                       (tags & Module::Tag::Fx)) {  // apply fx only if chained
+
+                static_cast<Fx&>(module).apply(image_);
+                camera_control_.regenerate_formats_from(image_);
+
+            } else if (chained_ and (tags & Module::Tag::Output)) {
+
+                delayed_application.push_back(module.id());
+            }
+
             if (tags & Module::Tag::ExecAndRemove) {
                 module.tag(Module::Tag::Removable);
                 camera_control_.release();
@@ -131,6 +151,8 @@ void tfv::Api::execute(void) {
     auto latency_ms = no_module_min_latency_ms;
     while (active_) {
 
+        delayed_application.clear();
+
         // Activate new and remove freed resources
         modules_.update();
 
@@ -146,32 +168,51 @@ void tfv::Api::execute(void) {
             if (camera_control_.update_frame()) {
 
                 modules_.exec_all(update_module);
+
+                // Let analysis modules output their results to the frame
+                if (chained_) {
+                    for (auto const& id : delayed_application) {
+                        modules_.exec_one(id, [&](tfv::Module& module) {
+                            auto const format = static_cast<Executable const&>(
+                                                    module).expected_format();
+                            camera_control_.get_frame(image_, format);
+                            if (module.tags() & Module::Tag::Analysis) {
+                                static_cast<Analysis const&>(module)
+                                    .apply(image_);
+                                camera_control_.regenerate_formats_from(image_);
+
+                            } else {  // Module::Tag::Output!
+                                static_cast<Output&>(module).execute(image_);
+                            }
+                        });
+                    }
+
+                } else {
+                    // Log a warning
+                }
+
             } else {
-                // Log a warning
+                latency_ms =
+                    std::max(execution_latency_ms_, no_module_min_latency_ms);
             }
 
-        } else {
-            latency_ms =
-                std::max(execution_latency_ms_, no_module_min_latency_ms);
+            // Finally propagate deletion of modules marked for removal
+            modules_.free_if([](tfv::Module const& module) {
+                return module.tags() & Module::Tag::Removable;
+            });
+
+            // some buffertime for two reasons: first, the outer thread
+            // gets time to run second, the camera driver is probably not
+            // that fast and will fail if it is driven too fast.
+            //
+            // \todo The proper time to wait depends on the actual hardware and
+            // should at least consider the actual time the modules
+            // need to execute.
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(latency_ms));
         }
-
-        // Finally propagate deletion of modules marked for removal
-        modules_.free_if([](tfv::Module const& module) {
-            return module.tags() & Module::Tag::Removable;
-        });
-
-        // some buffertime for two reasons: first, the outer thread
-        // gets time to run second, the camera driver is probably not
-        // that fast and will fail if it is driven too fast.
-        //
-        // \todo The proper time to wait depends on the actual hardware and
-        // should at least consider the actual time the modules
-        // need to execute.
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(latency_ms));
     }
 }
-
 TFV_Result tfv::Api::chain(TFV_Id first, TFV_Id second) {
 
     auto result = TFV_INVALID_ID;
@@ -184,7 +225,8 @@ TFV_Result tfv::Api::chain(TFV_Id first, TFV_Id second) {
     auto id_first = static_cast<TFV_Int>(first);
     auto id_second = static_cast<TFV_Int>(second);
     auto was_chained_ = chained_.fetch_or(1);
-    // std::cout << "Api::chain, chained: " << (bool)was_chained_ << std::endl;
+    // std::cout << "Api::chain, chained: " << (bool)was_chained_ <<
+    // std::endl;
 
     auto find_iter_before = [&](Modules::IdList const& list, TFV_Int element) {
 

@@ -33,12 +33,15 @@ typedef TFV_Int TFV_Result;
 typedef uint16_t TFV_Size;
 typedef void* TFV_Context;
 
-typedef void (*TFV_CallbackColormatch)(TFV_Id, TFV_Size x, TFV_Size y,
-                                       TFV_Context);
+typedef void (*TFV_CallbackPoint)(TFV_Id, TFV_Size x, TFV_Size y, TFV_Context);
 
-typedef void (*TFV_CallbackMotiondetect)(TFV_Id, TFV_Size x_topleft,
-                                         TFV_Size y_topleft, TFV_Size width,
-                                         TFV_Size height, TFV_Context);
+typedef TFV_CallbackPoint TFV_CallbackColormatch;
+
+typedef void (*TFV_CallbackRectangle)(TFV_Id, TFV_Size x_topleft,
+                                      TFV_Size y_topleft, TFV_Size width,
+                                      TFV_Size height, TFV_Context);
+
+typedef TFV_CallbackRectangle TFV_CallbackMotiondetect;
 
 /* result codes */
 

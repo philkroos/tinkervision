@@ -35,11 +35,35 @@ public:
     virtual ~Executable(void) = default;
 
     // Interface that a concrete module has to implement.  The rest is defined
-    // as free function after this class
-    // declaration.
+    // as free function in module.hh
 
     virtual ColorSpace expected_format(void) const = 0;
     virtual void execute(tfv::Image const& image) = 0;
+};
+
+class Analysis : public Executable {
+protected:
+    Analysis(TFV_Int id, std::string type, Module::Tag tags)
+        : Executable(id, type, tags |= Module::Tag::Analysis) {}
+
+public:
+    virtual void callback(void) const = 0;
+    virtual void apply(tfv::Image& image) const = 0;
+};
+
+class Fx : public Executable {
+protected:
+    Fx(TFV_Int id, std::string type, Module::Tag tags)
+        : Executable(id, type, tags |= Module::Tag::Fx) {}
+
+public:
+    virtual void apply(tfv::Image& image) const = 0;
+};
+
+class Output : public Executable {
+protected:
+    Output(TFV_Int id, std::string type, Module::Tag tags)
+        : Executable(id, type, tags |= Module::Tag::Output) {}
 };
 }
 #endif /* EXECUTABLE_H */

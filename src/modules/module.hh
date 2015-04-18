@@ -34,10 +34,12 @@ public:
         None = 0x00,
         Executable = 0x01,
         Fx = 0x02,
-        ExecAndRemove = 0x04,
-        ExecAndDisable = 0x08,
-        Removable = 0x10,
-        Sequential = 0x20
+        Analysis = 0x04,
+        Output = 0x08,
+        ExecAndRemove = 0x10,
+        ExecAndDisable = 0x20,
+        Removable = 0x30,
+        Sequential = 0x40
     };
 
 private:
@@ -56,7 +58,8 @@ protected:
 
 public:
     virtual ~Module(void) {
-        // std::cout << "Destroying module " << module_id_ << " (" << type_ << ")"
+        // std::cout << "Destroying module " << module_id_ << " (" << type_ <<
+        // ")"
         //           << std::endl;
     }
 
@@ -66,6 +69,7 @@ public:
     Module& operator=(Module const& rhs) = delete;
     Module& operator=(Module&& rhs) = delete;
 
+    TFV_Int id(void) const { return module_id_; }
     bool enabled(void) const noexcept { return active_; }
 
     // return previous state

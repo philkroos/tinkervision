@@ -153,6 +153,12 @@ public:
      */
     void get_frame(Image& image, ColorSpace format);
 
+    /**
+     * Recreate the images in all provided formats from the supplied template.
+     * \parm[in] image The source for the conversion.
+     */
+    void regenerate_formats_from(Image const& image);
+
 private:
     Camera* camera_ = nullptr;
     size_t requested_width_{0};

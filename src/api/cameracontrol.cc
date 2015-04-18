@@ -171,6 +171,14 @@ void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ColorSpace format) {
     }
 }
 
+void tfv::CameraControl::regenerate_formats_from(Image const& image) {
+    for (auto& converter : provided_formats_) {
+        if (converter.target_format() != image.format) {
+            converter(image);
+        }
+    }
+}
+
 bool tfv::CameraControl::update_frame(void) {
 
     auto result = not stopped_;
