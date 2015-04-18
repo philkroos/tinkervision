@@ -93,6 +93,7 @@ int main() {
     tfv::ConvertYUYVToBGR bgr1_converter;
     tfv::ConvertYV12ToBGR bgr2_converter;
     tfv::ConvertRGBToBGR bgr3_converter;
+    tfv::ConvertBGRToYV12 bgr4_converter;
     auto& yv12_result = yv12_converter(original);
 
     auto& rgb1_result = rgb1_converter(original);
@@ -106,10 +107,16 @@ int main() {
 
     auto& rgb4_result = rgb3_converter(bgr3_result);
 
+    auto& bgr4_result = bgr4_converter(bgr1_result);
+
     // File is in format YV12 (420p)
     std::ofstream ofs("/tmp/uvoutput.yuv", std::ios::out | std::ios::binary);
     ofs.write((const char*)yv12_result.data, yv12_result.bytesize);
     ofs.close();
+
+    std::ofstream ofs2("/tmp/uvoutput_after.yuv", std::ios::out | std::ios::binary);
+    ofs2.write((const char*)bgr4_result.data, bgr4_result.bytesize);
+    ofs2.close();
 
     window.update(win_id, rgb1_result.data, height, width, "YUYV to RGB");
     window.wait_for_input();

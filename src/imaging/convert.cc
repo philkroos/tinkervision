@@ -34,7 +34,6 @@ tfv::Image const& tfv::Convert::operator()(tfv::Image const& source) {
     }
 
     convert(source, *target);
-    std::cout << "Target bytesize is " << target->bytesize << std::endl;
     target->timestamp = source.timestamp;
 
     return *target;
@@ -279,12 +278,10 @@ tfv::ColorSpace tfv::ConvertBGRToYV12::target_format(
     target_height = source.height;
     target_bytesize = (source.width * source.height * 3) >> 1;
 
-    std::cout << "Setting bytesize to " << target_bytesize << std::endl;
     return tfv::ColorSpace::YV12;
 }
 
 void tfv::ConvertBGRToYV12::convert(Image const& source, Image& target) const {
-    std::cout << "Converting for bytesize " << target.bytesize << std::endl;
     auto row0 = source.data;
     auto row1 = source.data + source.width * 3;
     auto y0 = target.data;
@@ -320,7 +317,6 @@ void tfv::ConvertBGRToYV12::convert(Image const& source, Image& target) const {
         row0 = row1;
         row1 += source.width * 3;
     }
-    std::cout << "Written " << (int)(u - target.data) << " byte" << std::endl;
 }
 
 tfv::Converter::Converter(tfv::ColorSpace source, tfv::ColorSpace target) {

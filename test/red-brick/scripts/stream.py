@@ -27,32 +27,32 @@ try:
     ok = red.vision_camera_available()
 
     if ok != 0:
-        raise "vision::CameraAvailable returned error: " + str(ok)
+        raise Exception("vision::CameraAvailable returned error: " + str(ok))
 
     ok = red.vision_preselect_framesize(640, 480)
 
     if ok != 0:
-        raise "vision::PreselectFramesize returned error: " + str(ok)
+        raise Exception("vision::PreselectFramesize returned error: " + str(ok))
 
     id = 0
     ok = red.vision_stream(id)
 
     if ok != 0:
-        raise "vision::Stream returned error: " + str(ok)
+        raise Exception("vision::Stream returned error: " + str(ok))
 
-    print "Streaming for 30 seconds"
-    sleep(30)
+    print "Streaming for 60 seconds"
+    sleep(60)
 
     ok = red.vision_pause_id(id)
 
     if ok != 0:
-        raise "vision::StopId returned error: " + str(ok)
+        raise Exception("vision::StopId returned error: " + str(ok))
 
     # Actually no need to do this explicitly
     ok = red.vision_quit()
 
     if ok != 0:
-        raise "vision::Quit returned error: " + str(ok)
+        raise Exception("vision::Quit returned error: " + str(ok))
 
 except Exception, e:
     print "Exception occured: " + str(e)
