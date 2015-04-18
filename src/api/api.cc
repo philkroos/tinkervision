@@ -40,7 +40,8 @@ TFV_Result tfv::Api::start(void) {
 
     camera_control_.acquire(active_count);
 
-    // std::cout << "Restarting with " << active_count << " modules" << std::endl;
+    // std::cout << "Restarting with " << active_count << " modules" <<
+    // std::endl;
 
     // Start threaded execution of mainloop
     if (not executor_.joinable()) {
@@ -72,6 +73,9 @@ TFV_Result tfv::Api::stop(void) {
     if (not executor_.joinable()) {
         result = TFV_OK;
     }
+
+    // explicitly release the camera, in case sth. went wrong above
+    camera_control_.release_all();
 
     return result;
 }

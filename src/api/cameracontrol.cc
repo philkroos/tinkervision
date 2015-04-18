@@ -116,6 +116,12 @@ void tfv::CameraControl::stop_camera(void) {
     _close_device();
 }
 
+void tfv::CameraControl::release_all(void) {
+    while (usercount_) {
+        release();
+    }
+}
+
 bool tfv::CameraControl::get_properties(uint16_t& height, uint16_t& width,
                                         size_t& frame_bytesize) {
     auto result = false;

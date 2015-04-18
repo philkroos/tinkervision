@@ -109,6 +109,11 @@ public:
     void stop_camera(void);
 
     /**
+     * Releases the acquired device, if any, resetting it's usercount.
+     */
+    void release_all(void);
+
+    /**
      * Retrieves the frame properties from an opened device. No effect on
      * visible state.
      * \param[out] height (visible) image height, i.e. in pixel
