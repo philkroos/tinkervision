@@ -1741,8 +1741,58 @@ com['packets'].append({
 
 com['packets'].append({
 'type': 'function',
+'name': ('VisionPreselectFramesize', 'vision_preselect_framesize'),
+'elements': [('width', 'uint16', 1, 'in'),
+             ('height', 'uint16', 1, 'in'),
+             ('result', 'int32', 1, 'out')],
+'since_firmware': [1, 0, 0],
+'doc': ['af', {
+'en':
+"""
+""",
+'de':
+"""
+"""
+}]
+})
+
+com['packets'].append({
+'type': 'function',
 'name': ('VisionStartIdle', 'vision_start_idle'),
 'elements': [('result', 'int32', 1, 'out')],
+'since_firmware': [1, 0, 0],
+'doc': ['af', {
+'en':
+"""
+""",
+'de':
+"""
+"""
+}]
+})
+
+com['packets'].append({
+'type': 'function',
+'name': ('VisionSetLatency', 'vision_set_latency'),
+'elements': [('milliseconds', 'uint32', 1, 'in'),
+             ('result', 'int32', 1, 'out')],
+'since_firmware': [1, 0, 0],
+'doc': ['af', {
+'en':
+"""
+""",
+'de':
+"""
+"""
+}]
+})
+
+com['packets'].append({
+'type': 'function',
+'name': ('VisionGetResolution', 'vision_get_resolution'),
+'elements': [('result', 'int32', 1, 'out'),
+             ('width', 'uint16', 1, 'out'),
+             ('height', 'uint16', 1, 'out')],
 'since_firmware': [1, 0, 0],
 'doc': ['af', {
 'en':
@@ -1801,9 +1851,9 @@ com['packets'].append({
 
 com['packets'].append({
 'type': 'function',
-'name': ('VisionSetLatency', 'vision_set_latency'),
-'elements': [('result', 'int32', 1, 'out'),
-             ('milliseconds', 'uint32', 1, 'in')],
+'name': ('VisionPauseID', 'vision_pause_id'),
+'elements': [('id', 'int8', 1, 'in'),
+             ('result', 'int32', 1, 'out')],
 'since_firmware': [1, 0, 0],
 'doc': ['af', {
 'en':
@@ -1817,9 +1867,9 @@ com['packets'].append({
 
 com['packets'].append({
 'type': 'function',
-'name': ('VisionStream', 'vision_stream'),
-'elements': [('result', 'int32', 1, 'out'),
-             ('id', 'int8', 1, 'in')],
+'name': ('VisionRestartID', 'vision_restart_id'),
+'elements': [('id', 'int8', 1, 'in'),
+             ('result', 'int32', 1, 'out')],
 'since_firmware': [1, 0, 0],
 'doc': ['af', {
 'en':
@@ -1833,9 +1883,10 @@ com['packets'].append({
 
 com['packets'].append({
 'type': 'function',
-'name': ('VisionSnapshot', 'vision_snapshot'),
-'elements': [('result', 'int32', 1, 'out'),
-             ('id', 'int8', 1, 'in')],
+'name': ('VisionChain', 'vision_chain'),
+'elements': [('id_first', 'int8', 1, 'in'),
+             ('id_second', 'int8', 1, 'in'),
+             ('result', 'int32', 1, 'out')],
 'since_firmware': [1, 0, 0],
 'doc': ['af', {
 'en':
@@ -1846,15 +1897,14 @@ com['packets'].append({
 """
 }]
 })
-
 
 com['packets'].append({
 'type': 'function',
 'name': ('VisionColormatchStart', 'vision_colormatch_start'),
-'elements': [('result', 'int32', 1, 'out'),
-             ('id', 'int8', 1, 'in'),
+'elements': [('id', 'int8', 1, 'in'),
              ('min_hue', 'uint8', 1, 'in'),
-             ('max_hue', 'uint8', 1, 'in')],
+             ('max_hue', 'uint8', 1, 'in'),
+             ('result', 'int32', 1, 'out')],
 'since_firmware': [1, 0, 0],
 'doc': ['af', {
 'en':
@@ -1869,8 +1919,8 @@ com['packets'].append({
 com['packets'].append({
 'type': 'function',
 'name': ('VisionColormatchStop', 'vision_colormatch_stop'),
-'elements': [('result', 'int32', 1, 'out'),
-             ('id', 'int8', 1, 'in')],
+'elements': [('id', 'int8', 1, 'in'),
+             ('result', 'int32', 1, 'out')],
 'since_firmware': [1, 0, 0],
 'doc': ['af', {
 'en':
@@ -1885,8 +1935,8 @@ com['packets'].append({
 com['packets'].append({
 'type': 'function',
 'name': ('VisionColormatchGet', 'vision_colormatch_get'),
-'elements': [('result', 'int32', 1, 'out'),
-             ('id', 'int8', 1, 'in'),
+'elements': [('id', 'int8', 1, 'in'),
+             ('result', 'int32', 1, 'out'),
              ('min_hue', 'uint8', 1, 'out'),
              ('max_hue', 'uint8', 1, 'out')],
 'since_firmware': [1, 0, 0],
@@ -1904,10 +1954,77 @@ com['packets'].append({
 'type': 'callback',
 'name': ('VisionColormatch', 'vision_colormatch'),
 'elements': [('id', 'int8', 1, 'out'),
-             ('x', 'int32', 1, 'out'),
-             ('y', 'int32', 1, 'out')],
+             ('x', 'uint16', 1, 'out'),
+             ('y', 'uint16', 1, 'out')],
 'since_firmware': [1, 0, 0],
 'doc': ['c', {
+'en':
+"""
+""",
+'de':
+"""
+"""
+}]
+})
+
+com['packets'].append({
+'type': 'function',
+'name': ('VisionMotionStart', 'vision_motion_start'),
+'elements': [('id', 'int8', 1, 'in'),
+             ('result', 'int32', 1, 'out')],
+'since_firmware': [1, 0, 0],
+'doc': ['af', {
+'en':
+"""
+""",
+'de':
+"""
+"""
+}]
+})
+
+com['packets'].append({
+'type': 'callback',
+'name': ('VisionMotion', 'vision_motion'),
+'elements': [('id', 'int8', 1, 'out'),
+             ('x', 'uint16', 1, 'out'),
+             ('y', 'uint16', 1, 'out'),
+             ('width', 'uint16', 1, 'out'),
+             ('height', 'uint16', 1, 'out')],
+'since_firmware': [1, 0, 0],
+'doc': ['c', {
+'en':
+"""
+""",
+'de':
+"""
+"""
+}]
+})
+
+com['packets'].append({
+'type': 'function',
+'name': ('VisionStream', 'vision_stream'),
+'elements': [('id', 'int8', 1, 'in'),
+             ('result', 'int32', 1, 'out')],
+'since_firmware': [1, 0, 0],
+'doc': ['af', {
+'en':
+"""
+""",
+'de':
+"""
+"""
+}]
+})
+
+com['packets'].append({
+'type': 'function',
+'name': ('VisionSnapshot', 'vision_snapshot'),
+'elements': [('id', 'int8', 1, 'in'),
+             ('result', 'int32', 1, 'out')],
+'since_firmware': [1, 0, 0],
+'doc': ['af', {
 'en':
 """
 """,

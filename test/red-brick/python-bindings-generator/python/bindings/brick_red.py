@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #############################################################
-# This file was automatically generated on 2015-04-16.      #
+# This file was automatically generated on 2015-04-18.      #
 #                                                           #
 # Bindings Version 2.1.4                                    #
 #                                                           #
@@ -57,6 +57,7 @@ GetProgramSchedulerState = namedtuple('ProgramSchedulerState', ['error_code', 's
 GetLastSpawnedProgramProcess = namedtuple('LastSpawnedProgramProcess', ['error_code', 'process_id', 'timestamp'])
 GetCustomProgramOptionNames = namedtuple('CustomProgramOptionNames', ['error_code', 'names_list_id'])
 GetCustomProgramOptionValue = namedtuple('CustomProgramOptionValue', ['error_code', 'value_string_id'])
+VisionGetResolution = namedtuple('VisionGetResolution', ['width', 'height', 'result'])
 VisionColormatchGet = namedtuple('VisionColormatchGet', ['result', 'min_hue', 'max_hue'])
 GetIdentity = namedtuple('Identity', ['uid', 'connected_uid', 'position', 'hardware_version', 'firmware_version', 'device_identifier'])
 
@@ -74,7 +75,8 @@ class BrickRED(Device):
     CALLBACK_PROCESS_STATE_CHANGED = 45
     CALLBACK_PROGRAM_SCHEDULER_STATE_CHANGED = 65
     CALLBACK_PROGRAM_PROCESS_SPAWNED = 66
-    CALLBACK_VISION_COLORMATCH = 78
+    CALLBACK_VISION_COLORMATCH = 81
+    CALLBACK_VISION_MOTION = 83
 
     FUNCTION_CREATE_SESSION = 1
     FUNCTION_EXPIRE_SESSION = 2
@@ -137,16 +139,22 @@ class BrickRED(Device):
     FUNCTION_GET_CUSTOM_PROGRAM_OPTION_VALUE = 63
     FUNCTION_REMOVE_CUSTOM_PROGRAM_OPTION = 64
     FUNCTION_VISION_CAMERA_AVAILABLE = 67
-    FUNCTION_VISION_START_IDLE = 68
-    FUNCTION_VISION_PAUSE = 69
-    FUNCTION_VISION_RESTART = 70
-    FUNCTION_VISION_QUIT = 71
-    FUNCTION_VISION_SET_LATENCY = 72
-    FUNCTION_VISION_STREAM = 73
-    FUNCTION_VISION_SNAPSHOT = 74
-    FUNCTION_VISION_COLORMATCH_START = 75
-    FUNCTION_VISION_COLORMATCH_STOP = 76
-    FUNCTION_VISION_COLORMATCH_GET = 77
+    FUNCTION_VISION_PRESELECT_FRAMESIZE = 68
+    FUNCTION_VISION_START_IDLE = 69
+    FUNCTION_VISION_SET_LATENCY = 70
+    FUNCTION_VISION_GET_RESOLUTION = 71
+    FUNCTION_VISION_PAUSE = 72
+    FUNCTION_VISION_RESTART = 73
+    FUNCTION_VISION_QUIT = 74
+    FUNCTION_VISION_PAUSE_ID = 75
+    FUNCTION_VISION_RESTART_ID = 76
+    FUNCTION_VISION_CHAIN = 77
+    FUNCTION_VISION_COLORMATCH_START = 78
+    FUNCTION_VISION_COLORMATCH_STOP = 79
+    FUNCTION_VISION_COLORMATCH_GET = 80
+    FUNCTION_VISION_MOTION_START = 82
+    FUNCTION_VISION_STREAM = 84
+    FUNCTION_VISION_SNAPSHOT = 85
     FUNCTION_GET_IDENTITY = 255
 
     OBJECT_TYPE_STRING = 0
@@ -307,17 +315,24 @@ class BrickRED(Device):
         self.response_expected[BrickRED.CALLBACK_PROGRAM_SCHEDULER_STATE_CHANGED] = BrickRED.RESPONSE_EXPECTED_ALWAYS_FALSE
         self.response_expected[BrickRED.CALLBACK_PROGRAM_PROCESS_SPAWNED] = BrickRED.RESPONSE_EXPECTED_ALWAYS_FALSE
         self.response_expected[BrickRED.FUNCTION_VISION_CAMERA_AVAILABLE] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
+        self.response_expected[BrickRED.FUNCTION_VISION_PRESELECT_FRAMESIZE] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
         self.response_expected[BrickRED.FUNCTION_VISION_START_IDLE] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
+        self.response_expected[BrickRED.FUNCTION_VISION_SET_LATENCY] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
+        self.response_expected[BrickRED.FUNCTION_VISION_GET_RESOLUTION] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
         self.response_expected[BrickRED.FUNCTION_VISION_PAUSE] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
         self.response_expected[BrickRED.FUNCTION_VISION_RESTART] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
         self.response_expected[BrickRED.FUNCTION_VISION_QUIT] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
-        self.response_expected[BrickRED.FUNCTION_VISION_SET_LATENCY] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
-        self.response_expected[BrickRED.FUNCTION_VISION_STREAM] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
-        self.response_expected[BrickRED.FUNCTION_VISION_SNAPSHOT] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
+        self.response_expected[BrickRED.FUNCTION_VISION_PAUSE_ID] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
+        self.response_expected[BrickRED.FUNCTION_VISION_RESTART_ID] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
+        self.response_expected[BrickRED.FUNCTION_VISION_CHAIN] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
         self.response_expected[BrickRED.FUNCTION_VISION_COLORMATCH_START] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
         self.response_expected[BrickRED.FUNCTION_VISION_COLORMATCH_STOP] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
         self.response_expected[BrickRED.FUNCTION_VISION_COLORMATCH_GET] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
         self.response_expected[BrickRED.CALLBACK_VISION_COLORMATCH] = BrickRED.RESPONSE_EXPECTED_ALWAYS_FALSE
+        self.response_expected[BrickRED.FUNCTION_VISION_MOTION_START] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
+        self.response_expected[BrickRED.CALLBACK_VISION_MOTION] = BrickRED.RESPONSE_EXPECTED_ALWAYS_FALSE
+        self.response_expected[BrickRED.FUNCTION_VISION_STREAM] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
+        self.response_expected[BrickRED.FUNCTION_VISION_SNAPSHOT] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
         self.response_expected[BrickRED.FUNCTION_GET_IDENTITY] = BrickRED.RESPONSE_EXPECTED_ALWAYS_TRUE
 
         self.callback_formats[BrickRED.CALLBACK_ASYNC_FILE_READ] = 'H B 60B B'
@@ -326,7 +341,8 @@ class BrickRED(Device):
         self.callback_formats[BrickRED.CALLBACK_PROCESS_STATE_CHANGED] = 'H B Q B'
         self.callback_formats[BrickRED.CALLBACK_PROGRAM_SCHEDULER_STATE_CHANGED] = 'H'
         self.callback_formats[BrickRED.CALLBACK_PROGRAM_PROCESS_SPAWNED] = 'H'
-        self.callback_formats[BrickRED.CALLBACK_VISION_COLORMATCH] = 'b i i'
+        self.callback_formats[BrickRED.CALLBACK_VISION_COLORMATCH] = 'b H H'
+        self.callback_formats[BrickRED.CALLBACK_VISION_MOTION] = 'b H H H H'
 
     def create_session(self, lifetime):
         """
@@ -933,11 +949,29 @@ class BrickRED(Device):
         """
         return self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_CAMERA_AVAILABLE, (), '', 'i')
 
+    def vision_preselect_framesize(self, width, height):
+        """
+        
+        """
+        return self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_PRESELECT_FRAMESIZE, (width, height), 'H H', 'i')
+
     def vision_start_idle(self):
         """
         
         """
         return self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_START_IDLE, (), '', 'i')
+
+    def vision_set_latency(self, milliseconds):
+        """
+        
+        """
+        return self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_SET_LATENCY, (milliseconds,), 'I', 'i')
+
+    def vision_get_resolution(self):
+        """
+        
+        """
+        return VisionGetResolution(*self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_GET_RESOLUTION, (), '', 'H H i'))
 
     def vision_pause(self):
         """
@@ -957,23 +991,23 @@ class BrickRED(Device):
         """
         return self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_QUIT, (), '', 'i')
 
-    def vision_set_latency(self, milliseconds):
+    def vision_pause_id(self, id):
         """
         
         """
-        return self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_SET_LATENCY, (milliseconds,), 'I', 'i')
+        return self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_PAUSE_ID, (id,), 'b', 'i')
 
-    def vision_stream(self, id):
+    def vision_restart_id(self, id):
         """
         
         """
-        return self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_STREAM, (id,), 'b', 'i')
+        return self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_RESTART_ID, (id,), 'b', 'i')
 
-    def vision_snapshot(self, id):
+    def vision_chain(self, id_first, id_second):
         """
         
         """
-        return self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_SNAPSHOT, (id,), 'b', 'i')
+        return self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_CHAIN, (id_first, id_second), 'b b', 'i')
 
     def vision_colormatch_start(self, id, min_hue, max_hue):
         """
@@ -992,6 +1026,24 @@ class BrickRED(Device):
         
         """
         return VisionColormatchGet(*self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_COLORMATCH_GET, (id,), 'b', 'i B B'))
+
+    def vision_motion_start(self, id):
+        """
+        
+        """
+        return self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_MOTION_START, (id,), 'b', 'i')
+
+    def vision_stream(self, id):
+        """
+        
+        """
+        return self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_STREAM, (id,), 'b', 'i')
+
+    def vision_snapshot(self, id):
+        """
+        
+        """
+        return self.ipcon.send_request(self, BrickRED.FUNCTION_VISION_SNAPSHOT, (id,), 'b', 'i')
 
     def get_identity(self):
         """

@@ -7,3 +7,5 @@ Redbrick-API.
 	  and only the Python bindings were kept.
 	- scripts: Files to test the bindings, either on-device or remotely.
 	  In general, they should work in both cases IF the host-ip is corrected.
+
+There's a Makefile in this directory which rebuilds and installs the bindings.
