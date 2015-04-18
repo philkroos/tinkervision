@@ -30,16 +30,15 @@ typedef const char* TFV_String;
 typedef unsigned TFV_UInt;
 typedef TFV_Short TFV_Id;
 typedef TFV_Int TFV_Result;
-typedef size_t TFV_Size;
+typedef uint16_t TFV_Size;
 typedef void* TFV_Context;
 
-typedef void (*TFV_CallbackColormatch)(TFV_Id, TFV_Int x, TFV_Int y,
+typedef void (*TFV_CallbackColormatch)(TFV_Id, TFV_Size x, TFV_Size y,
                                        TFV_Context);
 
-typedef void (*TFV_CallbackMotiondetect)(TFV_Id, TFV_Int x_topleft,
-                                         TFV_Int y_topleft,
-                                         TFV_Int x_bottomright,
-                                         TFV_Int y_bottomright, TFV_Context);
+typedef void (*TFV_CallbackMotiondetect)(TFV_Id, TFV_Size x_topleft,
+                                         TFV_Size y_topleft, TFV_Size width,
+                                         TFV_Size height, TFV_Context);
 
 /* result codes */
 

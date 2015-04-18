@@ -42,8 +42,8 @@ bool tfv::CameraControl::is_available(void) {
     return result;
 }
 
-bool tfv::CameraControl::preselect_framesize(size_t framewidth,
-                                             size_t frameheight) {
+bool tfv::CameraControl::preselect_framesize(uint16_t framewidth,
+                                             uint16_t frameheight) {
     if (not usercount_) {
         requested_width_ = framewidth;
         requested_height_ = frameheight;
@@ -116,7 +116,7 @@ void tfv::CameraControl::stop_camera(void) {
     _close_device();
 }
 
-bool tfv::CameraControl::get_properties(size_t& height, size_t& width,
+bool tfv::CameraControl::get_properties(uint16_t& height, uint16_t& width,
                                         size_t& frame_bytesize) {
     auto result = false;
 
@@ -127,7 +127,7 @@ bool tfv::CameraControl::get_properties(size_t& height, size_t& width,
     return result;
 }
 
-bool tfv::CameraControl::get_resolution(size_t& width, size_t& height) {
+bool tfv::CameraControl::get_resolution(uint16_t& width, uint16_t& height) {
     size_t bytesize;  // ignored
     return get_properties(width, height, bytesize);
 }

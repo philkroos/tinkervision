@@ -48,7 +48,8 @@ void tfv::Motiondetect::execute(tfv::Image const& image) {
 
             auto rect = cv::boundingRect(all_points);
             callback_(static_cast<TFV_Id>(module_id_), rect.tl().x, rect.tl().y,
-                      rect.br().x, rect.br().y, context_);
+                      rect.br().x - rect.tl().x, rect.br().y - rect.tl().y,
+                      context_);
         }
     }
 }

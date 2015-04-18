@@ -1,7 +1,7 @@
 # UID of the Redbrick
 uid = "2SYC7p"
 # IP of the redbrick (set to localhost if this script shall run on the redbrick)
-host = "192.168.0.48"
+host = "192.168.178.21"
 # Port the redbrick is listening on (default)
 port = 4223
 
@@ -14,7 +14,7 @@ try:
     ipcon = IPConnection()
     ipcon.connect(host, port)
 except Exception, e:
-    print "Failed to connect to " + host + ":" + port
+    print "Failed to connect to " + host + ":" + str(port)
     exit(-1)
 
 
@@ -27,7 +27,7 @@ try:
     if available == 0: # vision-library returns 0 as value for OK
         print "TinkerVision is available"
     else:
-        print "Tinkervision returned error: " + available
+        print "Tinkervision returned error: " + str(available)
 
     # Actually no need to do this explicitly
     red.vision_quit()

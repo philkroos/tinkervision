@@ -23,28 +23,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern "C" {
 #endif
 
-/* colormatch */
-
-TFV_Result colormatch_start(TFV_Id feature_id, TFV_Byte min_hue,
-                            TFV_Byte max_hue, TFV_CallbackColormatch callback,
-                            TFV_Context opaque);
-
-TFV_Result colormatch_restart(TFV_Id feature_id);
-
-TFV_Result colormatch_stop(TFV_Id feature_id);
-
-TFV_Result colormatch_get(TFV_Id feature_id, TFV_Byte* min_hue,
-                          TFV_Byte* max_hue);
-
-/* motiondetect */
-
-TFV_Result motiondetect_start(TFV_Id feature_id,
-                              TFV_CallbackMotiondetect callback,
-                              TFV_Context opaque);
-
 /* api */
 
 TFV_Result camera_available(void);
+
+TFV_Result preselect_framesize(TFV_Size width, TFV_Size height);
 
 /**
  * Starts a dummy module keeping the Api up and running even if no 'real' module
@@ -55,11 +38,10 @@ TFV_Result camera_available(void);
  */
 TFV_Result start_idle(void);
 
-TFV_Result preselect_framesize(TFV_Size width, TFV_Size height);
-
-TFV_Result restart_id(TFV_Id id);
-
-TFV_Result stop_id(TFV_Id id);
+/**
+ * Introduce a delay into the execution to save processing power.
+ */
+TFV_Result set_execution_latency(TFV_UInt milliseconds);
 
 /**
  * Request the resolution of the camera frames.  This can only be called once
@@ -79,9 +61,10 @@ TFV_Result get_resolution(TFV_Size* width, TFV_Size* height);
  */
 TFV_Result stop(void);
 
+/**
+ * Restart the API from paused state, initiated through call to stop.
+ */
 TFV_Result start(void);
-
-TFV_Result chain(TFV_Id first, TFV_Id second);
 
 /**
  * Stop all modules and shutdown the api.  This is generally not necessary if
@@ -92,9 +75,38 @@ TFV_Result chain(TFV_Id first, TFV_Id second);
  */
 TFV_Result quit(void);
 
-TFV_Result set_execution_latency(TFV_UInt milliseconds);
+TFV_Result stop_id(TFV_Id id);
+
+TFV_Result restart_id(TFV_Id id);
+
+/**
+ * Set an order to the active modules. Calling this the first time, will
+ * deactivate all modules but first and second, setting first and second to be
+ * executed in corresponding order. For every subsequent call, one of first and
+ * second has to be active.
+ */
+TFV_Result chain(TFV_Id first, TFV_Id second);
 
 TFV_String result_string(TFV_Result code);
+
+/* colormatch */
+
+TFV_Result colormatch_start(TFV_Id feature_id, TFV_Byte min_hue,
+                            TFV_Byte max_hue, TFV_CallbackColormatch callback,
+                            TFV_Context opaque);
+
+TFV_Result colormatch_stop(TFV_Id feature_id);
+
+TFV_Result colormatch_get(TFV_Id feature_id, TFV_Byte* min_hue,
+                          TFV_Byte* max_hue);
+
+TFV_Result colormatch_restart(TFV_Id feature_id);
+
+/* motiondetect */
+
+TFV_Result motiondetect_start(TFV_Id feature_id,
+                              TFV_CallbackMotiondetect callback,
+                              TFV_Context opaque);
 
 /* streamer */
 
