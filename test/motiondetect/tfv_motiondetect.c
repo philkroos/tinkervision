@@ -28,9 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 static IplImage* image = NULL;
 
-void tfv_motiondetect_callback(TFV_Id id, TFV_Int x_topleft, TFV_Int y_topleft,
-                               TFV_Int x_bottomright, TFV_Int y_bottomright,
-                               TFV_Context context) {
+void tfv_motiondetect_callback(TFV_Id id, TFV_Size x_topleft,
+                               TFV_Size y_topleft, TFV_Size width,
+                               TFV_Size height, TFV_Context context) {
 
     int thickness = 2;
     int linetype = CV_AA;
@@ -40,8 +40,8 @@ void tfv_motiondetect_callback(TFV_Id id, TFV_Int x_topleft, TFV_Int y_topleft,
 
     topleft.x = x_topleft;
     topleft.y = y_topleft;
-    bottomright.x = x_bottomright;
-    bottomright.y = y_bottomright;
+    bottomright.x = topleft.x + width;
+    bottomright.y = topleft.y + height;
 
     cvRectangle(image, topleft, bottomright, CV_RGB(255, 0, 0), thickness,
                 linetype, shift);
@@ -54,7 +54,7 @@ void tfv_motiondetect_callback(TFV_Id id, TFV_Int x_topleft, TFV_Int y_topleft,
 int main(int argc, char* argv[]) {
 
     /* Framedimensions */
-    size_t width, height;
+    TFV_Size width, height;
 
     /* Runtime of program */
     int runtime = 20;

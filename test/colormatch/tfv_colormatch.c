@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 static int draw = 0;
 static IplImage* image = NULL;
 
-void tfcv_callback_id0(TFV_Id id, TFV_Int x, TFV_Int y, TFV_Context context) {
+void tfcv_callback_id0(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
     CvPoint center;
 
     if (!draw) {
@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
     TFV_Byte max_hue = 25;
     struct timespec time = {0};
     int i;
-    size_t width, height; /* framesize */
+    TFV_Size width, height; /* framesize */
 
     /*
       Performing some tests. The +/-/# signs in front of the output mean:

@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdlib.h>
 #include "tinkervision.h"
 
-void tfcv_callback(TFV_Id id, TFV_Int x, TFV_Int y, TFV_Context context) {
+void tfcv_callback(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
     printf("Executing id %d\n", id);
 }
 
