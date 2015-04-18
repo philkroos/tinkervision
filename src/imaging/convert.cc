@@ -34,6 +34,7 @@ tfv::Image const& tfv::Convert::operator()(tfv::Image const& source) {
     }
 
     convert(source, *target);
+    std::cout << "Target bytesize is " << target->bytesize << std::endl;
     target->timestamp = source.timestamp;
 
     return *target;
@@ -268,6 +269,58 @@ tfv::ColorSpace tfv::ConvertBGRToRGB::target_format(
 
     target_size(source, target_width, target_height, target_bytesize);
     return tfv::ColorSpace::RGB888;
+}
+
+tfv::ColorSpace tfv::ConvertBGRToYV12::target_format(
+    tfv::Image const& source, size_t& target_width, size_t& target_height,
+    size_t& target_bytesize) const {
+
+    target_width = source.width;
+    target_height = source.height;
+    target_bytesize = (source.width * source.height * 3) >> 1;
+
+    std::cout << "Setting bytesize to " << target_bytesize << std::endl;
+    return tfv::ColorSpace::YV12;
+}
+
+void tfv::ConvertBGRToYV12::convert(Image const& source, Image& target) const {
+    std::cout << "Converting for bytesize " << target.bytesize << std::endl;
+    auto row0 = source.data;
+    auto row1 = source.data + source.width * 3;
+    auto y0 = target.data;
+    auto y1 = target.data + target.width;
+    auto v = target.data + target.width * target.height;
+    auto u = v + ((target.width * target.height) >> 2);
+
+    for (size_t i = 0; i < source.height; i += 2) {
+        for (size_t j = 0; j < source.width; j += 2) {
+            *y0++ = 0.299 * row0[2] + 0.587 * row0[1] + 0.114 * row0[0];
+            *y0++ = 0.299 * row0[5] + 0.587 * row0[4] + 0.114 * row0[3];
+            *y1++ = 0.299 * row1[2] + 0.587 * row1[1] + 0.114 * row1[0];
+            *y1++ = 0.299 * row1[5] + 0.587 * row1[4] + 0.114 * row1[3];
+            *u++ = ((0.499 * row0[2] - 0.331 * row0[1] - 0.169 * row0[0]) +
+                    (0.499 * row1[2] - 0.331 * row1[1] - 0.169 * row1[0]) +
+                    (0.499 * row0[5] - 0.331 * row0[4] - 0.169 * row0[3]) +
+                    (0.499 * row1[5] - 0.331 * row1[4] - 0.169 * row1[3])) /
+                       4.0 +
+                   128;
+            *v++ = ((-0.0813 * row0[2] - 0.418 * row0[1] + 0.499 * row0[0]) +
+                    (-0.0813 * row1[2] - 0.418 * row1[1] + 0.499 * row1[0]) +
+                    (-0.0813 * row0[5] - 0.418 * row0[4] + 0.499 * row0[3]) +
+                    (-0.0813 * row1[5] - 0.418 * row1[4] + 0.499 * row1[3])) /
+                       4.0 +
+                   128;
+
+            row0 += 6;
+            row1 += 6;
+        }
+
+        y0 = y1;
+        y1 = y1 + target.width;
+        row0 = row1;
+        row1 += source.width * 3;
+    }
+    std::cout << "Written " << (int)(u - target.data) << " byte" << std::endl;
 }
 
 tfv::Converter::Converter(tfv::ColorSpace source, tfv::ColorSpace target) {

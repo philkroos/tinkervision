@@ -293,6 +293,20 @@ protected:
                                      size_t& target_bytesize) const;
 };
 
+struct ConvertBGRToYV12 : public Convert {
+public:
+    virtual ~ConvertBGRToYV12(void) = default;
+
+protected:
+    virtual ColorSpace source_format(void) const { return ColorSpace::BGR888; }
+
+    virtual ColorSpace target_format(Image const& source, size_t& target_width,
+                                     size_t& target_height,
+                                     size_t& target_bytesize) const final;
+
+    virtual void convert(Image const& source, Image& target) const final;
+};
+
 /**
  * Public interface to this module
  */
@@ -320,7 +334,9 @@ private:
         std::make_tuple(ColorSpace::BGR888, ColorSpace::RGB888,
                         &Converter::bgr_to_rgb),
         std::make_tuple(ColorSpace::RGB888, ColorSpace::BGR888,
-                        &Converter::rgb_to_bgr)};
+                        &Converter::rgb_to_bgr),
+        std::make_tuple(ColorSpace::BGR888, ColorSpace::YV12,
+                        &Converter::bgr_to_yv12)};
 
     Convert* yuyv_to_yv12(void) { return new ConvertYUYVToYV12(); }
     Convert* yuyv_to_bgr(void) { return new ConvertYUYVToBGR(); }
@@ -329,6 +345,7 @@ private:
     Convert* yv12_to_bgr(void) { return new ConvertYV12ToBGR(); }
     Convert* bgr_to_rgb(void) { return new ConvertBGRToRGB(); }
     Convert* rgb_to_bgr(void) { return new ConvertRGBToBGR(); }
+    Convert* bgr_to_yv12(void) { return new ConvertBGRToYV12(); }
 
 private:  // These should really be just deleted, but current compiler has a
           // bug. See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58249
