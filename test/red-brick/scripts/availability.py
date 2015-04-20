@@ -1,6 +1,6 @@
 # UID of the Redbrick
 uid = "2SYC7p"
-# IP of the redbrick (set to localhost if this script shall run on the redbrick)
+# IP of the redbrick
 host = "192.168.178.21"
 # Port the redbrick is listening on (default)
 port = 4223

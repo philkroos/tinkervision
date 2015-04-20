@@ -35,7 +35,7 @@ tfv::Stream::~Stream(void) {
 }
 
 tfv::Stream::Stream(TFV_Int module_id, Module::Tag tags)
-    : Executable(module_id, "Stream", tags), context_(ExecutionContext::get()) {
+    : Output(module_id, "Stream", tags), context_(ExecutionContext::get()) {
 
     task_scheduler_ = BasicTaskScheduler::createNew();
 
@@ -67,7 +67,8 @@ void tfv::Stream::execute(tfv::Image const& image) {
             task_scheduler_->doEventLoop(&killswitch_);
         });
 
-        // std::cout << "Play the stream using " << rtsp_server_->rtspURL(session_)
+        // std::cout << "Play the stream using " <<
+        // rtsp_server_->rtspURL(session_)
         //           << std::endl;
     }
 

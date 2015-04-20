@@ -23,30 +23,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdlib.h>
 #include "tinkervision.h"
 
-TFV_Id motion = 1;
-TFV_Id snap = 2;
-TFV_Id result;
+TFV_Id first = 1;
+TFV_Id second = 2;
+TFV_Int result;
 
 void tfcv_callback(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Size width,
                    TFV_Size height, TFV_Context context) {
-    printf("Motion at %d, %d\n", x, y);
+    /*printf("Motion at %d, %d\n", x, y); */
 }
 
 int main(int argc, char* argv[]) {
 
-    result = motiondetect_start(motion, tfcv_callback, NULL);
-    printf("Id %d started: %s (%d)\n", motion, result_string(result), result);
+    result = preselect_framesize(640, 480);
+    printf("Selected framesize: %d\n", result);
+
+    result = motiondetect_start(first, tfcv_callback, NULL);
+    printf("Id %d started: %s (%d)\n", first, result_string(result), result);
 
     /* give api some time to actually start the modules */
     sleep(4);
-    result = snapshot(snap);
-    printf("Requested a snapshot with result %d: %s\n", result,
-           result_string(result));
-    /* chain(motion, snap); */
-    result = snapshot(snap);
-    printf("Requested a snapshot with result %d: %s\n", result,
-           result_string(result));
-    sleep(4);
+    result = streamer_stream(second);
+    printf("Id %d started: %s (%d)\n", second, result_string(result), result);
+
+    sleep(5);
+    printf("Chaining\n");
+    result = chain(first, second);
+    printf("Chaining result: %s (%d)\n", result_string(result), result);
+    sleep(30);
 
     quit();
     return 0;

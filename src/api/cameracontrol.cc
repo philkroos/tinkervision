@@ -17,10 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include "cameracontrol.hh"
-
 #include <thread>
 #include <chrono>
+#include <fstream>
+#include <iostream>
+
+#include "cameracontrol.hh"
 
 tfv::CameraControl::~CameraControl(void) { release(); }
 
@@ -138,9 +140,28 @@ bool tfv::CameraControl::get_resolution(uint16_t& width, uint16_t& height) {
     return get_properties(width, height, bytesize);
 }
 
+tfv::Converter* tfv::CameraControl::get_converter(tfv::ColorSpace from,
+                                                  tfv::ColorSpace to) {
+
+    auto it = std::find_if(provided_formats_.begin(), provided_formats_.end(),
+                           [&](Converter const& converter) {
+
+        return (converter.source_format() == from) and
+               (converter.target_format() == to);
+    });
+
+    if (it == provided_formats_.end()) {
+        provided_formats_.emplace_back(from, to);
+        it = --provided_formats_.end();
+    }
+
+    return &(*it);
+}
+
 void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ColorSpace format) {
 
-    // If the requested format is the same as provided by the camera, image_.
+    // If the requested format is the same as provided by the camera,
+    // image_.
     if (format == image_.format) {
         image = image_;
         return;
@@ -151,31 +172,36 @@ void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ColorSpace format) {
     // valid result with the same timestamp as image_. If, it has been run
     // already, just return the result. Else, run the converter.
 
-    auto it = std::find_if(provided_formats_.begin(), provided_formats_.end(),
-                           [&format](Converter const& converter) {
+    auto converter = get_converter(image_.format, format);
+    if (converter) {
+        image = converter->result();
 
-        return converter.target_format() == format;
-    });
+        if (image.format == tfv::ColorSpace::INVALID or
+            image.timestamp != image_.timestamp) {
 
-    if (it == provided_formats_.end()) {
-        provided_formats_.emplace_back(image_.format, format);
-        it = --provided_formats_.end();
-    }
-
-    image = it->result();
-    if (image.format == tfv::ColorSpace::INVALID or
-        image.timestamp != image_.timestamp) {
-
-        // conversion
-        image = (*it)(image_);
+            // conversion
+            image = (*converter)(image_);
+        }
     }
 }
 
 void tfv::CameraControl::regenerate_formats_from(Image const& image) {
-    for (auto& converter : provided_formats_) {
-        if (converter.target_format() != image.format) {
-            converter(image);
+    // std::cout << "Request to regenerate for " << image.format << std::endl;
+    if (image.format != image_.format) {
+        auto converter = get_converter(image.format, image_.format);
+        if (not converter) {
+            std::cout << "Can't regenerate formats from " << image.format
+                      << " (baseformat: " << image_.format << ")" << std::endl;
+            return;
         }
+        (*converter)(image, image_);
+    }
+
+    for (auto& converter : provided_formats_) {
+        if (converter.target_format() == image_.format) {
+            continue;
+        }
+        converter(image);
     }
 }
 
@@ -210,6 +236,10 @@ bool tfv::CameraControl::update_frame(void) {
         }
     }
 
+    if (image_.format == tfv::ColorSpace::INVALID) {
+        std::cout << "Warning: INVALID image format" << std::endl;
+    }
+
     return result;
 }
 
@@ -241,7 +271,8 @@ void tfv::CameraControl::_close_device() {
 
     // Save the last image in case it is requested again.
     // This is a precaution to prevent possible race conditions
-    // and to simplify interface usage if being accessed from several threads
+    // and to simplify interface usage if being accessed from several
+    // threads
     // without making things overcomplicated.
 
     if (camera_) {

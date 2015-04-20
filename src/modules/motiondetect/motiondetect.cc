@@ -63,6 +63,7 @@ void tfv::Motiondetect::callback(void) const {
 
 void tfv::Motiondetect::apply(tfv::Image& image) const {
     if (results_) {
+        std::cout << "Applying motionrect" << std::endl;
         cv::Mat frame(image.height, image.width, CV_8UC3, image.data);
         cv::rectangle(frame, rect_, cv::Scalar(255, 0, 0), 3);
     }

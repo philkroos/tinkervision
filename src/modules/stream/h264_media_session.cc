@@ -93,7 +93,7 @@ FramedSource* tfv::H264MediaSession::createNewStreamSource(
     /// \todo Adjust this with encoder settings
     estBitRate = 90000;
 
-    OutPacketBuffer::maxSize = 100000;
+    OutPacketBuffer::maxSize = 200000;
 
     tfv::H264ByteSource* source =
         tfv::H264ByteSource::createNew(envir(), context_);

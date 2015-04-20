@@ -169,6 +169,8 @@ private:
     using ProvidedFormats = std::vector<Converter>;
     ProvidedFormats provided_formats_;
 
+    Converter* get_converter(tfv::ColorSpace from, tfv::ColorSpace to);
+
     using FallbackImage = struct _ {
         Image image = {};
         bool active = false;

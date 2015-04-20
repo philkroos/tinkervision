@@ -24,16 +24,19 @@ try:
     # Instantiate the object representation of the RedBrick
     red = BrickRED(uid, ipcon)
 
+    # Check if the cam is online. Not necessary usually.
     ok = red.vision_camera_available()
 
     if ok != 0:
         raise Exception("vision::CameraAvailable returned error: " + str(ok))
 
+    # Set framesize to a streamable size
     ok = red.vision_preselect_framesize(640, 480)
 
     if ok != 0:
         raise Exception("vision::PreselectFramesize returned error: " + str(ok))
 
+    # Stream for 60 seconds
     id = 0
     ok = red.vision_stream(id)
 
@@ -43,12 +46,7 @@ try:
     print "Streaming for 60 seconds"
     sleep(60)
 
-    ok = red.vision_pause_id(id)
-
-    if ok != 0:
-        raise Exception("vision::StopId returned error: " + str(ok))
-
-    # Actually no need to do this explicitly
+   # Actually no need to do this explicitly
     ok = red.vision_quit()
 
     if ok != 0:

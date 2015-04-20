@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
-struct Stream : public Executable {
+struct Stream : public Output {
 
     Stream(TFV_Int module_id, Module::Tag tags);
 
