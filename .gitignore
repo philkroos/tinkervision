@@ -40,3 +40,6 @@ auto
 
 # On-device-testing-temporaries
 test/red-brick/python-bindings-generator/python/unzipped/
+
+# Documentation
+doc

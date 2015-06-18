@@ -65,3 +65,9 @@ clean:
 
 # generate rules
 $(foreach bdir,$(BUILD_DIR),$(eval $(call make-goal,$(bdir))))
+
+
+# documentation
+
+doc:
+	doxygen

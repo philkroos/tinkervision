@@ -31,11 +31,14 @@ namespace tfv {
 class Module {
 public:
     enum class Tag : unsigned {
+        // static tags
         None = 0x00,
         Executable = 0x01,
         Fx = 0x02,
         Analysis = 0x04,
         Output = 0x08,
+
+        // runtime tags
         ExecAndRemove = 0x10,
         ExecAndDisable = 0x20,
         Removable = 0x30,

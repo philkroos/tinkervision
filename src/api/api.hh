@@ -157,10 +157,10 @@ public:
 
     /**
      * Insert and activate or reconfigure a module.
-     * \parm[in] id The unique id of the module under which it may be
+     * \param[in] id The unique id of the module under which it may be
      * identified
      *   (i.e. in future calls to get/set/free...)
-     * \parm[in] ...args The module dependent list of constructor arguments
+     * \param[in] ...args The module dependent list of constructor arguments
      * \return
      * - TFV_INVALID_CONFIGURATION: if the arguments can not be used to
      *   construct a valid module of type Comp
