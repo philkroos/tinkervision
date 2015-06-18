@@ -117,8 +117,8 @@ bool tfv::V4L2USBCamera::open(void) {
     return is_open();
 }
 
-void tfv::V4L2USBCamera::retrieve_properties(uint16_t& framewidth,
-                                             uint16_t& frameheight,
+void tfv::V4L2USBCamera::retrieve_properties(uint_fast16_t& framewidth,
+                                             uint_fast16_t& frameheight,
                                              size_t& frame_bytesize) {
 
     if (not frame_width_ and is_open()) {

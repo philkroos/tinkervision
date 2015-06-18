@@ -33,7 +33,7 @@ public:
 
     void stop(void);
     bool get_frame(Image& frame);
-    bool get_properties(uint16_t& height, uint16_t& width,
+    bool get_properties(uint_fast16_t& height, uint_fast16_t& width,
                         size_t& framebytesize);
 
     virtual bool open(void) = 0;
@@ -43,26 +43,26 @@ public:
 
 protected:
     explicit Camera(TFV_Id camera_id);
-    Camera(TFV_Id camera_id, uint16_t framewidth, uint16_t frameheight);
+    Camera(TFV_Id camera_id, uint_fast16_t framewidth, uint_fast16_t frameheight);
     TFV_Id camera_id_;
 
     bool requested_settings(void) const { return requested_width_ != 0; }
 
-    uint16_t requested_framewidth(void) const { return requested_width_; }
+    uint_fast16_t requested_framewidth(void) const { return requested_width_; }
 
-    uint16_t requested_frameheight(void) const { return requested_height_; }
+    uint_fast16_t requested_frameheight(void) const { return requested_height_; }
 
     // These are Template Methods, see implementation
     // of the corresponding get_ methods.
     virtual bool retrieve_frame(Image& frame) = 0;
-    virtual void retrieve_properties(uint16_t& width, uint16_t& height,
+    virtual void retrieve_properties(uint_fast16_t& width, uint_fast16_t& height,
                                      size_t& framebytesize) = 0;
     virtual void close(void) = 0;
 
 private:
     bool active_{true};
-    uint16_t requested_width_{0};
-    uint16_t requested_height_{0};
+    uint_fast16_t requested_width_{0};
+    uint_fast16_t requested_height_{0};
 };
 }
 

@@ -19,18 +19,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <stdint.h>
 
-typedef int TFV_Bool;
-typedef uint8_t TFV_Byte;
-typedef unsigned char TFV_ImageData;
-
+/// \todo: Use these types everywhere, e.g. see cameracontrol.
+typedef int_fast8_t TFV_Bool;
 typedef int8_t TFV_Short;
-typedef int32_t TFV_Int;
-
+typedef int_fast16_t TFV_WordOrLarger;
+typedef uint_fast16_t TFV_UWordOrLarger;
+typedef uint_fast32_t TFV_UInt;
+typedef uint8_t TFV_Byte;
 typedef const char* TFV_String;
-typedef unsigned TFV_UInt;
+
+typedef TFV_Byte TFV_ImageData;
 typedef TFV_Short TFV_Id;
-typedef TFV_Int TFV_Result;
-typedef uint16_t TFV_Size;
+typedef TFV_UWordOrLarger TFV_Size;
+typedef TFV_WordOrLarger TFV_Int;
+typedef TFV_Int TFV_Scene;
+typedef int TFV_Result;
 typedef void* TFV_Context;
 
 typedef void (*TFV_CallbackPoint)(TFV_Id, TFV_Size x, TFV_Size y, TFV_Context);

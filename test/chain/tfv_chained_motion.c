@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 TFV_Id first = 1;
 TFV_Id second = 2;
-TFV_Int result;
+TFV_Result result;
 
 void tfcv_callback(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Size width,
                    TFV_Size height, TFV_Context context) {

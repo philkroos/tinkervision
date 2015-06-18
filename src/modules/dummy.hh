@@ -26,6 +26,7 @@ namespace tfv {
 class Dummy : public Module {
 public:
     Dummy(TFV_Int id, Module::Tag tags) : Module(id, "Dummy", tags) {}
+    void execute(tfv::Image const& image) override final {}
 };
 
 DECLARE_EMPTY_INTERFACE(Dummy)

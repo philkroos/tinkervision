@@ -88,6 +88,8 @@ public:
         return not(was_active == active_);
     }
 
+    virtual void execute(tfv::Image const& image) = 0;
+
     Tag const& tags(void) const { return tags_; }
     void tag(Tag tags) { tags_ |= tags; }
 };

@@ -50,8 +50,8 @@ void tfv::OpenCvUSBCamera::close(void) {
     camera_ = nullptr;
 }
 
-void tfv::OpenCvUSBCamera::retrieve_properties(uint16_t& width,
-                                               uint16_t& height,
+void tfv::OpenCvUSBCamera::retrieve_properties(uint_fast16_t& width,
+                                               uint_fast16_t& height,
                                                size_t& frame_bytesize) {
 
     _retrieve_properties();

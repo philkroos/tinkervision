@@ -44,8 +44,8 @@ bool tfv::CameraControl::is_available(void) {
     return result;
 }
 
-bool tfv::CameraControl::preselect_framesize(uint16_t framewidth,
-                                             uint16_t frameheight) {
+bool tfv::CameraControl::preselect_framesize(uint_fast16_t framewidth,
+                                             uint_fast16_t frameheight) {
     if (not usercount_) {
         requested_width_ = framewidth;
         requested_height_ = frameheight;
@@ -124,7 +124,7 @@ void tfv::CameraControl::release_all(void) {
     }
 }
 
-bool tfv::CameraControl::get_properties(uint16_t& height, uint16_t& width,
+bool tfv::CameraControl::get_properties(uint_fast16_t& height, uint_fast16_t& width,
                                         size_t& frame_bytesize) {
     auto result = false;
 
@@ -135,7 +135,7 @@ bool tfv::CameraControl::get_properties(uint16_t& height, uint16_t& width,
     return result;
 }
 
-bool tfv::CameraControl::get_resolution(uint16_t& width, uint16_t& height) {
+bool tfv::CameraControl::get_resolution(uint_fast16_t& width, uint_fast16_t& height) {
     size_t bytesize;  // ignored
     return get_properties(width, height, bytesize);
 }
