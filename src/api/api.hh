@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "executable.hh"
 #include "dummy.hh"
 #include "image.hh"
+#include "scene.hh"
 
 #include "shared_resource.hh"
 
@@ -459,6 +460,12 @@ public:
 
     TFV_Result chain(TFV_Id first, TFV_Id second);
 
+    // to replace the broken chain-functionality
+    TFV_Result scene_start(TFV_Id module_id, TFV_Scene* scene_id) {
+        scenes_.emplace_back(*modules_[module_id]);
+        return TFV_OK;
+    }
+
 private:
     CameraControl camera_control_;      ///< Camera access abstraction
     TFVStringMap result_string_map_;    ///< String mapping of Api-return values
@@ -477,6 +484,8 @@ private:
     std::thread executor_;  ///< Mainloop-Context executing the modules.
     bool active_ = true;    ///< While true, the mainloop is running.
     unsigned execution_latency_ms_ = 100;  ///< Pause during mainloop
+
+    std::vector<Scene> scenes_;
 
     /**
      * Threaded execution context of vision algorithms (modules).
