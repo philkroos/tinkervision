@@ -27,4 +27,21 @@ void tfv::Node::execute(tfv::Image const& image) {
         current_image = &image;
         module.execute(*current_image);
     }
+
+    for (auto node : children_) {
+        node->execute(image);
+    }
+}
+
+void tfv::Node::execute_for_scene(tfv::Image const& image, TFV_Scene scene_id) {
+    if (not current_image or (current_image->timestamp != image.timestamp)) {
+        current_image = &image;
+        module.execute(*current_image);
+    }
+
+    for (auto node : children_) {
+        if (node->is_used_by_scene(scene_id)) {
+            node->execute_for_scene(image, scene_id);
+        }
+    }
 }

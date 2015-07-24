@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "executable.hh"
 #include "dummy.hh"
 #include "image.hh"
+#include "node.hh"
 #include "scene.hh"
 
 #include "shared_resource.hh"
@@ -461,9 +462,109 @@ public:
     TFV_Result chain(TFV_Id first, TFV_Id second);
 
     // to replace the broken chain-functionality
-    TFV_Result scene_start(TFV_Id module_id, TFV_Scene* scene_id) {
-        scenes_.emplace_back(*modules_[module_id]);
+    TFV_Result scene_start(TFV_Id module_id) {
+
+        if (not modules_.managed(module_id)) {
+            return TFV_INVALID_ID;
+        }
+
+        auto scene_id = _next_scene_id();
+
+        // same root existing already?
+        auto tree = std::find_if(scenetrees_.cbegin(), scenetrees_.cend(),
+                                 [](Scene const* tree) {
+            return scene->tree.module_id() == module_id;
+        });
+
+        if (tree == scenetrees_.end()) {
+            // Construct new node, new scene and link both
+            scenenodes_.emplace_back(scene_id, module_id);
+            scenes_.emplace_back(scene_id, scenenodes_.back());
+            // A new root node is a new tree
+            scenetrees_.push_back(&scenes_.back());
+
+        } else {  // can reuse an existing root
+            tree->tree().add_scene(scene_id);
+        }
+
         return TFV_OK;
+    }
+
+    TFV_Result scene_remove(TFV_Scene scene_id) {
+        auto scene = scene_from_id(scene_id);
+
+        if (not scene) {
+            return TFV_INVALID_ID;
+        }
+
+        auto* node = &(scene->leaf());
+
+        // Remove scene from node
+        node->remove_scene(scene_id);
+
+        // Remove scene from tree
+        while (node and node->is_leaf() and
+               not node->is_used_by_any_scene()) {  // is no longer needed
+
+            auto parent = node->parent();
+            if (parent) {
+                parent->remove_scene(scene_id);
+                parent->remove_child(node);
+                node = parent;
+            }
+        }
+
+        std::remove_if(scenenodes_.begin(), scenenodes_.end(), [](Node* node) {
+            return not node->is_used_by_any_scene();
+        });
+
+        _remove_scene(scene);
+        return TFV_OK;
+    }
+
+    TFV_Result add_to_scene(TFV_Scene scene_id, TFV_Int module_id) {
+        // scene has to exist already
+        auto scene = _scene_from_id(scene_id);
+        if (not scene or not modules_.managed(module_id)) {
+            return TFV_INVALID_ID;
+        }
+
+        // If another scene owns the same nodes, the requested node might
+        // also already exist.
+        auto node = scene->leaf().get_child_from_module_id(module_id);
+        if (node == nullptr) {
+            scenenodes_.emplace_back(scene_id, module_id, &scene->leaf());
+            node = &scenenodes_.back();
+
+        } else {
+            node->add_scene(scene_id);
+        }
+
+        scene->attach(node);
+        return TFV_OK;
+    }
+
+    TFV_Result scene_disable(TFV_Scene scene_id) {}
+
+    TFV_Result scene_enable(TFV_Scene scene_id) {}
+
+    Scene* _scene_from_id(TFV_Scene scene_id) {
+        auto scene_iter = std::find_if(
+            scenes_.cbegin(), scenes_.cend(),
+            [](Scene const* scene) { return scene->id() == scene_id; });
+
+        if (scene_iter == scenes_.cend()) {
+            return nullptr;
+        }
+
+        return &(*scene_iter);
+    }
+
+    void _remove_scene(Scene* scene) {
+        auto it = std::find(scenes_.cbegin(), scenes_.cend(), *scene);
+
+        assert(it != scenes_.cend());
+        scenes_.erase(it);
     }
 
 private:
@@ -485,7 +586,13 @@ private:
     bool active_ = true;    ///< While true, the mainloop is running.
     unsigned execution_latency_ms_ = 100;  ///< Pause during mainloop
 
-    std::vector<Scene> scenes_;
+    std::vector<Node> scenenodes_;  ///< All used nodes
+    std::vector<Scene*> scenetrees_;
+
+    // scenes may reside in the same tree
+    using SceneList = std::vector<Scene>;
+    using SceneListIter = SceneList::iterator;
+    SceneList scenes_;
 
     /**
      * Threaded execution context of vision algorithms (modules).
@@ -602,6 +709,11 @@ private:
     TFV_Int _next_internal_id(void) const {
         static TFV_Int internal_id{std::numeric_limits<TFV_Id>::max() + 1};
         return internal_id++;
+    }
+
+    TFV_Int _next_scene_id(void) const {
+        static TFV_Int scene_id{std::numeric_limits<TFV_Id>::max() + 1};
+        return scene_id++;
     }
 };
 

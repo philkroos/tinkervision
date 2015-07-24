@@ -46,6 +46,8 @@ typedef void (*TFV_CallbackRectangle)(TFV_Id, TFV_Size x_topleft,
 
 typedef TFV_CallbackRectangle TFV_CallbackMotiondetect;
 
+#define TFV_UNUSED_ID -1
+
 /* result codes */
 
 /* General 'ok' results */

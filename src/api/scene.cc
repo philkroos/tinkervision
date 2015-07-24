@@ -24,26 +24,4 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "scene.hh"
 
-void tfv::Scene::execute(tfv::Image const& image) {
-    root_.execute(image);
-
-    for (auto const& scene : subscenes_) {
-        scene->execute(image);
-    }
-}
-
-/*
-tfv::Scene& tfv::Scene::subscene_from_module(tfv::Module& module) {
-    subscenes_.emplace_back(module);
-    return subscenes_.back();
-}
-*/
-
-
-void tfv::Scene::subscene_from_scene(tfv::Scene& scene) {
-
-    // prevent circular graphs
-    if (not scene.has_subscene(*this)) {
-        subscenes_.push_back(&scene);
-    }
-}
+void tfv::Scene::execute(tfv::Image const& image) { root_.execute(image, id_); }

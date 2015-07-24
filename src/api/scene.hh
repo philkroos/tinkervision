@@ -21,40 +21,55 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
     A Scene is a tree of modules, held in instances of Node.
 
-    \todo The usual methods for a tree: depth, size, leaves, ...
 */
 
-#include <vector>
+#include <list>
+#include <cassert>
 
+#include "tinkervision_defines.h"
 #include "module.hh"
 #include "node.hh"
 
 namespace tfv {
-    class Scene;
-    using Successors = std::vector<Scene*>;
 
-    class Scene {
-    public:
-        explicit Scene(Module& root_module) : root_(Node(root_module)) {}
+class Scene {
+public:
+    Scene(TFV_Scene id, Node& root_node) : id_(id) {
+        nodes_.push_back(&root_node);
+    }
 
-        /**
-         * Depth-first execution of this scene.
-         */
-        void execute(Image const& image);
+    ~Scene(void) = default;
 
-        //        void subscene_from_module(Module& module);
-        void subscene_from_scene(Scene& scene);
+    /**
+     * Depth-first execution of this scene.
+     */
+    void execute(Image const& image);
 
-    private:
-        Node root_;
-        Successors subscenes_;
+    TFV_Scene id(void) const { return id_; }
 
-        bool has_subscene(Scene const& scene) const {
-            return std::find_if(subscenes_.cbegin(), subscenes_.cend(),
-                                [&scene] (Scene* s) {
-                                    return &scene == s;
-                                }
-                                ) != subscenes_.cend();
+    Node& leaf(void) const { return *nodes_.back(); }
+
+    Node& tree(void) const { return *nodes_.begin(); }
+
+    void attach(Node* node) {
+        auto last = nodes_.back();
+
+        if (node != nullptr) {
+            nodes_.push_back(node);
         }
-    };
+        last.add_child(&nodes_.back());
+    }
+
+    void disable(void) { disabled_ = true; }
+
+    void enable(void) { disabled_ = false; }
+
+    bool enabled(void) { return not disabled_; }
+
+private:
+    TFV_Scene id_;
+    std::list<Node*> nodes_;
+
+    bool disabled_ = false;
+};
 }
