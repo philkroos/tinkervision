@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "image.hh"
 #include "node.hh"
 #include "scene.hh"
+#include "logger.hh"
 
 #include "shared_resource.hh"
 
@@ -223,17 +224,8 @@ public:
             auto module = modules_[id];
             result = TFV_INVALID_ID;
 
-            if (check_type<Module>(module)) {
-                result = TFV_CAMERA_ACQUISITION_FAILED;
-
-                modules_.exec_one(id, [&result, this](tfv::Module& comp) {
-                    if (comp.enabled()) {
-                        result = TFV_OK;
-                    } else if (camera_control_.acquire()) {
-                        comp.enable();
-                        result = TFV_OK;
-                    }
-                });
+            if (_check_type<Module>(module)) {
+                result = _enable_module(module_id);
             }
         }
 
@@ -260,16 +252,7 @@ public:
         auto id = static_cast<TFV_Int>(module_id);
 
         if (modules_.managed(id)) {
-            result = TFV_CAMERA_ACQUISITION_FAILED;
-
-            modules_.exec_one(id, [&result, this](tfv::Module& comp) {
-                if (comp.enabled()) {
-                    result = TFV_OK;
-                } else if (camera_control_.acquire()) {
-                    comp.enable();
-                    result = TFV_OK;
-                }
-            });
+            result = _enable_module(module_id);
         }
 
         return result;
@@ -283,8 +266,7 @@ public:
      * \note The associated resources (namely the camera handle)
      * will be released (once) to be usable in other contexts, so
      * this might prohibit restart of the module. If however the camera is
-     *used
-     * by other modules as well, it will stay open.
+     * used by other modules as well, it will stay open.
      *
      * \param id The id of the module to stop. The type of the associated
      * module has to match Module.
@@ -295,22 +277,18 @@ public:
      */
     template <typename Module>
     TFV_Result module_stop(TFV_Id module_id) {
-        auto result = TFV_UNCONFIGURED_ID;
         auto id = static_cast<TFV_Int>(module_id);
 
         auto module = modules_[id];
-        if (module) {
-            result = TFV_INVALID_ID;
-
-            if (check_type<Module>(module)) {
-                modules_.exec_one(id, [this](tfv::Module& comp) {
-                    comp.disable();
-                    camera_control_.release();
-                });
-                result = TFV_OK;
-            }
+        if (module == nullptr) {
+            return TFV_UNCONFIGURED_ID;
         }
-        return result;
+
+        if (not _check_type<Module>(module)) {
+            return TFV_INVALID_ID;
+        }
+
+        return _disable_module(id);
     }
 
     /**
@@ -330,18 +308,13 @@ public:
      *  - TFV_UNCONFIGURED_ID if the id is not registered
      */
     TFV_Result stop_id(TFV_Id module_id) {
-        auto result = TFV_UNCONFIGURED_ID;
         auto id = static_cast<TFV_Int>(module_id);
 
-        if (modules_.managed(id)) {
-
-            modules_.exec_one(id, [this](tfv::Module& comp) {
-                comp.disable();
-                camera_control_.release();
-            });
-            result = TFV_OK;
+        if (not modules_.managed(id)) {
+            return TFV_UNCONFIGURED_ID;
         }
-        return result;
+
+        return _disable_module(module_id);
     }
 
     /**
@@ -359,23 +332,23 @@ public:
      */
     template <typename Module>
     TFV_Result module_remove(TFV_Id module_id) {
-        auto result = TFV_UNCONFIGURED_ID;
         auto id = static_cast<TFV_Int>(module_id);
 
         auto module = modules_[id];
-        if (modules_.managed(id)) {
-            result = TFV_INVALID_ID;
-
-            if (check_type<Module>(module)) {
-                modules_.exec_one(id, [this](tfv::Module& comp) {
-                    comp.disable();
-                    comp.tag(Module::Tag::Removable);
-                    camera_control_.release();
-                });
-                result = TFV_OK;
-            }
+        if (not modules_.managed(id)) {
+            return TFV_UNCONFIGURED_ID;
         }
-        return result;
+
+        if (not _check_type<Module>(module)) {
+            return TFV_INVALID_ID;
+        }
+
+        return modules_.exec_one(id, [this](tfv::Module& comp) {
+            comp.disable();
+            comp.tag(Module::Tag::Removable);
+            camera_control_.release();
+            return TFV_OK;
+        });
     }
 
     /**
@@ -391,19 +364,18 @@ public:
      *  - TFV_UNCONFIGURED_ID if the id is not registered
      */
     TFV_Result remove_id(TFV_Id module_id) {
-        auto result = TFV_UNCONFIGURED_ID;
         auto id = static_cast<TFV_Int>(module_id);
 
-        if (modules_[id]) {
-
-            modules_.exec_one(id, [this](tfv::Module& comp) {
-                comp.disable();
-                comp.tag(Module::Tag::Removable);
-                camera_control_.release();
-            });
-            result = TFV_OK;
+        if (not modules_[id]) {
+            return TFV_UNCONFIGURED_ID;
         }
-        return result;
+
+        return modules_.exec_one(id, [this](tfv::Module& comp) {
+            comp.disable();
+            comp.tag(Module::Tag::Removable);
+            camera_control_.release();
+            return TFV_OK;
+        });
     }
 
     /**
@@ -465,37 +437,41 @@ public:
      * Start a scene which is a directed chain of modules.
      *
      * \note Replaces the broken chain-functionality
+     * If a scene is started:
+     * - All modules not part of a scene are deactivated
      */
-    TFV_Result scene_start(TFV_Id module_id) {
+    TFV_Result scene_start(TFV_Id module_id, TFV_Scene* scene_id) {
+        Log("API", "Starting scene");
 
         if (not modules_.managed(module_id)) {
             return TFV_INVALID_ID;
         }
 
-        auto scene_id = _next_scene_id();
+        *scene_id = _next_scene_id();
 
         // same root existing already?
-        auto tree = std::find_if(scenetrees_.cbegin(), scenetrees_.cend(),
-                                 [](Scene const* tree) {
+        auto tree = std::find_if(scenetrees_.begin(), scenetrees_.end(),
+                                 [&module_id](Scene* scene) {
             return scene->tree().module_id() == module_id;
         });
 
         if (tree == scenetrees_.end()) {
             // Construct new node, new scene and link both
-            scenenodes_.emplace_back(scene_id, module_id);
-            scenes_.emplace_back(scene_id, scenenodes_.back());
+            scenenodes_.emplace_back(*scene_id, module_id);
+            scenes_.emplace_back(*scene_id, scenenodes_.back());
             // A new root node is a new tree
             scenetrees_.push_back(&scenes_.back());
 
         } else {  // can reuse an existing root
-            tree->tree().add_scene(scene_id);
+            (*tree)->tree().add_scene(*scene_id);
         }
 
         return TFV_OK;
     }
 
     TFV_Result scene_remove(TFV_Scene scene_id) {
-        auto scene = scene_from_id(scene_id);
+        Log("API", "Removing scene");
+        auto scene = _scene_from_id(scene_id);
 
         if (not scene) {
             return TFV_INVALID_ID;
@@ -511,15 +487,15 @@ public:
                not node->is_used_by_any_scene()) {  // is no longer needed
 
             auto parent = node->parent();
-            if (parent) {
+            if (parent != nullptr) {
                 parent->remove_scene(scene_id);
                 parent->remove_child(node);
-                node = parent;
             }
+            node = parent;
         }
 
-        std::remove_if(scenenodes_.begin(), scenenodes_.end(), [](Node* node) {
-            return not node->is_used_by_any_scene();
+        std::remove_if(scenenodes_.begin(), scenenodes_.end(), [](Node& node) {
+            return not node.is_used_by_any_scene();
         });
 
         _remove_scene(scene);
@@ -527,6 +503,7 @@ public:
     }
 
     TFV_Result add_to_scene(TFV_Scene scene_id, TFV_Int module_id) {
+        Log("API", "Add to scene");
         // scene has to exist already
         auto scene = _scene_from_id(scene_id);
         if (not scene or not modules_.managed(module_id)) {
@@ -535,9 +512,9 @@ public:
 
         // If another scene owns the same nodes, the requested node might
         // also already exist.
-        auto node = scene->leaf()->get_child_from_module_id(module_id);
+        auto node = scene->leaf().get_child_from_module_id(module_id);
         if (node == nullptr) {
-            scenenodes_.emplace_back(scene_id, module_id, scene->leaf());
+            scenenodes_.emplace_back(scene_id, module_id, &scene->leaf());
             node = &scenenodes_.back();
 
         } else {
@@ -548,28 +525,9 @@ public:
         return TFV_OK;
     }
 
-    TFV_Result scene_disable(TFV_Scene scene_id) {}
+    TFV_Result scene_disable(TFV_Scene scene_id) { return TFV_NOT_IMPLEMENTED; }
 
-    TFV_Result scene_enable(TFV_Scene scene_id) {}
-
-    Scene* _scene_from_id(TFV_Scene scene_id) {
-        auto scene_iter = std::find_if(
-            scenes_.cbegin(), scenes_.cend(),
-            [](Scene const* scene) { return scene->id() == scene_id; });
-
-        if (scene_iter == scenes_.cend()) {
-            return nullptr;
-        }
-
-        return &(*scene_iter);
-    }
-
-    void _remove_scene(Scene* scene) {
-        auto it = std::find(scenes_.cbegin(), scenes_.cend(), *scene);
-
-        assert(it != scenes_.cend());
-        scenes_.erase(it);
-    }
+    TFV_Result scene_enable(TFV_Scene scene_id) { return TFV_NOT_IMPLEMENTED; }
 
 private:
     CameraControl camera_control_;      ///< Camera access abstraction
@@ -590,8 +548,8 @@ private:
     bool active_ = true;    ///< While true, the mainloop is running.
     unsigned execution_latency_ms_ = 100;  ///< Pause during mainloop
 
-    std::vector<Node> scenenodes_;  ///< All used nodes
-    std::vector<Scene*> scenetrees_;
+    std::vector<Node> scenenodes_;    ///< All used nodes
+    std::vector<Scene*> scenetrees_;  ///< Scenes that share initial nodes
 
     // scenes may reside in the same tree
     using SceneList = std::vector<Scene>;
@@ -615,7 +573,7 @@ private:
      * match.
      */
     template <typename C>
-    bool check_type(tfv::Module const* module) const {
+    bool _check_type(tfv::Module const* module) const {
         return typeid(*module) == typeid(C);
     }
 
@@ -627,7 +585,7 @@ private:
      * match.
      */
     template <typename C>
-    bool check_type(tfv::Module const& module) const {
+    bool _check_type(tfv::Module const& module) const {
         return typeid(module) == typeid(C);
     }
 
@@ -646,7 +604,7 @@ private:
             result = TFV_INVALID_ID;
             auto const& module_ = modules_[id];
 
-            if (check_type<Module>(module_)) {
+            if (_check_type<Module>(module_)) {
                 result = TFV_OK;
                 *module = static_cast<Module const*>(&module_);
             }
@@ -658,56 +616,108 @@ private:
     template <typename Comp, typename... Args>
     TFV_Result _module_set(TFV_Int id, Module::Tag tags, Args... args) {
 
-        auto result = TFV_INVALID_CONFIGURATION;
-
-        if (tfv::valid<Comp>(args...)) {
-            if (modules_.managed(id)) {      // reconfiguring requested
-                auto module = modules_[id];  // ptr
-
-                result = TFV_INVALID_ID;
-
-                if (check_type<Comp>(module)) {
-
-                    // GCC4.7 does not support binding of ...args to lambdas
-                    // yet
-                    // so this is the workaround to get the arguments into
-                    // the
-                    // execution context (which expects a 1-parameter func)
-
-                    auto two_parameter =
-                        [this](tfv::Module& module, Args... args) {
-                        tfv::set<Comp>(static_cast<Comp*>(&module), args...);
-                        if (not module.enabled()) {
-                            if (camera_control_.acquire()) {
-                                module.enable();
-                            }
-                        }
-                    };
-                    auto one_parameter =  // currying
-                        std::bind(two_parameter, std::placeholders::_1,
-                                  args...);
-
-                    modules_.exec_one(id, one_parameter);
-
-                    result = TFV_OK;
-                }
-
-            } else {  // new module
-                result = TFV_CAMERA_ACQUISITION_FAILED;
-
-                if (camera_control_.acquire()) {
-                    result = TFV_MODULE_INITIALIZATION_FAILED;
-
-                    if (modules_.allocate<Comp>(id, tags, args...)) {
-                        result = TFV_OK;
-                    } else {
-                        camera_control_.release();
-                    }
-                }
-            }
+        if (not tfv::valid<Comp>(args...)) {
+            return TFV_INVALID_CONFIGURATION;
         }
 
+        if (not modules_.managed(id)) {
+            return _module_set_new<Comp>(id, tags, args...);
+        }
+
+        // reconfiguration requested
+
+        auto module = modules_[id];  // ptr
+
+        if (not _check_type<Comp>(module)) {
+            return TFV_INVALID_ID;
+        }
+
+        // GCC4.7 does not support binding of ...args to lambdas
+        // yet, this is the workaround to get the arguments into
+        // the execution context (which expects a 1-parameter func)
+        auto two_parameter = [this](tfv::Module& module, Args... args) {
+            tfv::set<Comp>(static_cast<Comp*>(&module), args...);
+            if (module.enabled() or camera_control_.acquire()) {
+                module.enable();  // redundant
+                return TFV_OK;
+            } else {
+                return TFV_CAMERA_ACQUISITION_FAILED;
+            }
+        };
+        auto one_parameter =  // currying
+            std::bind(two_parameter, std::placeholders::_1, args...);
+
+        return modules_.exec_one(id, one_parameter);
+    }
+
+    template <typename Comp, typename... Args>
+    TFV_Result _module_set_new(TFV_Int id, Module::Tag tags, Args... args) {
+
+        if (not camera_control_.acquire()) {
+            return TFV_CAMERA_ACQUISITION_FAILED;
+        }
+        if (not modules_.allocate<Comp>(id, tags, args...)) {
+            camera_control_.release();
+            return TFV_MODULE_INITIALIZATION_FAILED;
+        }
+
+        return TFV_OK;
+    }
+
+    Scene* _scene_from_id(TFV_Scene scene_id) {
+        auto scene_iter = std::find_if(
+            scenes_.begin(), scenes_.end(),
+            [&scene_id](Scene& scene) { return scene.id() == scene_id; });
+
+        if (scene_iter == scenes_.cend()) {
+            return nullptr;
+        }
+
+        return &(*scene_iter);
+    }
+
+    void _remove_scene(Scene* scene) {
+        auto it = std::find(scenes_.cbegin(), scenes_.cend(), *scene);
+
+        assert(it != scenes_.cend());
+        scenes_.erase(it);
+    }
+
+    TFV_Result _enable_module_for_scene(TFV_Int module_id) {
+        auto result = TFV_INVALID_ID;
+
+        if (scenes_.empty()) {
+            // stop all modules but the requested one
+            modules_.exec_all(
+                [&module_id, this](TFV_Int id, tfv::Module& module) {
+                    if (module_id != module.id()) {
+                        module.disable();
+                        camera_control_.release();
+                    }
+                });
+        } else {
+            result = _enable_module(module_id);
+        }
         return result;
+    }
+
+    TFV_Result _enable_module(TFV_Int id) {
+        return modules_.exec_one(id, [this](tfv::Module& comp) {
+            if (comp.enabled() or camera_control_.acquire()) {
+                comp.enable();  // redundant
+                return TFV_OK;
+            } else {
+                return TFV_CAMERA_ACQUISITION_FAILED;
+            }
+        });
+    }
+
+    TFV_Result _disable_module(TFV_Int id) {
+        return modules_.exec_one(id, [this](tfv::Module& comp) {
+            comp.disable();
+            camera_control_.release();
+            return TFV_OK;
+        });
     }
 
     TFV_Int _next_internal_id(void) const {

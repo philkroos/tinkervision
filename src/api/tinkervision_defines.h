@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <stdint.h>
 
-/// \todo: Use these types everywhere, e.g. see cameracontrol.
+/* \todo: Use these types everywhere, e.g. see cameracontrol. */
 typedef int_fast8_t TFV_Bool;
 typedef int8_t TFV_Short;
 typedef int_fast16_t TFV_WordOrLarger;

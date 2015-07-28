@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "api.hh"
 #include "module.hh"
-#define DEBUG 1
 #include "window.hh"
 
 tfv::Api::Api(void) { (void)start(); }
@@ -42,8 +41,7 @@ TFV_Result tfv::Api::start(void) {
 
     camera_control_.acquire(active_count);
 
-    // std::cout << "Restarting with " << active_count << " modules" <<
-    // std::endl;
+    Log("API", "Restarting with ", active_count, " modules");
 
     // Start threaded execution of mainloop
     if (not executor_.joinable()) {

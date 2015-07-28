@@ -1,5 +1,5 @@
 CC		:= g++
-CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -D_GLIBCXX_USE_NANOSLEEP -fPIC
+CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -D_GLIBCXX_USE_NANOSLEEP -fPIC -DDEBUG
 
 # structure
 MODULES         := colormatch stream record motiondetect

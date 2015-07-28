@@ -87,6 +87,10 @@ TFV_Result restart_id(TFV_Id id);
  */
 TFV_Result chain(TFV_Id first, TFV_Id second);
 
+TFV_Result scene_from_module(TFV_Id module, TFV_Scene* scene);
+TFV_Result scene_add_module(TFV_Scene scene, TFV_Id module);
+TFV_Result scene_remove(TFV_Scene scene);
+
 TFV_String result_string(TFV_Result code);
 
 /* colormatch */

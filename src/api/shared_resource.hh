@@ -80,14 +80,18 @@ public:
      * \parm[in] executor The function to be executed on the resource identified
      * by id.
      */
-    void exec_one(TFV_Int id, std::function<void(Resource&)> executor) {
+    TFV_Result exec_one(TFV_Int id,
+                        std::function<TFV_Result(Resource&)> executor) {
         if (not managed_.size()) {
-            return;
+            return TFV_INVALID_ID;
         }
+
         std::lock_guard<std::mutex> lock(managed_mutex_);
         auto it = managed_.find(id);
         if (it != managed_.end()) {
-            executor(resource(it));
+            return executor(resource(it));
+        } else {
+            return TFV_INVALID_ID;
         }
     }
 

@@ -20,6 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 /** \file node.hh
 */
 
+#ifndef NODE_H
+#define NODE_H
+
 #include <cassert>
 #include <vector>
 #include <algorithm>
@@ -109,6 +112,13 @@ public:
         // node->parent = this;
     }
 
+    void remove_child(Node* node) {
+        auto it = std::find(children_.begin(), children_.end(), node);
+        if (it != children_.end()) {
+            children_.erase(it);
+        }
+    }
+
 private:
     Image const* current_image = nullptr;
     TFV_Int module_id_;
@@ -121,3 +131,5 @@ private:
     std::vector<TFV_Scene> scenes_;
 };
 }
+
+#endif

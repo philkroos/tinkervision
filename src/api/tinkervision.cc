@@ -57,6 +57,18 @@ TFV_Result chain(TFV_Id first, TFV_Id second) {
     return tfv::get_api().chain(first, second);
 }
 
+TFV_Result scene_from_module(TFV_Id module, TFV_Scene* scene_id) {
+    return tfv::get_api().scene_start(module, scene_id);
+}
+
+TFV_Result scene_add_module(TFV_Scene scene, TFV_Id module) {
+    return tfv::get_api().add_to_scene(scene, module);
+}
+
+TFV_Result scene_remove(TFV_Scene scene) {
+    return tfv::get_api().scene_remove(scene);
+}
+
 TFV_Result quit(void) { return tfv::get_api().quit(); }
 
 TFV_Result set_execution_latency(TFV_UInt milliseconds) {

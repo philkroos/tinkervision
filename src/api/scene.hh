@@ -84,4 +84,6 @@ private:
 
     bool disabled_ = false;
 };
+
+bool operator==(Scene const& lhs, Scene const& rhs);
 }
