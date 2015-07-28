@@ -461,7 +461,11 @@ public:
 
     TFV_Result chain(TFV_Id first, TFV_Id second);
 
-    // to replace the broken chain-functionality
+    /**
+     * Start a scene which is a directed chain of modules.
+     *
+     * \note Replaces the broken chain-functionality
+     */
     TFV_Result scene_start(TFV_Id module_id) {
 
         if (not modules_.managed(module_id)) {
@@ -473,7 +477,7 @@ public:
         // same root existing already?
         auto tree = std::find_if(scenetrees_.cbegin(), scenetrees_.cend(),
                                  [](Scene const* tree) {
-            return scene->tree.module_id() == module_id;
+            return scene->tree().module_id() == module_id;
         });
 
         if (tree == scenetrees_.end()) {
@@ -497,7 +501,7 @@ public:
             return TFV_INVALID_ID;
         }
 
-        auto* node = &(scene->leaf());
+        auto node = &scene->leaf();
 
         // Remove scene from node
         node->remove_scene(scene_id);
@@ -531,9 +535,9 @@ public:
 
         // If another scene owns the same nodes, the requested node might
         // also already exist.
-        auto node = scene->leaf().get_child_from_module_id(module_id);
+        auto node = scene->leaf()->get_child_from_module_id(module_id);
         if (node == nullptr) {
-            scenenodes_.emplace_back(scene_id, module_id, &scene->leaf());
+            scenenodes_.emplace_back(scene_id, module_id, scene->leaf());
             node = &scenenodes_.back();
 
         } else {

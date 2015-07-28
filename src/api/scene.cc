@@ -20,8 +20,4 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 /** \file scene.cc
 */
 
-#include <algorithm>
-
 #include "scene.hh"
-
-void tfv::Scene::execute(tfv::Image const& image) { root_.execute(image, id_); }

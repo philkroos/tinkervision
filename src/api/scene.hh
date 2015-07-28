@@ -27,12 +27,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <cassert>
 
 #include "tinkervision_defines.h"
+#include "shared_resource.hh"
 #include "module.hh"
 #include "node.hh"
 
 namespace tfv {
 
 class Scene {
+
 public:
     Scene(TFV_Scene id, Node& root_node) : id_(id) {
         nodes_.push_back(&root_node);
@@ -43,13 +45,23 @@ public:
     /**
      * Depth-first execution of this scene.
      */
-    void execute(Image const& image);
+    void execute(Modules& modules, Image const& image) {
+        tree().execute_for_scene(modules, image, id_);
+    }
 
     TFV_Scene id(void) const { return id_; }
 
-    Node& leaf(void) const { return *nodes_.back(); }
+    Node& leaf(void) const {
+        assert(not nodes_.empty());
 
-    Node& tree(void) const { return *nodes_.begin(); }
+        return *nodes_.back();
+    }
+
+    Node& tree(void) const {
+        assert(not nodes_.empty());
+
+        return **nodes_.begin();
+    }
 
     void attach(Node* node) {
         auto last = nodes_.back();
@@ -57,7 +69,7 @@ public:
         if (node != nullptr) {
             nodes_.push_back(node);
         }
-        last.add_child(&nodes_.back());
+        last->add_child(nodes_.back());
     }
 
     void disable(void) { disabled_ = true; }

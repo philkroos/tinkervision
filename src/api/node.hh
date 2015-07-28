@@ -21,12 +21,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include <cassert>
+#include <vector>
+#include <algorithm>
 
 #include "module.hh"
 #include "image.hh"
+#include "shared_resource.hh"
+#include "module.hh"
 
 namespace tfv {
+using Modules = tfv::SharedResource<tfv::Module>;
+
 class Node {
+
 public:
     // default c'tor to be able to store in container types
     Node(void) : module_id_(TFV_UNUSED_ID) {}
@@ -53,8 +60,9 @@ public:
      * by comparing both images timestamps for equality.
      * \param[in] image The image to be processed.
      */
-    void execute(Image const& image);
-    void execute_for_scene(Image const& image, TFV_Scene scene_id);
+    void execute(Modules& modules, Image const& image);
+    void execute_for_scene(Modules& modules, Image const& image,
+                           TFV_Scene scene_id);
 
     TFV_Int module_id(void) const { return module_id_; }
 
@@ -65,15 +73,16 @@ public:
     std::vector<Node*> children(void) const { return children_; }
 
     Node* get_child_from_module_id(TFV_Int module_id) {
-        auto node = std::find_if(
-            children_.begin(), children_.end(),
-            [](Node const* node) { node->module_id() == module_id; });
+        auto node = std::find_if(children_.begin(), children_.end(),
+                                 [&module_id](Node const* node) {
+            return node->module_id() == module_id;
+        });
 
         if (node == children_.end()) {
             return nullptr;
         }
 
-        return &(*node);
+        return *node;
     }
 
     bool is_leaf(void) const { return children_.empty(); }
@@ -90,7 +99,14 @@ public:
 
     bool is_used_by_scene(TFV_Scene id) const {
         return std::find(scenes_.cbegin(), scenes_.cend(), id) !=
-               std::cend(scenes_);
+               scenes_.cend();
+    }
+
+    void add_child(Node* node) {
+        children_.push_back(node);
+
+        assert(node->parent() == this);
+        // node->parent = this;
     }
 
 private:

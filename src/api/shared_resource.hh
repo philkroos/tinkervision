@@ -17,9 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#ifndef SHARED_RESOURCE_H
+#define SHARED_RESOURCE_H
+
 #include <mutex>
 #include <unordered_map>
 #include <forward_list>
+#include <algorithm>
 #include <functional>
 
 #include "tinkervision_defines.h"
@@ -355,3 +359,5 @@ private:
     std::mutex mutable managed_mutex_;
 };
 }
+
+#endif

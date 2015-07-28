@@ -22,26 +22,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "node.hh"
 
-void tfv::Node::execute(tfv::Image const& image) {
+void tfv::Node::execute(Modules& modules, tfv::Image const& image) {
     if (not current_image or (current_image->timestamp != image.timestamp)) {
         current_image = &image;
-        module.execute(*current_image);
+
+        if (modules.managed(module_id_)) {
+            // module.execute(*current_image);
+        }
     }
 
     for (auto node : children_) {
-        node->execute(image);
+        node->execute(modules, image);
     }
 }
 
-void tfv::Node::execute_for_scene(tfv::Image const& image, TFV_Scene scene_id) {
+void tfv::Node::execute_for_scene(Modules& modules, tfv::Image const& image,
+                                  TFV_Scene scene_id) {
     if (not current_image or (current_image->timestamp != image.timestamp)) {
         current_image = &image;
-        module.execute(*current_image);
+
+        if (modules.managed(module_id_)) {
+            // modules.execute(*current_image);
+        }
     }
 
     for (auto node : children_) {
         if (node->is_used_by_scene(scene_id)) {
-            node->execute_for_scene(image, scene_id);
+            node->execute_for_scene(modules, image, scene_id);
         }
     }
 }
