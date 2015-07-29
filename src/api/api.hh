@@ -343,6 +343,10 @@ public:
             return TFV_INVALID_ID;
         }
 
+        if (_scenes_active()) {
+            return TFV_NOT_IMPLEMENTED;
+        }
+
         return modules_.exec_one(id, [this](tfv::Module& comp) {
             comp.disable();
             comp.tag(Module::Tag::Removable);
@@ -447,6 +451,16 @@ public:
             return TFV_INVALID_ID;
         }
 
+        if (scenes_.empty()) {
+            assert(scenetrees_.empty() and scenenodes_.empty());
+            _disable_all_modules();
+        }
+
+        auto result = _enable_module(module_id);
+        if (result != TFV_OK) {
+            return result;
+        }
+
         *scene_id = _next_scene_id();
 
         // same root existing already?
@@ -477,9 +491,8 @@ public:
             return TFV_INVALID_ID;
         }
 
-        auto node = &scene->leaf();
-
         // Remove scene from node
+        auto node = &scene->leaf();
         node->remove_scene(scene_id);
 
         // Remove scene from tree
@@ -508,6 +521,11 @@ public:
         auto scene = _scene_from_id(scene_id);
         if (not scene or not modules_.managed(module_id)) {
             return TFV_INVALID_ID;
+        }
+
+        auto result = _enable_module(module_id);
+        if (result != TFV_OK) {
+            return result;
         }
 
         // If another scene owns the same nodes, the requested node might
@@ -548,7 +566,8 @@ private:
     bool active_ = true;    ///< While true, the mainloop is running.
     unsigned execution_latency_ms_ = 100;  ///< Pause during mainloop
 
-    std::vector<Node> scenenodes_;    ///< All used nodes
+    std::vector<Node> scenenodes_;  ///< All used nodes
+    using SceneNodeIterator = std::vector<Node>::iterator;
     std::vector<Scene*> scenetrees_;  ///< Scenes that share initial nodes
 
     // scenes may reside in the same tree
@@ -683,28 +702,27 @@ private:
         scenes_.erase(it);
     }
 
-    TFV_Result _enable_module_for_scene(TFV_Int module_id) {
-        auto result = TFV_INVALID_ID;
+    void _disable_all_modules(void) {
+        modules_.exec_all([this](TFV_Int id, tfv::Module& module) {
+            module.disable();
+            camera_control_.release();
+        });
+    }
 
-        if (scenes_.empty()) {
-            // stop all modules but the requested one
-            modules_.exec_all(
-                [&module_id, this](TFV_Int id, tfv::Module& module) {
-                    if (module_id != module.id()) {
-                        module.disable();
-                        camera_control_.release();
-                    }
-                });
-        } else {
-            result = _enable_module(module_id);
-        }
-        return result;
+    void _enable_all_modules(void) {
+        modules_.exec_all([this](TFV_Int id, tfv::Module& module) {
+            if (not module.enabled()) {
+                if (camera_control_.acquire()) {
+                    module.enable();
+                }
+            }
+        });
     }
 
     TFV_Result _enable_module(TFV_Int id) {
         return modules_.exec_one(id, [this](tfv::Module& comp) {
             if (comp.enabled() or camera_control_.acquire()) {
-                comp.enable();  // redundant
+                comp.enable();  // possibly redundant
                 return TFV_OK;
             } else {
                 return TFV_CAMERA_ACQUISITION_FAILED;
@@ -719,6 +737,18 @@ private:
             return TFV_OK;
         });
     }
+
+    SceneNodeIterator _find_scenenode_from_module_id(TFV_Int module_id) {
+        auto it = std::find_if(scenenodes_.begin(), scenenodes_.end(),
+                               [&module_id](Node const& node) {
+
+            return node.module_id() == module_id;
+        });
+
+        return it;
+    }
+
+    bool _scenes_active(void) const { return not scenenodes_.empty(); }
 
     TFV_Int _next_internal_id(void) const {
         static TFV_Int internal_id{std::numeric_limits<TFV_Id>::max() + 1};

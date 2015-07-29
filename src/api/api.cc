@@ -95,10 +95,6 @@ TFV_Result tfv::Api::quit(void) {
 
 void tfv::Api::execute(void) {
 
-    using DelayedApplyableModules = std::list<int>;
-
-    DelayedApplyableModules delayed_application;
-
     // Execute active module
     auto module_exec = [&](TFV_Int id, tfv::Module& module) {
 
@@ -108,58 +104,27 @@ void tfv::Api::execute(void) {
         }
 
         auto tags = module.tags();
-        if ((tags & Module::Tag::Executable) and
-            (not chained_ or ((tags & Module::Tag::Sequential) and
-                              not(tags & Module::Tag::Output)))) {
+        if (tags & Module::Tag::Executable) {
 
             auto& executable = static_cast<Executable&>(module);
             // retrieve the frame in the requested format and execute the module
             camera_control_.get_frame(image_, executable.expected_format());
 
+            executable.execute(image_);
+
             auto& tags = module.tags();
-            if ((tags & Module::Tag::Fx) and
-                chained_) {  // apply fx only if chained
-
-                executable.execute(image_);
+            if (tags & Module::Tag::Fx) {
                 camera_control_.regenerate_formats_from(image_);
-            }
-
-            else if (chained_ and not(tags & Module::Tag::Output)) {
-
-                executable.execute(image_);
-            } else if (not chained_) {
-
-                executable.execute(image_);
-            }
-
-            if (tags & Module::Tag::ExecAndRemove) {
-                module.tag(Module::Tag::Removable);
-                camera_control_.release();
-
-            } else if (tags & Module::Tag::ExecAndDisable) {
-                if (module.disable()) {
-                    camera_control_.release();
-                }
             }
         }
-    };
 
-    static tfv::Window window;
-    auto module_apply = [&](TFV_Int id, tfv::Module& module) {
-        if (module.enabled()) {
+        if (tags & Module::Tag::ExecAndRemove) {
+            module.tag(Module::Tag::Removable);
+            camera_control_.release();
 
-            auto const format =
-                static_cast<Executable const&>(module).expected_format();
-            camera_control_.get_frame(image_, format);
-
-            if (module.tags() & Module::Tag::Analysis) {
-
-                static_cast<Analysis const&>(module).apply(image_);
-                window.update(1, image_.data, image_.height, image_.width);
-                camera_control_.regenerate_formats_from(image_);
-
-            } else if (module.tags() & Module::Tag::Output) {
-                static_cast<Output&>(module).execute(image_);
+        } else if (tags & Module::Tag::ExecAndDisable) {
+            if (module.disable()) {
+                camera_control_.release();
             }
         }
     };
@@ -170,16 +135,13 @@ void tfv::Api::execute(void) {
     auto latency_ms = no_module_min_latency_ms;
     while (active_) {
 
-        delayed_application.clear();
-
         // Activate new and remove freed resources
         modules_.update();
 
         if (active_modules()) {  // This does not account for modules
             // being 'stopped', i.e. this is true even if all modules are in
             // paused state.  Then, camera_control_ will return the last
-            // image
-            // retrieved from the camera (and it will be ignored by
+            // image retrieved from the camera (and it will be ignored by
             // update_module anyways)
 
             latency_ms =
@@ -187,9 +149,14 @@ void tfv::Api::execute(void) {
 
             if (camera_control_.update_frame()) {
 
-                modules_.exec_all(module_exec);
-                if (chained_) {
-                    modules_.exec_all(module_apply);
+                if (1) {  // scenetrees_.empty()) {
+                    Log("API", "Executing all");
+                    modules_.exec_all(module_exec);
+                } else {
+                    for (auto& tree : scenetrees_) {
+                        (void)tree;
+                        Log("API", "Executing tree");
+                    }
                 }
 
             } else {
@@ -206,9 +173,10 @@ void tfv::Api::execute(void) {
             return module.tags() & Module::Tag::Removable;
         });
 
-        // some buffertime for two reasons: first, the outer thread
-        // gets time to run second, the camera driver is probably not
-        // that fast and will fail if it is driven too fast.
+        // some buffertime for two reasons:
+        // - the outer thread gets time to run
+        // - the camera driver is probably not
+        //   that fast and showed to fail if it is driven too fast.
         //
         // \todo The proper time to wait depends on the actual hardware and
         // should at least consider the actual time the modules

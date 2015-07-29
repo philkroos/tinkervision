@@ -40,6 +40,8 @@ public:
     using Iterator = typename ResourceMap::iterator;
     using ConstIterator = typename ResourceMap::const_iterator;
 
+    using Executor = std::function<void(TFV_Int, Resource&)>;
+
     ~SharedResource(void) {
         for (auto const& resource : allocated_) {
             if (resource.second) delete resource.second;
@@ -56,7 +58,7 @@ public:
      * Execute a function on all active resources in turn.
      * \parm[in] executor The function to be executed on each resource.
      */
-    void exec_all(std::function<void(TFV_Int, Resource&)> executor) {
+    void exec_all(Executor executor) {
         if (not managed_.size()) {
             return;
 
@@ -110,27 +112,6 @@ public:
             }
         }
         return count;
-    }
-
-    bool sort(TFV_Id first, TFV_Id second) {
-        if (not managed(first) or not managed(second)) {
-            return false;
-        }
-
-        std::lock_guard<std::mutex> lock(managed_mutex_);
-        auto it_second =
-            std::find(std::begin(ids_managed_), std::end(ids_managed_), second);
-        auto it_first =
-            std::find(std::begin(ids_managed_), std::end(ids_managed_), first);
-
-        if (it_second != std::begin(ids_managed_)) {
-            ids_managed_.erase_after(std::prev(it_second));
-        } else {
-            ids_managed_.erase_after(ids_managed_.before_begin());
-        }
-
-        ids_managed_.insert_after(it_first, second);
-        return true;
     }
 
     void update(void) {
@@ -265,6 +246,39 @@ public:
         return resource;
     }
 
+    /**
+     * Define an order between two managed ids
+     * \param[in] first The id to be executed first
+     * \param[in] second The id to be executed second
+     *
+     * \return True if both id's are managed, in which case \code
+     * first will be executed first afterwards.
+     */
+    bool sort(TFV_Id first, TFV_Id second) {
+        if (not managed(first) or not managed(second)) {
+            return false;
+        }
+
+        std::lock_guard<std::mutex> lock(managed_mutex_);
+        auto it_second =
+            std::find(std::begin(ids_managed_), std::end(ids_managed_), second);
+        auto it_first =
+            std::find(std::begin(ids_managed_), std::end(ids_managed_), first);
+
+        if (it_second != std::begin(ids_managed_)) {
+            ids_managed_.erase_after(std::prev(it_second));
+        } else {
+            ids_managed_.erase_after(ids_managed_.before_begin());
+        }
+
+        ids_managed_.insert_after(it_first, second);
+        return true;
+    }
+
+    /**
+     * Manually sort the complete list of managed id's
+     * \param[in] sorter A function sorting the list of managed ids
+     */
     void sort_manually(std::function<void(IdList& ids)> sorter) {
         std::lock_guard<std::mutex> lock(managed_mutex_);
         sorter(ids_managed_);
@@ -333,6 +347,16 @@ private:
                     garbage_);
     }
 
+private:
+    ResourceMap allocated_;  ///< After allocate(), before persist()
+    ResourceMap managed_;    ///< After persist(), available for exec*
+    ResourceMap garbage_;    ///< After free(), before cleanup()
+    IdList ids_managed_;     ///< Sorted access to the active resources
+
+    std::mutex mutable allocation_mutex_;
+    std::mutex mutable garbage_mutex_;
+    std::mutex mutable managed_mutex_;
+
     template <typename Mutex, typename Func>
     void locked_call(Mutex& mutex, Func function) {
         using MutexGuard = std::lock_guard<Mutex>;
@@ -348,19 +372,6 @@ private:
         MutexGuard lock(mutex);
         return function(args...);
     }
-
-private:
-    ResourceMap allocated_;  ///< After allocate(), before persist()
-    ResourceMap managed_;    ///< After persist(), available for exec*
-    ResourceMap garbage_;    ///< After free(), before cleanup()
-    IdList ids_managed_;     ///< Sorted access to the active resources
-
-    // Needing to lock these sometimes in methods that do not change
-    // internal
-    // state, so declaring these mutable.
-    std::mutex mutable allocation_mutex_;
-    std::mutex mutable garbage_mutex_;
-    std::mutex mutable managed_mutex_;
 };
 }
 

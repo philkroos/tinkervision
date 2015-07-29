@@ -56,7 +56,8 @@ public:
      * \param[in] framewidth Width requested
      * \param[in] framheight Height requested
      */
-    bool preselect_framesize(uint_fast16_t framewidth, uint_fast16_t frameheight);
+    bool preselect_framesize(uint_fast16_t framewidth,
+                             uint_fast16_t frameheight);
 
     /**
      * Check if (any) cameradevice is available, acquire it if necessary.
@@ -121,7 +122,8 @@ public:
      * \param[out] bytesize total image width, i.e. in byte
      * \return False if no camera is opened or retrieving the values fails.
      */
-    bool get_properties(uint_fast16_t& height, uint_fast16_t& width, size_t& bytesize);
+    bool get_properties(uint_fast16_t& height, uint_fast16_t& width,
+                        size_t& bytesize);
 
     /**
      * Retrieves the frame properties from an opened device. No effect on

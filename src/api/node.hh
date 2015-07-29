@@ -73,6 +73,10 @@ public:
 
     Node* parent(void) const { return parent_; }
 
+    void set_parent(Node* parent) { parent_ = parent; }
+
+    std::vector<TFV_Scene>* scenes(void) { return &scenes_; }
+
     std::vector<Node*> children(void) const { return children_; }
 
     Node* get_child_from_module_id(TFV_Int module_id) {

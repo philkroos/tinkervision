@@ -62,6 +62,9 @@ int main(int argc, char* argv[]) {
         sleep(1);
     }
 
+    scene_remove(scene);
+    sleep(3);
+
     quit();
     return 0;
 }
