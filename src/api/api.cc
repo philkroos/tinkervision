@@ -95,7 +95,7 @@ TFV_Result tfv::Api::quit(void) {
 
 void tfv::Api::execute(void) {
 
-    // Execute active module
+    // Execute active module. This is the ONLY place where modules are executed.
     auto module_exec = [&](TFV_Int id, tfv::Module& module) {
 
         // skip paused modules
@@ -107,7 +107,7 @@ void tfv::Api::execute(void) {
 
             // retrieve the frame in the requested format and execute the module
             camera_control_.get_frame(image_, module.expected_format());
-            module.execute(image_);
+            module.exec(image_);
         }
 
         auto& tags = module.tags();
@@ -124,6 +124,13 @@ void tfv::Api::execute(void) {
                 camera_control_.release();
             }
         }
+    };
+
+    auto node_exec = [&](TFV_Int id) {
+        modules_.exec_one(id, [&](tfv::Module& module) {
+            module_exec(id, module);
+            return TFV_OK;
+        });
     };
 
     // mainloop
@@ -146,13 +153,15 @@ void tfv::Api::execute(void) {
 
             if (camera_control_.update_frame()) {
 
-                if (1) {  // scenetrees_.empty()) {
+                if (scenetrees_.empty()) {
                     Log("API", "Executing all");
                     modules_.exec_all(module_exec);
                 } else {
                     for (auto& tree : scenetrees_) {
-                        (void)tree;
-                        Log("API", "Executing tree");
+                        Log("API", "Executing tree ", (void*)tree);
+                        tree->tree().execute(
+                            node_exec,
+                            camera_control_.latest_frame_timestamp());
                     }
                 }
 

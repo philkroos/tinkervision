@@ -58,14 +58,14 @@ public:
     /**
      * Execute the module held by this node.
      *
-     * \code module will only be executed if the provided image
-     * is different from \code current_image, which is decided
-     * by comparing both images timestamps for equality.
-     * \param[in] image The image to be processed.
+     * \code module will only be executed if the provided timestamp
+     * is different from \code timestamp_.
+     * \param[in] executor The function to be called on the module.
+     * \param[in] timestamp The image to be processed.
      */
-    void execute(Modules& modules, Image const& image);
-    void execute_for_scene(Modules& modules, Image const& image,
-                           TFV_Scene scene_id);
+    void execute(std::function<void(TFV_Int id)> executor, Timestamp timestamp);
+    void execute_for_scene(std::function<void(TFV_Int id)> executor,
+                           Timestamp timestamp, TFV_Scene scene_id);
 
     TFV_Int module_id(void) const { return module_id_; }
 
@@ -124,7 +124,7 @@ public:
     }
 
 private:
-    Image const* current_image = nullptr;
+    Timestamp timestamp_{0};
     TFV_Int module_id_;
 
     // Tree

@@ -21,34 +21,38 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include "node.hh"
+#include "logger.hh"
 
-void tfv::Node::execute(Modules& modules, tfv::Image const& image) {
-    if (not current_image or (current_image->timestamp != image.timestamp)) {
-        current_image = &image;
+void tfv::Node::execute(std::function<void(TFV_Int id)> executor,
+                        tfv::Timestamp timestamp) {
 
-        if (modules.managed(module_id_)) {
-            // module.execute(*current_image);
-        }
+    Log("NODE::Execute", "(", (void*)this, ", module ", module_id_, ") at ",
+        timestamp);
+
+    if (timestamp_ != timestamp) {
+        timestamp_ = timestamp;
+
+        executor(module_id_);
     }
 
+    // depth-first recursion
     for (auto node : children_) {
-        node->execute(modules, image);
+        node->execute(executor, timestamp);
     }
 }
 
-void tfv::Node::execute_for_scene(Modules& modules, tfv::Image const& image,
+void tfv::Node::execute_for_scene(std::function<void(TFV_Int id)> executor,
+                                  tfv::Timestamp timestamp,
                                   TFV_Scene scene_id) {
-    if (not current_image or (current_image->timestamp != image.timestamp)) {
-        current_image = &image;
+    if (timestamp_ != timestamp) {
+        timestamp_ = timestamp;
 
-        if (modules.managed(module_id_)) {
-            // modules.execute(*current_image);
-        }
+        executor(module_id_);
     }
 
     for (auto node : children_) {
         if (node->is_used_by_scene(scene_id)) {
-            node->execute_for_scene(modules, image, scene_id);
+            node->execute_for_scene(executor, timestamp, scene_id);
         }
     }
 }

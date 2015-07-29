@@ -45,8 +45,9 @@ public:
     /**
      * Depth-first execution of this scene.
      */
-    void execute(Modules& modules, Image const& image) {
-        tree().execute_for_scene(modules, image, id_);
+    void execute(std::function<void(TFV_Int module_id)> executor,
+                 tfv::Timestamp timestamp) {
+        tree().execute_for_scene(executor, timestamp, id_);
     }
 
     TFV_Scene id(void) const { return id_; }

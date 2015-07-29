@@ -40,7 +40,8 @@ public:
     using Iterator = typename ResourceMap::iterator;
     using ConstIterator = typename ResourceMap::const_iterator;
 
-    using Executor = std::function<void(TFV_Int, Resource&)>;
+    using ExecAll = std::function<void(TFV_Int, Resource&)>;
+    using ExecOne = std::function<TFV_Result(Resource&)>;
 
     ~SharedResource(void) {
         for (auto const& resource : allocated_) {
@@ -58,7 +59,7 @@ public:
      * Execute a function on all active resources in turn.
      * \parm[in] executor The function to be executed on each resource.
      */
-    void exec_all(Executor executor) {
+    void exec_all(ExecAll executor) {
         if (not managed_.size()) {
             return;
 
@@ -82,8 +83,7 @@ public:
      * \parm[in] executor The function to be executed on the resource identified
      * by id.
      */
-    TFV_Result exec_one(TFV_Int id,
-                        std::function<TFV_Result(Resource&)> executor) {
+    TFV_Result exec_one(TFV_Int id, ExecOne executor) {
         if (not managed_.size()) {
             return TFV_INVALID_ID;
         }

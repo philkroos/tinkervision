@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tinkervision_defines.h"
 #include "image.hh"
 #include "bitflag.hh"
+#include "logger.hh"
 
 namespace tfv {
 
@@ -59,6 +60,8 @@ protected:
     Module(TFV_Int module_id, std::string type)
         : Module(module_id, type, Tag::None) {}
 
+    virtual void execute(tfv::Image const& image) = 0;
+
 public:
     virtual ~Module(void) {
         // std::cout << "Destroying module " << module_id_ << " (" << type_ <<
@@ -76,10 +79,16 @@ public:
     bool enabled(void) const noexcept { return active_; }
 
     // return previous state
-    bool enable(void) noexcept { return switch_active(true); }
+    bool enable(void) noexcept {
+        Log("MODULE", "Enabling module ", module_id_);
+        return switch_active(true);
+    }
 
     // return previous state
-    bool disable(void) noexcept { return switch_active(false); }
+    bool disable(void) noexcept {
+        Log("MODULE", "Disabling module ", module_id_);
+        return switch_active(false);
+    }
 
     // return false if previous state was the same
     bool switch_active(bool to_state) {
@@ -88,7 +97,10 @@ public:
         return not(was_active == active_);
     }
 
-    virtual void execute(tfv::Image const& image) = 0;
+    void exec(tfv::Image const& image) {
+        Log("MODULE::Execute", this);
+        execute(image);
+    }
     virtual ColorSpace expected_format(void) const = 0;
 
     Tag const& tags(void) const { return tags_; }

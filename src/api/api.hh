@@ -443,6 +443,10 @@ public:
             return TFV_INVALID_ID;
         }
 
+        if (modules_[module_id]->tags() & Module::Tag::ExecAndRemove) {
+            return TFV_NOT_IMPLEMENTED;
+        }
+
         if (scenes_.empty()) {
             assert(scenetrees_.empty() and scenenodes_.empty());
             _disable_all_modules();
@@ -508,11 +512,15 @@ public:
     }
 
     TFV_Result add_to_scene(TFV_Scene scene_id, TFV_Int module_id) {
-        Log("API", "Add to scene");
+        Log("API", "Add to scene: ", module_id, " -> ", scene_id);
         // scene has to exist already
         auto scene = _scene_from_id(scene_id);
         if (not scene or not modules_.managed(module_id)) {
             return TFV_INVALID_ID;
+        }
+
+        if (modules_[module_id]->tags() & Module::Tag::ExecAndRemove) {
+            return TFV_NOT_IMPLEMENTED;
         }
 
         auto result = _enable_module(module_id);
