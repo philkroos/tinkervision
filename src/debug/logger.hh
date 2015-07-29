@@ -29,6 +29,10 @@ namespace tfv {
 
 template <typename... Args>
 void Log(std::string const& prefix, Args... args) {}
+template <typename... Args>
+void LogError(std::string const& prefix, Args... args) {}
+template <typename... Args>
+void LogWarning(std::string const& prefix, Args... args) {}
 
 #else
 #include <fstream>
@@ -39,6 +43,8 @@ class Logger {
 private:
     std::string logfilename_ = "/tmp/tfv.log";
     std::ofstream logfile_;
+    static std::string PREFIX_WARNING;
+    static std::string PREFIX_ERROR;
 
     Logger(void) {
         logfile_.open(logfilename_, std::ios::out | std::ios::trunc);
@@ -59,13 +65,23 @@ private:
 
 public:
     template <typename... Args>
-    void log(std::string prefix, Args... args) {
+    void log_default(std::string prefix, Args... args) {
         if (not logfile_.is_open()) {
             return;
         }
 
         logfile_ << prefix << ": ";
         _print_out(args...);
+    }
+
+    template <typename... Args>
+    void log_warning(std::string prefix, Args... args) {
+        log_default(Logger::PREFIX_WARNING + "::" + prefix, args...);
+    }
+
+    template <typename... Args>
+    void log_error(std::string prefix, Args... args) {
+        log_default(Logger::PREFIX_ERROR + "::" + prefix, args...);
     }
 
     static Logger& instance(void) {
@@ -76,8 +92,17 @@ public:
 
 template <typename... Args>
 void Log(std::string const& prefix, Args... args) {
-    std::cout << "Logging for " << prefix << std::endl;
-    Logger::instance().log(prefix, args...);
+    Logger::instance().log_default(prefix, args...);
+}
+
+template <typename... Args>
+void LogError(std::string const& prefix, Args... args) {
+    Logger::instance().log_error(prefix, args...);
+}
+
+template <typename... Args>
+void LogWarning(std::string const& prefix, Args... args) {
+    Logger::instance().log_warning(prefix, args...);
 }
 
 #endif
