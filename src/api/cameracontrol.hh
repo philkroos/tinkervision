@@ -155,6 +155,8 @@ public:
      */
     void get_frame(Image& image, ColorSpace format);
 
+    Timestamp latest_frame_timestamp(void) const { return image_.timestamp; }
+
     /**
      * Recreate the images in all provided formats from the supplied template.
      * \parm[in] image The source for the conversion.

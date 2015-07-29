@@ -223,6 +223,7 @@ bool tfv::CameraControl::update_frame(void) {
         if (result) {
             if (not camera_) {
                 if (fallback.active) {
+                    Log("CAMERACONTROL", "Fallback image ", image_.timestamp);
                     image_ = fallback.image;
                 }
                 result = fallback.active;
@@ -235,6 +236,8 @@ bool tfv::CameraControl::update_frame(void) {
                     std::this_thread::sleep_for(std::chrono::milliseconds(20));
                     result = camera_->get_frame(image_);
                 }
+                Log("CAMERACONTROL", "Result ", result, " for image ",
+                    image_.timestamp);
             }
         }
     }
