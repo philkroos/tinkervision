@@ -37,8 +37,11 @@ void LogWarning(std::string const& prefix, Args... args) {}
 #else
 #include <fstream>
 #include <iostream>
+#include <bitset>
 
 namespace tfv {
+class Module;  // forward, for ostream declaration
+
 class Logger {
 private:
     std::string logfilename_ = "/tmp/tfv.log";
@@ -105,6 +108,7 @@ void LogWarning(std::string const& prefix, Args... args) {
     Logger::instance().log_warning(prefix, args...);
 }
 
+std::ostream& operator<<(std::ostream& stream, Module* module);
 #endif
 }
 #endif
