@@ -36,7 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "strings.hh"
 #include "tinkervision_defines.h"
 #include "cameracontrol.hh"
-#include "executable.hh"
 #include "dummy.hh"
 #include "image.hh"
 #include "node.hh"
@@ -136,23 +135,20 @@ public:
      * Start an idle process, i.e. a module which will never be executed.
      * This
      * is a lightweight module which will not trigger frame grabbing.
-     * However,
-     * once started, it will keep the camera device blocked so it may be
-     * used to
-     * hold on the camera handle even if no 'real' module is running.  This
-     * dummy process can not be referred to since the assigned id is not
-     * retreivable by the user, and it is (currently) not deactivatable
-     * unless
-     * quit() is called.  Also, the process will only be started once, no
-     * matter
-     * how often this method gets called.
+     * However, once started, it will keep the camera device blocked
+     * so it may be used to hold on the camera handle even if no 'real'
+     * module is running.  This dummy process can not be referred to
+     * since the assigned id is not retreivable by the user,
+     * and it is (currently) not deactivatable unless \code quit()
+     * is called.  Also, the process will only be started once, no
+     * matter how often this method gets called.
      * \return TFV_OK if the process is running afterwards
      */
     TFV_Result start_idle(void) {
         auto result = TFV_OK;  // optimistic because startable only once
 
         if (not idle_process_running_) {
-            result = _module_set<Dummy>(_next_internal_id(), Module::Tag::None);
+            result = module_set<Dummy>(_next_internal_id());
         }
         idle_process_running_ = (result == TFV_OK);
         return result;
@@ -161,22 +157,18 @@ public:
     /**
      * Insert and activate or reconfigure a module.
      * \param[in] id The unique id of the module under which it may be
-     * identified
-     *   (i.e. in future calls to get/set/free...)
+     * identified (i.e. in future calls to get/set/free...)
      * \param[in] ...args The module dependent list of constructor arguments
      * \return
      * - TFV_INVALID_CONFIGURATION: if the arguments can not be used to
      *   construct a valid module of type Comp
      * - TFV_INVALID_ID: if a module with the given id already exists but is
-     * not
-     *   of type Comp
+     * not of type Comp
      * - TFV_CAMERA_ACQUISITION_FAILED: if a new module shall be constructed
-     * but
-     *   the camera is not available
+     * but the camera is not available
      * - TFV_MODULE_INITIALIZATION_FAILED: if an error occurs during
-     * allocation
-     *   of the module
-     * - TFV_OK: this should be expect.
+     * allocation of the module
+     * - TFV_OK: this should be expected.
      */
     template <typename Comp, typename... Args>
     TFV_Result module_set(TFV_Id id, Args... args) {

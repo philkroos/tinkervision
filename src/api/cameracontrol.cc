@@ -1,21 +1,21 @@
 /*
-Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
+ Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
+ Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 
 #include <thread>
 #include <chrono>
@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <iostream>
 
 #include "cameracontrol.hh"
+#include "logger.hh"
 
 tfv::CameraControl::~CameraControl(void) { release(); }
 
@@ -124,7 +125,8 @@ void tfv::CameraControl::release_all(void) {
     }
 }
 
-bool tfv::CameraControl::get_properties(uint_fast16_t& height, uint_fast16_t& width,
+bool tfv::CameraControl::get_properties(uint_fast16_t& height,
+                                        uint_fast16_t& width,
                                         size_t& frame_bytesize) {
     auto result = false;
 
@@ -135,7 +137,8 @@ bool tfv::CameraControl::get_properties(uint_fast16_t& height, uint_fast16_t& wi
     return result;
 }
 
-bool tfv::CameraControl::get_resolution(uint_fast16_t& width, uint_fast16_t& height) {
+bool tfv::CameraControl::get_resolution(uint_fast16_t& width,
+                                        uint_fast16_t& height) {
     size_t bytesize;  // ignored
     return get_properties(width, height, bytesize);
 }
@@ -190,8 +193,8 @@ void tfv::CameraControl::regenerate_formats_from(Image const& image) {
     if (image.format != image_.format) {
         auto converter = get_converter(image.format, image_.format);
         if (not converter) {
-            std::cout << "Can't regenerate formats from " << image.format
-                      << " (baseformat: " << image_.format << ")" << std::endl;
+            LogError("CAMERACONTROL", "Can't regenerate formats from ",
+                     image.format, " (baseformat: ", image_.format, ")");
             return;
         }
         (*converter)(image, image_);
@@ -237,7 +240,7 @@ bool tfv::CameraControl::update_frame(void) {
     }
 
     if (image_.format == tfv::ColorSpace::INVALID) {
-        std::cout << "Warning: INVALID image format" << std::endl;
+        LogWarning("CAMERACONTROL", "INVALID image format");
     }
 
     return result;

@@ -23,47 +23,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "module.hh"
 
 namespace tfv {
-class Executable : public Module {
-private:
-    static auto constexpr TagExecutable = Module::Tag::Executable;
 
-protected:
-    Executable(TFV_Int id, std::string type, Module::Tag tags)
-        : Module(id, type, tags |= TagExecutable) {}
-
-public:
-    virtual ~Executable(void) = default;
-
-    // Interface that a concrete module has to implement.  The rest is defined
-    // as free function in module.hh
-
-    virtual ColorSpace expected_format(void) const = 0;
-    virtual void execute(tfv::Image const& image) = 0;
-};
-
-class Analysis : public Executable {
+class Analysis : public Module {
 protected:
     Analysis(TFV_Int id, std::string type, Module::Tag tags)
-        : Executable(id, type, tags |= Module::Tag::Analysis) {}
+        : Module(id, type, tags |= Module::Tag::Analysis) {}
 
 public:
     virtual void callback(void) const = 0;
     virtual void apply(tfv::Image& image) const = 0;
 };
 
-class Fx : public Executable {
+class Fx : public Module {
 protected:
     Fx(TFV_Int id, std::string type, Module::Tag tags)
-        : Executable(id, type, tags |= Module::Tag::Fx) {}
+        : Module(id, type, tags |= Module::Tag::Fx) {}
 
 public:
     virtual void apply(tfv::Image& image) const = 0;
 };
 
-class Output : public Executable {
+class Output : public Module {
 protected:
     Output(TFV_Int id, std::string type, Module::Tag tags)
-        : Executable(id, type, tags |= Module::Tag::Output) {}
+        : Module(id, type, tags |= Module::Tag::Output) {}
 };
 }
 #endif /* EXECUTABLE_H */

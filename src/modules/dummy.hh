@@ -27,6 +27,14 @@ class Dummy : public Module {
 public:
     Dummy(TFV_Int id, Module::Tag tags) : Module(id, "Dummy", tags) {}
     void execute(tfv::Image const& image) override final {}
+
+    /**
+     * \return \code ColorSpace::None to indicate that \code execute does not
+     * have to be called.
+     */
+    ColorSpace expected_format(void) const override final {
+        return ColorSpace::NONE;
+    }
 };
 
 DECLARE_EMPTY_INTERFACE(Dummy)

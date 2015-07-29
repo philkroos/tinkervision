@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
-struct Colormatch : public Executable {
+struct Colormatch : public Module {
 private:
     // arbitrary values; bringing good results
     TFV_Byte const min_saturation{50};
@@ -47,7 +47,7 @@ public:
     Colormatch(TFV_Int module_id, Module::Tag tags, TFV_Byte min_hue,
                TFV_Byte max_hue, TFV_CallbackColormatch callback,
                TFV_Context context)
-        : Executable(module_id, "Colormatch", tags),
+        : Module(module_id, "Colormatch", tags),
           user_min_hue(min_hue),
           user_max_hue(max_hue),
           callback(callback),

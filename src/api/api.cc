@@ -103,19 +103,16 @@ void tfv::Api::execute(void) {
             return;
         }
 
-        auto tags = module.tags();
-        if (tags & Module::Tag::Executable) {
+        if (module.expected_format() != ColorSpace::NONE) {
 
-            auto& executable = static_cast<Executable&>(module);
             // retrieve the frame in the requested format and execute the module
-            camera_control_.get_frame(image_, executable.expected_format());
+            camera_control_.get_frame(image_, module.expected_format());
+            module.execute(image_);
+        }
 
-            executable.execute(image_);
-
-            auto& tags = module.tags();
-            if (tags & Module::Tag::Fx) {
-                camera_control_.regenerate_formats_from(image_);
-            }
+        auto& tags = module.tags();
+        if (tags & Module::Tag::Fx) {
+            camera_control_.regenerate_formats_from(image_);
         }
 
         if (tags & Module::Tag::ExecAndRemove) {

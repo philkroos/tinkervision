@@ -89,6 +89,7 @@ public:
     }
 
     virtual void execute(tfv::Image const& image) = 0;
+    virtual ColorSpace expected_format(void) const = 0;
 
     Tag const& tags(void) const { return tags_; }
     void tag(Tag tags) { tags_ |= tags; }
