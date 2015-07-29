@@ -28,6 +28,8 @@ namespace tfv {
 /**
  * Supported image formats. The value range per entry is 0-255 for each format,
  * but the number of bytes per pixel differs.
+ * - NONE: Can be used by modules that don't want to process images.
+ * - INVALID: This would be an error.
  * - YUYV: packed Y'CbCr data, i.e. Y,V and U are stored in the same
  * datablock, structured like:
  * Y00 U00 Y01 V00 Y02 U01 Y03 V01 Y04 ...
@@ -50,7 +52,14 @@ namespace tfv {
  * So the size of one image is height * width * 3.
  * - BGR888: The same as RGB888 but reordered.
  */
-enum class ColorSpace : char { INVALID, YUYV, /*YVYU,*/ YV12, BGR888, RGB888 };
+enum class ColorSpace : char {
+    NONE,
+    INVALID,
+    YUYV,
+    /*YVYU,*/ YV12,
+    BGR888,
+    RGB888
+};
 
 std::ostream& operator<<(std::ostream& ost, ColorSpace const& format);
 
