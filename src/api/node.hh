@@ -35,25 +35,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 namespace tfv {
 using Modules = tfv::SharedResource<tfv::Module>;
 
+class SceneTree;  // forward
 class Node {
 
 public:
     // default c'tor to be able to store in container types
-    Node(void) : module_id_(TFV_UNUSED_ID) {}
+    Node(void) = default;
 
     // c'tor for a root node
-    Node(TFV_Scene scene_id, TFV_Int module_id)
-        : Node(scene_id, module_id, nullptr) {}
+    Node(TFV_Int node_id, TFV_Scene scene_id, TFV_Int module_id)
+        : Node(node_id, scene_id, module_id, nullptr) {}
 
     // complete c'tor
-    Node(TFV_Scene scene_id, TFV_Int module_id, Node* parent)
-        : module_id_(module_id), parent_(parent) {
+    Node(TFV_Int node_id, TFV_Scene scene_id, TFV_Int module_id, Node* parent)
+        : id_(node_id), module_id_(module_id), parent_(parent) {
 
         scenes_.push_back(scene_id);
         if (parent) {
+            tree_ = parent_->tree();
             parent_->children_.push_back(this);
         }
     }
+
+    TFV_Int id(void) const { return id_; }
 
     /**
      * Execute the module held by this node.
@@ -69,11 +73,14 @@ public:
 
     TFV_Int module_id(void) const { return module_id_; }
 
-    void add_scene(TFV_Scene scene_id) { scenes_.push_back(scene_id); }
+    void add_to_scene(TFV_Scene scene_id) { scenes_.push_back(scene_id); }
 
     Node* parent(void) const { return parent_; }
 
     void set_parent(Node* parent) { parent_ = parent; }
+
+    void set_tree(SceneTree* tree) { tree_ = tree; }
+    SceneTree* tree(void) { return tree_; }
 
     std::vector<TFV_Scene>* scenes(void) { return &scenes_; }
 
@@ -125,11 +132,13 @@ public:
 
 private:
     Timestamp timestamp_{0};
-    TFV_Int module_id_;
+    TFV_Int id_{TFV_UNUSED_ID};
+    TFV_Int module_id_{TFV_UNUSED_ID};
 
     // Tree
     Node* parent_ = nullptr;
     std::vector<Node*> children_;
+    SceneTree* tree_ = nullptr;  ///< Link to the tree containing this node
 
     // This node is part of these scenes
     std::vector<TFV_Scene> scenes_;

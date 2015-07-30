@@ -38,8 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cameracontrol.hh"
 #include "dummy.hh"
 #include "image.hh"
-#include "node.hh"
-#include "scene.hh"
+#include "scenetrees.hh"
 #include "logger.hh"
 
 #include "shared_resource.hh"
@@ -447,8 +446,9 @@ public:
             return TFV_NOT_IMPLEMENTED;
         }
 
-        if (scenes_.empty()) {
-            assert(scenetrees_.empty() and scenenodes_.empty());
+        // \todo This would alter the state of the system if the
+        // requested operation fails, which is not expected behaviour.
+        if (scene_trees_.empty()) {
             _disable_all_modules();
         }
 
@@ -457,90 +457,29 @@ public:
             return result;
         }
 
-        *scene_id = _next_scene_id();
-
-        // same root existing already?
-        auto tree = std::find_if(scenetrees_.begin(), scenetrees_.end(),
-                                 [&module_id](Scene* scene) {
-            return scene->tree().module_id() == module_id;
-        });
-
-        if (tree == scenetrees_.end()) {
-            // Construct new node, new scene and link both
-            scenenodes_.emplace_back(*scene_id, module_id);
-            scenes_.emplace_back(*scene_id, scenenodes_.back());
-            // A new root node is a new tree
-            scenetrees_.push_back(&scenes_.back());
-
-        } else {  // can reuse an existing root
-            (*tree)->tree().add_scene(*scene_id);
-        }
-
-        return TFV_OK;
+        return scene_trees_.scene_start(_next_scene_id(), module_id);
     }
 
     TFV_Result scene_remove(TFV_Scene scene_id) {
         Log("API", "Removing scene");
-        auto scene = _scene_from_id(scene_id);
-
-        if (not scene) {
-            return TFV_INVALID_ID;
-        }
-
-        // Remove scene from node
-        auto node = &scene->leaf();
-        node->remove_scene(scene_id);
-
-        // Remove scene from tree
-        while (node and node->is_leaf() and
-               not node->is_used_by_any_scene()) {  // is no longer needed
-
-            auto parent = node->parent();
-            if (parent != nullptr) {
-                parent->remove_scene(scene_id);
-                parent->remove_child(node);
-            }
-            node = parent;
-        }
-
-        std::remove_if(scenenodes_.begin(), scenenodes_.end(), [](Node& node) {
-            return not node.is_used_by_any_scene();
-        });
-
-        _remove_scene(scene);
-        return TFV_OK;
+        return TFV_NOT_IMPLEMENTED;
     }
 
     TFV_Result add_to_scene(TFV_Scene scene_id, TFV_Int module_id) {
         Log("API", "Add to scene: ", module_id, " -> ", scene_id);
-        // scene has to exist already
-        auto scene = _scene_from_id(scene_id);
-        if (not scene or not modules_.managed(module_id)) {
-            return TFV_INVALID_ID;
-        }
 
         if (modules_[module_id]->tags() & Module::Tag::ExecAndRemove) {
             return TFV_NOT_IMPLEMENTED;
         }
 
+        // \todo If adding the scene fails the module has to be in the
+        // same state as before.
         auto result = _enable_module(module_id);
         if (result != TFV_OK) {
             return result;
         }
 
-        // If another scene owns the same nodes, the requested node might
-        // also already exist.
-        auto node = scene->leaf().get_child_from_module_id(module_id);
-        if (node == nullptr) {
-            scenenodes_.emplace_back(scene_id, module_id, &scene->leaf());
-            node = &scenenodes_.back();
-
-        } else {
-            node->add_scene(scene_id);
-        }
-
-        scene->attach(node);
-        return TFV_OK;
+        return scene_trees_.add_to_scene(scene_id, module_id);
     }
 
     TFV_Result scene_disable(TFV_Scene scene_id) { return TFV_NOT_IMPLEMENTED; }
@@ -566,14 +505,7 @@ private:
     bool active_ = true;    ///< While true, the mainloop is running.
     unsigned execution_latency_ms_ = 100;  ///< Pause during mainloop
 
-    std::vector<Node> scenenodes_;  ///< All used nodes
-    using SceneNodeIterator = std::vector<Node>::iterator;
-    std::vector<Scene*> scenetrees_;  ///< Scenes that share initial nodes
-
-    // scenes may reside in the same tree
-    using SceneList = std::vector<Scene>;
-    using SceneListIter = SceneList::iterator;
-    SceneList scenes_;
+    SceneTrees scene_trees_;
 
     /**
      * Threaded execution context of vision algorithms (modules).
@@ -675,31 +607,12 @@ private:
         if (not camera_control_.acquire()) {
             return TFV_CAMERA_ACQUISITION_FAILED;
         }
-        if (not modules_.allocate<Comp>(id, tags, args...)) {
+        if (modules_.allocate<Comp>(id, nullptr, tags, args...)) {
             camera_control_.release();
             return TFV_MODULE_INITIALIZATION_FAILED;
         }
 
         return TFV_OK;
-    }
-
-    Scene* _scene_from_id(TFV_Scene scene_id) {
-        auto scene_iter = std::find_if(
-            scenes_.begin(), scenes_.end(),
-            [&scene_id](Scene& scene) { return scene.id() == scene_id; });
-
-        if (scene_iter == scenes_.cend()) {
-            return nullptr;
-        }
-
-        return &(*scene_iter);
-    }
-
-    void _remove_scene(Scene* scene) {
-        auto it = std::find(scenes_.cbegin(), scenes_.cend(), *scene);
-
-        assert(it != scenes_.cend());
-        scenes_.erase(it);
     }
 
     void _disable_all_modules(void) {
@@ -738,25 +651,15 @@ private:
         });
     }
 
-    SceneNodeIterator _find_scenenode_from_module_id(TFV_Int module_id) {
-        auto it = std::find_if(scenenodes_.begin(), scenenodes_.end(),
-                               [&module_id](Node const& node) {
-
-            return node.module_id() == module_id;
-        });
-
-        return it;
-    }
-
-    bool _scenes_active(void) const { return not scenenodes_.empty(); }
+    bool _scenes_active(void) const { return not scene_trees_.empty(); }
 
     TFV_Int _next_internal_id(void) const {
         static TFV_Int internal_id{std::numeric_limits<TFV_Id>::max() + 1};
         return internal_id++;
     }
 
-    TFV_Int _next_scene_id(void) const {
-        static TFV_Int scene_id{std::numeric_limits<TFV_Id>::max() + 1};
+    TFV_Scene _next_scene_id(void) const {
+        static TFV_Scene scene_id{std::numeric_limits<TFV_Id>::max() + 1};
         return scene_id++;
     }
 };

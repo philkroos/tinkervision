@@ -60,6 +60,7 @@ typedef TFV_CallbackRectangle TFV_CallbackMotiondetect;
 #define TFV_INTERNAL_ERROR 501
 #define TFV_UNKNOWN_ERROR 502
 #define TFV_INVALID_CONFIGURATION 503
+#define TFV_NODE_ALLOCATION_FAILED 504
 
 /* Camera errors: 550... */
 #define TFV_CAMERA_ACQUISITION_FAILED 550
@@ -74,3 +75,7 @@ typedef TFV_CallbackRectangle TFV_CallbackMotiondetect;
 
 /* System thread errors: 650... */
 #define TFV_EXEC_THREAD_FAILURE 650
+
+/* Internally used where a return value has only temporary means. Never returned
+ * outside: 1000... */
+#define TFV_INTERNAL_NODE_UNCONFIGURED 1000

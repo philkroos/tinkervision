@@ -126,13 +126,6 @@ void tfv::Api::execute(void) {
         }
     };
 
-    auto node_exec = [&](TFV_Int id) {
-        modules_.exec_one(id, [&](tfv::Module& module) {
-            module_exec(id, module);
-            return TFV_OK;
-        });
-    };
-
     // mainloop
     unsigned const no_module_min_latency_ms = 200;
     unsigned const with_module_min_latency_ms = 50;
@@ -140,7 +133,7 @@ void tfv::Api::execute(void) {
     while (active_) {
 
         // Activate new and remove freed resources
-        modules_.update();
+        modules_.update(nullptr);
 
         if (active_modules()) {  // This does not account for modules
             // being 'stopped', i.e. this is true even if all modules are in
@@ -153,22 +146,20 @@ void tfv::Api::execute(void) {
 
             if (camera_control_.update_frame()) {
 
-                if (scenetrees_.empty()) {
+                if (not _scenes_active()) {
                     Log("API", "Executing all");
                     modules_.exec_all(module_exec);
                 } else {
-                    for (auto& tree : scenetrees_) {
-                        Log("API", "Executing tree ", (void*)tree);
-                        tree->tree().execute(
-                            node_exec,
-                            camera_control_.latest_frame_timestamp());
-                    }
+                    Log("API", "Executing tree");
+                    scene_trees_.exec_all(); /*
+                                     node_exec,
+                                     camera_control_.latest_frame_timestamp());
+                                 */
                 }
 
             } else {
                 // Log a warning
             }
-
         } else {
             latency_ms =
                 std::max(execution_latency_ms_, no_module_min_latency_ms);
@@ -242,24 +233,24 @@ TFV_Result tfv::Api::chain(TFV_Id first, TFV_Id second) {
             ids.erase_after(before_second);
             ids.push_front(id_second);
             ids.push_front(id_first);
-            modules_.access_unlocked(*it_first).tag(Module::Tag::Sequential);
-            modules_.access_unlocked(*it_second).tag(Module::Tag::Sequential);
+            modules_.access_unlocked(*it_first)->tag(Module::Tag::Sequential);
+            modules_.access_unlocked(*it_second)->tag(Module::Tag::Sequential);
 
-        } else if (modules_.access_unlocked(*it_second).tags() &
+        } else if (modules_.access_unlocked(*it_second)->tags() &
                    Module::Tag::Sequential) {  // second was already chained
 
             // std::cout << "Second was chained" << std::endl;
             ids.erase_after(before_first);
             ids.insert_after(before_second, id_first);
-            modules_.access_unlocked(*it_first).tag(Module::Tag::Sequential);
+            modules_.access_unlocked(*it_first)->tag(Module::Tag::Sequential);
 
-        } else if (modules_.access_unlocked(*it_first).tags() &
+        } else if (modules_.access_unlocked(*it_first)->tags() &
                    Module::Tag::Sequential) {  // first was already chained
 
             // std::cout << "First was chained" << std::endl;
             ids.erase_after(before_second);
             ids.insert_after(it_first, id_second);
-            modules_.access_unlocked(*it_second).tag(Module::Tag::Sequential);
+            modules_.access_unlocked(*it_second)->tag(Module::Tag::Sequential);
 
         } else {  // none was chained. This is an error since a chain is
                   // active.
@@ -267,21 +258,21 @@ TFV_Result tfv::Api::chain(TFV_Id first, TFV_Id second) {
             return;
         }
 
-        if (modules_.access_unlocked(*it_first).enable()) {
+        if (modules_.access_unlocked(*it_first)->enable()) {
             camera_control_.acquire();
         }
-        if (modules_.access_unlocked(*it_second).enable()) {
+        if (modules_.access_unlocked(*it_second)->enable()) {
             camera_control_.acquire();
         }
 
         auto unchained =
             std::find_if(ids.cbegin(), ids.cend(), [&](TFV_Int const& id) {
-                return not(modules_.access_unlocked(id).tags() &
+                return not(modules_.access_unlocked(id)->tags() &
                            Module::Tag::Sequential);
             });
 
         for (; unchained != ids.end(); std::advance(unchained, 1)) {
-            if (modules_.access_unlocked(*unchained).disable()) {
+            if (modules_.access_unlocked(*unchained)->disable()) {
                 camera_control_.release();
             }
         }

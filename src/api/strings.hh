@@ -34,6 +34,8 @@ private:
         {TFV_UNKNOWN_ERROR, "Error - Unknown error"},
         {TFV_INTERNAL_ERROR, "Error - Unknown internal error"},
         {TFV_INVALID_CONFIGURATION, "Error - Invalid feature configuration"},
+        {TFV_NODE_ALLOCATION_FAILED,
+         "Error - Allocation of a scene node failed"},
         // 550...
         {TFV_CAMERA_ACQUISITION_FAILED, "Error - Device could not be opened"},
         {TFV_CAMERA_NOT_AVAILABLE, "Error - Camera not available"},

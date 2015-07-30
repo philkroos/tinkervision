@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision_defines.h"
 #include "exceptions.hh"
+#include "logger.hh"
 
 namespace tfv {
 
@@ -42,6 +43,9 @@ public:
 
     using ExecAll = std::function<void(TFV_Int, Resource&)>;
     using ExecOne = std::function<TFV_Result(Resource&)>;
+
+    using AfterPersistedHook = std::function<void(Resource&)>;
+    using AfterAllocatedHook = std::function<void(Resource&)>;
 
     ~SharedResource(void) {
         for (auto const& resource : allocated_) {
@@ -114,8 +118,8 @@ public:
         return count;
     }
 
-    void update(void) {
-        persist();
+    void update(AfterPersistedHook after_persisted_callback) {
+        persist(after_persisted_callback);
         cleanup();
     }
 
@@ -130,12 +134,14 @@ public:
      * \return false if the id was already allocated.
      */
     template <typename T, typename... Args>
-    bool allocate(TFV_Int id, Args... args) {
+    bool allocate(TFV_Int id, AfterAllocatedHook callback, Args... args) {
         static_assert(std::is_convertible<T*, Resource*>::value,
                       "Wrong type passed to allocate");
 
         std::lock_guard<std::mutex> lock(allocation_mutex_);
         if (exists(allocated_, id)) {
+            LogWarning("SHARED_RESOURCE::allocate", "Double allocate");
+
             return false;
         }
 
@@ -143,11 +149,15 @@ public:
             allocated_[id] = new T(id, args...);
 
         } catch (tfv::ConstructionException const& ce) {
-            // std::cout << ce.what() << std::endl;
+            LogError("SHARED_RESOURCE::allocate", ce.what());
 
-            // allocated_[id] does not exist
             return false;
         }
+
+        if (nullptr != callback) {
+            callback(*allocated_[id]);
+        }
+
         return true;
     }
 
@@ -247,6 +257,24 @@ public:
     }
 
     /**
+     * Like std::find_if, but over all managed resources and returning
+     * the resource pointer directly or a nullptr.
+     */
+    Resource* find_if(std::function<bool(Resource const&)> unaryp) {
+        Resource* resource = nullptr;
+        {
+            std::lock_guard<std::mutex> lock(managed_mutex_);
+            auto it = std::find_if(
+                managed_.begin(), managed_.end(),
+                [&unaryp](std::pair<TFV_Int, Resource*> const& thing) {
+                    return unaryp(*thing.second);
+                });
+            resource = (it == managed_.end()) ? nullptr : it->second;
+        }
+        return resource;
+    }
+
+    /**
      * Define an order between two managed ids
      * \param[in] first The id to be executed first
      * \param[in] second The id to be executed second
@@ -286,12 +314,9 @@ public:
 
     // attention: The following not locked.
 
-    Resource& access_unlocked(TFV_Int id) {
-        Resource* resource = nullptr;
+    Resource* access_unlocked(TFV_Int id) {
         auto it = managed_.find(id);
-        resource = (it == managed_.end()) ? nullptr : it->second;
-
-        return *resource;
+        return (it == managed_.end()) ? nullptr : it->second;
     }
 
     bool size(void) const { return managed_.size(); }
@@ -317,12 +342,15 @@ private:
     /**
      * Activates all allocated resources.
      */
-    void persist(void) {
+    void persist(AfterPersistedHook callback) {
         std::lock_guard<std::mutex> a_lock(allocation_mutex_);
         if (not allocated_.empty()) {
             std::lock_guard<std::mutex> m_lock(managed_mutex_);
             for (auto& resource : allocated_) {
                 ids_managed_.push_front(resource.first);
+                if (callback) {
+                    callback(*resource.second);
+                }
             }
             managed_.insert(allocated_.begin(), allocated_.end());
             allocated_.clear();
