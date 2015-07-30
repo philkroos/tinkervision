@@ -426,12 +426,9 @@ public:
         return TFV_OK;
     }
 
-    TFV_Result chain(TFV_Id first, TFV_Id second);
-
     /**
      * Start a scene which is a directed chain of modules.
      *
-     * \note Replaces the broken chain-functionality
      * If a scene is started:
      * - All modules not part of a scene are deactivated
      */
@@ -490,7 +487,6 @@ private:
     CameraControl camera_control_;      ///< Camera access abstraction
     TFVStringMap result_string_map_;    ///< String mapping of Api-return values
     bool idle_process_running_{false};  ///< Dummy module activated?
-    std::atomic_char chained_{0};       ///< Sequential execution?
 
     Image image_;  ///< The default image
 

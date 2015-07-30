@@ -53,10 +53,6 @@ TFV_Result stop(void) { return tfv::get_api().stop(); }
 
 TFV_Result start(void) { return tfv::get_api().start(); }
 
-TFV_Result chain(TFV_Id first, TFV_Id second) {
-    return tfv::get_api().chain(first, second);
-}
-
 TFV_Result scene_from_module(TFV_Id module, TFV_Scene* scene_id) {
     return tfv::get_api().scene_start(module, scene_id);
 }

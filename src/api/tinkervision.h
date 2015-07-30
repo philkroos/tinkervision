@@ -79,14 +79,6 @@ TFV_Result stop_id(TFV_Id id);
 
 TFV_Result restart_id(TFV_Id id);
 
-/**
- * Set an order to the active modules. Calling this the first time, will
- * deactivate all modules but first and second, setting first and second to be
- * executed in corresponding order. For every subsequent call, one of first and
- * second has to be active.
- */
-TFV_Result chain(TFV_Id first, TFV_Id second);
-
 TFV_Result scene_from_module(TFV_Id module, TFV_Scene* scene);
 TFV_Result scene_add_module(TFV_Scene scene, TFV_Id module);
 TFV_Result scene_remove(TFV_Scene scene);
