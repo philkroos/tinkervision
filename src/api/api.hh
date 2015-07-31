@@ -378,7 +378,7 @@ public:
      * \param[in] code The return code to be represented as string.
      * \return The string representing code
      */
-    TFV_String result_string(TFV_Id code) const {
+    TFV_String result_string(TFV_Result code) const {
         return result_string_map_[code];
     }
 
