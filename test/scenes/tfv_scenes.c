@@ -64,6 +64,7 @@ int main(int argc, char* argv[]) {
         sleep(1);
     }
 
+    printf("Removing Scene");
     scene_remove(scene);
     sleep(3);
 

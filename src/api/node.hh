@@ -39,6 +39,8 @@ class SceneTree;  // forward
 class Node {
 
 public:
+    using ModuleExecutor = std::function<void(TFV_Int id)>;
+
     // default c'tor to be able to store in container types
     Node(void) = default;
 
@@ -67,9 +69,9 @@ public:
      * \param[in] executor The function to be called on the module.
      * \param[in] timestamp The image to be processed.
      */
-    void execute(std::function<void(TFV_Int id)> executor, Timestamp timestamp);
-    void execute_for_scene(std::function<void(TFV_Int id)> executor,
-                           Timestamp timestamp, TFV_Scene scene_id);
+    void execute(ModuleExecutor executor, Timestamp timestamp);
+    void execute_for_scene(ModuleExecutor executor, Timestamp timestamp,
+                           TFV_Scene scene_id);
 
     TFV_Int module_id(void) const { return module_id_; }
 
@@ -112,6 +114,10 @@ public:
     bool is_used_by_any_scene(void) const { return not scenes_.empty(); }
 
     bool is_used_by_scene(TFV_Scene id) const {
+        std::cout << "Used by " << id << "?" << std::endl;
+        for (auto id : scenes_) {
+            std::cout << "-- Used by " << id << std::endl;
+        }
         return std::find(scenes_.cbegin(), scenes_.cend(), id) !=
                scenes_.cend();
     }

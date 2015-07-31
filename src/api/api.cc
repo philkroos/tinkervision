@@ -126,6 +126,14 @@ void tfv::Api::execute(void) {
         }
     };
 
+    auto node_exec = [&](TFV_Int module_id) {
+        (void)modules_.exec_one(module_id,
+                                [&module_id, &module_exec](Module& module) {
+            module_exec(module_id, module);
+            return TFV_OK;
+        });
+    };
+
     // mainloop
     unsigned const no_module_min_latency_ms = 200;
     unsigned const with_module_min_latency_ms = 50;
@@ -151,10 +159,8 @@ void tfv::Api::execute(void) {
                     modules_.exec_all(module_exec);
                 } else {
                     Log("API", "Executing tree");
-                    scene_trees_.exec_all(); /*
-                                     node_exec,
-                                     camera_control_.latest_frame_timestamp());
-                                 */
+                    scene_trees_.exec_all(
+                        node_exec, camera_control_.latest_frame_timestamp());
                 }
 
             } else {

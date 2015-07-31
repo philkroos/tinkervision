@@ -40,7 +40,10 @@ void LogWarning(std::string const& prefix, Args... args) {}
 #include <bitset>
 
 namespace tfv {
-class Module;  // forward, for ostream declaration
+
+// forward, for ostream declarations
+class Module;
+class SceneTree;
 
 class Logger {
 private:
@@ -109,6 +112,8 @@ void LogWarning(std::string const& prefix, Args... args) {
 }
 
 std::ostream& operator<<(std::ostream& stream, Module* module);
+std::ostream& operator<<(std::ostream& stream, SceneTree const& tree);
+
 #endif
 }
 #endif

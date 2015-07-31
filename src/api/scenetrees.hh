@@ -82,6 +82,10 @@ public:
                scenes_.cend();
     }
 
+    void execute(Node::ModuleExecutor executor, Timestamp timestamp) {
+        root_->execute(executor, timestamp);
+    }
+
     bool active(void) const { return active_; }
     void activate(void) { active_ = true; }
     void deactivate(void) { active_ = false; }
@@ -129,9 +133,9 @@ public:
      * SharedResource.
      * - \code TFV_INVALID_ID one of both id's is invalid.
      */
-     TFV_Result add_to_scene(TFV_Scene scene_id, TFV_Int module_id);
+    TFV_Result add_to_scene(TFV_Scene scene_id, TFV_Int module_id);
 
-    void exec_all(void);
+    void exec_all(Node::ModuleExecutor executor, Timestamp timestamp);
     void exec_scene(TFV_Scene scene_id);
 
 private:

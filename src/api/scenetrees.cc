@@ -17,11 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#include <thread>
+#include <chrono>
+
 #include "scenetrees.hh"
 
 TFV_Result tfv::SceneTrees::scene_start(TFV_Scene scene_id, TFV_Int module_id) {
-
-    auto node_id = _next_node_id();
 
     // same root existing already?
     auto tree = std::find_if(scene_trees_.begin(), scene_trees_.end(),
@@ -34,6 +35,8 @@ TFV_Result tfv::SceneTrees::scene_start(TFV_Scene scene_id, TFV_Int module_id) {
         // active yet since the allocated node has not been persisted
         // (See exec*). The reference to the tree in Node is being set
         // in Tree's constructor.
+        auto const node_id = _next_node_id();
+
         if (not scene_nodes_.allocate<Node>(
                 node_id, [&](Node& node) { scene_trees_.emplace_back(&node); },
                 scene_id, module_id)) {
@@ -42,7 +45,9 @@ TFV_Result tfv::SceneTrees::scene_start(TFV_Scene scene_id, TFV_Int module_id) {
         return TFV_OK;
 
     } else {  // can reuse an existing root
+        auto const node_id = tree->root().id();
         return scene_nodes_.exec_one(node_id, [&](Node& node) {
+            std::cout << "Adding " << scene_id << std::endl;
             node.add_to_scene(scene_id);
             return TFV_OK;
         });
@@ -54,10 +59,14 @@ TFV_Result tfv::SceneTrees::add_to_scene(TFV_Scene scene_id,
     Log("SCENETREE::AddToScene", module_id, " -> ", scene_id);
 
     auto leaf_of_scene = scene_nodes_.find_if([&scene_id](Node const& node) {
+        // FIXME: This is not correct. If used by several scenes,
+        // not searching for a leaf here. Have to mark each scenes
+        // leaf somehow.
         return node.is_leaf() and node.is_used_by_scene(scene_id);
     });
 
     if (nullptr == leaf_of_scene) {  // no such scene (or a bug:))
+        std::cout << "Invalid scene" << std::endl;
         return TFV_INVALID_ID;
     }
 
@@ -93,7 +102,8 @@ TFV_Result tfv::SceneTrees::add_to_scene(TFV_Scene scene_id,
     return TFV_OK;
 }
 
-void tfv::SceneTrees::exec_all(void) {
+void tfv::SceneTrees::exec_all(Node::ModuleExecutor executor,
+                               Timestamp timestamp) {
     // persist and link each allocated node into its tree
     scene_nodes_.update([&](Node& new_node) {
         auto parent = new_node.parent();
@@ -104,7 +114,10 @@ void tfv::SceneTrees::exec_all(void) {
         }
     });
 
-    // todo: execute all trees
+    for (auto& tree : scene_trees_) {
+        Log("SCENETREES::exec_all", "Moduletree: ", tree);
+        tree.execute(executor, timestamp);
+    }
 }
 
 void tfv::SceneTrees::exec_scene(TFV_Scene scene_id) {}

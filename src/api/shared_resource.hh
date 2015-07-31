@@ -89,6 +89,7 @@ public:
      */
     TFV_Result exec_one(TFV_Int id, ExecOne executor) {
         if (not managed_.size()) {
+            std::cout << "No size" << std::endl;
             return TFV_INVALID_ID;
         }
 
@@ -97,6 +98,7 @@ public:
         if (it != managed_.end()) {
             return executor(resource(it));
         } else {
+            std::cout << "Not found" << std::endl;
             return TFV_INVALID_ID;
         }
     }

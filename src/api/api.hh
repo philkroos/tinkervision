@@ -489,7 +489,7 @@ private:
     TFVStringMap result_string_map_;    ///< String mapping of Api-return values
     bool idle_process_running_{false};  ///< Dummy module activated?
 
-    Image image_;  ///< The default image
+    Image image_;  ///< The container filled with the current frame
 
     /**
      * Instantiation of the resource manager using the abstract base

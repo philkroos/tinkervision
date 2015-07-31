@@ -23,8 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "node.hh"
 #include "logger.hh"
 
-void tfv::Node::execute(std::function<void(TFV_Int id)> executor,
-                        tfv::Timestamp timestamp) {
+void tfv::Node::execute(ModuleExecutor executor, tfv::Timestamp timestamp) {
 
     Log("NODE::Execute", "(", (void*)this, ", module ", module_id_, ") at ",
         timestamp);
@@ -41,7 +40,7 @@ void tfv::Node::execute(std::function<void(TFV_Int id)> executor,
     }
 }
 
-void tfv::Node::execute_for_scene(std::function<void(TFV_Int id)> executor,
+void tfv::Node::execute_for_scene(ModuleExecutor executor,
                                   tfv::Timestamp timestamp,
                                   TFV_Scene scene_id) {
     if (timestamp_ != timestamp) {

@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "logger.hh"
 #include "module.hh"
+#include "scenetrees.hh"
 
 std::string tfv::Logger::PREFIX_WARNING = "WARNING";
 std::string tfv::Logger::PREFIX_ERROR = "ERROR";
@@ -30,6 +31,35 @@ std::ostream& tfv::operator<<(std::ostream& stream, tfv::Module* module) {
         static_cast<std::underlying_type<Module::Tag>::type>(module->tags()));
 
     stream << "Id: " << module->id() << " Tags: " << tags_bits;
+    return stream;
+}
+
+std::ostream& tfv::operator<<(std::ostream& stream,
+                              tfv::SceneTree const& tree) {
+
+    std::function<void(Node const&, size_t)> node_recursion =
+        [&](Node const& node, size_t siblings) {
+
+        stream << node.module_id();
+        if (not node.is_leaf()) {
+            auto children = node.children().size();
+            stream << " (";
+            for (auto child : node.children()) {
+                node_recursion(*child, children--);
+            }
+            stream << ") ";
+        }
+        if (siblings > 0) {
+            stream << " ";
+        }
+    };
+
+    auto node = tree.root();
+
+    stream << "(";
+    node_recursion(node, 0);
+    stream << ")" << std::endl;
+
     return stream;
 }
 
