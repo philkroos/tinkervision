@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "scenetrees.hh"
 
-TFV_Result tfv::SceneTrees::scene_start(TFV_Id module_id, TFV_Scene scene_id) {
+TFV_Result tfv::SceneTrees::scene_start(TFV_Scene scene_id, TFV_Int module_id) {
 
     auto node_id = _next_node_id();
 

@@ -106,7 +106,7 @@ public:
      * things will break badly if it's not. Also, it is not checked
      * here if the module for \code module_id does exist.
      */
-    TFV_Result scene_start(TFV_Id module_id, TFV_Scene scene_id);
+    TFV_Result scene_start(TFV_Scene scene_id, TFV_Int module_id);
 
     TFV_Result add_to_scene(TFV_Scene scene_id, TFV_Int module_id);
 
