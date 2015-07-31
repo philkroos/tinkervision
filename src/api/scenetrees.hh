@@ -108,7 +108,28 @@ public:
      */
     TFV_Result scene_start(TFV_Scene scene_id, TFV_Int module_id);
 
-    TFV_Result add_to_scene(TFV_Scene scene_id, TFV_Int module_id);
+    /**
+     * Add an existing module to the end of an existing scene.
+     *
+     *  \todo This might fail if executed in quick succession of the
+     * corresponding call to \code scene_start, due to the root node
+     * being allocated sequentially in this thread but actually
+     * persisted in the parrallel (execution) thread. The workaround
+     * on the calling side is to introduce a short delay after \code
+     * scene_start.  This is currently expected to be done outside
+     * of the api.
+     *
+     * \param[in] scene_id Id of an existing scene.
+     *
+     * \param[in] module_id Id of an existing module.
+     *
+     * \return
+     * - \code TFV_OK if good.
+     * - \code TFV_NODE_ALLOCATION_FAILED an error occured in \code
+     * SharedResource.
+     * - \code TFV_INVALID_ID one of both id's is invalid.
+     */
+     TFV_Result add_to_scene(TFV_Scene scene_id, TFV_Int module_id);
 
     void exec_all(void);
     void exec_scene(TFV_Scene scene_id);

@@ -52,6 +52,8 @@ int main(int argc, char* argv[]) {
     printf("Started scene from %d as %ld: %s (%ld)\n", scene_start, scene,
            result_string(result), result);
 
+    /* scene is activated in separate thread, so wait for it */
+    sleep(1);
     for (i = 0; i < ids_count * 2; i++) {
         module = rand() % ids_count;
 
