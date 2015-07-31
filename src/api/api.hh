@@ -603,7 +603,7 @@ private:
         if (not camera_control_.acquire()) {
             return TFV_CAMERA_ACQUISITION_FAILED;
         }
-        if (modules_.allocate<Comp>(id, nullptr, tags, args...)) {
+        if (not modules_.allocate<Comp>(id, nullptr, tags, args...)) {
             camera_control_.release();
             return TFV_MODULE_INITIALIZATION_FAILED;
         }
