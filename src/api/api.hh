@@ -454,7 +454,8 @@ public:
             return result;
         }
 
-        return scene_trees_.scene_start(_next_scene_id(), module_id);
+        *scene_id = _next_scene_id();
+        return scene_trees_.scene_start(*scene_id, module_id);
     }
 
     TFV_Result scene_remove(TFV_Scene scene_id) {
