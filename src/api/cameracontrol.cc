@@ -105,9 +105,9 @@ bool tfv::CameraControl::is_open(void) {
 void tfv::CameraControl::release(void) {
 
     usercount_ = std::max(usercount_ - 1, 0);
-    // std::cout << usercount_ << " users left" << std::endl;
 
     if (not usercount_ and camera_) {
+        Log("CAMERACONTROL", "Closing the device");
         std::lock_guard<std::mutex> camera_lock(camera_mutex_);
         _close_device();
     }

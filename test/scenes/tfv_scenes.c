@@ -29,7 +29,7 @@ void tfcv_callback(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
 
 int main(int argc, char* argv[]) {
     TFV_Id ids_count = 10;
-    TFV_Id result;
+    TFV_Result result;
     TFV_Scene scene;
 
     /* don't matter */
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
 
     for (i = 0; i < ids_count; i++) {
         result = colormatch_start(i, min_hue, max_hue, tfcv_callback, NULL);
-        printf("Id %d started: %s (%d)\n", i, result_string(result), result);
+        printf("Id %d started: %s (%ld)\n", i, result_string(result), result);
     }
 
     /* give api time to actually start the modules */
@@ -49,14 +49,14 @@ int main(int argc, char* argv[]) {
     srand(time(NULL));
     scene_start = rand() % ids_count;
     result = scene_from_module(scene_start, &scene);
-    printf("Started scene from %d as %ld: %s (%d)\n", scene_start, scene,
+    printf("Started scene from %d as %ld: %s (%ld)\n", scene_start, scene,
            result_string(result), result);
 
     for (i = 0; i < ids_count * 2; i++) {
         module = rand() % ids_count;
 
         result = scene_add_module(scene, module);
-        printf("Scening %d to %ld...: %s (%d)\n", module, scene,
+        printf("Scening %d to %ld...: %s (%ld)\n", module, scene,
                result_string(result), result);
 
         sleep(1);

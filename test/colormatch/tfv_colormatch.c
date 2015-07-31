@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
     /* Test 0: Camera should be available */
     TFV_Result result = TFV_INTERNAL_ERROR;
     result = camera_available();
-    printf("+ %d: Requested camera, code %d (%s)\n", test++, result,
+    printf("+ %d: Requested camera, code %ld (%s)\n", test++, result,
            result_string(result));
 
     sleep(1);
@@ -74,14 +74,14 @@ int main(int argc, char* argv[]) {
     /* Test 2: configuration of two new features */
     result = colormatch_start(id, min_hue, max_hue, tfcv_callback_id0, NULL);
 
-    printf("+ %d: Configured feature id %d: Code %d (%s)\n", test++, id, result,
+    printf("+ %d: Configured feature id %d: Code %ld (%s)\n", test++, id, result,
            result_string(result));
     sleep(1);
 
     id += 1;
     result = colormatch_start(id, min_hue, max_hue, tfcv_callback_id0, NULL);
 
-    printf("+ %d: Configured feature id %d: Code %d (%s)\n", test++, id, result,
+    printf("+ %d: Configured feature id %d: Code %ld (%s)\n", test++, id, result,
            result_string(result));
 
     sleep(5);
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
     /* Test 4: invalid configuration (missing callback) */
     result = colormatch_start(id + 1, 100, 0, NULL, NULL);
 
-    printf("- %d: Configuring invalid feature id %d: Code %d (%s)\n", test++,
+    printf("- %d: Configuring invalid feature id %d: Code %ld (%s)\n", test++,
            id + 1, result, result_string(result));
 
     sleep(1);
@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
     /* Test 5: reconfiguration of a feature */
     result = colormatch_start(id, min_hue, max_hue, tfcv_callback_id0, NULL);
 
-    printf("+ %d: Re-Configured feature id %d: Code %d (%s)\n", test++, id,
+    printf("+ %d: Re-Configured feature id %d: Code %ld (%s)\n", test++, id,
            result, result_string(result));
 
     sleep(1);
@@ -115,35 +115,35 @@ int main(int argc, char* argv[]) {
     id = 0;
     printf("Stopping id %d...\n", id);
     result = colormatch_stop(id);
-    printf("+ %d: Stopped configured feature id %d: Code %d (%s)\n", test++, id,
+    printf("+ %d: Stopped configured feature id %d: Code %ld (%s)\n", test++, id,
            result, result_string(result));
 
     sleep(3);
     id = 1;
     printf("Stopping id %d...\n", id);
     result = colormatch_stop(id);
-    printf("+ %d: Stopped configured feature id %d: Code %d (%s)\n", test++, id,
+    printf("+ %d: Stopped configured feature id %d: Code %ld (%s)\n", test++, id,
            result, result_string(result));
 
     sleep(3); /* cam down? */
 
     printf("Restarting id %d...\n", id);
     result = colormatch_restart(id);
-    printf("+ %d: Restarted configured feature id %d: Code %d (%s)\n", test++,
+    printf("+ %d: Restarted configured feature id %d: Code %ld (%s)\n", test++,
            id, result, result_string(result));
 
     id = 0;
     sleep(1);
     printf("Restarting id %d...\n", id);
     result = colormatch_restart(id);
-    printf("+ %d: Restarted configured feature id %d: Code %d (%s)\n", test++,
+    printf("+ %d: Restarted configured feature id %d: Code %ld (%s)\n", test++,
            id, result, result_string(result));
 
     sleep(1);
 
     /* Test 7: Restart running feature */
     result = colormatch_restart(id);
-    printf("+ %d: Restarted configured feature id %d: Code %d (%s)\n", test++,
+    printf("+ %d: Restarted configured feature id %d: Code %ld (%s)\n", test++,
            id, result, result_string(result));
 
     sleep(1);
@@ -162,7 +162,7 @@ int main(int argc, char* argv[]) {
     min_hue = -1;
     result = colormatch_get(id, &min_hue, &max_hue);
     printf(
-        "+ %d: Got configured feature id %d: Code %d (%s)\n "
+        "+ %d: Got configured feature id %d: Code %ld (%s)\n "
         "min-hue: %d, max-hue: %d\n",
         test++, id, result, result_string(result), min_hue, max_hue);
 
@@ -171,25 +171,25 @@ int main(int argc, char* argv[]) {
     min_hue = -1;
     result = colormatch_get(invalid_id, &min_hue, &max_hue);
     printf(
-        "- %d: Got configured feature id %d: Code %d (%s)\n "
+        "- %d: Got configured feature id %d: Code %ld (%s)\n "
         "min-hue: %d, max-hue: %d\n",
         test++, invalid_id, result, result_string(result), min_hue, max_hue);
 
     /* Test 11: Try pausing and resuming execution; watch the camera activity.
      */
     result = stop();
-    printf("+ %d: Api stopped; cameras should be down for 5 seconds: %d (%s)\n",
+    printf("+ %d: Api stopped; cameras should be down for 5 seconds: %ld (%s)\n",
            test++, result, result_string(result));
     sleep(5);
 
     /* Camera should still be available */
     result = camera_available();
-    printf("+ %d: Requested camera, code %d (%s)\n", test, result,
+    printf("+ %d: Requested camera, code %ld (%s)\n", test, result,
            result_string(result));
 
     sleep(2);
     result = start();
-    printf("+ %d: Resumed execution, cam should come up: %d (%s)\n", test,
+    printf("+ %d: Resumed execution, cam should come up: %ld (%s)\n", test,
            result, result_string(result));
 
     sleep(5);
@@ -210,7 +210,7 @@ int main(int argc, char* argv[]) {
 
     /* Test 12: Stopping invalid feature */
     result = colormatch_stop(invalid_id);
-    printf("# %d: Stopped invalid feature %d: Code %d (%s)\n", test++,
+    printf("# %d: Stopped invalid feature %d: Code %ld (%s)\n", test++,
            invalid_id, result, result_string(result));
 
     /* Test 13: 5 users per cam are configured */
@@ -222,7 +222,7 @@ int main(int argc, char* argv[]) {
 
     while (id) {
         result = colormatch_stop(id);
-        printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id--, result,
+        printf("+ %d: Stopped feature %d: Code %ld (%s)\n", test++, id--, result,
                result_string(result));
     }
 
@@ -247,7 +247,7 @@ int main(int argc, char* argv[]) {
 
     /* Stopping last feature */
     result = colormatch_stop(id);
-    printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id, result,
+    printf("+ %d: Stopped feature %d: Code %ld (%s)\n", test++, id, result,
            result_string(result));
 
     /* Stopping manually is not necessary but can be used to stop active

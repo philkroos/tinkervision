@@ -32,14 +32,14 @@ int main(int argc, char* argv[]) {
     /* Take a snapshot with a one-shot-then-release-module.
        As of 04-04-2015, the output should show the destructor being called */
     TFV_Result result = singleshot();
-    printf("Requested a snapshot with result %d: %s\n", result,
+    printf("Requested a snapshot with result %ld: %s\n", result,
            result_string(result));
 
     sleep(2);
 
     /* Another one, same as above. */
     result = singleshot();
-    printf("Requested a snapshot with result %d: %s\n", result,
+    printf("Requested a snapshot with result %ld: %s\n", result,
            result_string(result));
 
     sleep(2);
@@ -47,12 +47,12 @@ int main(int argc, char* argv[]) {
     /* Now assign an id, the module should stay alive but disabled (i.e. cam
      * down) */
     result = snapshot(id);
-    printf("Requested a snapshot with result %d: %s\n", result,
+    printf("Requested a snapshot with result %ld: %s\n", result,
            result_string(result));
 
     sleep(2);
     result = snapshot(id);
-    printf("Requested a snapshot with result %d: %s\n", result,
+    printf("Requested a snapshot with result %ld: %s\n", result,
            result_string(result));
 
     sleep(1);

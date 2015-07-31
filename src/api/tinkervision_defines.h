@@ -33,7 +33,7 @@ typedef TFV_Short TFV_Id;
 typedef TFV_UWordOrLarger TFV_Size;
 typedef TFV_WordOrLarger TFV_Int;
 typedef TFV_Int TFV_Scene;
-typedef int TFV_Result;
+typedef TFV_Int TFV_Result;
 typedef void* TFV_Context;
 
 typedef void (*TFV_CallbackPoint)(TFV_Id, TFV_Size x, TFV_Size y, TFV_Context);

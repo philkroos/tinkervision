@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 int main(int argc, char* argv[]) {
     TFV_Result result = streamer_stream(0);
-    printf("Started streamer with result %d: %s\n", result,
+    printf("Started streamer with result %ld: %s\n", result,
            result_string(result));
 
     if (!result) {
