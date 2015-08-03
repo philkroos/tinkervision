@@ -1,6 +1,6 @@
 /*
 Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
+Copyright (C) 2015 philipp.kroos@fh-bielefeld.de
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -46,25 +46,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef SCENETREES_H
 #define SCENETREES_H
 
+#include <map>
+
 #include "tinkervision_defines.h"
 #include "shared_resource.hh"
 #include "node.hh"
 #include "scene.hh"
+#include "logger.hh"
 
 namespace tfv {
 class SceneTree {
 private:
     Node* root_;  ///< Rootnode may refer to multiple scenes.
-    std::vector<TFV_Scene> scenes_;
+    std::map<TFV_Scene, Node*> mutable scenes_;
+    std::mutex mutable exec_lock_;
 
     bool active_ = false;
 
 public:
     explicit SceneTree(Node* root) : root_(root) {
         assert(root->scenes()->size() == 1);
-        scenes_.push_back(root->scenes()->at(0));
+        scenes_[root->scenes()->at(0)] = root;
         root->set_tree(this);
     }
+
+    SceneTree(SceneTree const&) = delete;
+    SceneTree& operator=(SceneTree const&) = delete;
 
     /**
      * Retrieve the root of this tree.
@@ -78,11 +85,34 @@ public:
      * \return \code t if the \code root_ is associated with the scene \code id.
      */
     bool contains_scene(TFV_Scene id) const {
-        return std::find(scenes_.cbegin(), scenes_.cend(), id) !=
-               scenes_.cend();
+        std::lock_guard<std::mutex> lock(exec_lock_);
+        return scenes_.find(id) != scenes_.cend();
+    }
+
+    Node* leaf_of_scene(TFV_Scene id) const {
+        assert(contains_scene(id));
+        return scenes_.at(id);
+    }
+
+    void add_node_to_scene(TFV_Scene id, Node* node) const {
+        std::lock_guard<std::mutex> lock(exec_lock_);
+        Log("SCENETREE::addNodeToScene", node->id(), "/", node->module_id(),
+            " -> ", id);
+        scenes_[id] = node;
+    }
+
+    void log_scenes(void) {
+        Log("SCENETREE::Log", (void*)this, ": ", (void*)root_);
+        if (root_)
+            Log("SCENETREE::Log", (void*)this, ": ", root().id(), "/",
+                root().module_id(), " (", (void*)root_, ")");
+        for (auto const& scene : scenes_) {
+            Log("SCENETREE::Log", scene.first, ":", scene.second->id());
+        }
     }
 
     void execute(Node::ModuleExecutor executor, Timestamp timestamp) {
+        std::lock_guard<std::mutex> lock(exec_lock_);
         root_->execute(executor, timestamp);
     }
 
@@ -96,9 +126,15 @@ private:
     using Nodes = SharedResource<Node>;
 
     Nodes scene_nodes_;
-    std::vector<SceneTree> scene_trees_;
+    std::vector<SceneTree*> scene_trees_;
 
 public:
+    ~SceneTrees(void) {
+        for (auto& tree : scene_trees_) {
+            delete tree;
+        }
+    }
+
     /**
      * Are there active nodes/scene trees?
      * \return \code empty_

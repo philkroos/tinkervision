@@ -1,6 +1,6 @@
 /*
 Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
+Copyright (C) 2015 philipp.kroos@fh-bielefeld.de
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -22,6 +22,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "node.hh"
 #include "logger.hh"
+#include "scenetrees.hh"
+
+tfv::Node::Node(TFV_Int node_id, TFV_Scene scene_id, TFV_Int module_id,
+                Node* parent)
+    : id_(node_id), module_id_(module_id) {
+
+    scenes_.push_back(scene_id);
+    Log("NODE::c'tor", (void*)this, " Scene: ", scene_id, " Parent: ",
+        (void*)parent);
+
+    set_parent(parent);
+    Log("NODE::c'tor", "Done");
+}
 
 void tfv::Node::execute(ModuleExecutor executor, tfv::Timestamp timestamp) {
 

@@ -44,10 +44,12 @@ std::ostream& tfv::operator<<(std::ostream& stream,
         if (not node.is_leaf()) {
             auto children = node.children().size();
             stream << " (";
+            // std::cout << "Node " << node.module_id() << " c's: " << children
+            //           << std::endl;
             for (auto child : node.children()) {
-                node_recursion(*child, children--);
+                node_recursion(*child, --children);
             }
-            stream << ") ";
+            stream << ")";
         }
         if (siblings > 0) {
             stream << " ";

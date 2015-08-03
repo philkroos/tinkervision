@@ -1,6 +1,6 @@
 /*
 Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
+Copyright (C) 2015 philipp.kroos@fh-bielefeld.de
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -49,15 +49,7 @@ public:
         : Node(node_id, scene_id, module_id, nullptr) {}
 
     // complete c'tor
-    Node(TFV_Int node_id, TFV_Scene scene_id, TFV_Int module_id, Node* parent)
-        : id_(node_id), module_id_(module_id), parent_(parent) {
-
-        scenes_.push_back(scene_id);
-        if (parent) {
-            tree_ = parent_->tree();
-            parent_->children_.push_back(this);
-        }
-    }
+    Node(TFV_Int node_id, TFV_Scene scene_id, TFV_Int module_id, Node* parent);
 
     TFV_Int id(void) const { return id_; }
 
@@ -79,10 +71,18 @@ public:
 
     Node* parent(void) const { return parent_; }
 
-    void set_parent(Node* parent) { parent_ = parent; }
+    void set_parent(Node* parent) {
+        parent_ = parent;
+        if (parent != nullptr) {
+            tree_ = parent->tree();
+        }
+    }
 
-    void set_tree(SceneTree* tree) { tree_ = tree; }
-    SceneTree* tree(void) { return tree_; }
+    void set_tree(SceneTree* tree) {
+        Log("NODE::SetTree", (void*)tree);
+        tree_ = tree;
+    }
+    SceneTree* tree(void) const { return tree_; }
 
     std::vector<TFV_Scene>* scenes(void) { return &scenes_; }
 

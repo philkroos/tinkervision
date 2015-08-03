@@ -1,6 +1,6 @@
 /*
 Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014 philipp.kroos@fh-bielefeld.de
+Copyright (C) 2015 philipp.kroos@fh-bielefeld.de
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -43,21 +43,42 @@ void scene_add(TFV_Scene scene, TFV_Id module) {
     sleep(1);
 }
 
+/*
+  Creating the following two trees (nodes are module-ids):
+              0            1
+            / | \         / \
+           1  2  3       2   3
+          /|     |\
+         4 5     8 9
+          / \
+         6   7
+  corresponding to 8 scenes (count the leafs):
+  0-1-4
+  0-1-5-6
+  0-1-5-7
+  0-2
+  0-3-8
+  0-3-9
+  1-2
+  1-3
+  which means that though 0 is being used in 6 scenes,
+  it will only be executed once per image.
+
+  The resulting trees are (currently) printed from
+  SceneTrees::exec_all() to the logfile (/tmp/tfv.log).
+*/
 int main(int argc, char* argv[]) {
 
     int i;
 
-    TFV_Scene scene_1, scene_2;/*, scene_3, scene_4,
-                                 scene_5, scene_6, scene_7, scene_8;*/
+    TFV_Scene scene_1, scene_2, scene_3, scene_4,
+                                scene_5, scene_6, scene_7, scene_8;
 
     size_t ids_count = 10;
 
     /* don't matter */
     TFV_Byte min_hue = 0;
     TFV_Byte max_hue = 10;
-
-    printf ("--> This currently FAILS due to wrong detection of a scenes" \
-            " last node\n--> See scenetrees.cc\n");
 
     /* start ids_count colormatch modules to be used in scenes. */
     for (i = 0; i < ids_count; i++) {
@@ -71,24 +92,23 @@ int main(int argc, char* argv[]) {
     /* tree 1 */
     scene_start(0, &scene_1);
     scene_start(0, &scene_2);
-    /*
     scene_start(0, &scene_3);
     scene_start(0, &scene_4);
     scene_start(0, &scene_5);
     scene_start(0, &scene_6);
-    */
-    /* tree 2
+
+    /* tree 2 */
     scene_start(1, &scene_7);
     scene_start(1, &scene_8);
- */
+
     /* tree 1, scene 1 */
     scene_add(scene_1, 1);
     scene_add(scene_1, 4);
     /* tree 1, scene 2 */
-    /*    scene_add(scene_2, 1); sharing 1 */
+    scene_add(scene_2, 1); /* sharing 1 */
     scene_add(scene_2, 5); /* diverging from 1 */
     scene_add(scene_2, 6);
-#ifdef UNDEFINED
+
     /* tree 1, scene 3 */
     scene_add(scene_3, 1); /* sharing 1 and 2 */
     scene_add(scene_3, 5); /* sharing 2 */
@@ -99,9 +119,12 @@ int main(int argc, char* argv[]) {
     scene_add(scene_5, 3); /* diverging from 1 */
     scene_add(scene_5, 8);
     /* tree 1, scene 6 */
-    scene_add(scene_5, 3); /* sharing 5 */
-    scene_add(scene_5, 9); /* diverging from 5 */
-#endif
+    scene_add(scene_6, 3); /* sharing 5 */
+    scene_add(scene_6, 9); /* diverging from 5 */
+
+    /* tree 2 */
+    scene_add(scene_7, 2);
+    scene_add(scene_7, 3);
 
     sleep(3);
 

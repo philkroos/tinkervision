@@ -28,11 +28,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 namespace tfv {
 
 template <typename... Args>
-void Log(std::string const& prefix, Args... args) {}
+void Log(std::string const& prefix, Args const&... args) {}
 template <typename... Args>
-void LogError(std::string const& prefix, Args... args) {}
+void LogError(std::string const& prefix, Args const&... args) {}
 template <typename... Args>
-void LogWarning(std::string const& prefix, Args... args) {}
+void LogWarning(std::string const& prefix, Args const&... args) {}
 
 #else
 #include <fstream>
@@ -59,7 +59,7 @@ private:
     ~Logger(void) { logfile_.close(); }
 
     template <typename T, typename... Args>
-    void _print_out(T const& value, Args... args) {
+    void _print_out(T const& value, Args const&... args) {
         logfile_ << value;
         _print_out(args...);
     }
@@ -71,7 +71,7 @@ private:
 
 public:
     template <typename... Args>
-    void log_default(std::string prefix, Args... args) {
+    void log_default(std::string prefix, Args const&... args) {
         if (not logfile_.is_open()) {
             return;
         }
@@ -81,12 +81,12 @@ public:
     }
 
     template <typename... Args>
-    void log_warning(std::string prefix, Args... args) {
+    void log_warning(std::string prefix, Args const&... args) {
         log_default(Logger::PREFIX_WARNING + "::" + prefix, args...);
     }
 
     template <typename... Args>
-    void log_error(std::string prefix, Args... args) {
+    void log_error(std::string prefix, Args const&... args) {
         log_default(Logger::PREFIX_ERROR + "::" + prefix, args...);
     }
 
@@ -97,17 +97,17 @@ public:
 };
 
 template <typename... Args>
-void Log(std::string const& prefix, Args... args) {
+void Log(std::string const& prefix, Args const&... args) {
     Logger::instance().log_default(prefix, args...);
 }
 
 template <typename... Args>
-void LogError(std::string const& prefix, Args... args) {
+void LogError(std::string const& prefix, Args const&... args) {
     Logger::instance().log_error(prefix, args...);
 }
 
 template <typename... Args>
-void LogWarning(std::string const& prefix, Args... args) {
+void LogWarning(std::string const& prefix, Args const&... args) {
     Logger::instance().log_warning(prefix, args...);
 }
 
