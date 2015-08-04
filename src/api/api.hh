@@ -566,10 +566,10 @@ private:
             return TFV_INVALID_ID;
         }
 
-        // GCC4.7 does not support binding of ...args to lambdas
-        // yet, this is the workaround to get the arguments into
-        // the execution context (which expects a 1-parameter func)
-        auto two_parameter = [this](tfv::Module& module, Args... args) {
+        // This (binding args to lambda) requires g++4.9. A workaround
+        // for 4.7 was available here until commit a5c5e48. g++4.8 is
+        // not tested.
+        return modules_.exec_one(id, [this, &args...](tfv::Module& module) {
             tfv::set<Comp>(static_cast<Comp*>(&module), args...);
             if (module.enabled() or camera_control_.acquire()) {
                 module.enable();  // redundant
@@ -577,11 +577,7 @@ private:
             } else {
                 return TFV_CAMERA_ACQUISITION_FAILED;
             }
-        };
-        auto one_parameter =  // currying
-            std::bind(two_parameter, std::placeholders::_1, args...);
-
-        return modules_.exec_one(id, one_parameter);
+        });
     }
 
     template <typename Comp, typename... Args>
