@@ -132,7 +132,7 @@ public:
 
 protected:
     virtual bool retrieve_frame(tfv::Image& image);
-    virtual void retrieve_properties(uint_fast16_t& width, uint_fast16_t& height,
+    virtual void retrieve_properties(uint16_t& width, uint16_t& height,
                                      size_t& frame_bytesize);
     virtual void close(void);
 

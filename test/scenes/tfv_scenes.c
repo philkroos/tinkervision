@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
 
     for (i = 0; i < ids_count; i++) {
         result = colormatch_start(i, min_hue, max_hue, tfcv_callback, NULL);
-        printf("Id %d started: %s (%ld)\n", i, result_string(result), result);
+        printf("Id %d started: %s (%d)\n", i, result_string(result), result);
     }
 
     /* give api time to actually start the modules */
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     srand(time(NULL));
     scene_start = rand() % ids_count;
     result = scene_from_module(scene_start, &scene);
-    printf("Started scene from %d as %ld: %s (%ld)\n", scene_start, scene,
+    printf("Started scene from %d as %d: %s (%d)\n", scene_start, scene,
            result_string(result), result);
 
     /* scene is activated in separate thread, so wait for it */
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
         module = rand() % ids_count;
 
         result = scene_add_module(scene, module);
-        printf("Scening %d to %ld...: %s (%ld)\n", module, scene,
+        printf("Scening %d to %d...: %s (%d)\n", module, scene,
                result_string(result), result);
 
         sleep(1);

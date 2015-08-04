@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     TFV_Result result = start_idle();
 
     if (result) {
-        printf("Starting the idle process failed with %ld: %s", result,
+        printf("Starting the idle process failed with %d: %s", result,
                result_string(result));
         exit(-1);
     }
@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
     result = get_resolution(&width, &height);
 
     if (result) {
-        printf("Retrieving the framesize failed with %ld: %s", result,
+        printf("Retrieving the framesize failed with %d: %s", result,
                result_string(result));
         exit(-1);
     }
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
             "Motiondetection initialized; this will take a few secs to "
             "adjust\n");
     } else {
-        printf("Error %ld: %s\n", result, result_string(result));
+        printf("Error %d: %s\n", result, result_string(result));
         cvReleaseImage(&image);
         exit(-1);
     }

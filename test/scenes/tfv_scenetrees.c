@@ -31,14 +31,14 @@ TFV_Result result;
 
 void scene_start(TFV_Id module, TFV_Scene* scene) {
     result = scene_from_module(module, scene);
-    printf("Scene from %d as %ld: %s (%ld)\n",
+    printf("Scene from %d as %d: %s (%d)\n",
            module, *scene, result_string(result), result);
     sleep(1);
 }
 
 void scene_add(TFV_Scene scene, TFV_Id module) {
     result = scene_add_module(scene, module);
-    printf("Add %d to scene %ld: %s (%ld)\n",
+    printf("Add %d to scene %d: %s (%d)\n",
            module, scene, result_string(result), result);
     sleep(1);
 }
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
     /* start ids_count colormatch modules to be used in scenes. */
     for (i = 0; i < ids_count; i++) {
         result = colormatch_start(i, min_hue, max_hue, tfcv_callback, NULL);
-        printf("Id %d started: %s (%ld)\n", i, result_string(result), result);
+        printf("Id %d started: %s (%d)\n", i, result_string(result), result);
     }
 
     /* give api time to actually start the modules */
