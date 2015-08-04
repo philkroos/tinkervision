@@ -53,7 +53,7 @@ index 0000000..340e376
 ++       Adapt X11 detection to changes in image version 1.4
 ++       Use redapid version as RED Brick firmware version
 ++       Don't send packet twice after partial write
-+-- 
++--
 +2.1.4
 +
 diff --git a/src/redapid/Makefile b/src/redapid/Makefile
