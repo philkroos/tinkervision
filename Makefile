@@ -68,6 +68,15 @@ $(foreach bdir,$(BUILD_DIR),$(eval $(call make-goal,$(bdir))))
 
 
 # documentation
-
 doc:
 	doxygen
+
+# installation
+prefix	:= /usr/local
+EXP_HEADER	:= src/api/tinkervision.h src/api/tinkervision_defines.h
+
+install: $(LIB)
+	install -m 544 $(LIB) $(prefix)/lib/libtinkervision.so
+	install -m 544 $(EXP_HEADER) $(prefix)/include/
+
+.PHONY: install
