@@ -428,9 +428,6 @@ public:
 
     /**
      * Start a scene which is a directed chain of modules.
-     *
-     * If a scene is started:
-     * - All modules not part of a scene are deactivated
      */
     TFV_Result scene_start(TFV_Id module_id, TFV_Scene* scene_id) {
         Log("API", "Starting scene");
@@ -441,17 +438,6 @@ public:
 
         if (modules_[module_id]->tags() & Module::Tag::ExecAndRemove) {
             return TFV_NOT_IMPLEMENTED;
-        }
-
-        // \todo This would alter the state of the system if the
-        // requested operation fails, which is not expected behaviour.
-        if (scene_trees_.empty()) {
-            _disable_all_modules();
-        }
-
-        auto result = _enable_module(module_id);
-        if (result != TFV_OK) {
-            return result;
         }
 
         *scene_id = _next_scene_id();
@@ -616,6 +602,17 @@ private:
         modules_.exec_all([this](TFV_Int id, tfv::Module& module) {
             module.disable();
             camera_control_.release();
+        });
+    }
+
+    void _disable_module_if(
+        std::function<bool(tfv::Module const& module)> predicate) {
+
+        modules_.exec_all([this, &predicate](TFV_Int id, tfv::Module& module) {
+            if (predicate(module)) {
+                module.disable();
+                camera_control_.release();
+            }
         });
     }
 
