@@ -234,8 +234,8 @@ bool tfv::CameraControl::update_frame(void) {
                     std::this_thread::sleep_for(std::chrono::milliseconds(20));
                     result = camera_->get_frame(image_);
                 }
-                Log("CAMERACONTROL", "Result ", result, " for image ",
-                    image_.timestamp);
+                // Log("CAMERACONTROL", "Result ", result, " for image ",
+                //     image_.timestamp);
             }
         }
     }
@@ -249,12 +249,13 @@ bool tfv::CameraControl::update_frame(void) {
 
 bool tfv::CameraControl::_open_device(void) {
     static const auto MAX_DEVICE = 5;
-    auto i = 0;
+    auto i = int(MAX_DEVICE);
 
-    // selecting the first available device
-    for (; i < MAX_DEVICE; ++i) {
+    // selecting the highest available device
+    for (; i >= 0; --i) {
         if (_device_exists(i)) {
 
+            Log("CAMERACONTROL", "Opening camera device ", i);
             camera_ = new V4L2USBCamera(i, requested_width_, requested_height_);
             // camera_ = new OpenCvUSBCamera(i);
 
@@ -268,7 +269,7 @@ bool tfv::CameraControl::_open_device(void) {
             }
         }
     }
-    return i < MAX_DEVICE;
+    return i >= 0;
 }
 
 void tfv::CameraControl::_close_device() {
