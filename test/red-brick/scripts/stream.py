@@ -7,6 +7,8 @@ def run(red):
     if ok != 0:
         raise Exception("vision::CameraAvailable returned error: " + str(ok))
 
+    sleep(1)
+
     # Set framesize to a streamable size
     ok = red.vision_preselect_framesize(640, 480)
 

@@ -1,15 +1,18 @@
+#!/usr/bin/python
 import sys
 
 # RedBrick resource wrapper
 from rb_setup import RedBrick
 # available testfiles
-import shutdown, availability, stream, common
+import shutdown, availability, stream, common, colormotion, scenes
 
 testfiles = {
     "shutdown": shutdown,
     "stream": stream,
     "availability": availability,
-    "common": common
+    "common": common,
+    "colormotion": colormotion,
+    "scenes": scenes
     }
 
 
@@ -30,7 +33,7 @@ if __name__ == '__main__':
         port = int(sys.argv[4]) if len(sys.argv) > 4 else port
 
     except KeyError, e:
-        print "No such file", filename + ".py"
+        print "No such file", filename + ".py or not registered"
         exit(-1)
 
     with RedBrick(uid, host, port) as rb:

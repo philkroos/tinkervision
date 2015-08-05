@@ -22,8 +22,8 @@ class RedBrick:
                 self.ipcon.disconnect()
 
         self.rb = RedBrickResource()
-        #self.rb.connect(self.uid, self.host, self.port)
-        return self.rb
+        self.rb.connect(self.uid, self.host, self.port)
+        return self.rb.rb
 
     def __exit__(self, ex_type, ex_value, traceback):
         try:
