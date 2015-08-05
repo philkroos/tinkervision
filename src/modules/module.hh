@@ -55,7 +55,9 @@ protected:
     TFV_Int module_id_;
 
     Module(TFV_Int module_id, std::string type, Tag tags)
-        : type_{type}, active_{true}, tags_{tags}, module_id_{module_id} {}
+        : type_{type}, active_{true}, tags_{tags}, module_id_{module_id} {
+        Log("MODULE", "Constructing module ", module_id);
+    }
 
     Module(TFV_Int module_id, std::string type)
         : Module(module_id, type, Tag::None) {}
@@ -63,11 +65,7 @@ protected:
     virtual void execute(tfv::Image const& image) = 0;
 
 public:
-    virtual ~Module(void) {
-        // std::cout << "Destroying module " << module_id_ << " (" << type_ <<
-        // ")"
-        //           << std::endl;
-    }
+    virtual ~Module(void) = default;
 
     // No copy allowed
     Module(Module const& other) = delete;
@@ -85,20 +83,19 @@ public:
     }
 
     // return previous state
-    bool disable(void) noexcept {
-        Log("MODULE", "Disabling module ", module_id_);
-        return switch_active(false);
-    }
+    bool disable(void) noexcept { return switch_active(false); }
 
     // return false if previous state was the same
     bool switch_active(bool to_state) {
+        Log("MODULE", to_state ? "Enabling " : "Disabling ", "module ",
+            module_id_, " (was ", active_ ? "active)" : "inactive)");
         auto was_active = active_;
         active_ = to_state;
         return not(was_active == active_);
     }
 
     void exec(tfv::Image const& image) {
-        Log("MODULE::Execute", this);
+        // Log("MODULE::Execute", this);
         execute(image);
     }
     virtual ColorSpace expected_format(void) const = 0;

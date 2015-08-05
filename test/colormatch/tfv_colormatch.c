@@ -26,20 +26,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision.h"
 
-static int draw = 0;
 static IplImage* image = NULL;
 
 void tfcv_callback_id0(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
     CvPoint center;
 
-    if (!draw) {
-        return;
-    }
-
     center.x = x;
     center.y = y;
 
-    /* printf("Id %d: Drawing at %d/%d\n", id, center.x, center.y); */
+    printf("Id %d: Feature at %d/%d\n", id, center.x, center.y);
 
     cvCircle(image, center, 5, CV_RGB(255, 0, 0), 2, CV_AA, 0);
     cvShowImage("Result", image);
@@ -48,195 +43,44 @@ void tfcv_callback_id0(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
 
 int main(int argc, char* argv[]) {
     TFV_Id id = 0;
-    TFV_Id invalid_id = 100;
-    TFV_Byte min_hue = 18;
-    TFV_Byte max_hue = 25;
+    TFV_Byte hue;
+    TFV_Byte min_hue;
+    TFV_Byte max_hue;
+    TFV_Byte range = 3;
     struct timespec time = {0};
     int i;
     TFV_Size width, height; /* framesize */
-
-    /*
-      Performing some tests. The +/-/# signs in front of the output mean:
-       + should have returned OK
-       - should have returned an error
-       # returns different, depending on some external context
-    */
-
-    int test = 0;
-    /* Test 0: Camera should be available */
     TFV_Result result = TFV_INTERNAL_ERROR;
-    result = camera_available();
-    printf("+ %d: Requested camera, code %d (%s)\n", test++, result,
-           result_string(result));
 
-    sleep(1);
-
-    /* Test 2: configuration of two new features */
-    result = colormatch_start(id, min_hue, max_hue, tfcv_callback_id0, NULL);
-
-    printf("+ %d: Configured feature id %d: Code %d (%s)\n", test++, id, result,
-           result_string(result));
-    sleep(1);
-
-    id += 1;
-    result = colormatch_start(id, min_hue, max_hue, tfcv_callback_id0, NULL);
-
-    printf("+ %d: Configured feature id %d: Code %d (%s)\n", test++, id, result,
-           result_string(result));
-
-    sleep(5);
-
-    /* Test 3: Check CPU-load while this is running! */
-    printf("Setting execution latency to max, expect high CPU-usage!\n");
-    (void)set_execution_latency(0);
-    sleep(15);
-
-    printf("Setting execution latency to 100 (ms), CPU should drop.\n");
-    (void)set_execution_latency(100);
-    sleep(15);
-
-    /* Test 4: invalid configuration (missing callback) */
-    result = colormatch_start(id + 1, 100, 0, NULL, NULL);
-
-    printf("- %d: Configuring invalid feature id %d: Code %d (%s)\n", test++,
-           id + 1, result, result_string(result));
-
-    sleep(1);
-
-    /* Test 5: reconfiguration of a feature */
-    result = colormatch_start(id, min_hue, max_hue, tfcv_callback_id0, NULL);
-
-    printf("+ %d: Re-Configured feature id %d: Code %d (%s)\n", test++, id,
-           result, result_string(result));
-
-    sleep(1);
-
-    /* Test 6: stop and restart of a feature */
-    id = 0;
-    printf("Stopping id %d...\n", id);
-    result = colormatch_stop(id);
-    printf("+ %d: Stopped configured feature id %d: Code %d (%s)\n", test++, id,
-           result, result_string(result));
-
-    sleep(3);
-    id = 1;
-    printf("Stopping id %d...\n", id);
-    result = colormatch_stop(id);
-    printf("+ %d: Stopped configured feature id %d: Code %d (%s)\n", test++, id,
-           result, result_string(result));
-
-    sleep(3); /* cam down? */
-
-    printf("Restarting id %d...\n", id);
-    result = colormatch_restart(id);
-    printf("+ %d: Restarted configured feature id %d: Code %d (%s)\n", test++,
-           id, result, result_string(result));
-
-    id = 0;
-    sleep(1);
-    printf("Restarting id %d...\n", id);
-    result = colormatch_restart(id);
-    printf("+ %d: Restarted configured feature id %d: Code %d (%s)\n", test++,
-           id, result, result_string(result));
-
-    sleep(1);
-
-    /* Test 7: Restart running feature */
-    result = colormatch_restart(id);
-    printf("+ %d: Restarted configured feature id %d: Code %d (%s)\n", test++,
-           id, result, result_string(result));
-
-    sleep(1);
-
-    /* Test 8: Second camera - ok if attached (and no usb-bus error...),
-       highgui-error if not attached.
-       int id2 = 40;
-       result = colormatch_start(id2, cam2, min_hue, max_hue,
-     tfcv_callback_id0,
-                                NULL);
-
-     ## 03-24-2015: Removed the option to have several cams. */
-
-    /* Test 9: request for configuration details */
-    min_hue = -1;
-    min_hue = -1;
-    result = colormatch_get(id, &min_hue, &max_hue);
-    printf(
-        "+ %d: Got configured feature id %d: Code %d (%s)\n "
-        "min-hue: %d, max-hue: %d\n",
-        test++, id, result, result_string(result), min_hue, max_hue);
-
-    /* Test 10: request for details of invalid feature */
-    min_hue = -1;
-    min_hue = -1;
-    result = colormatch_get(invalid_id, &min_hue, &max_hue);
-    printf(
-        "- %d: Got configured feature id %d: Code %d (%s)\n "
-        "min-hue: %d, max-hue: %d\n",
-        test++, invalid_id, result, result_string(result), min_hue, max_hue);
-
-    /* Test 11: Try pausing and resuming execution; watch the camera activity.
-     */
-    result = stop();
-    printf("+ %d: Api stopped; cameras should be down for 5 seconds: %d (%s)\n",
-           test++, result, result_string(result));
-    sleep(5);
-
-    /* Camera should still be available */
-    result = camera_available();
-    printf("+ %d: Requested camera, code %d (%s)\n", test, result,
-           result_string(result));
-
-    sleep(2);
-    result = start();
-    printf("+ %d: Resumed execution, cam should come up: %d (%s)\n", test,
-           result, result_string(result));
-
-    sleep(5);
-
-    /* Failing: Reliance test: remove cam during execution! */
-
-    /* ### 03-24-2015: To be checked again, should work now. */
-
-    /*
-      This fails since v4l assigns a different id once the cam is reattached!
-     */
-    /* printf(
-         "# %d: Remove the camera during execution and reattach it! (20 "
-         "seconds)\n",
-         test);
-     sleep(20);
-    */
-
-    /* Test 12: Stopping invalid feature */
-    result = colormatch_stop(invalid_id);
-    printf("# %d: Stopped invalid feature %d: Code %d (%s)\n", test++,
-           invalid_id, result, result_string(result));
-
-    /* Test 13: 5 users per cam are configured */
-
-    /* ### 03-24-2015: Removed that limit */
-
-    sleep(1);
-    /* Stopping all is preferred; else libv4l2 might throw errors */
-
-    while (id) {
-        result = colormatch_stop(id);
-        printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id--, result,
-               result_string(result));
+    if (argc < 2) {
+        printf("Usage: %s min-hue, where min-hue is an integer [0-180)\n",
+               argv[0]);
+        return -1;
     }
 
-    sleep(2);
+    hue = (TFV_Byte)atoi(argv[1]);
+    min_hue = hue >= range ? hue - range : 180 - range + hue;
+    max_hue = hue < (180 - range) ? hue + range : range - hue;
+    printf("Using min-hue: %d and max-hue: %d\n", hue, min_hue, max_hue);
 
-    printf(
-        "--- All features stopped but id 0; now showing results of tracking "
-        "---\n");
+    result = camera_available();
+    if (result != 0) {
+        printf("Requested camera not available: %s\n", result_string(result));
+        exit(-1);
+    }
+
+    sleep(1);
+
+    result = colormatch_start(id, min_hue, max_hue, tfcv_callback_id0, NULL);
+
+    printf("Configured module id %d: Code %d (%s)\n", id, result,
+           result_string(result));
+    sleep(1);
 
     get_resolution(&width, &height);
     image = cvCreateImage(cvSize(width, height), 8, 3);
     cvZero(image);
     cvNamedWindow("Result", CV_WINDOW_AUTOSIZE);
-    draw = 1;
 
     time.tv_sec = 0;
     time.tv_nsec = 500000000L;
@@ -245,9 +89,9 @@ int main(int argc, char* argv[]) {
     }
     cvReleaseImage(&image);
 
-    /* Stopping last feature */
+    /* Stopping last module */
     result = colormatch_stop(id);
-    printf("+ %d: Stopped feature %d: Code %d (%s)\n", test++, id, result,
+    printf("Stopped module %d: Code %d (%s)\n", id, result,
            result_string(result));
 
     /* Stopping manually is not necessary but can be used to stop active

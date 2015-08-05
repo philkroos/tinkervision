@@ -155,10 +155,8 @@ void tfv::Api::execute(void) {
             if (camera_control_.update_frame()) {
 
                 if (not _scenes_active()) {
-                    Log("API", "Executing all");
                     modules_.exec_all(module_exec);
                 } else {
-                    Log("API", "Executing tree");
                     scene_trees_.exec_all(
                         node_exec, camera_control_.latest_frame_timestamp());
                 }
