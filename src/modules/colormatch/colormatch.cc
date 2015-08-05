@@ -36,7 +36,7 @@ void tfv::Colormatch::execute(tfv::Image const& image) {
     // range, the minimum hue > maximum hue. In that case, the range is divided
     // into (min, 180) and (0, max), where 180 is the absolute maximum hue used
     // by opencv (actually, the wrap-around point since the range is circular).
-    auto const split = min_hue > max_hue;
+    auto const split = user_min_hue > user_max_hue;
 
     cv::Scalar low(user_min_hue, min_saturation, min_value);
     cv::Scalar high(split ? max_hue : user_max_hue, max_saturation, max_value);

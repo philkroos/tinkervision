@@ -28,13 +28,11 @@ struct Colormatch : public Module {
 private:
     // arbitrary values; bringing good results
     TFV_Byte const min_saturation{50};
-    TFV_Byte const min_value{50};
-
-    // these as used in opencv, see
-    // http://docs.opencv.org/modules/imgproc/doc/miscellaneous_transformations.html#cvtcolor
-    TFV_Byte const min_hue{255};
     TFV_Byte const max_saturation{255};
+    TFV_Byte const min_value{50};
     TFV_Byte const max_value{255};
+
+    TFV_Byte const min_hue{0};
     TFV_Byte const max_hue{180};
 
 public:
@@ -51,7 +49,10 @@ public:
           user_min_hue(min_hue),
           user_max_hue(max_hue),
           callback(callback),
-          context(context) {}
+          context(context) {
+        Log("COLORMATCH", "Id:", module_id, " Tracking ", int(min_hue), "-",
+            int(max_hue));
+    }
 
     virtual ~Colormatch(void) = default;
     virtual void execute(tfv::Image const& image);
