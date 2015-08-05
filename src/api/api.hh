@@ -77,6 +77,8 @@ public:
      * any change to the registered modules, only they will stop
      * being executed.  If calling start(), the Api will resume
      * execution with the same configuration.
+     * This will also stop a running dummy module.
+     * \sa \code start_idle()
      * \note Even while the api is paused there can still be new modules
      * registered. They will start execution once start() is called.
      * \sa quit() If the whole thing shall be stopped.
@@ -87,11 +89,16 @@ public:
     TFV_Result stop(void);
 
     /**
-     * Stops all running modules.  This is not necessary in general
-     * if the Api is being deconstructed in a controlled way. If,
-     * however, the client application should crash or exit without stopping
-     * all instantiated modules, this can be used.
-     * \sa start()
+     * Stops and removes all running modules.  This is not necessary
+     * in general if the Api is being deconstructed in a controlled
+     * way. If, however, the client application should crash or exit
+     * without stopping all instantiated modules, or a complete
+     * restart including reset of the camera is desired, this can be
+     * used.  This will also stop and remove a running dummy module.
+     *
+     * \sa \code start_idle()
+     *
+     * \sa \code start()
      * \return A result code:
      *     - TFV_OK when execution halted successfully.
      *     - TFV_EXEC_THREAD_FAILURE when the thread is still running.
@@ -131,23 +138,23 @@ public:
     }
 
     /**
-     * Start an idle process, i.e. a module which will never be executed.
-     * This
-     * is a lightweight module which will not trigger frame grabbing.
-     * However, once started, it will keep the camera device blocked
-     * so it may be used to hold on the camera handle even if no 'real'
-     * module is running.  This dummy process can not be referred to
-     * since the assigned id is not retreivable by the user,
-     * and it is (currently) not deactivatable unless \code quit()
-     * is called.  Also, the process will only be started once, no
-     * matter how often this method gets called.
+     * Start an idle process, i.e. a module which will never be
+     * executed.  This is a lightweight module which will not trigger
+     * frame grabbing.  However, once started, it will keep the camera
+     * device blocked so it may be used to hold on the camera handle
+     * even if no 'real' module is running.  This dummy process can
+     * not be referred to since the assigned id is not retreivable by
+     * the user, and it is (currently) not deactivatable unless \code
+     * quit() is called.  Also, the process will only be started once,
+     * no matter how often this method gets called.
+     *
      * \return TFV_OK if the process is running afterwards
      */
     TFV_Result start_idle(void) {
         auto result = TFV_OK;  // optimistic because startable only once
 
         if (not idle_process_running_) {
-            result = module_set<Dummy>(_next_internal_id());
+            result = _module_set<Dummy>(_next_internal_id(), Module::Tag::None);
         }
         idle_process_running_ = (result == TFV_OK);
         return result;

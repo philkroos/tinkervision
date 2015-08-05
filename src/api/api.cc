@@ -30,6 +30,7 @@ tfv::Api::Api(void) { (void)start(); }
 tfv::Api::~Api(void) { quit(); }
 
 TFV_Result tfv::Api::start(void) {
+    Log("API", "Starting");
 
     auto result = TFV_EXEC_THREAD_FAILURE;
 
@@ -56,6 +57,8 @@ TFV_Result tfv::Api::start(void) {
 }
 
 TFV_Result tfv::Api::stop(void) {
+    Log("API", "Stopping");
+
     auto result = TFV_EXEC_THREAD_FAILURE;
 
     if (executor_.joinable()) {
@@ -63,33 +66,30 @@ TFV_Result tfv::Api::stop(void) {
         // Notify the threaded execution-context to stop and wait for it
         active_ = false;
         executor_.join();
-
-        // Release all unused resources. Keep the modules' active state
-        // unchanged, so that restarting the loop resumes known context.
-        modules_.exec_all([this](
-            TFV_Int id, tfv::Module& module) { camera_control_.release(); });
     }
 
     if (not executor_.joinable()) {
+        camera_control_.release_all();
         result = TFV_OK;
     }
-
-    // explicitly release the camera, in case sth. went wrong above
-    camera_control_.release_all();
 
     return result;
 }
 
 TFV_Result tfv::Api::quit(void) {
+    Log("API", "Quitting");
 
-    // stop all modules
+    // disable all ...
     modules_.exec_all(
         [this](TFV_Int id, tfv::Module& module) { module.disable(); });
 
-    // This included the dummy module
+    // ... remove all modules from the shared context ...
+    modules_.free_all();
+
+    // (This included the dummy module)
     idle_process_running_ = false;
 
-    // stop execution of the main loop
+    // ... release the camera and join the execution thread
     return stop();
 }
 
@@ -98,8 +98,8 @@ void tfv::Api::execute(void) {
     // Execute active module. This is the ONLY place where modules are executed.
     auto module_exec = [&](TFV_Int id, tfv::Module& module) {
 
-        // skip paused modules
-        if (not module.enabled()) {
+        // skip paused modules and those that don't want to execute
+        if (not module.enabled() or not module.running()) {
             return;
         }
 
@@ -185,6 +185,9 @@ void tfv::Api::execute(void) {
 
         std::this_thread::sleep_for(std::chrono::milliseconds(latency_ms));
     }
+
+    // Check for any delayed removals or allocations
+    modules_.update(nullptr);
 }
 
 /*

@@ -23,6 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision.h"
 
+void callback(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
+    printf("Callback for module %d\n", id);
+}
+
 int main(int argc, char* argv[]) {
     TFV_Size width = 640;
     TFV_Size height = 480;
@@ -45,9 +49,42 @@ int main(int argc, char* argv[]) {
     printf ("WxH: %lux%lu\n", (long unsigned)width, (long unsigned)height);
     sleep(1);
 
+    /*
+      08-05-2015
+      Starting a module, quitting the api, starting same id again failed.
+    */
+    result = colormatch_start(1, 20, 25, callback, NULL);
+    printf ("Colormatch Id 1 Start: %d (%s)\n", result, result_string(result));
+    sleep(3);
+
     result = quit();
     printf ("Quit: %d (%s)\n", result, result_string(result));
-    sleep(1);
+    sleep(2);
+
+    result = colormatch_start(1, 20, 25, callback, NULL);
+    printf ("Colormatch Id 1 Start: %d (%s)\n", result, result_string(result));
+    sleep(2);
+    /*
+       08-05-2015
+       That was actually correct behaviour since quit stops the mainloop.
+       One could call start...
+     */
+    result = start();
+    printf ("Api restarted: %d (%s)\n", result, result_string(result));
+    sleep(2);
+    /*
+       08-05-2015
+       ... or better just call stop/start instead of quit, which would
+       not delete the active modules: No call to colormatch_start here
+       and the idle_process is still running.
+     */
+    result = stop();
+    printf ("Stop: %d (%s)\n", result, result_string(result));
+    sleep(2);
+
+    result = start();
+    printf ("Api restarted: %d (%s)\n", result, result_string(result));
+    sleep(2);
 
     return 0;
 }
