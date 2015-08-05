@@ -29,6 +29,11 @@ public:
     void execute(tfv::Image const& image) override final {}
 
     /**
+     * Signal that this module shall not be executed
+     */
+    bool running(void) const noexcept override { return false; }
+
+    /**
      * \return \code ColorSpace::None to indicate that \code execute does not
      * have to be called.
      */

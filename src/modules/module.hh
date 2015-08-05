@@ -74,15 +74,15 @@ public:
     Module& operator=(Module&& rhs) = delete;
 
     TFV_Int id(void) const { return module_id_; }
+
+    virtual bool running(void) const noexcept { return enabled(); }
+
     bool enabled(void) const noexcept { return active_; }
 
-    // return previous state
-    bool enable(void) noexcept {
-        Log("MODULE", "Enabling module ", module_id_);
-        return switch_active(true);
-    }
+    // return false if previous state was the same
+    bool enable(void) noexcept { return switch_active(true); }
 
-    // return previous state
+    // return false if previous state was the same
     bool disable(void) noexcept { return switch_active(false); }
 
     // return false if previous state was the same
