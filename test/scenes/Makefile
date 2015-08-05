@@ -2,7 +2,7 @@ CC	:= gcc
 CCFLAGS := -Wall -Werror -g -O0 -ansi -pedantic -DDEBUG -D_POSIX_C_SOURCE=199309L
 
 INC	:= -I../../src/api -I../../src/imaging `pkg-config --cflags opencv`
-LDFLAGS := -g -Wall -L../../build -ltfv -lstdc++ -lv4l2 `pkg-config --libs opencv`
+LDFLAGS := -g -Wall -L../../build -ltinkervision -lstdc++ -lv4l2 `pkg-config --libs opencv`
 
 OBJ1	:= tfv_scenes.o
 OUT1	:= tfv-scenes

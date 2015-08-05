@@ -5,7 +5,7 @@ LIBS_X264	:= -lx264
 LIBS_LIVE	:= -lBasicUsageEnvironment -lUsageEnvironment -lgroupsock -lliveMedia
 LIBS_OPENCV	:= `pkg-config --libs opencv`
 LDFLAGS	:= -g -Wall -L../../build
-LIBS		:= -ltfv -lstdc++ -lv4l2 $(LIBS_OPENCV) $(LIBS_EXTERNAL)  $(LIB_X264) $(LIBS_LIVE)
+LIBS		:= -ltinkervision -lstdc++ -lv4l2 $(LIBS_OPENCV) $(LIBS_EXTERNAL)  $(LIB_X264) $(LIBS_LIVE)
 
 OBJ		:= tfv_record.o
 OUT		:= tfv-record
