@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
     hue = (TFV_Byte)atoi(argv[1]);
     min_hue = hue >= range ? hue - range : 180 - range + hue;
     max_hue = hue < (180 - range) ? hue + range : range - hue;
-    printf("Using min-hue: %d and max-hue: %d\n", hue, min_hue, max_hue);
+    printf("Using min-hue: %d and max-hue: %d\n", min_hue, max_hue);
 
     result = camera_available();
     if (result != 0) {
