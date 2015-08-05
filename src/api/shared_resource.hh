@@ -190,7 +190,8 @@ public:
      * \return The number of resources removed.
      */
     size_t free_if(std::function<bool(Resource const& resource)> predicate) {
-        std::lock_guard<std::mutex> lock(managed_mutex_);
+        std::lock_guard<std::mutex> mlock(managed_mutex_);
+        std::lock_guard<std::mutex> glock(garbage_mutex_);
 
         auto count = static_cast<size_t>(0);
         for (auto it = managed_.cbegin(); it != managed_.cend();) {
@@ -207,6 +208,14 @@ public:
         }
 
         return count;
+    }
+
+    void free_all(void) {
+        std::lock_guard<std::mutex> mlock(managed_mutex_);
+        std::lock_guard<std::mutex> glock(garbage_mutex_);
+        garbage_.insert(managed_.begin(), managed_.end());
+        managed_.clear();
+        ids_managed_.clear();
     }
 
     /**
