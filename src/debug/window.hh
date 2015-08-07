@@ -46,7 +46,7 @@ public:
         cv::waitKey(100);  // skip time to give window-update thread a chance
     }
 
-    void update(TFV_Id id, cv::Mat const& image, int rows, int columns) {
+    void update(TFV_Id id, cv::Mat const& image) {
         if (windows_.find(id) == windows_.end()) {
             windows_[id] = prefix + std::to_string(id) + " ";
             cv::namedWindow(windows_[id]);

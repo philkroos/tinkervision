@@ -85,6 +85,11 @@ TFV_Result scene_remove(TFV_Scene scene);
 
 TFV_String result_string(TFV_Result code);
 
+TFV_Result set_parameter(TFV_Id module_id, TFV_String const parameter,
+                         TFV_Int value);
+
+TFV_Result get_parameter(TFV_Id module_id, TFV_String const parameter,
+                         TFV_Int* value);
 /* colormatch */
 
 TFV_Result colormatch_start(TFV_Id feature_id, TFV_Byte min_hue,

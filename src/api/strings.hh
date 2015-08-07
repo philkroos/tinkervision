@@ -48,6 +48,9 @@ private:
         {TFV_INVALID_ID, "Error - ID is invalid"},
         {TFV_MODULE_INITIALIZATION_FAILED,
          "Error - Initialization of module failed"},
+        {TFV_MODULE_ERROR_SETTING_PARAMETER,
+         "Error - Module parameterization failed"},
+        {TFV_MODULE_NO_SUCH_PARAMETER, "Error - No such parameter"},
         // 650..
         {TFV_EXEC_THREAD_FAILURE, "Error - The main thread did not react"}};
 

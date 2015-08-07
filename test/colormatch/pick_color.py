@@ -54,13 +54,13 @@ width = size[0]
 height = size[1]
 
 
-def run(cam_id):
+def run(cam_id, distance):
     print "Using cam", cam_id
     cap = cv2.VideoCapture(cam_id)
     cv2.namedWindow(wname)
     framewidth = cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
     frameheight = cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)
-    hp = HueAverage(wname, framewidth, frameheight, 10)
+    hp = HueAverage(wname, framewidth, frameheight, distance)
     cv2.setMouseCallback(wname, hp.mouseHandler)
 
     while True:
@@ -83,4 +83,4 @@ def run(cam_id):
 
     cap.release()
 
-    return hp.avg.h
+    return [hp.avg.h, hp.avg.s, hp.avg.v]

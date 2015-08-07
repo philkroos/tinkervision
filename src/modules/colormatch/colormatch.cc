@@ -17,13 +17,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include "colormatch.hh"
-
 #include <opencv2/opencv.hpp>
+
+#include "colormatch.hh"
+#include "window.hh"
 
 // member functions
 
 void tfv::Colormatch::execute(tfv::Image const& image) {
+    static Window w;
+    Log("COLORMATCH", "Executing for image ", image.timestamp);
     const auto rows = image.height;
     const auto columns = image.width;
     const auto data = image.data;
@@ -52,10 +55,12 @@ void tfv::Colormatch::execute(tfv::Image const& image) {
     } else {
         cv::inRange(cv_image, low, high, mask);
     }
+    w.update(id(), mask);
 
     // Opening
     cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
     cv::morphologyEx(mask, mask, CV_MOP_OPEN, element);
+    // w.update(id(), mask);
 
     // find elements
     std::vector<cv::Vec4i> hierarchy;

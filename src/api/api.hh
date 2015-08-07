@@ -197,6 +197,34 @@ public:
         return result;
     }
 
+    TFV_Result set_parameter(TFV_Id module_id, std::string parameter,
+                             TFV_Word value) {
+
+        return modules_.exec_one(module_id, [&](Module& module) {
+            if (not module.has_parameter(parameter)) {
+                return TFV_MODULE_NO_SUCH_PARAMETER;
+            }
+            if (not module.set_parameter(parameter, value)) {
+                return TFV_MODULE_ERROR_SETTING_PARAMETER;
+            }
+            return TFV_OK;
+        });
+    }
+
+    TFV_Result get_parameter(TFV_Id module_id, std::string parameter,
+                             TFV_Word* value) {
+
+        return modules_.exec_one(module_id, [&](Module& module) {
+            if (not module.has_parameter(parameter)) {
+                return TFV_MODULE_NO_SUCH_PARAMETER;
+            }
+
+            module.get_parameter(parameter, *value);
+
+            return TFV_OK;
+        });
+    }
+
     /**
      * Start a module which was already initialized by
      * module_set().  This method succeeds if the module was

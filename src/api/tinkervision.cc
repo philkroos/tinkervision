@@ -75,6 +75,16 @@ TFV_String result_string(TFV_Result code) {
     return tfv::get_api().result_string(code);
 }
 
+TFV_Result set_parameter(TFV_Id module_id, TFV_String const parameter,
+                         TFV_Int value) {
+    return tfv::get_api().set_parameter(module_id, parameter, value);
+}
+
+TFV_Result get_parameter(TFV_Id module_id, TFV_String const parameter,
+                         TFV_Int* value) {
+    return tfv::get_api().get_parameter(module_id, parameter, value);
+}
+
 TFV_Result restart_id(TFV_Id id) { return tfv::get_api().start_id(id); }
 
 TFV_Result stop_id(TFV_Id id) { return tfv::get_api().stop_id(id); }

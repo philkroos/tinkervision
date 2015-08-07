@@ -64,6 +64,10 @@ protected:
 
     virtual void execute(tfv::Image const& image) = 0;
 
+    bool in_range(TFV_Word value, TFV_Word low, TFV_Word high) const {
+        return value >= low and value <= high;
+    }
+
 public:
     virtual ~Module(void) = default;
 
@@ -99,6 +103,23 @@ public:
         execute(image);
     }
     virtual ColorSpace expected_format(void) const = 0;
+
+    virtual bool has_parameter(std::string const& parameter) const {
+        return false;
+    }
+
+    virtual bool set(std::string const& parameter, TFV_Word value) {
+        return false;
+    }
+    virtual TFV_Word get(std::string const& parameter) { return 0; }
+
+    bool set_parameter(std::string const& parameter, TFV_Word value) {
+        return set(parameter, value);
+    }
+
+    void get_parameter(std::string const& parameter, TFV_Word& value) {
+        value = get(parameter);
+    }
 
     Tag const& tags(void) const { return tags_; }
     void tag(Tag tags) { tags_ |= tags; }

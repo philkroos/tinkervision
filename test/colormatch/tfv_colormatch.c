@@ -34,34 +34,53 @@ void tfcv_callback_id0(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
     center.x = x;
     center.y = y;
 
-    printf("Id %d: Feature at %d/%d\n", id, center.x, center.y);
+    printf("Id %d: Located at %d/%d\n", id, center.x, center.y);
 
     cvCircle(image, center, 5, CV_RGB(255, 0, 0), 2, CV_AA, 0);
     cvShowImage("Result", image);
     cvWaitKey(10);
 }
 
+void set(TFV_Word* min, TFV_Word* max, TFV_Byte value, TFV_Byte range) {
+    *min = value >= range ? value - range : *max - range + value;
+    *max = value < (*max - range) ? value + range : range - value;
+}
+
 int main(int argc, char* argv[]) {
     TFV_Id id = 0;
-    TFV_Byte hue;
-    TFV_Byte min_hue;
-    TFV_Byte max_hue;
-    TFV_Byte range = 3;
+    TFV_Byte hue, saturation, value; /* commandline */
+    TFV_Word min_hue;
+    TFV_Word max_hue = 180;
+    TFV_Word min_value;
+    TFV_Word max_value = 255;
+    TFV_Word min_saturation;
+    TFV_Word max_saturation = 255;
+    TFV_Byte range;
     struct timespec time = {0};
     int i;
     TFV_Size width, height; /* framesize */
     TFV_Result result = TFV_INTERNAL_ERROR;
 
-    if (argc < 2) {
-        printf("Usage: %s min-hue, where min-hue is an integer [0-180)\n",
-               argv[0]);
+    if (argc < 5) {
+        printf(
+            "Usage: %s h s v range, where\n"
+            "h is [0-180), s and v [0-255], range is an allowed "
+            "deviation\n",
+            argv[0]);
         return -1;
     }
 
     hue = (TFV_Byte)atoi(argv[1]);
-    min_hue = hue >= range ? hue - range : 180 - range + hue;
-    max_hue = hue < (180 - range) ? hue + range : range - hue;
-    printf("Using min-hue: %d and max-hue: %d\n", min_hue, max_hue);
+    saturation = (TFV_Byte)atoi(argv[2]);
+    value = (TFV_Byte)atoi(argv[3]);
+    range = (TFV_Byte)atoi(argv[4]);
+
+    set(&min_hue, &max_hue, hue, range);
+    set(&min_value, &max_value, value, range);
+    set(&min_saturation, &max_saturation, saturation, range);
+
+    printf("Using H-S-V: [%d,%d]-[%d,%d]-[%d,%d]\n", min_hue, max_hue,
+           min_value, max_value, min_saturation, max_saturation);
 
     result = camera_available();
     if (result != 0) {
@@ -75,6 +94,37 @@ int main(int argc, char* argv[]) {
 
     printf("Configured module id %d: Code %d (%s)\n", id, result,
            result_string(result));
+
+    result = set_parameter(id, "min-hue", min_hue);
+    printf("Set min-hue: Code %d (%s)\n", result, result_string(result));
+    result = get_parameter(id, "min-hue", &min_hue);
+    printf("%d Code %d (%s)\n", min_hue, result, result_string(result));
+
+    result = set_parameter(id, "max-hue", max_hue);
+    printf("Set max-hue: Code %d (%s)\n", result, result_string(result));
+    result = get_parameter(id, "max-hue", &min_hue);
+    printf("%d Code %d (%s)\n", max_hue, result, result_string(result));
+
+    result = set_parameter(id, "min-value", min_value);
+    printf("Set min-value: Code %d (%s)\n", result, result_string(result));
+    result = get_parameter(id, "min-value", &min_hue);
+    printf("%d Code %d (%s)\n", min_value, result, result_string(result));
+
+    result = set_parameter(id, "max-value", max_value);
+    printf("Set max-value: Code %d (%s)\n", result, result_string(result));
+    result = get_parameter(id, "max-value", &min_hue);
+    printf("%d Code %d (%s)\n", max_value, result, result_string(result));
+
+    result = set_parameter(id, "min-saturation", min_saturation);
+    printf("Set min-sat: Code %d (%s)\n", result, result_string(result));
+    result = get_parameter(id, "min-saturation", &min_saturation);
+    printf("%d Code %d (%s)\n", min_saturation, result, result_string(result));
+
+    result = set_parameter(id, "max-saturation", max_saturation);
+    printf("Set max-sat: Code %d (%s)\n", result, result_string(result));
+    result = get_parameter(id, "max-saturation", &min_saturation);
+    printf("%d Code %d (%s)\n", max_saturation, result, result_string(result));
+
     sleep(1);
 
     get_resolution(&width, &height);
