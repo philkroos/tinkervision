@@ -89,7 +89,6 @@ public:
      */
     TFV_Result exec_one(TFV_Int id, ExecOne executor) {
         if (not managed_.size()) {
-            std::cout << "No size" << std::endl;
             return TFV_INVALID_ID;
         }
 
@@ -98,7 +97,6 @@ public:
         if (it != managed_.end()) {
             return executor(resource(it));
         } else {
-            std::cout << "Not found" << std::endl;
             return TFV_INVALID_ID;
         }
     }
@@ -120,9 +118,12 @@ public:
         return count;
     }
 
+    /**
+     * \deprecated The notion of three different stages was removed
+     */
     void update(AfterPersistedHook after_persisted_callback) {
-        persist(after_persisted_callback);
-        cleanup();
+        // persist(after_persisted_callback);
+        // cleanup();
     }
 
     /**
@@ -140,15 +141,17 @@ public:
         static_assert(std::is_convertible<T*, Resource*>::value,
                       "Wrong type passed to allocate");
 
-        std::lock_guard<std::mutex> lock(allocation_mutex_);
-        if (exists(allocated_, id)) {
+        std::lock_guard<std::mutex> lock(managed_mutex_);
+        if (exists(managed_, id)) {
             LogWarning("SHARED_RESOURCE::allocate", "Double allocate");
 
             return false;
         }
 
         try {
-            allocated_[id] = new T(id, args...);
+            managed_[id] = new T(id, args...);
+            // new, was in persist:
+            ids_managed_.push_front(id);
 
         } catch (tfv::ConstructionException const& ce) {
             LogError("SHARED_RESOURCE::allocate", ce.what());
@@ -168,19 +171,21 @@ public:
      * The resource is still active, i.e. managed() would return t.
      */
     void free(TFV_Int id) {
-        Resource* resource = nullptr;
+        // Resource* resource = nullptr;
         {
             std::lock_guard<std::mutex> lock(managed_mutex_);
             if (exists(managed_, id)) {
-                resource = managed_[id];
+                // resource = managed_[id];
                 managed_.erase(id);
                 ids_managed_.remove(id);
             }
         }
-        if (resource) {
-            std::lock_guard<std::mutex> lock(garbage_mutex_);
-            garbage_[id] = resource;
-        }
+        /*
+            if (resource) {
+                std::lock_guard<std::mutex> lock(garbage_mutex_);
+                garbage_[id] = resource;
+            }
+        */
     }
 
     /**
@@ -191,15 +196,15 @@ public:
      */
     size_t free_if(std::function<bool(Resource const& resource)> predicate) {
         std::lock_guard<std::mutex> mlock(managed_mutex_);
-        std::lock_guard<std::mutex> glock(garbage_mutex_);
+        // std::lock_guard<std::mutex> glock(garbage_mutex_);
 
         auto count = static_cast<size_t>(0);
         for (auto it = managed_.cbegin(); it != managed_.cend();) {
 
             if (predicate(resource(it))) {
-                auto const resource_id = id(it);
-                garbage_[resource_id] = &resource(it);
-                ids_managed_.remove(resource_id);
+                // auto const resource_id = id(it);
+                // garbage_[resource_id] = &resource(it);
+                ids_managed_.remove(id(it));
                 managed_.erase(it++);
                 count++;
             } else {
@@ -212,8 +217,8 @@ public:
 
     void free_all(void) {
         std::lock_guard<std::mutex> mlock(managed_mutex_);
-        std::lock_guard<std::mutex> glock(garbage_mutex_);
-        garbage_.insert(managed_.begin(), managed_.end());
+        // std::lock_guard<std::mutex> glock(garbage_mutex_);
+        // garbage_.insert(managed_.begin(), managed_.end());
         managed_.clear();
         ids_managed_.clear();
     }

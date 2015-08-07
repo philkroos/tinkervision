@@ -141,7 +141,7 @@ void tfv::Api::execute(void) {
     while (active_) {
 
         // Activate new and remove freed resources
-        modules_.update(nullptr);
+        // modules_.update(nullptr);
 
         if (active_modules()) {  // This does not account for modules
             // being 'stopped', i.e. this is true even if all modules are in
@@ -187,7 +187,7 @@ void tfv::Api::execute(void) {
     }
 
     // Check for any delayed removals or allocations
-    modules_.update(nullptr);
+    // modules_.update(nullptr);
 }
 
 /*
