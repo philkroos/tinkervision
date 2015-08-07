@@ -53,7 +53,7 @@ directories: $(BUILD_DIR)
 
 
 # actual targets
-lib: $(OBJ)
+lib: directories $(OBJ)
 	$(CC) -shared -o $(LIB) $(OBJ) $(LDFLAGS)
 
 test: $(LIB)
