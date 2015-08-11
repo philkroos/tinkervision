@@ -61,14 +61,5 @@ public:
     virtual void callback(void) const final override;
     virtual void apply(tfv::Image& image) const final override;
 };
-
-template <>
-bool valid<Motiondetect>(TFV_CallbackMotiondetect& callback,
-                         TFV_Context& context);
-
-template <>
-void set<Motiondetect>(Motiondetect* md, TFV_CallbackMotiondetect callback,
-                       TFV_Context context);
-};
-
+}
 #endif /* MOTIONDETECT_H */

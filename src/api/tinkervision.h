@@ -98,9 +98,6 @@ TFV_Result colormatch_start(TFV_Id feature_id, TFV_Byte min_hue,
 
 TFV_Result colormatch_stop(TFV_Id feature_id);
 
-TFV_Result colormatch_get(TFV_Id feature_id, TFV_Byte* min_hue,
-                          TFV_Byte* max_hue);
-
 TFV_Result colormatch_restart(TFV_Id feature_id);
 
 /* motiondetect */

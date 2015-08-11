@@ -34,7 +34,6 @@ private:
     TFV_Byte const min_hue{0};
     TFV_Byte const max_hue{180};
 
-public:
     // configurable values
     TFV_Byte user_min_hue;         ///< The used minimum hue
     TFV_Byte user_max_hue;         ///< The used maximum hue
@@ -45,6 +44,8 @@ public:
 
     TFV_CallbackColormatch callback;
     TFV_Context context;
+
+public:
 
     Colormatch(TFV_Int module_id, Module::Tag tags, TFV_Byte min_hue,
                TFV_Byte max_hue, TFV_CallbackColormatch callback,
@@ -122,20 +123,6 @@ public:
         return -1;  // never reached
     }
 };
-
-// called with the exact same parameter list as the constructor,
-// and all args are references. If this is not correct
-// here, the 'basecase' in module.hh will be used.
-template <>
-bool valid<Colormatch>(TFV_Byte& min_hue, TFV_Byte& max_hue,
-                       TFV_CallbackColormatch& callback, TFV_Context& context);
-template <>
-void set<Colormatch>(Colormatch* ct, TFV_Byte min_hue, TFV_Byte max_hue,
-                     TFV_CallbackColormatch callback, TFV_Context context);
-
-template <>
-void get<Colormatch>(Colormatch const& ct, TFV_Byte& min_hue,
-                     TFV_Byte& max_hue);
-};
+}
 
 #endif /* COLORMATCH_H */

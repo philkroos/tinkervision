@@ -68,21 +68,3 @@ void tfv::Motiondetect::apply(tfv::Image& image) const {
         cv::rectangle(frame, rect_, cv::Scalar(255, 0, 0), 3);
     }
 }
-
-// free functions
-
-template <>
-bool tfv::valid<tfv::Motiondetect>(TFV_CallbackMotiondetect& callback,
-                                   TFV_Context& context) {
-
-    // nothing to set in this module so good if callback defined
-    return callback;
-}
-
-template <>
-void tfv::set<tfv::Motiondetect>(tfv::Motiondetect* md,
-                                 TFV_CallbackMotiondetect callback,
-                                 TFV_Context context) {
-    md->callback_ = callback;
-    md->context_ = context;
-}

@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "stream.hh"
 #include "exceptions.hh"
 
-IMPLEMENT_EMPTY_INTERFACE(Stream)
 
 tfv::Stream::~Stream(void) {
     killswitch_ = 1;

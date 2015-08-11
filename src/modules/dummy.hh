@@ -41,7 +41,5 @@ public:
         return ColorSpace::NONE;
     }
 };
-
-DECLARE_EMPTY_INTERFACE(Dummy)
 }
 #endif /* DUMMY_H */

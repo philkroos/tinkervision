@@ -58,10 +58,5 @@ public:
 
     virtual ColorSpace expected_format(void) const { return ColorSpace::YV12; }
 };
-
-DECLARE_EMPTY_INTERFACE(Snapshot)
 }
-
-IMPLEMENT_EMPTY_INTERFACE(Snapshot)
-
 #endif

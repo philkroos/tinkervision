@@ -64,7 +64,6 @@ private:
         0;  ///< signal for the streamer library to stop the event loop
 };
 
-DECLARE_EMPTY_INTERFACE(Stream)
 }
 
 #endif /* STREAM_H */

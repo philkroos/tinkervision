@@ -128,49 +128,5 @@ public:
 // helper for compile time check
 template <typename T>
 struct false_for_type : std::false_type {};
-
-// Interface methods to be implemented by modules
-
-template <typename T, typename... Args>
-bool valid(Args&... args) {
-
-    // compiler message if this method is undefined for a module
-    static_assert(false_for_type<T>::value, "Undefined interface valid");
-
-    // will never occur
-    return false;
-}
-
-template <typename T, typename... Args>
-void set(T* module, Args... args) {
-
-    // compiler message if this method is undefined for a module
-    static_assert(false_for_type<T>::value, "Undefined interface set");
-}
-
-template <typename T, typename... Args>
-void get(T const& module, Args&... args) {
-
-    // compiler message if this method is undefined for a module
-    static_assert(false_for_type<T>::value, "Undefined interface get");
-}
-
-#define DECLARE_EMPTY_INTERFACE(Classname) \
-    template <>                            \
-    bool valid<Classname>(void);           \
-    template <>                            \
-    void get(Classname const& sh);         \
-    template <>                            \
-    void set(Classname* sh);
-
-#define IMPLEMENT_EMPTY_INTERFACE(Classname)   \
-    template <>                                \
-    bool tfv::valid<tfv::Classname>(void) {    \
-        return true;                           \
-    }                                          \
-    template <>                                \
-    void tfv::get(tfv::Classname const& sh) {} \
-    template <>                                \
-    void tfv::set<tfv::Classname>(tfv::Classname * sh) {}
 }
 #endif

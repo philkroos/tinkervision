@@ -18,5 +18,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include "dummy.hh"
-
-IMPLEMENT_EMPTY_INTERFACE(Dummy)

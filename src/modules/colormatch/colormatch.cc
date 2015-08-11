@@ -87,30 +87,3 @@ void tfv::Colormatch::execute(tfv::Image const& image) {
         callback(static_cast<TFV_Id>(module_id_), x, y, context);
     }
 }
-
-// free functions
-
-template <>
-bool tfv::valid<tfv::Colormatch>(TFV_Byte& min_hue, TFV_Byte& max_hue,
-                                 TFV_CallbackColormatch& callback,
-                                 TFV_Context& context) {
-    return callback;
-}
-
-template <>
-void tfv::set<tfv::Colormatch>(tfv::Colormatch* ct, TFV_Byte min_hue,
-                               TFV_Byte max_hue,
-                               TFV_CallbackColormatch callback,
-                               TFV_Context context) {
-    ct->user_min_hue = min_hue;
-    ct->user_max_hue = max_hue;
-    ct->callback = callback;
-    ct->context = context;
-}
-
-template <>
-void tfv::get<tfv::Colormatch>(tfv::Colormatch const& ct, TFV_Byte& min_hue,
-                               TFV_Byte& max_hue) {
-    min_hue = ct.user_min_hue;
-    max_hue = ct.user_max_hue;
-}

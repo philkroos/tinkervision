@@ -182,21 +182,6 @@ public:
                                  args...);
     }
 
-    template <typename Module>
-    TFV_Result module_get(TFV_Id id, TFV_Byte& min_hue,
-                          TFV_Byte& max_hue) const {
-        auto result = TFV_UNCONFIGURED_ID;
-        Module const* module = nullptr;
-
-        result = _get_module<Module>(static_cast<TFV_Int>(id), &module);
-
-        if (module) {
-            tfv::get<Module>(*module, min_hue, max_hue);
-        }
-
-        return result;
-    }
-
     TFV_Result set_parameter(TFV_Id module_id, std::string parameter,
                              TFV_Word value) {
 
@@ -585,34 +570,11 @@ private:
     template <typename Comp, typename... Args>
     TFV_Result _module_set(TFV_Int id, Module::Tag tags, Args... args) {
 
-        if (not tfv::valid<Comp>(args...)) {
-            return TFV_INVALID_CONFIGURATION;
-        }
-
         if (not modules_.managed(id)) {
             return _module_set_new<Comp>(id, tags, args...);
         }
 
-        // reconfiguration requested
-
-        auto module = modules_[id];  // ptr
-
-        if (not _check_type<Comp>(module)) {
-            return TFV_INVALID_ID;
-        }
-
-        // This (binding args to lambda) requires g++4.9. A workaround
-        // for 4.7 was available here until commit a5c5e48. g++4.8 is
-        // not tested.
-        return modules_.exec_one(id, [this, &args...](tfv::Module& module) {
-            tfv::set<Comp>(static_cast<Comp*>(&module), args...);
-            if (module.enabled() or camera_control_.acquire()) {
-                module.enable();  // redundant
-                return TFV_OK;
-            } else {
-                return TFV_CAMERA_ACQUISITION_FAILED;
-            }
-        });
+        return TFV_INVALID_ID;
     }
 
     template <typename Comp, typename... Args>

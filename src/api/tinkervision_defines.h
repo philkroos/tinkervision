@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 typedef int8_t TFV_Bool;
 typedef int8_t TFV_Short;
 typedef int16_t TFV_Word;
+typedef int32_t TFV_Long;
 typedef uint16_t TFV_UWord;
 typedef uint32_t TFV_UInt;
 typedef uint8_t TFV_Byte;
