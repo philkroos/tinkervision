@@ -55,7 +55,7 @@ void tfv::Colormatch::execute(tfv::Image const& image) {
     } else {
         cv::inRange(cv_image, low, high, mask);
     }
-    w.update(id(), mask);
+    // w.update(id(), mask);
 
     // Opening
     cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));

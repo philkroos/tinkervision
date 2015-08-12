@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef COLORMATCH_H
 #define COLORMATCH_H
 
-#include "executable.hh"
+#include "module.hh"
 
 namespace tfv {
 

@@ -41,9 +41,8 @@ TFV_Result tfv::SceneTrees::scene_start(TFV_Scene scene_id, TFV_Int module_id) {
         if (not scene_nodes_.allocate<Node>(
                 node_id, [&](Node& node) {
                              scene_trees_.emplace_back(new SceneTree(&node));
-                             node.tree()->activate();  // was in update
-                             node.tree()->add_node_to_scene(
-                                 scene_id, &node);  // was in update
+                             node.tree()->activate();
+                             node.tree()->add_node_to_scene(scene_id, &node);
                          },
                 scene_id, module_id)) {
             return TFV_NODE_ALLOCATION_FAILED;
@@ -117,9 +116,8 @@ TFV_Result tfv::SceneTrees::add_to_scene(TFV_Scene scene_id,
     if (not scene_nodes_.allocate<Node>(
             node_id, [&](Node& node) {
                          // node.set_tree(leaf_of_scene->tree()); // in node
-                         leaf_of_scene->add_child(&node);  // in update
-                         node.tree()->add_node_to_scene(
-                             scene_id, &node);  // was in update
+                         leaf_of_scene->add_child(&node);
+                         node.tree()->add_node_to_scene(scene_id, &node);
                      },
             scene_id, module_id, leaf_of_scene)) {
         return TFV_NODE_ALLOCATION_FAILED;
@@ -130,24 +128,6 @@ TFV_Result tfv::SceneTrees::add_to_scene(TFV_Scene scene_id,
 
 void tfv::SceneTrees::exec_all(Node::ModuleExecutor executor,
                                Timestamp timestamp) {
-    /*
-    // persist and link each allocated node into its tree
-    scene_nodes_.update([&](Node& new_node) {
-        new_node.tree()->add_node_to_scene(new_node.scenes()->at(0), &new_node);
-
-        auto parent = new_node.parent();
-        if (nullptr == parent) {  // it was a root, a new tree.
-            new_node.tree()->activate();
-        } else {
-            parent->add_child(&new_node);
-        }
-
-        assert(not parent or
-               parent->get_child_from_module_id(new_node.module_id()) ==
-                   &new_node);
-    });
-    */
-
     for (auto& tree : scene_trees_) {
         tree->log_scenes();
         Log("SCENETREES::exec_all", "Moduletree: ", *tree);

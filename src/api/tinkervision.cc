@@ -101,6 +101,13 @@ TFV_Result colormatch_start(TFV_Id id, TFV_Byte min_hue, TFV_Byte max_hue,
                                                       callback, context);
 }
 
+TFV_Result module_start(TFV_String name, TFV_Id id) {
+
+    return tfv::get_api().module_load(name, id);
+}
+
+TFV_Result module_stop(TFV_Id id) { return tfv::get_api().module_destroy(id); }
+
 TFV_Result colormatch_restart(TFV_Id feature_id) {
     return tfv::get_api().module_start<tfv::Colormatch>(feature_id);
 }

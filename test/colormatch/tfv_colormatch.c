@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
 
     sleep(1);
 
-    result = colormatch_start(id, min_hue, max_hue, tfcv_callback_id0, NULL);
+    result = module_start("colormatch", id);
 
     printf("Configured module id %d: Code %d (%s)\n", id, result,
            result_string(result));
@@ -125,8 +125,11 @@ int main(int argc, char* argv[]) {
     result = get_parameter(id, "max-saturation", &min_saturation);
     printf("%d Code %d (%s)\n", max_saturation, result, result_string(result));
 
+    result = module_stop(id);
+    printf("Stop: %d (%s)\n", result, result_string(result));
     sleep(1);
 
+    return 0;
     get_resolution(&width, &height);
     image = cvCreateImage(cvSize(width, height), 8, 3);
     cvZero(image);

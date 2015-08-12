@@ -34,12 +34,11 @@ namespace tfv {
 
 template <typename Resource>
 class SharedResource {
+
 public:
     using value_type = Resource;
     using ResourceMap = std::unordered_map<TFV_Int, value_type*>;
     using IdList = std::forward_list<TFV_Int>;
-    using Iterator = typename ResourceMap::iterator;
-    using ConstIterator = typename ResourceMap::const_iterator;
 
     using ExecAll = std::function<void(TFV_Int, Resource&)>;
     using ExecOne = std::function<TFV_Result(Resource&)>;
@@ -47,15 +46,27 @@ public:
     using AfterPersistedHook = std::function<void(Resource&)>;
     using AfterAllocatedHook = std::function<void(Resource&)>;
 
+    using Allocator = std::function<void(void)>;
+    using Deallocator = std::function<void(Resource&)>;
+
+private:
+    struct ResourceContainer {
+        Resource* resource = nullptr;
+        Deallocator deallocator;
+
+        ResourceContainer(void) = default;
+        ResourceContainer(Resource* resource, Deallocator deallocator)
+            : resource(resource), deallocator(deallocator) {}
+    };
+
+    using ResourceContainerMap = std::unordered_map<TFV_Int, ResourceContainer>;
+    using Iterator = typename ResourceContainerMap::iterator;
+    using ConstIterator = typename ResourceContainerMap::const_iterator;
+
+public:
     ~SharedResource(void) {
-        for (auto const& resource : allocated_) {
-            if (resource.second) delete resource.second;
-        }
-        for (auto const& resource : garbage_) {
-            if (resource.second) delete resource.second;
-        }
         for (auto const& resource : managed_) {
-            if (resource.second) delete resource.second;
+            if (resource.second.resource) delete resource.second.resource;
         }
     }
 
@@ -70,7 +81,7 @@ public:
         } else {
             std::lock_guard<std::mutex> lock(managed_mutex_);
             for (auto& id : ids_managed_) {
-                executor(id, *managed_[id]);
+                executor(id, *(managed_[id].resource));
             }
             /*
                         for (auto& resource : managed_) {
@@ -83,9 +94,10 @@ public:
     /**
      * Execute a function on a single resource, given that it is active.
      *
-     * \parm[in] id The id of the resource on which executor shall be executed.
-     * \parm[in] executor The function to be executed on the resource identified
-     * by id.
+     * \param[in] id The id of the resource on which executor shall be
+     * executed.
+     * \param[in] executor The function to be executed on the resource
+     * identified by id.
      */
     TFV_Result exec_one(TFV_Int id, ExecOne executor) {
         if (not managed_.size()) {
@@ -104,26 +116,50 @@ public:
     /**
      * Evaluate a predicate for each active resource and counts the number of
      * true results.
-     * \parm[in] predicate A predicate.
+     * \param[in] predicate A predicate.
      * \return The number of true results over each active module.
      */
     size_t count(std::function<bool(Resource const&)> predicate) {
         std::lock_guard<std::mutex> lock(managed_mutex_);
         size_t count = 0;
         for (auto const& resource : managed_) {
-            if (predicate(*resource.second)) {
+            if (predicate(*(resource.second.resource))) {
                 count++;
             }
         }
         return count;
     }
 
-    /**
-     * \deprecated The notion of three different stages was removed
-     */
-    void update(AfterPersistedHook after_persisted_callback) {
-        // persist(after_persisted_callback);
-        // cleanup();
+    bool insert(TFV_Int id, Resource* module, Deallocator deallocator) {
+
+        std::lock_guard<std::mutex> lock(managed_mutex_);
+        if (exists(managed_, id)) {
+            LogWarning("SHARED_RESOURCE::allocate", "Double allocate");
+
+            return false;
+        }
+
+        managed_[id] = {module, deallocator};
+        ids_managed_.push_front(id);
+        return true;
+    }
+
+    bool remove(TFV_Int id) {
+        std::lock_guard<std::mutex> lock(managed_mutex_);
+        if (not exists(managed_, id)) {
+            LogWarning("SHARED_RESOURCE::remove", "Non existing");
+
+            return false;
+        }
+
+        if (managed_[id].deallocator) {
+            Log("SHARED_RESOURCE::remove", "Id ", id);
+            managed_[id].deallocator(*managed_[id].resource);
+        }
+
+        managed_.erase(id);
+        ids_managed_.remove(id);
+        return true;
     }
 
     /**
@@ -149,7 +185,8 @@ public:
         }
 
         try {
-            managed_[id] = new T(id, args...);
+            managed_[id] = ResourceContainer();
+            managed_[id].resource = new T(id, args...);
             // new, was in persist:
             ids_managed_.push_front(id);
 
@@ -160,7 +197,7 @@ public:
         }
 
         if (nullptr != callback) {
-            callback(*allocated_[id]);
+            callback(*managed_[id].resource);
         }
 
         return true;
@@ -175,9 +212,10 @@ public:
         {
             std::lock_guard<std::mutex> lock(managed_mutex_);
             if (exists(managed_, id)) {
-                // resource = managed_[id];
+                auto resource = managed_[id].resource;
                 managed_.erase(id);
                 ids_managed_.remove(id);
+                delete resource;
             }
         }
         /*
@@ -248,7 +286,7 @@ public:
             std::lock_guard<std::mutex> lock(managed_mutex_);
             it = managed_.find(id);
         }
-        return *(it->second);
+        return *(it->second.resource);
     }
 
     /**
@@ -267,7 +305,7 @@ public:
         {
             std::lock_guard<std::mutex> lock(managed_mutex_);
             auto it = managed_.find(id);
-            resource = (it == managed_.end()) ? nullptr : it->second;
+            resource = (it == managed_.end()) ? nullptr : it->second.resource;
         }
         return resource;
     }
@@ -283,9 +321,9 @@ public:
             auto it = std::find_if(
                 managed_.begin(), managed_.end(),
                 [&unaryp](std::pair<TFV_Int, Resource*> const& thing) {
-                    return unaryp(*thing.second);
+                    return unaryp(*thing.second.resource);
                 });
-            resource = (it == managed_.end()) ? nullptr : it->second;
+            resource = (it == managed_.end()) ? nullptr : it->second.resource;
         }
         return resource;
     }
@@ -332,7 +370,7 @@ public:
 
     Resource* access_unlocked(TFV_Int id) {
         auto it = managed_.find(id);
-        return (it == managed_.end()) ? nullptr : it->second;
+        return (it == managed_.end()) ? nullptr : it->second.resource;
     }
 
     bool size(void) const { return managed_.size(); }
@@ -346,76 +384,20 @@ private:
     /**
      * Verbose access to the resource of a resource-map.
      */
-    Resource& resource(ConstIterator it) const { return *it->second; }
+    Resource& resource(ConstIterator it) const { return *it->second.resource; }
 
     /**
      * Verbose check if a  resource exists in a map.
      */
-    bool exists(ResourceMap const& map, TFV_Int id) const {
+    bool exists(ResourceContainerMap const& map, TFV_Int id) const {
         return map.find(id) != map.end();
     }
 
-    /**
-     * Activates all allocated resources.
-     */
-    void persist(AfterPersistedHook callback) {
-        std::lock_guard<std::mutex> a_lock(allocation_mutex_);
-        if (not allocated_.empty()) {
-            std::lock_guard<std::mutex> m_lock(managed_mutex_);
-            for (auto& resource : allocated_) {
-                ids_managed_.push_front(resource.first);
-                if (callback) {
-                    callback(*resource.second);
-                }
-            }
-            managed_.insert(allocated_.begin(), allocated_.end());
-            allocated_.clear();
-        }
-    }
-
-    /**
-     * Deactivates all resources marked as removable and deletes them.
-     */
-    void cleanup(void) {
-        locked_call(garbage_mutex_, [this](ResourceMap& garbage) {
-                                        if (not garbage_.empty()) {
-
-                                            for (auto& resource : garbage) {
-                                                if (resource.second) {
-                                                    delete resource.second;
-                                                }
-                                            }
-                                            garbage.clear();
-                                        }
-                                    },
-                    garbage_);
-    }
-
 private:
-    ResourceMap allocated_;  ///< After allocate(), before persist()
-    ResourceMap managed_;    ///< After persist(), available for exec*
-    ResourceMap garbage_;    ///< After free(), before cleanup()
-    IdList ids_managed_;     ///< Sorted access to the active resources
+    ResourceContainerMap managed_;
+    IdList ids_managed_;  ///< Sorted access to the active resources
 
-    std::mutex mutable allocation_mutex_;
-    std::mutex mutable garbage_mutex_;
     std::mutex mutable managed_mutex_;
-
-    template <typename Mutex, typename Func>
-    void locked_call(Mutex& mutex, Func function) {
-        using MutexGuard = std::lock_guard<Mutex>;
-        MutexGuard lock(mutex);
-        function();
-    }
-
-    template <typename Mutex, typename Func, typename... Args>
-    auto locked_call(Mutex& mutex, Func function, Args&... args)
-        -> decltype(function(args...)) {
-
-        using MutexGuard = std::lock_guard<Mutex>;
-        MutexGuard lock(mutex);
-        return function(args...);
-    }
 };
 }
 

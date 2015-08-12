@@ -50,6 +50,8 @@ typedef TFV_CallbackRectangle TFV_CallbackMotiondetect;
 
 #define TFV_UNUSED_ID -1
 
+/* Library configuration */
+#define MODULE_LOAD_PATH "/tmp/libs/"
 /* result codes */
 
 /* General 'ok' results */
@@ -79,6 +81,11 @@ typedef TFV_CallbackRectangle TFV_CallbackMotiondetect;
 
 /* System thread errors: 650... */
 #define TFV_EXEC_THREAD_FAILURE 650
+
+/* External library errors: 700... */
+#define TFV_MODULE_DLOPEN_FAILED 700
+#define TFV_MODULE_DLSYM_FAILED 701
+#define TFV_MODULE_DLCLOSE_FAILED 702
 
 /* Internally used where a return value has only temporary means. Never returned
  * outside: 1000... */

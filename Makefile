@@ -3,7 +3,7 @@ CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -D_GLIBCXX_USE_NANOSLEEP -fPIC -DDEBU
 
 # structure
 MODULES         := colormatch stream record motiondetect
-PARTS		:= api imaging modules debug $(addprefix modules/,$(MODULES))
+PARTS		:= api imaging debug modules $(addprefix modules/,$(MODULES))
 BUILD_PREFIX	:= build
 BUILD_DIR	:= $(addprefix $(BUILD_PREFIX)/,$(PARTS))
 SRC_PREFIX	:= src
@@ -33,7 +33,7 @@ OBJ		:= $(patsubst src/%.cc,build/%.o,$(SRC)) # $(OBJ_EXTERNAL)
 # binary targets (shared library)
 LIB		:= build/libtfv.so
 
-all: directories lib test
+all: directories lib #test
 .PHONY: test clean
 
 # search paths

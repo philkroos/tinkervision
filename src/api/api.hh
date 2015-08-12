@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "image.hh"
 #include "scenetrees.hh"
 #include "logger.hh"
-
+#include "module_loader.hh"
 #include "shared_resource.hh"
 
 #if defined DEV or defined DEBUG_CAM
@@ -182,6 +182,42 @@ public:
                                  args...);
     }
 
+    TFV_Result module_load(std::string const& name, TFV_Id id) {
+        if (modules_.managed(id)) {
+            return TFV_INVALID_ID;
+        }
+
+        Log("API", "Open library ", name);
+
+        auto module = (Module*)(nullptr);
+        if (not module_loader_.load_module_from_library(&module, name, id,
+                                                        Module::Tag::None)) {
+            Log("API", "Loading library ", name, " failed");
+            return module_loader_.last_error();
+        }
+
+        if (not modules_.insert(id, module, [this](Module& module) {
+                module_loader_.destroy_module(&module);
+            })) {
+            return false;
+        }
+
+        module->switch_active(true);
+        return TFV_OK;
+    }
+
+    TFV_Result module_destroy(TFV_Id id) {
+        if (not modules_.managed(id)) {
+            return TFV_INVALID_ID;
+        }
+
+        if (not modules_.remove(id)) {
+            return TFV_INTERNAL_ERROR;
+        }
+
+        return TFV_OK;
+    }
+
     TFV_Result set_parameter(TFV_Id module_id, std::string parameter,
                              TFV_Word value) {
 
@@ -272,14 +308,17 @@ public:
     /**
      * Pause a module. This will not remove the module but rather
      * prevent it from being executed. The id is still reserved and it's
-     * a matter of calling module_start() to resume execution.  To actually
+     * a matter of calling module_start() to resume execution.  To
+     *actually
      * remove the module, call module_remove.
      * \note The associated resources (namely the camera handle)
      * will be released (once) to be usable in other contexts, so
-     * this might prohibit restart of the module. If however the camera is
+     * this might prohibit restart of the module. If however the camera
+     *is
      * used by other modules as well, it will stay open.
      *
-     * \param id The id of the module to stop. The type of the associated
+     * \param id The id of the module to stop. The type of the
+     *associated
      * module has to match Module.
      * \return
      *  - TFV_OK if the module was stopped and marked for removal
@@ -309,10 +348,12 @@ public:
      * remove the module, call remove_id().
      * \note The associated resources (namely the camera handle)
      * will be released (once) to be usable in other contexts, so
-     * this might prohibit restart of the module. If however the camera is
+     * this might prohibit restart of the module. If however the camera
+     *is
      * used by other modules as well, it will stay open.
      *
-     * \param id The id of the module to stop. The type of the associated
+     * \param id The id of the module to stop. The type of the
+     *associated
      * module has to match Module.
      * \return
      *  - TFV_OK if the module was stopped and marked for removal
@@ -331,10 +372,12 @@ public:
     /**
      * Stop and remove a module.  After this, the id is no longer valid.
      * \note The associated resources (namely the camera handle)
-     * will be released (once) to be usable in other contexts. This might
+     * will be released (once) to be usable in other contexts. This
+     *might
      * free the actual device if it is not used by another module.
      *
-     * \param id The id of the module to stop. The type of the associated
+     * \param id The id of the module to stop. The type of the
+     *associated
      * module has to match Module.
      * \return
      *  - TFV_OK if the module was stopped and marked for removal
@@ -369,10 +412,12 @@ public:
     /**
      * Stop and remove a module.  After this, the id is no longer valid.
      * \note The associated resources (namely the camera handle)
-     * will be released (once) to be usable in other contexts. This might
+     * will be released (once) to be usable in other contexts. This
+     *might
      * free the actual device if it is not used by another module.
      *
-     * \param id The id of the module to stop. The type of the associated
+     * \param id The id of the module to stop. The type of the
+     *associated
      * module has to match Module.
      * \return
      *  - TFV_OK if the module was stopped and marked for removal
@@ -414,7 +459,8 @@ public:
     }
 
     /**
-     * Retrieve the frame settings from the camera. This can only work if
+     * Retrieve the frame settings from the camera. This can only work
+     * if
      * the
      * camera was opened already
      * \param[out] width The framewidth in pixels
@@ -494,6 +540,8 @@ private:
     CameraControl camera_control_;      ///< Camera access abstraction
     TFVStringMap result_string_map_;    ///< String mapping of Api-return values
     bool idle_process_running_{false};  ///< Dummy module activated?
+
+    ModuleLoader module_loader_{MODULE_LOAD_PATH};
 
     Image image_;  ///< The container filled with the current frame
 

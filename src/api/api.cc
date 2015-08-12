@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 tfv::Api::Api(void) { (void)start(); }
 
-tfv::Api::~Api(void) { quit(); }
+tfv::Api::~Api(void) { (void)quit(); }
 
 TFV_Result tfv::Api::start(void) {
     Log("API", "Starting");
@@ -57,7 +57,6 @@ TFV_Result tfv::Api::start(void) {
 }
 
 TFV_Result tfv::Api::stop(void) {
-    Log("API", "Stopping");
 
     auto result = TFV_EXEC_THREAD_FAILURE;
 
@@ -66,18 +65,19 @@ TFV_Result tfv::Api::stop(void) {
         // Notify the threaded execution-context to stop and wait for it
         active_ = false;
         executor_.join();
-    }
-
-    if (not executor_.joinable()) {
-        camera_control_.release_all();
         result = TFV_OK;
     }
+
+    Log("API::stop", "Execution thread stopped");
+
+    camera_control_.release_all();
+
+    Log("API::stop", "Camera released");
 
     return result;
 }
 
 TFV_Result tfv::Api::quit(void) {
-    Log("API", "Quitting");
 
     // disable all ...
     modules_.exec_all(
@@ -86,8 +86,13 @@ TFV_Result tfv::Api::quit(void) {
     // ... remove all modules from the shared context ...
     modules_.free_all();
 
+    Log("API::quit", "All modules released");
+
     // (This included the dummy module)
     idle_process_running_ = false;
+
+    // ... free all loaded libraries ...
+    module_loader_.destroy_all();
 
     // ... release the camera and join the execution thread
     return stop();
@@ -204,14 +209,10 @@ tfv::Api& tfv::get_api(void) {
     return *api;
 }
 
-__attribute__((constructor)) void startup(void) {
-    // std::cout << "Constructing the Api on-demand" << std::endl;
-    // nothing to do
-    // api = new tfv::Api;
-}
+__attribute__((constructor)) void startup(void) { tfv::Log("API", "Create"); }
 
 __attribute__((destructor)) void shutdown(void) {
-    // std::cout << "De-Constructing the Api" << std::endl;
+    tfv::Log("API", "Shutdown");
     if (api) {
         delete api;
     }
