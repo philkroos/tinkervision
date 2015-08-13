@@ -20,7 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef MODULE_H
 #define MODULE_H
 
-#include <iostream>  // for development
+#include <typeinfo>
+#include <type_traits>
 
 #include "tinkervision_defines.h"
 #include "image.hh"
@@ -28,23 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "logger.hh"
 
 namespace tfv {
-
-struct Result {
-    template <typename... Args>
-    bool can_callback(void (*)(Args...)) const {
-        LogError("RESULT", "Asking for base callback in baseclass");
-        return false;
-    }
-
-    virtual bool can_callback(TFV_CallbackPoint& callback) const {
-        LogError("RESULT", "Asking for point callback in baseclass");
-        return false;
-    }
-    virtual bool can_callback(TFV_CallbackValue& callback) const {
-        LogError("RESULT", "Asking for value callback in baseclass");
-        return false;
-    }
-};
+struct Result {};
 
 struct StringResult : public Result {
     std::string result = "";
@@ -56,9 +41,6 @@ struct ScalarResult : public Result {
     TFV_Size scalar = 0;
     ScalarResult(void) = default;
     ScalarResult(TFV_Size i) : scalar(i) {}
-    bool can_callback(TFV_CallbackValue& callback) const override {
-        return true;
-    }
 };
 
 struct PointResult : public Result {
@@ -66,9 +48,6 @@ struct PointResult : public Result {
     TFV_Size y = 0;
     PointResult(void) = default;
     PointResult(TFV_Size x, TFV_Size y) : x(x), y(y) {}
-    bool can_callback(TFV_CallbackPoint& callback) const override {
-        return true;
-    }
 };
 
 struct RectangleResult : public Result {
@@ -80,6 +59,10 @@ struct RectangleResult : public Result {
     RectangleResult(int x, int y, int width, int height)
         : x(x), y(y), width(width), height(height) {}
 };
+
+bool is_compatible_callback(Result const& result, TFV_CallbackPoint const&);
+
+bool is_compatible_callback(Result const& result, TFV_CallbackValue const&);
 
 class Module {
 public:

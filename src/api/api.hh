@@ -547,7 +547,7 @@ public:
     template <typename... Args>
     bool callback_is_compatible_to_result(AnyCallback<Args...>& callback,
                                           Result const& result) const {
-        return result.can_callback(callback);
+        return is_compatible_callback(result, callback);
     }
 
     template <typename... Args>
