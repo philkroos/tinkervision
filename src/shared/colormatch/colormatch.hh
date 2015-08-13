@@ -42,6 +42,8 @@ private:
     TFV_Byte user_min_saturation;  ///< The used minimum saturation
     TFV_Byte user_max_saturation;  ///< The used maximum saturation
 
+    PointResult result_;
+
     TFV_CallbackColormatch callback;
     TFV_Context context;
 
@@ -122,6 +124,11 @@ public:
 
         assert(false);
         return -1;  // never reached
+    }
+
+    Result const* get_result(void) const override {
+        Log("Colormatch", "Returning result");
+        return &result_;
     }
 };
 }

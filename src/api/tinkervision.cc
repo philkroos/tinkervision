@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "api.hh"
 #include "tinkervision.h"
-#include "colormatch.hh"
 #include "motiondetect.hh"
 #include "stream.hh"
 #include "record.hh"
@@ -89,32 +88,12 @@ TFV_Result restart_id(TFV_Id id) { return tfv::get_api().start_id(id); }
 
 TFV_Result stop_id(TFV_Id id) { return tfv::get_api().stop_id(id); }
 
-//
-// Colormatch interface
-//
-
-TFV_Result colormatch_start(TFV_Id id, TFV_Byte min_hue, TFV_Byte max_hue,
-                            TFV_CallbackColormatch callback,
-                            TFV_Context context) {
-
-    return tfv::get_api().module_set<tfv::Colormatch>(id, min_hue, max_hue,
-                                                      callback, context);
-}
-
 TFV_Result module_start(TFV_String name, TFV_Id id) {
 
     return tfv::get_api().module_load(name, id);
 }
 
 TFV_Result module_stop(TFV_Id id) { return tfv::get_api().module_destroy(id); }
-
-TFV_Result colormatch_restart(TFV_Id feature_id) {
-    return tfv::get_api().module_start<tfv::Colormatch>(feature_id);
-}
-
-TFV_Result colormatch_stop(TFV_Id feature_id) {
-    return tfv::get_api().module_stop<tfv::Colormatch>(feature_id);
-}
 
 //
 // Motiondetect interface
@@ -144,5 +123,12 @@ TFV_Result singleshot(void) {
 
 TFV_Result snapshot(TFV_Id module_id) {
     return tfv::get_api().module_set<tfv::Snapshot>(module_id);
+}
+
+TFV_Result set_value_callback(TFV_Id module, TFV_CallbackValue callback) {
+    return tfv::get_api().callback_set(module, callback);
+}
+TFV_Result set_point_callback(TFV_Id module, TFV_CallbackPoint callback) {
+    return tfv::get_api().callback_set(module, callback);
 }
 }

@@ -32,6 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <limits>
 #include <functional>
 #include <atomic>
+#include <tuple>
+#include <typeinfo>
 
 #include "strings.hh"
 #include "tinkervision_defines.h"
@@ -535,6 +537,42 @@ public:
     TFV_Result scene_disable(TFV_Scene scene_id) { return TFV_NOT_IMPLEMENTED; }
 
     TFV_Result scene_enable(TFV_Scene scene_id) { return TFV_NOT_IMPLEMENTED; }
+
+    template <typename... Args>
+    using AnyCallback = void (*)(Args...);
+
+    template <std::size_t N, typename... Args>
+    using nth = typename std::tuple_element<N, std::tuple<Args...>>::type;
+
+    template <typename... Args>
+    bool callback_is_compatible_to_result(AnyCallback<Args...>& callback,
+                                          Result const& result) const {
+        return result.can_callback(callback);
+    }
+
+    template <typename... Args>
+    TFV_Result callback_set(TFV_Id module_id, AnyCallback<Args...> callback) {
+        if (not modules_[module_id]) {
+            return TFV_UNCONFIGURED_ID;
+        }
+
+        auto& module = *modules_[module_id];
+        auto result = module.get_result();
+
+        if (not result) {
+            LogError("API", "Callback for module ", module.name(),
+                     " requested");
+            return TFV_INTERNAL_ERROR;
+        }
+
+        if (not callback_is_compatible_to_result(callback, *result)) {
+            LogError("API", "Invalid Callback for module ", module.name(),
+                     " passed");
+            return TFV_INTERNAL_ERROR;
+        }
+
+        return TFV_OK;
+    }
 
 private:
     CameraControl camera_control_;      ///< Camera access abstraction

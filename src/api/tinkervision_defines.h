@@ -38,6 +38,7 @@ typedef TFV_Int TFV_Scene;
 typedef TFV_Int TFV_Result;
 typedef void* TFV_Context;
 
+typedef void (*TFV_CallbackValue)(TFV_Id, TFV_Size x, TFV_Context);
 typedef void (*TFV_CallbackPoint)(TFV_Id, TFV_Size x, TFV_Size y, TFV_Context);
 
 typedef TFV_CallbackPoint TFV_CallbackColormatch;

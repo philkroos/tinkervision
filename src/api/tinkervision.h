@@ -120,6 +120,9 @@ TFV_Result singleshot(void);
 
 TFV_Result snapshot(TFV_Id module_id);
 
+TFV_Result set_value_callback(TFV_Id module, TFV_CallbackValue callback);
+TFV_Result set_point_callback(TFV_Id module, TFV_CallbackPoint callback);
+
 #ifdef __cplusplus
 }
 #endif

@@ -113,6 +113,8 @@ void tfv::Api::execute(void) {
             // retrieve the frame in the requested format and execute the module
             camera_control_.get_frame(image_, module.expected_format());
             module.exec(image_);
+            auto result = module.get_result();
+            (void)result;
         }
 
         auto& tags = module.tags();

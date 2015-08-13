@@ -14,3 +14,9 @@ all: so
 
 so: $(OBJ)
 	$(CC) -shared -o $(SO) $(OBJ) $(LDFLAGS)
+
+.phony:
+	clean
+
+clean:
+	rm -f *.o *.so

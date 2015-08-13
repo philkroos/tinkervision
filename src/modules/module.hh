@@ -29,6 +29,58 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
+struct Result {
+    template <typename... Args>
+    bool can_callback(void (*)(Args...)) const {
+        LogError("RESULT", "Asking for base callback in baseclass");
+        return false;
+    }
+
+    virtual bool can_callback(TFV_CallbackPoint& callback) const {
+        LogError("RESULT", "Asking for point callback in baseclass");
+        return false;
+    }
+    virtual bool can_callback(TFV_CallbackValue& callback) const {
+        LogError("RESULT", "Asking for value callback in baseclass");
+        return false;
+    }
+};
+
+struct StringResult : public Result {
+    std::string result = "";
+    StringResult(void) = default;
+    StringResult(std::string const& s) : result(s) {}
+};
+
+struct ScalarResult : public Result {
+    TFV_Size scalar = 0;
+    ScalarResult(void) = default;
+    ScalarResult(TFV_Size i) : scalar(i) {}
+    bool can_callback(TFV_CallbackValue& callback) const override {
+        return true;
+    }
+};
+
+struct PointResult : public Result {
+    TFV_Size x = 0;
+    TFV_Size y = 0;
+    PointResult(void) = default;
+    PointResult(TFV_Size x, TFV_Size y) : x(x), y(y) {}
+    bool can_callback(TFV_CallbackPoint& callback) const override {
+        return true;
+    }
+};
+
+struct RectangleResult : public Result {
+    int x = 0;
+    int y = 0;
+    int width = 0;
+    int height = 0;
+    RectangleResult(void) = default;
+    RectangleResult(int x, int y, int width, int height)
+        : x(x), y(y), width(width), height(height) {}
+};
+
 class Module {
 public:
     enum class Tag : unsigned {
@@ -78,6 +130,7 @@ public:
     Module& operator=(Module&& rhs) = delete;
 
     TFV_Int id(void) const { return module_id_; }
+    std::string const& name(void) const { return type_; }
 
     virtual bool running(void) const noexcept { return enabled(); }
 
@@ -120,6 +173,8 @@ public:
     void get_parameter(std::string const& parameter, TFV_Word& value) {
         value = get(parameter);
     }
+
+    virtual Result const* get_result(void) const { return nullptr; }
 
     Tag const& tags(void) const { return tags_; }
     void tag(Tag tags) { tags_ |= tags; }

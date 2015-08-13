@@ -28,7 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 static IplImage* image = NULL;
 
-void tfcv_callback_id0(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
+void invalid_callback(TFV_Id id, TFV_Size x, TFV_Context context) {
+    (void)id;
+    (void)x;
+    (void)context;
+}
+void callback(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
     CvPoint center;
 
     center.x = x;
@@ -94,6 +99,12 @@ int main(int argc, char* argv[]) {
 
     printf("Configured module id %d: Code %d (%s)\n", id, result,
            result_string(result));
+
+    result = set_point_callback(id, callback);
+    printf("Set point callback: Code %d (%s)\n", result, result_string(result));
+
+    result = set_value_callback(id, invalid_callback);
+    printf("Set value callback: Code %d (%s)\n", result, result_string(result));
 
     result = set_parameter(id, "min-hue", min_hue);
     printf("Set min-hue: Code %d (%s)\n", result, result_string(result));
