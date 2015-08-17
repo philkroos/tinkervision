@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef COLORMATCH_H
 #define COLORMATCH_H
 
+#include <typeinfo>
+
 #include "module.hh"
 
 namespace tfv {
@@ -127,7 +129,7 @@ public:
     }
 
     Result const* get_result(void) const override {
-        Log("Colormatch", "Returning result");
+        Log("Colormatch", "Returning result type ", typeid(result_).name());
         return &result_;
     }
 };

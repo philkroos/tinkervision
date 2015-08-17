@@ -541,12 +541,9 @@ public:
     template <typename... Args>
     using AnyCallback = void (*)(Args...);
 
-    template <std::size_t N, typename... Args>
-    using nth = typename std::tuple_element<N, std::tuple<Args...>>::type;
-
     template <typename... Args>
     bool callback_is_compatible_to_result(AnyCallback<Args...>& callback,
-                                          Result const& result) const {
+                                          Result const* result) const {
         return is_compatible_callback(result, callback);
     }
 
@@ -565,9 +562,9 @@ public:
             return TFV_INTERNAL_ERROR;
         }
 
-        if (not callback_is_compatible_to_result(callback, *result)) {
+        if (not callback_is_compatible_to_result(callback, result)) {
             LogError("API", "Invalid Callback for module ", module.name(),
-                     " passed");
+                     " passed, expected ", typeid(*result).name());
             return TFV_INTERNAL_ERROR;
         }
 

@@ -29,7 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "logger.hh"
 
 namespace tfv {
-struct Result {};
+struct Result {
+    virtual ~Result(void) = default;
+};
 
 struct StringResult : public Result {
     std::string result = "";
@@ -60,9 +62,10 @@ struct RectangleResult : public Result {
         : x(x), y(y), width(width), height(height) {}
 };
 
-bool is_compatible_callback(Result const& result, TFV_CallbackPoint const&);
-
-bool is_compatible_callback(Result const& result, TFV_CallbackValue const&);
+bool is_compatible_callback(Result const* result, TFV_CallbackPoint const&);
+bool is_compatible_callback(Result const* result, TFV_CallbackValue const&);
+bool is_compatible_callback(Result const* result, TFV_CallbackRectangle const&);
+bool is_compatible_callback(Result const* result, TFV_CallbackString const&);
 
 class Module {
 public:
