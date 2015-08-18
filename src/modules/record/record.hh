@@ -28,18 +28,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 namespace tfv {
 
 struct Snapshot : public Module {
-private:
-    static constexpr auto TagRunOnce = Module::Tag::ExecAndDisable;
 
 public:
     Snapshot(TFV_Int id, Module::Tag tags)
-        : Module(id, "Snapshot", tags |= TagRunOnce) {}
+        : Module(id, "Snapshot", tags |= Module::Tag::ExecAndDisable) {}
 
     virtual void execute(tfv::Image const& image) {
         try {
-            const auto file =
-                std::string{"Snapshot" + std::to_string(module_id_) + "_at_" +
-                            std::to_string(image.timestamp) + ".yuv"};
+            const auto file = std::string{
+                "Snapshot" + std::to_string(module_id_) + "_at_" +
+                std::to_string(image.timestamp.time_since_epoch().count()) +
+                ".yuv"};
 
             std::ofstream ofs{file, std::ios::out | std::ios::binary};
 

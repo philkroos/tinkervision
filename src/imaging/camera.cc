@@ -44,12 +44,6 @@ bool tfv::Camera::get_frame(tfv::Image& image) {
 
     if (result) {
 
-        // Todo? Let this be set by the actual camera module
-        image.timestamp =
-            std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::high_resolution_clock::now().time_since_epoch())
-                .count();
-
         image.format = image_format();
     }
 

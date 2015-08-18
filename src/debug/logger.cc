@@ -27,10 +27,12 @@ std::string tfv::Logger::PREFIX_WARNING = "WARNING";
 std::string tfv::Logger::PREFIX_ERROR = "ERROR";
 
 std::ostream& tfv::operator<<(std::ostream& stream, tfv::Module* module) {
+    /*
     auto tags_bits = std::bitset<16>(
         static_cast<std::underlying_type<Module::Tag>::type>(module->tags()));
 
     stream << "Id: " << module->id() << " Tags: " << tags_bits;
+    */
     return stream;
 }
 
@@ -61,6 +63,37 @@ std::ostream& tfv::operator<<(std::ostream& stream,
     stream << "(";
     node_recursion(node, 0);
     stream << ")" << std::endl;
+
+    return stream;
+}
+
+std::ostream& tfv::operator<<(std::ostream& ost,
+                              tfv::ColorSpace const& format) {
+    switch (format) {
+        case tfv::ColorSpace::INVALID:
+            ost << "INVALID";
+            break;
+        case tfv::ColorSpace::YUYV:
+            ost << "YUYV";
+            break;
+        case tfv::ColorSpace::YV12:
+            ost << "YV12";
+            break;
+        case tfv::ColorSpace::BGR888:
+            ost << "BGR";
+            break;
+        case tfv::ColorSpace::RGB888:
+            ost << "RGB";
+            break;
+        default:
+            ost << "??UNKNOWN??";
+            break;
+    }
+    return ost;
+}
+
+std::ostream& tfv::operator<<(std::ostream& stream, tfv::Timestamp ts) {
+    stream << ts.time_since_epoch().count();
 
     return stream;
 }

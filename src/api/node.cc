@@ -38,8 +38,9 @@ tfv::Node::Node(TFV_Int node_id, TFV_Scene scene_id, TFV_Int module_id,
 
 void tfv::Node::execute(ModuleExecutor executor, tfv::Timestamp timestamp) {
 
-    Log("NODE::Execute", "(", (void*)this, ", module ", module_id_, ") at ",
-        timestamp);
+    Log("NODE::Execute", "(",
+        (void*)this);  //, ", module ", module_id_, ") at ",
+    //        timestamp);
 
     if (timestamp_ != timestamp) {
         timestamp_ = timestamp;

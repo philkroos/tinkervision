@@ -18,28 +18,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include "image.hh"
-
-std::ostream& tfv::operator<<(std::ostream& ost,
-                              tfv::ColorSpace const& format) {
-    switch (format) {
-        case tfv::ColorSpace::INVALID:
-            ost << "INVALID";
-            break;
-        case tfv::ColorSpace::YUYV:
-            ost << "YUYV";
-            break;
-        case tfv::ColorSpace::YV12:
-            ost << "YV12";
-            break;
-        case tfv::ColorSpace::BGR888:
-            ost << "BGR";
-            break;
-        case tfv::ColorSpace::RGB888:
-            ost << "RGB";
-            break;
-        default:
-            ost << "??UNKNOWN??";
-            break;
-    }
-    return ost;
-}

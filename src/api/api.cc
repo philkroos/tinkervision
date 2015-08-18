@@ -142,22 +142,17 @@ void tfv::Api::execute(void) {
     };
 
     // mainloop
-    unsigned const no_module_min_latency_ms = 200;
-    unsigned const with_module_min_latency_ms = 50;
-    auto latency_ms = no_module_min_latency_ms;
+    auto inv_framerate = std::chrono::milliseconds(execution_latency_ms_);
+    auto last_loop_time_point = Clock::now();
     while (active_) {
-
-        // Activate new and remove freed resources
-        // modules_.update(nullptr);
+        last_loop_time_point = Clock::now();
+        // Log("API", "Execution at ", last_loop_time_point);
 
         if (active_modules()) {  // This does not account for modules
             // being 'stopped', i.e. this is true even if all modules are in
             // paused state.  Then, camera_control_ will return the last
             // image retrieved from the camera (and it will be ignored by
             // update_module anyways)
-
-            latency_ms =
-                std::max(execution_latency_ms_, with_module_min_latency_ms);
 
             if (camera_control_.update_frame()) {
 
@@ -171,9 +166,6 @@ void tfv::Api::execute(void) {
             } else {
                 // Log a warning
             }
-        } else {
-            latency_ms =
-                std::max(execution_latency_ms_, no_module_min_latency_ms);
         }
 
         // Finally propagate deletion of modules marked for removal
@@ -181,20 +173,8 @@ void tfv::Api::execute(void) {
             return module.tags() & Module::Tag::Removable;
         });
 
-        // some buffertime for two reasons:
-        // - the outer thread gets time to run
-        // - the camera driver is probably not
-        //   that fast and showed to fail if it is driven too fast.
-        //
-        // \todo The proper time to wait depends on the actual hardware and
-        // should at least consider the actual time the modules
-        // need to execute.
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(latency_ms));
+        std::this_thread::sleep_until(last_loop_time_point + inv_framerate);
     }
-
-    // Check for any delayed removals or allocations
-    // modules_.update(nullptr);
 }
 
 /*

@@ -137,7 +137,7 @@ public:
     }
 
 private:
-    Timestamp timestamp_{0};
+    Timestamp timestamp_;
     TFV_Int id_{TFV_UNUSED_ID};
     TFV_Int module_id_{TFV_UNUSED_ID};
 

@@ -490,7 +490,7 @@ public:
      * \param ms The duration of the pauses in milliseconds.
      */
     TFV_Result set_execution_latency_ms(TFV_UInt ms) {
-        execution_latency_ms_ = ms;
+        execution_latency_ms_ = std::min(TFV_UInt(20), ms);
         return TFV_OK;
     }
 

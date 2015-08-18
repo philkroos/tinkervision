@@ -28,19 +28,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 template <typename Bits>
-inline Bits operator|(Bits lhs, Bits rhs) {
+inline constexpr Bits operator|(Bits const& lhs, Bits const& rhs) {
     using T = typename std::underlying_type<Bits>::type;
     return static_cast<Bits>(static_cast<T>(lhs) | static_cast<T>(rhs));
 }
 
 template <typename Bits>
-inline bool operator&(Bits lhs, Bits rhs) {
+inline bool operator&(Bits const& lhs, Bits const& rhs) {
     using T = typename std::underlying_type<Bits>::type;
     return static_cast<T>(lhs) & static_cast<T>(rhs);
 }
 
 template <typename Bits>
-inline Bits& operator|=(Bits& lhs, Bits rhs) {
+inline Bits& operator|=(Bits& lhs, Bits const& rhs) {
     using T = typename std::underlying_type<Bits>::type;
     lhs = static_cast<Bits>(static_cast<T>(lhs) | static_cast<T>(rhs));
     return lhs;

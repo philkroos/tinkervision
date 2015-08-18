@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define IMAGING_H
 
 #include <cstddef>
-#include <iostream>
+#include <chrono>  // timestamp
 
 namespace tfv {
 
@@ -61,10 +61,9 @@ enum class ColorSpace : char {
     RGB888
 };
 
-std::ostream& operator<<(std::ostream& ost, ColorSpace const& format);
-
+using Clock = std::chrono::steady_clock;
+using Timestamp = Clock::time_point;
 using ImageData = unsigned char;
-using Timestamp = unsigned long;
 
 struct Image {
     size_t width = 0;
@@ -76,4 +75,4 @@ struct Image {
 };
 }
 
-#endif /* IMAGING_H */
+#endif

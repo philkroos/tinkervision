@@ -208,43 +208,38 @@ void tfv::CameraControl::regenerate_formats_from(Image const& image) {
 
 bool tfv::CameraControl::update_frame(void) {
 
-    auto result = not stopped_;
-
     {
         std::lock_guard<std::mutex> cam_lock(camera_mutex_);
-
         if (stopped_) {
-            stopped_ = false;
-            result = _open_device();
-        }
-
-        if (result) {
-            if (not camera_) {
-                if (fallback.active) {
-                    Log("CAMERACONTROL", "Fallback image ", image_.timestamp);
-                    image_ = fallback.image;
-                }
-                result = fallback.active;
-
-            } else {
-                result = camera_->get_frame(image_);
-
-                if (not result) {
-                    // give it a little time, then give it a second try
-                    std::this_thread::sleep_for(std::chrono::milliseconds(20));
-                    result = camera_->get_frame(image_);
-                }
-                // Log("CAMERACONTROL", "Result ", result, " for image ",
-                //     image_.timestamp);
+            if (not _open_device()) {
+                return false;
             }
+            stopped_ = false;
         }
+
+        if (not camera_) {
+            if (fallback.active) {
+                Log("CAMERACONTROL", "Fallback image");
+                image_ = fallback.image;
+            } else {
+                return false;
+            }
+
+        } else if (not camera_->get_frame(image_)) {
+            return false;
+        }
+    }
+
+    if (not fallback.active) {
+        image_.timestamp = Clock::now();
     }
 
     if (image_.format == tfv::ColorSpace::INVALID) {
         LogWarning("CAMERACONTROL", "INVALID image format");
+        return false;
     }
 
-    return result;
+    return true;
 }
 
 bool tfv::CameraControl::_open_device(void) {

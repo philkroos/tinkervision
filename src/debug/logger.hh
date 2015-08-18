@@ -39,6 +39,8 @@ void LogWarning(std::string const& prefix, Args const&... args) {}
 #include <iostream>
 #include <bitset>
 
+#include "image.hh"
+
 namespace tfv {
 
 // forward, for ostream declarations
@@ -113,6 +115,8 @@ void LogWarning(std::string const& prefix, Args const&... args) {
 
 std::ostream& operator<<(std::ostream& stream, Module* module);
 std::ostream& operator<<(std::ostream& stream, SceneTree const& tree);
+std::ostream& operator<<(std::ostream& ost, ColorSpace const& format);
+std::ostream& operator<<(std::ostream& stream, Timestamp ts);
 
 #endif
 }
