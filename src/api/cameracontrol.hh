@@ -71,7 +71,7 @@ public:
     /**
      * Same as calling acquire(), add_user(max(0, user-1)). No effect if user is
      * 0.
-     * \parm[in] user Reserve the camera for that many users.
+     * \param[in] user Reserve the camera for that many users.
      * \return
      *         - True if a device is open.
      *         - False if not and any of the steps above fails.
@@ -148,8 +148,9 @@ public:
     /**
      * Get the grabbed frame in the requested format.  This assumes that
      * update_frame() has already been called.
-     * \parm[out] image The container will contain valid data after this method.
-     * \parm[in] format The format requested for the returned image.
+     * \param[out] image The container will contain valid data after this
+     * method.
+     * \param[in] format The format requested for the returned image.
      */
     void get_frame(Image& image, ColorSpace format);
 
@@ -157,9 +158,9 @@ public:
 
     /**
      * Recreate the images in all provided formats from the supplied template.
-     * \parm[in] image The source for the conversion.
+     * \param[in] image The source for the conversion.
      */
-    void regenerate_formats_from(Image const& image);
+    void regenerate_image_from(Image const& image);
 
 private:
     Camera* camera_ = nullptr;

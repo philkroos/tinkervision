@@ -25,7 +25,7 @@
 #include "cameracontrol.hh"
 #include "logger.hh"
 
-tfv::CameraControl::~CameraControl(void) { release(); }
+tfv::CameraControl::~CameraControl(void) { release_all(); }
 
 bool tfv::CameraControl::is_available(void) {
 
@@ -77,7 +77,7 @@ bool tfv::CameraControl::acquire(void) {
             release();
         }
 
-        if (not stopped_) {
+        {
             std::lock_guard<std::mutex> cam_mutex(camera_mutex_);
             open = _open_device();
         }
@@ -85,7 +85,7 @@ bool tfv::CameraControl::acquire(void) {
 
     if (open) {
         usercount_++;
-        // std::cout << "Now " << usercount_ << " users." << std::endl;
+        Log("CAMERACONTROL::acquire", usercount_, " users.");
     }
 
     return open;
@@ -115,11 +115,11 @@ void tfv::CameraControl::release(void) {
 
 void tfv::CameraControl::stop_camera(void) {
     std::lock_guard<std::mutex> camera_lock(camera_mutex_);
-    stopped_ = true;
     _close_device();
 }
 
 void tfv::CameraControl::release_all(void) {
+    Log("CAMERACONTROL::release_all", "Closing with users: ", usercount_);
     while (usercount_) {
         release();
     }
@@ -186,7 +186,7 @@ void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ColorSpace format) {
     }
 }
 
-void tfv::CameraControl::regenerate_formats_from(Image const& image) {
+void tfv::CameraControl::regenerate_image_from(Image const& image) {
     // std::cout << "Request to regenerate for " << image.format << std::endl;
     if (image.format != image_.format) {
         auto converter = get_converter(image.format, image_.format);
@@ -212,9 +212,9 @@ bool tfv::CameraControl::update_frame(void) {
         std::lock_guard<std::mutex> cam_lock(camera_mutex_);
         if (stopped_) {
             if (not _open_device()) {
+                assert(stopped_);
                 return false;
             }
-            stopped_ = false;
         }
 
         if (not camera_) {
@@ -256,6 +256,7 @@ bool tfv::CameraControl::_open_device(void) {
 
             fallback.active = not camera_->open();
             if (not fallback.active) {
+                stopped_ = false;
                 break;
             } else {
                 delete camera_;
@@ -299,4 +300,6 @@ void tfv::CameraControl::_close_device() {
         delete camera_;
         camera_ = nullptr;
     }
+
+    stopped_ = true;
 }
