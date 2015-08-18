@@ -119,7 +119,7 @@ void tfv::Api::execute(void) {
 
         auto& tags = module.tags();
         if (tags & Module::Tag::Fx) {
-            camera_control_.regenerate_formats_from(image_);
+            camera_control_.regenerate_image_from(image_);
         }
 
         if (tags & Module::Tag::ExecAndRemove) {

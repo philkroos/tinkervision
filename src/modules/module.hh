@@ -100,7 +100,14 @@ protected:
     Module(TFV_Int module_id, std::string type)
         : Module(module_id, type, Tag::None) {}
 
-    virtual void execute(tfv::Image const& image) = 0;
+    virtual void execute(tfv::Image const& image) {
+        LogError("MODULE", "execute called");
+    }
+    virtual void execute_modifying(tfv::Image& image) {
+        LogError("MODULE", "execute_modifying called");
+    }
+
+    virtual bool modifies_image(void) const { return false; }
 
     bool in_range(TFV_Word value, TFV_Word low, TFV_Word high) const {
         return value >= low and value <= high;
@@ -137,9 +144,12 @@ public:
         return not(was_active == active_);
     }
 
-    void exec(tfv::Image const& image) {
-        // Log("MODULE::Execute", this);
-        execute(image);
+    void exec(tfv::Image& image) {
+        if (modifies_image()) {
+            execute_modifying(image);
+        } else {
+            execute(image);
+        }
     }
     virtual ColorSpace expected_format(void) const = 0;
 
@@ -165,12 +175,7 @@ public:
     Tag const& tags(void) const { return tags_; }
     void tag(Tag tags) { tags_ |= tags; }
 };
-
-// helper for compile time check
-template <typename T>
-struct false_for_type : std::false_type {};
 }
-
 #define DECLARE_API_MODULE(name)                                       \
     extern "C" tfv::Module* create(TFV_Int id, tfv::Module::Tag tags); \
     extern "C" void destroy(tfv::name* module);

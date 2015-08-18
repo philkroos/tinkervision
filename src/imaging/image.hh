@@ -58,7 +58,8 @@ enum class ColorSpace : char {
     YUYV,
     /*YVYU,*/ YV12,
     BGR888,
-    RGB888
+    RGB888,
+    GRAY
 };
 
 using Clock = std::chrono::steady_clock;
