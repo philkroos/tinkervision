@@ -381,6 +381,26 @@ void tfv::ConvertBGRToYUYV::convert(Image const& source, Image& target) const {
     }
 }
 
+void tfv::ConvertGrayToBGR888::target_format(tfv::Image const& source,
+                                             size_t& target_width,
+                                             size_t& target_height,
+                                             size_t& target_bytesize) const {
+    target_width = source.width;
+    target_height = source.height;
+    target_bytesize = source.bytesize * 3;
+}
+
+void tfv::ConvertGrayToBGR888::convert(Image const& source,
+                                       Image& target) const {
+    auto rgb = target.data;
+    auto gray = source.data;
+    for (size_t i = 0; i < source.bytesize; ++i) {
+        *rgb = *gray << 16 | *gray << 8 | *gray;
+        rgb += 3;
+        ++gray;
+    }
+}
+
 tfv::Converter::Converter(tfv::ColorSpace source, tfv::ColorSpace target) {
     auto it = std::find_if(conversions_.begin(), conversions_.end(),
                            [&source, &target](Conversion const& conversion) {

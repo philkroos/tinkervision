@@ -323,6 +323,23 @@ protected:
     virtual void convert(Image const& source, Image& target) const final;
 };
 
+//
+// Following: Converter from Gray to ...
+//
+
+struct ConvertGrayToBGR888 : public Convert {
+public:
+    ConvertGrayToBGR888(void);
+    virtual ~ConvertGrayToBGR888(void) = default;
+
+protected:
+    void target_format(Image const& source, size_t& target_width,
+                       size_t& target_height,
+                       size_t& target_bytesize) const override final;
+
+    void convert(Image const& source, Image& target) const override final;
+};
+
 /**
  * Public interface to this module
  */
@@ -354,7 +371,9 @@ private:
         std::make_tuple(ColorSpace::BGR888, ColorSpace::YV12,
                         &Converter::bgr_to_yv12),
         std::make_tuple(ColorSpace::BGR888, ColorSpace::YUYV,
-                        &Converter::bgr_to_yuyv)};
+                        &Converter::bgr_to_yuyv),
+        std::make_tuple(ColorSpace::GRAY, ColorSpace::BGR888,
+                        &Converter::gray_to_bgr)};
 
     Convert* yuyv_to_yv12(void) { return new ConvertYUYVToYV12(); }
     Convert* yuyv_to_bgr(void) { return new ConvertYUYVToBGR(); }
@@ -365,6 +384,7 @@ private:
     Convert* rgb_to_bgr(void) { return new ConvertRGBToBGR(); }
     Convert* bgr_to_yv12(void) { return new ConvertBGRToYV12(); }
     Convert* bgr_to_yuyv(void) { return new ConvertBGRToYUYV(); }
+    Convert* gray_to_bgr(void) { return new ConvertBGRToYUYV(); }
 
 private:  // These should really be just deleted, but current compiler has a
           // bug. See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58249
