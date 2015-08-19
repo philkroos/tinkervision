@@ -62,12 +62,10 @@ public:
     }
 
     void update(TFV_Id id, TFV_ImageData* data, int rows, int columns,
-                char const* text = "") {
-        std::cout << "in Update" << std::endl;
+                char const* text = "", int format = CV_8UC3) {
+
         auto win = windows_.find(id);
 
-        std::cout << "win existing? " << not(win == windows_.end())
-                  << std::endl;
         if (win == windows_.end()) {
             windows_[id] = {};
             windows_[id].frame = nullptr;
@@ -75,13 +73,12 @@ public:
             cv::namedWindow(windows_[id].name);
             win = windows_.find(id);
         }
-        std::cout << "win existing? " << not(win == windows_.end())
-                  << std::endl;
 
         if (not win->second.frame) {
-            win->second.frame = new cv::Mat(rows, columns, CV_8UC3, data);
+            win->second.frame = new cv::Mat(rows, columns, format, data);
         } else if ((win->second.frame->rows != rows) or
-                   win->second.frame->cols != columns) {
+                   (win->second.frame->cols != columns) or
+                   (win->second.frame->type() != format)) {
             return;
         } else {
             win->second.frame->data = data;

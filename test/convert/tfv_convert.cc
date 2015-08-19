@@ -53,8 +53,21 @@ void print_max_and_min_yuv(TFV_ImageData* data, size_t width, size_t height) {
               << std::endl;
 }
 
+// This program uses the different converters to translate a single 'raw' image
+// between the supported colorspaces. Each result is shown in an Opencv-Window.
+// NOTE that the "* to BGR" output shows the correct image; the "* to RGB" output
+// is shown with B and R channels exchanged because OCV's native format is BGR
+// and so the viewer interprets RGB images as BGR. However, it serves to verify
+// pixel correctness.
 int main() {
+
     // This was recorded with `luvcview -d /dev/video1 -f YUYV -s 1280x720 -C`
+    // http://rawpixels.net/ Settings:
+    // - Predefined format: YUY2
+    // - Pixel format: YUV
+    // - Deselect 'Alpha first'
+    // - width/height: 1280/720
+    // - Pixel Plane: PackedYUV
     std::ifstream yuyv("../frame.raw",
                        std::ios::in | std::ios::binary | std::ios::ate);
 
@@ -86,57 +99,73 @@ int main() {
     tfv::Window window;
     TFV_Id win_id = 1;
 
-    tfv::ConvertYUYVToYV12 yv12_converter;
-    tfv::ConvertYUYVToRGB rgb1_converter;
-    tfv::ConvertYV12ToRGB rgb2_converter;
-    tfv::ConvertBGRToRGB rgb3_converter;
-    tfv::ConvertYUYVToBGR bgr1_converter;
-    tfv::ConvertYV12ToBGR bgr2_converter;
-    tfv::ConvertRGBToBGR bgr3_converter;
-    tfv::ConvertBGRToYV12 bgr4_converter;
-    auto& yv12_result = yv12_converter(original);
+    tfv::ConvertYUYVToYV12 yuyvToYv12_converter;
+    tfv::ConvertYUYVToRGB yuyvToRgb_converter;
+    tfv::ConvertYV12ToRGB yv12ToRgb_converter;
+    tfv::ConvertBGRToRGB bgrToRgb_converter;
+    tfv::ConvertYUYVToBGR yuyvToBgr_converter;
+    tfv::ConvertYV12ToBGR yv12ToBgr_converter;
+    tfv::ConvertRGBToBGR rgbToBgr_converter;
+    tfv::ConvertBGRToYV12 bgrToYv12_converter;
+    tfv::ConvertBGRToGray bgrToGray_converter;
+    tfv::ConvertGrayToBGR grayToBgr_converter;
 
-    auto& rgb1_result = rgb1_converter(original);
-    auto& rgb2_result = rgb2_converter(yv12_result);
+    // operator() returns tfv::Image
+    auto& yuyvToYv12_result = yuyvToYv12_converter(original);
+    auto& yuyvToRgb_result = yuyvToRgb_converter(original);
+    auto& yv12ToRgb_result = yv12ToRgb_converter(yuyvToYv12_result);
+    auto& yuyvToBgr_result = yuyvToBgr_converter(original);
+    auto& yv12ToBgr_result = yv12ToBgr_converter(yuyvToYv12_result);
+    auto& bgrToRgb_result = bgrToRgb_converter(yuyvToBgr_result);
+    auto& rgbToBgr_result = rgbToBgr_converter(yuyvToRgb_result);
+    auto& rgbToBgrToRgb_result = bgrToRgb_converter(rgbToBgr_result);
+    auto& bgrToYv12_result = bgrToYv12_converter(yuyvToBgr_result);
+    auto& bgrToGray_result = bgrToGray_converter(yuyvToBgr_result);
+    auto& grayToBgr_result = grayToBgr_converter(bgrToGray_result);
 
-    auto& bgr1_result = bgr1_converter(original);
-    auto& bgr2_result = bgr2_converter(yv12_result);
-
-    auto& rgb3_result = rgb3_converter(bgr1_result);
-    auto& bgr3_result = bgr3_converter(rgb1_result);
-
-    auto& rgb4_result = rgb3_converter(bgr3_result);
-
-    auto& bgr4_result = bgr4_converter(bgr1_result);
-
-    // File is in format YV12 (420p)
+    // First two are not displayable by opencv, saved as file.
+    // Files are in format YV12 (420p). Can be checked here:
+    // http://rawpixels.net/ Settings:
+    // - Predefined format: YUV420p
+    // - Pixel format: YUV
+    // - Deselect 'Alpha first'
+    // - width/height: 1280/720
+    // - Pixel Plane: planar
     std::ofstream ofs("/tmp/uvoutput.yuv", std::ios::out | std::ios::binary);
-    ofs.write((const char*)yv12_result.data, yv12_result.bytesize);
+    ofs.write((const char*)yuyvToYv12_result.data, yuyvToYv12_result.bytesize);
     ofs.close();
-
     std::ofstream ofs2("/tmp/uvoutput_after.yuv", std::ios::out | std::ios::binary);
-    ofs2.write((const char*)bgr4_result.data, bgr4_result.bytesize);
+    ofs2.write((const char*)bgrToYv12_result.data, bgrToYv12_result.bytesize);
     ofs2.close();
 
-    window.update(win_id, rgb1_result.data, height, width, "YUYV to RGB");
+    // Next few are viewable with opencv
+    window.update(win_id, yuyvToRgb_result.data, height, width, "YUYV to RGB");
     window.wait_for_input();
 
-    window.update(win_id, rgb2_result.data, "YV12 to RGB");
+    window.update(win_id, yv12ToRgb_result.data, "YV12 to RGB");
     window.wait_for_input();
 
-    window.update(win_id, bgr1_result.data, "YUYV to BGR");
+    window.update(win_id, yuyvToBgr_result.data, "YUYV to BGR");
     window.wait_for_input();
 
-    window.update(win_id, bgr2_result.data, "YV12 to BGR");
+    window.update(win_id, yv12ToBgr_result.data, "YV12 to BGR");
     window.wait_for_input();
 
-    window.update(win_id, rgb3_result.data, "BGR to RGB");
+    window.update(win_id, bgrToRgb_result.data, "BGR to RGB");
     window.wait_for_input();
 
-    window.update(win_id, bgr3_result.data, "RGB to BGR");
+    window.update(win_id, rgbToBgr_result.data, "RGB to BGR");
     window.wait_for_input();
 
-    window.update(win_id, rgb4_result.data, "RGB to BGR to RGB");
+    window.update(win_id, rgbToBgrToRgb_result.data, "RGB to BGR to RGB");
+    window.wait_for_input();
+
+    window.update(win_id, grayToBgr_result.data, "BGR to Gray to BGR");
+    window.wait_for_input();
+
+    // second window
+    window.update(win_id+1, bgrToGray_result.data, bgrToGray_result.height,
+                  bgrToGray_result.width, "BGR to Gray", CV_8UC1);
     window.wait_for_input();
 
     delete[] original.data;

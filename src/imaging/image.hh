@@ -37,6 +37,8 @@ namespace tfv {
  * ...
  * For each two Y-values there is one U and one V and one pixel is represented
  * by two bytes. So the number of bytes per row equals width*2.
+ * This equals YUV422.
+ *
  * - YV12: planar Y'CbCr data, i.e. Y,U and V are stored in consecutive
  * datablocks, structured like:
  * Y00 Y01 Y02 ...
@@ -56,7 +58,8 @@ enum class ColorSpace : char {
     NONE,
     INVALID,
     YUYV,
-    /*YVYU,*/ YV12,
+    /*YVYU,*/
+    YV12,
     BGR888,
     RGB888,
     GRAY

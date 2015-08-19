@@ -20,10 +20,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef CONVERT_H
 #define CONVERT_H
 
+#include <cmath>
 #include <array>
 #include <vector>
 #include <tuple>
 #include <limits>
+#include <cassert>
 
 #include "image.hh"
 #include "tinkervision_defines.h"
@@ -40,8 +42,8 @@ private:
 
 public:
     Out constexpr operator()(In const& value) {
-        return static_cast<Out>((value < min_) ? min_ : (value > max_) ? max_
-                                                                       : value);
+        return static_cast<Out>(
+            std::round((value < min_) ? min_ : (value > max_) ? max_ : value));
     }
 };
 
@@ -83,6 +85,7 @@ protected:
 private:
     friend class Converter;
     Image* target{nullptr};
+
     ColorSpace const source_format_;
     ColorSpace const target_format_;
 };
@@ -100,21 +103,21 @@ public:
     virtual ~ConvertYUV422ToYUV420(void) = default;
 
 protected:
-    virtual void target_format(Image const& source, size_t& target_width,
-                               size_t& target_height,
-                               size_t& target_bytesize) const;
+    void target_format(Image const& source, size_t& target_width,
+                       size_t& target_height,
+                       size_t& target_bytesize) const override final;
 
-    virtual void convert_yuyv(Image const& source, Image& target) const {
+    void convert_yuyv(Image const& source, Image& target) const {
         convert_any(source, target, source.data + 1, source.data + 3);
     }
 
-    virtual void convert_yvyu(Image const& source, Image& target) const {
+    void convert_yvyu(Image const& source, Image& target) const {
         convert_any(source, target, source.data + 3, source.data + 1);
     }
 
     // output is in order y-block, v-block, u-block
-    virtual void convert_any(Image const& source, Image& target,
-                             TFV_ImageData* u_ptr, TFV_ImageData* v_ptr) const;
+    void convert_any(Image const& source, Image& target, TFV_ImageData* u_ptr,
+                     TFV_ImageData* v_ptr) const;
 };
 
 struct ConvertYUYVToYV12 : public ConvertYUV422ToYUV420 {
@@ -122,8 +125,8 @@ public:
     virtual ~ConvertYUYVToYV12(void) = default;
 
 protected:
-    virtual ColorSpace source_format(void) const { return ColorSpace::YUYV; }
-    virtual void convert(Image const& source, Image& target) const {
+    void convert(Image const& source, Image& target) const override final {
+        assert(source.format == ColorSpace::YUYV);
         convert_yuyv(source, target);
     }
 };
@@ -183,12 +186,12 @@ public:
     virtual ~ConvertYUYVToRGB(void) = default;
 
 protected:
-    virtual ColorSpace source_format(void) const { return ColorSpace::YUYV; }
-    virtual void target_format(Image const& source, size_t& target_width,
-                               size_t& target_height,
-                               size_t& target_bytesize) const;
+    void target_format(Image const& source, size_t& target_width,
+                       size_t& target_height,
+                       size_t& target_bytesize) const override final;
 
-    virtual void convert(Image const& source, Image& target) const {
+    void convert(Image const& source, Image& target) const override final {
+        assert(source.format == ColorSpace::YUYV);
         YUYVToRGBType::convert<0, 1, 2>(source, target);
     }
 };
@@ -199,12 +202,12 @@ public:
     virtual ~ConvertYUYVToBGR(void) = default;
 
 protected:
-    virtual ColorSpace source_format(void) const { return ColorSpace::YUYV; }
-    virtual void target_format(Image const& source, size_t& target_width,
-                               size_t& target_height,
-                               size_t& target_bytesize) const;
+    void target_format(Image const& source, size_t& target_width,
+                       size_t& target_height,
+                       size_t& target_bytesize) const override final;
 
-    virtual void convert(Image const& source, Image& target) const {
+    void convert(Image const& source, Image& target) const override final {
+        assert(source.format == ColorSpace::YUYV);
         YUYVToRGBType::convert<2, 1, 0>(source, target);
     }
 };
@@ -215,8 +218,6 @@ public:
     virtual ~YV12ToRGBType(void) = default;
 
 protected:
-    virtual ColorSpace source_format(void) const { return ColorSpace::YV12; }
-
     template <size_t r, size_t g, size_t b>
     void convert(Image const& source, Image& target) const;
 };
@@ -227,11 +228,11 @@ public:
     virtual ~ConvertYV12ToRGB(void) = default;
 
 protected:
-    virtual void target_format(Image const& source, size_t& target_width,
-                               size_t& target_height,
-                               size_t& target_bytesize) const;
+    void target_format(Image const& source, size_t& target_width,
+                       size_t& target_height,
+                       size_t& target_bytesize) const override final;
 
-    virtual void convert(Image const& source, Image& target) const;
+    void convert(Image const& source, Image& target) const override final;
 };
 
 struct ConvertYV12ToBGR : public YV12ToRGBType {
@@ -240,11 +241,12 @@ public:
     virtual ~ConvertYV12ToBGR(void) = default;
 
 protected:
-    virtual void target_format(Image const& source, size_t& target_width,
-                               size_t& target_height,
-                               size_t& target_bytesize) const;
+    void target_format(Image const& source, size_t& target_width,
+                       size_t& target_height,
+                       size_t& target_bytesize) const override final;
 
-    virtual void inline convert(Image const& source, Image& target) const;
+    void inline convert(Image const& source,
+                        Image& target) const override final;
 };
 
 //
@@ -260,7 +262,7 @@ protected:
     void target_size(Image const& source, size_t& target_width,
                      size_t& target_height, size_t& target_bytesize) const;
 
-    virtual void convert(Image const& source, Image& target) const;
+    void convert(Image const& source, Image& target) const override final;
 };
 
 struct ConvertRGBToBGR : public RGBFromToBGR {
@@ -269,11 +271,9 @@ public:
     virtual ~ConvertRGBToBGR(void) = default;
 
 protected:
-    virtual ColorSpace source_format(void) const { return ColorSpace::RGB888; }
-
-    virtual void target_format(Image const& source, size_t& target_width,
-                               size_t& target_height,
-                               size_t& target_bytesize) const;
+    void target_format(Image const& source, size_t& target_width,
+                       size_t& target_height,
+                       size_t& target_bytesize) const override final;
 };
 
 //
@@ -286,8 +286,6 @@ public:
     virtual ~ConvertBGRToRGB(void) = default;
 
 protected:
-    virtual ColorSpace source_format(void) const { return ColorSpace::BGR888; }
-
     virtual void target_format(Image const& source, size_t& target_width,
                                size_t& target_height,
                                size_t& target_bytesize) const;
@@ -299,13 +297,11 @@ public:
     virtual ~ConvertBGRToYV12(void) = default;
 
 protected:
-    virtual ColorSpace source_format(void) const { return ColorSpace::BGR888; }
+    void target_format(Image const& source, size_t& target_width,
+                       size_t& target_height,
+                       size_t& target_bytesize) const override final;
 
-    virtual void target_format(Image const& source, size_t& target_width,
-                               size_t& target_height,
-                               size_t& target_bytesize) const final;
-
-    virtual void convert(Image const& source, Image& target) const final;
+    void convert(Image const& source, Image& target) const override final;
 };
 
 struct ConvertBGRToYUYV : public Convert {
@@ -314,23 +310,43 @@ public:
     virtual ~ConvertBGRToYUYV(void) = default;
 
 protected:
-    virtual ColorSpace source_format(void) const { return ColorSpace::BGR888; }
+    void target_format(Image const& source, size_t& target_width,
+                       size_t& target_height,
+                       size_t& target_bytesize) const override final;
 
-    virtual void target_format(Image const& source, size_t& target_width,
-                               size_t& target_height,
-                               size_t& target_bytesize) const final;
+    void convert(Image const& source, Image& target) const override final;
+};
 
-    virtual void convert(Image const& source, Image& target) const final;
+struct ConvertBGRToGray : public Convert {
+private:
+    ClampImageValue<double> clamp_;
+
+public:
+    ConvertBGRToGray(void);
+    virtual ~ConvertBGRToGray(void) = default;
+
+protected:
+    void target_format(Image const& source, size_t& target_width,
+                       size_t& target_height,
+                       size_t& target_bytesize) const override final;
+
+    /**
+     * This uses the conversion routine as described by OpenCV:
+     * http://docs.opencv.org/modules/imgproc/doc/miscellaneous_transformations.html#cvtcolor
+     */
+    void convert(Image const& source, Image& target) const override final;
 };
 
 //
 // Following: Converter from Gray to ...
+// This converters do not introduce any color, they just convert the image
+// back to three channels.
 //
 
-struct ConvertGrayToBGR888 : public Convert {
+struct ConvertGrayToBGR : public Convert {
 public:
-    ConvertGrayToBGR888(void);
-    virtual ~ConvertGrayToBGR888(void) = default;
+    ConvertGrayToBGR(void);
+    virtual ~ConvertGrayToBGR(void) = default;
 
 protected:
     void target_format(Image const& source, size_t& target_width,
@@ -373,7 +389,9 @@ private:
         std::make_tuple(ColorSpace::BGR888, ColorSpace::YUYV,
                         &Converter::bgr_to_yuyv),
         std::make_tuple(ColorSpace::GRAY, ColorSpace::BGR888,
-                        &Converter::gray_to_bgr)};
+                        &Converter::gray_to_bgr),
+        std::make_tuple(ColorSpace::BGR888, ColorSpace::GRAY,
+                        &Converter::bgr_to_gray)};
 
     Convert* yuyv_to_yv12(void) { return new ConvertYUYVToYV12(); }
     Convert* yuyv_to_bgr(void) { return new ConvertYUYVToBGR(); }
@@ -384,7 +402,8 @@ private:
     Convert* rgb_to_bgr(void) { return new ConvertRGBToBGR(); }
     Convert* bgr_to_yv12(void) { return new ConvertBGRToYV12(); }
     Convert* bgr_to_yuyv(void) { return new ConvertBGRToYUYV(); }
-    Convert* gray_to_bgr(void) { return new ConvertBGRToYUYV(); }
+    Convert* gray_to_bgr(void) { return new ConvertGrayToBGR(); }
+    Convert* bgr_to_gray(void) { return new ConvertBGRToGray(); }
 
 private:  // These should really be just deleted, but current compiler has a
           // bug. See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58249
@@ -393,7 +412,8 @@ public:
     Converter(ColorSpace source, ColorSpace target);
 
     /**
-     * Providing move constructor to let this class be stored in STL-containers.
+     * Providing move constructor to let this class be stored in
+     * STL-containers.
      */
     Converter(Converter&& other) {
         this->converter_ = other.converter_;
@@ -401,7 +421,8 @@ public:
     }
 
     /**
-     * Providing copy constructor to let this class be stored in STL-containers.
+     * Providing copy constructor to let this class be stored in
+     * STL-containers.
      */
     Converter(Converter& other) {
         this->converter_ = other.converter_;
