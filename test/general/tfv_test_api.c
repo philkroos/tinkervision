@@ -27,6 +27,24 @@ void callback(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
     printf("Callback for module %d\n", id);
 }
 
+void colormatch_start(TFV_Id id, int min_hue, int max_hue) {
+    TFV_Result result = module_start("colormatch", id);
+    printf ("Colormatch Id %d Start: %d (%s)\n", id, result, result_string(result));
+    if (result != TFV_OK) {
+        return;
+    }
+    result = set_parameter(id, "min-hue", min_hue);
+    printf ("Set min-hue: %d (%s)\n", result, result_string(result));
+    if (result != TFV_OK) {
+        return;
+    }
+    result = set_parameter(id, "max-hue", max_hue);
+    printf ("Set max-hue: %d (%s)\n", result, result_string(result));
+    if (result != TFV_OK) {
+        return;
+    }
+}
+
 int main(int argc, char* argv[]) {
     TFV_Size width = 640;
     TFV_Size height = 480;
@@ -53,16 +71,14 @@ int main(int argc, char* argv[]) {
       08-05-2015
       Starting a module, quitting the api, starting same id again failed.
     */
-    result = colormatch_start(1, 20, 25, callback, NULL);
-    printf ("Colormatch Id 1 Start: %d (%s)\n", result, result_string(result));
+    colormatch_start(1, 20, 25);
     sleep(3);
 
     result = quit();
     printf ("Quit: %d (%s)\n", result, result_string(result));
     sleep(2);
 
-    result = colormatch_start(1, 20, 25, callback, NULL);
-    printf ("Colormatch Id 1 Start: %d (%s)\n", result, result_string(result));
+    colormatch_start(1, 20, 25);
     sleep(2);
     /*
        08-05-2015
@@ -76,7 +92,7 @@ int main(int argc, char* argv[]) {
        08-05-2015
        ... or better just call stop/start instead of quit, which would
        not delete the active modules: No call to colormatch_start here
-       and the idle_process is still running.
+       and the idle_process would still be running.
      */
     result = stop();
     printf ("Stop: %d (%s)\n", result, result_string(result));

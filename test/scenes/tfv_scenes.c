@@ -27,6 +27,25 @@ void tfcv_callback(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
     printf("Executing id %d\n", id);
 }
 
+void colormatch_start(TFV_Id id, int min_hue, int max_hue) {
+    TFV_Result result = module_start("colormatch", id);
+    printf ("Colormatch Id %d Start: %d (%s)\n", id, result, result_string(result));
+    if (result != TFV_OK) {
+        return;
+    }
+    result = set_parameter(id, "min-hue", min_hue);
+    printf ("Set min-hue: %d (%s)\n", result, result_string(result));
+    if (result != TFV_OK) {
+        return;
+    }
+    result = set_parameter(id, "max-hue", max_hue);
+    printf ("Set max-hue: %d (%s)\n", result, result_string(result));
+    if (result != TFV_OK) {
+        return;
+    }
+}
+
+
 int main(int argc, char* argv[]) {
     TFV_Id ids_count = 10;
     TFV_Result result;
@@ -39,8 +58,7 @@ int main(int argc, char* argv[]) {
     int i, module, scene_start;
 
     for (i = 0; i < ids_count; i++) {
-        result = colormatch_start(i, min_hue, max_hue, tfcv_callback, NULL);
-        printf("Id %d started: %s (%d)\n", i, result_string(result), result);
+        colormatch_start(i, min_hue, max_hue);
     }
 
     /* give api time to actually start the modules */

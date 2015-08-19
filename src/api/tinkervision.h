@@ -90,19 +90,10 @@ TFV_Result set_parameter(TFV_Id module_id, TFV_String const parameter,
 
 TFV_Result get_parameter(TFV_Id module_id, TFV_String const parameter,
                          TFV_Int* value);
-/* colormatch */
-
-TFV_Result colormatch_start(TFV_Id feature_id, TFV_Byte min_hue,
-                            TFV_Byte max_hue, TFV_CallbackColormatch callback,
-                            TFV_Context opaque);
 
 TFV_Result module_start(TFV_String name, TFV_Id feature_id);
 
 TFV_Result module_stop(TFV_Id feature_id);
-
-TFV_Result colormatch_stop(TFV_Id feature_id);
-
-TFV_Result colormatch_restart(TFV_Id feature_id);
 
 /* motiondetect */
 
