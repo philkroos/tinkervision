@@ -20,12 +20,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <opencv2/opencv.hpp>
 
 #include "colormatch.hh"
-#include "window.hh"
 
 DEFINE_API_MODULE(Colormatch)
 
 void tfv::Colormatch::execute(tfv::Image const& image) {
-    static Window w;
     Log("COLORMATCH", "Executing for image ", image.timestamp);
     const auto rows = image.height;
     const auto columns = image.width;

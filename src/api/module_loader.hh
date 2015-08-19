@@ -42,8 +42,8 @@ namespace tfv {
 
 class ModuleLoader {
 public:
-    using ConstructorFunction = Module* (*)(TFV_Int id, Module::Tag tags);
-    using DestructorFunction = void (*)(Module*);
+    using ConstructorFunction = Executable* (*)(TFV_Int id, Module::Tag tags);
+    using DestructorFunction = void (*)(Executable*);
 
     /**
      * c'tor initializing this class with a path where libraries are to be

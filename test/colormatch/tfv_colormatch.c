@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
     cvReleaseImage(&image);
 
     /* Stopping last module */
-    result = colormatch_stop(id);
+    result = module_stop(id);
     printf("Stopped module %d: Code %d (%s)\n", id, result,
            result_string(result));
 

@@ -53,8 +53,8 @@ bool tfv::ModuleLoader::load_module_from_library(Module** target,
         }
     }
 
-    *target = ConstructorFunction(dlsym(handle, "create"))(id, tags);
-    assert(*target != nullptr);  // why would it?
+    *target =
+        new Module(ConstructorFunction(dlsym(handle, "create"))(id, tags));
 
     handles_[*target] = {libname, handle};
     return true;
@@ -81,8 +81,9 @@ bool tfv::ModuleLoader::destroy_module(Module* module) {
 
     auto handle = entry->second.handle;
     handles_.erase(module);
-    DestructorFunction(dlsym(handle, "destroy"))(module);
+    DestructorFunction(dlsym(handle, "destroy"))(module->executable());
 
+    delete module;
     return _free_lib(handle);
 }
 

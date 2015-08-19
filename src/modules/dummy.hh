@@ -31,7 +31,7 @@ public:
     /**
      * Signal that this module shall not be executed
      */
-    bool running(void) const noexcept override { return false; }
+    // bool running(void) const noexcept override { return false; }
 
     /**
      * \return \code ColorSpace::None to indicate that \code execute does not
