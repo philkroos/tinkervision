@@ -46,7 +46,7 @@ private:
 
     PointResult result_;
 
-    TFV_CallbackColormatch callback;
+    TFV_CallbackColormatch callback = nullptr;
     TFV_Context context;
 
 public:
