@@ -39,7 +39,7 @@ all: directories lib #test
 # search paths
 vpath %.cc $(SRC_DIR)
 
-# generates targets, called at bottom
+# generates targets, called at below
 define make-goal
 $1/%.o: %.cc
 	$(CC) $(CCFLAGS) -c $$< -o $$@ $(INC)
