@@ -123,6 +123,9 @@ void tfv::CameraControl::release_all(void) {
     while (usercount_) {
         release();
     }
+
+    // in case usercount_ was already 0:
+    _close_device();
 }
 
 bool tfv::CameraControl::get_properties(uint16_t& height, uint16_t& width,
