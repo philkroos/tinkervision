@@ -49,8 +49,10 @@ public:
      * c'tor initializing this class with a path where libraries are to be
      * found.
      */
-    explicit ModuleLoader(std::string const& lib_load_path)
-        : load_path_(lib_load_path) {}
+    explicit ModuleLoader(std::string const& system_lib_load_path,
+                          std::string const& user_lib_load_path)
+        : system_load_path_(system_lib_load_path),
+          user_load_path_(user_lib_load_path) {}
 
     /**
      * Load a vision-module from library \code libname.
@@ -97,9 +99,10 @@ private:
     };
     using Handles = std::unordered_map<Module*, ModuleHandle>;
 
-    Handles handles_;              ///< keeps track of loaded modules
-    std::string const load_path_;  ///< path to the shared object files
-    TFV_Result error_{TFV_OK};     ///< If an error occurs, it's stored here
+    Handles handles_;                     ///< keeps track of loaded modules
+    std::string const system_load_path_;  ///< default shared object files
+    std::string const user_load_path_;    ///< additional shared object files
+    TFV_Result error_{TFV_OK};  ///< If an error occurs, it's stored here
 
     std::vector<std::string> required_functions_ = {
         "create",
@@ -107,5 +110,10 @@ private:
 
     // internally used helper methods
     bool _free_lib(LibraryHandle handle);
+    bool _file_exists(std::string const& fullname) const;
+    bool _load_module_from_library(Module** target,
+                                   std::string const& library_root,
+                                   std::string const& libname, TFV_Int id,
+                                   Module::Tag tags);
 };
 }

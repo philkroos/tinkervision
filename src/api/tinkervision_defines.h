@@ -51,7 +51,8 @@ typedef TFV_CallbackRectangle TFV_CallbackMotiondetect;
 #define TFV_UNUSED_ID -1
 
 /* Library configuration */
-#define MODULE_LOAD_PATH "/tmp/libs/"
+#define SYS_MODULE_LOAD_PATH "/usr/local/lib/tinkervision/"
+#define ADD_MODULE_LOAD_PATH "/tmp/lib/tinkervision/"
 /* result codes */
 
 /* General 'ok' results */

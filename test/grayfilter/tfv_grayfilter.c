@@ -28,8 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 int main(int argc, char* argv[]) {
     TFV_Id id = 0;
-    struct timespec time = {0};
-    int i;
     TFV_Result result = TFV_INTERNAL_ERROR;
 
     result = camera_available();
@@ -45,13 +43,13 @@ int main(int argc, char* argv[]) {
     printf("Configured grayfilter id %d: Code %d (%s)\n", id, result,
            result_string(result));
 
+    sleep(5);
+
     result = module_stop(id);
     printf("Stopped grayfilter %d: Code %d (%s)\n", id, result,
            result_string(result));
 
     quit();
-
-    sleep(2);
 
     return 0;
 }

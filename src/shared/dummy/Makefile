@@ -20,3 +20,12 @@ so: $(OBJ)
 
 clean:
 	rm -f *.o *.so
+
+# installation to system path
+prefix	:= /usr/local
+
+install: $(SO)
+	mkdir -p $(prefix)/lib/tinkervision
+	install -m 544 $(SO) $(prefix)/lib/tinkervision/$(SO)
+
+.PHONY: install

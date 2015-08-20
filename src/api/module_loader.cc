@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <dlfcn.h>
 #include <cassert>
+#include <sys/stat.h>  // stat, for _device_exists()
 
 #include "module_loader.hh"
 #include "logger.hh"
@@ -29,13 +30,34 @@ TFV_Result tfv::ModuleLoader::last_error(void) {
     return last;
 }
 
+bool tfv::ModuleLoader::_file_exists(std::string const& fullname) const {
+    struct stat buffer;
+    return (stat(fullname.c_str(), &buffer) == 0);
+}
+
 bool tfv::ModuleLoader::load_module_from_library(Module** target,
                                                  std::string const& libname,
                                                  TFV_Int id, Module::Tag tags) {
+    // prefer user modules
+    if (not(_load_module_from_library(target, user_load_path_, libname, id,
+                                      tags) or
+            _load_module_from_library(target, system_load_path_, libname, id,
+                                      tags))) {
 
-    auto handle = dlopen((load_path_ + libname + ".so").c_str(), RTLD_LAZY);
+        LogError("MODULE_LOADER", "Loading of library ", libname, " failed.");
+        return false;
+    }
+
+    return true;
+}
+
+bool tfv::ModuleLoader::_load_module_from_library(
+    Module** target, std::string const& library_root,
+    std::string const& libname, TFV_Int id, Module::Tag tags) {
+
+    auto handle = dlopen((library_root + libname + ".so").c_str(), RTLD_LAZY);
     if (not handle) {
-        LogError("MODULE_LOADER", "dlopen(", libname, "): ", dlerror());
+        LogWarning("MODULE_LOADER", "dlopen(", libname, "): ", dlerror());
         error_ = TFV_MODULE_DLOPEN_FAILED;
         return false;
     }
@@ -46,7 +68,7 @@ bool tfv::ModuleLoader::load_module_from_library(Module** target,
         (void)dlsym(handle, func.c_str());
         auto error = dlerror();
         if (error) {
-            Log("API", "dlsym(.., ", func, "): ", dlerror());
+            LogWarning("API", "dlsym(.., ", func, "): ", error);
             error_ = TFV_MODULE_DLSYM_FAILED;
             _free_lib(handle);
             return false;
@@ -56,6 +78,7 @@ bool tfv::ModuleLoader::load_module_from_library(Module** target,
     *target =
         new Module(ConstructorFunction(dlsym(handle, "create"))(), id, tags);
 
+    Log("MODULE_LOADER", "Loaded ", libname, " from ", library_root);
     handles_[*target] = {libname, handle};
     return true;
 }

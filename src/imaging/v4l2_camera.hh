@@ -35,9 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <linux/videodev2.h>
 #include <libv4l2.h>
 
-// stat, for device_exists()
-#include <sys/stat.h>
-
 // baseclass
 #include "camera.hh"
 

@@ -575,7 +575,7 @@ private:
     TFVStringMap result_string_map_;    ///< String mapping of Api-return values
     bool idle_process_running_{false};  ///< Dummy module activated?
 
-    ModuleLoader module_loader_{MODULE_LOAD_PATH};
+    ModuleLoader module_loader_{SYS_MODULE_LOAD_PATH, ADD_MODULE_LOAD_PATH};
 
     Image image_;  ///< The container filled with the current frame
 
