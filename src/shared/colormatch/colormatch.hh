@@ -121,8 +121,6 @@ public:
     }
 
     Result const* get_result(void) const override { return &result_; }
-
-    bool running(void) const noexcept override { return true; }
 };
 }
 

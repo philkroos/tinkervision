@@ -1,7 +1,7 @@
 CC		:= g++
 CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
 
-FOLDER		:= api imaging debug
+FOLDER		:= interface
 INC		:= $(addprefix -I/home/philipp/tinkervision/src/,$(FOLDER))
 
 SO		:= grayfilter.so

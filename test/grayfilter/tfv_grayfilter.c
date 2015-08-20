@@ -45,12 +45,6 @@ int main(int argc, char* argv[]) {
     printf("Configured grayfilter id %d: Code %d (%s)\n", id, result,
            result_string(result));
 
-    time.tv_sec = 0;
-    time.tv_nsec = 500000000L;
-    for (i = 0; i < 40; i++) {
-        nanosleep(&time, (struct timespec*)NULL);
-    }
-
     result = module_stop(id);
     printf("Stopped grayfilter %d: Code %d (%s)\n", id, result,
            result_string(result));

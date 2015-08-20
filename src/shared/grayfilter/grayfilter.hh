@@ -20,24 +20,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef GRAYFILTER_H
 #define GRAYFILTER_H
 
-#include "module.hh"
+#include <opencv2/opencv.hpp>
+#ifdef DEBUG
+#include <iostream>
+#include <opencv2/highgui/highgui.hpp>
+#endif
+
+#include "tv_module.hh"
 
 namespace tfv {
 
-struct Grayfilter : public Module {
+struct Grayfilter : public TVModule {
 private:
     TFV_Context context;
 
 public:
-    Grayfilter(TFV_Int module_id, Module::Tag tags)
-        : Module(module_id, "Grayfilter", tags) {}
-    Grayfilter(TFV_Int module_id, Module::Tag tags, TFV_Context context)
-        : Module(module_id, "Grayfilter", tags), context(context) {
-
-        Log("GRAYFILTER", "Id:", module_id);
+    Grayfilter(void) : TVModule("Grayfilter") {
+#ifdef DEBUG
+        cv::namedWindow("Grayfilter");
+#endif
     }
 
     ~Grayfilter(void) override = default;
+
     void execute_modifying(tfv::Image& image) override;
     ColorSpace expected_format(void) const override {
         return ColorSpace::BGR888;
@@ -47,6 +52,6 @@ public:
 };
 }
 
-DECLARE_API_MODULE(Grayfilter)
+DECLARE_VISION_MODULE(Grayfilter)
 
 #endif

@@ -93,7 +93,7 @@ public:
     }
     virtual TFV_Word get(std::string const& parameter) { return 0; }
 
-    virtual bool running(void) const noexcept { return false; }
+    virtual bool running(void) const noexcept { return true; }
 };
 }
 #define DECLARE_VISION_MODULE(name)            \

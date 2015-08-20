@@ -26,6 +26,8 @@ namespace tfv {
 class Dummy : public TVModule {
 public:
     Dummy() : TVModule("Dummy") {}
+
+    bool running(void) const noexcept override { return false; }
 };
 }
 

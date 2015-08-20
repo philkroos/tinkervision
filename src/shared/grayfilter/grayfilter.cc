@@ -17,16 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include <opencv2/opencv.hpp>
-#include <iostream>
-
 #include "grayfilter.hh"
-#include "window.hh"
 
-DEFINE_API_MODULE(Grayfilter)
+DEFINE_VISION_MODULE(Grayfilter)
 
 void tfv::Grayfilter::execute_modifying(tfv::Image& image) {
-    static Window w;
     Log("GRAYFILTER", "Executing for image ", image.timestamp);
 
     const auto rows = image.height;
@@ -42,5 +37,10 @@ void tfv::Grayfilter::execute_modifying(tfv::Image& image) {
     }
 
     image.format = ColorSpace::GRAY;
-    // w.update(1, data, rows, columns, CV_8UC1);
+
+#ifdef DEBUG
+    cv::Mat output(rows, columns, CV_8UC1, image.data);
+    cv::imshow("Grayfilter", output);
+    cv::waitKey(2);
+#endif
 }
