@@ -23,7 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "api.hh"
 #include "module.hh"
+
+#ifdef DEBUG
 #include "window.hh"
+#endif
 
 tfv::Api::Api(void) { (void)start(); }
 
@@ -112,6 +115,8 @@ void tfv::Api::execute(void) {
 
             // retrieve the frame in the requested format and execute the module
             camera_control_.get_frame(image_, module.expected_format());
+            static Window w;
+            w.update(0, image_.data, image_.height, image_.width);
             module.exec(image_);
             auto result = module.get_result();
             (void)result;

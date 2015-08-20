@@ -61,8 +61,6 @@ int main(int argc, char* argv[]) {
     TFV_Word min_saturation;
     TFV_Word max_saturation = 255;
     TFV_Byte range;
-    struct timespec time = {0};
-    int i;
     TFV_Size width, height; /* framesize */
     TFV_Result result = TFV_INTERNAL_ERROR;
 
@@ -100,11 +98,11 @@ int main(int argc, char* argv[]) {
     printf("Configured module id %d: Code %d (%s)\n", id, result,
            result_string(result));
 
-    result = set_point_callback(id, callback);
-    printf("Set point callback: Code %d (%s)\n", result, result_string(result));
-
     result = set_value_callback(id, invalid_callback);
     printf("Set value callback: Code %d (%s)\n", result, result_string(result));
+
+    result = set_point_callback(id, callback);
+    printf("Set point callback: Code %d (%s)\n", result, result_string(result));
 
     result = set_parameter(id, "min-hue", min_hue);
     printf("Set min-hue: Code %d (%s)\n", result, result_string(result));
@@ -136,27 +134,20 @@ int main(int argc, char* argv[]) {
     result = get_parameter(id, "max-saturation", &min_saturation);
     printf("%d Code %d (%s)\n", max_saturation, result, result_string(result));
 
-    result = module_stop(id);
-    printf("Stop: %d (%s)\n", result, result_string(result));
-    sleep(1);
+    sleep(2);
 
-    return 0;
     get_resolution(&width, &height);
     image = cvCreateImage(cvSize(width, height), 8, 3);
     cvZero(image);
     cvNamedWindow("Result", CV_WINDOW_AUTOSIZE);
 
-    time.tv_sec = 0;
-    time.tv_nsec = 500000000L;
-    for (i = 0; i < 40; i++) {
-        nanosleep(&time, (struct timespec*)NULL);
-    }
-    cvReleaseImage(&image);
+    sleep(10);
 
-    /* Stopping last module */
     result = module_stop(id);
     printf("Stopped module %d: Code %d (%s)\n", id, result,
            result_string(result));
+
+    cvReleaseImage(&image);
 
     /* Stopping manually is not necessary but can be used to stop active
        resources if a client app should have crashed. */

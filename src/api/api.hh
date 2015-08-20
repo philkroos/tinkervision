@@ -553,21 +553,14 @@ public:
         }
 
         auto& module = *modules_[module_id];
-        auto result = module.get_result();
 
-        if (not result) {
-            LogError("API", "Callback for module ", module.name(),
-                     " requested");
-            return TFV_INTERNAL_ERROR;
-        }
-
-        if (not callback_is_compatible_to_result(callback, result)) {
+        if (not module.register_callback(callback)) {
             LogError("API", "Invalid Callback for module ", module.name(),
-                     " passed, expected ", typeid(*result).name());
+                     " passed.");
             return TFV_INTERNAL_ERROR;
         }
 
-        return TFV_NOT_IMPLEMENTED;
+        return TFV_OK;
     }
 
 private:

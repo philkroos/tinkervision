@@ -20,6 +20,48 @@ bool tfv::is_compatible_callback(tfv::Result const* result,
     return dynamic_cast<tfv::RectangleResult const*>(result) != nullptr;
 };
 
+template <>
+tfv::Callback* tfv::make_callback<TFV_CallbackPoint>(
+    TFV_Int id, TFV_CallbackPoint cb_func) {
+    return new tfv::PointCallback(id, cb_func);
+}
+
+template <>
+tfv::Callback* tfv::make_callback<TFV_CallbackValue>(
+    TFV_Int id, TFV_CallbackValue cb_func) {
+    return new tfv::ValueCallback(id, cb_func);
+}
+
+template <>
+tfv::Callback* tfv::make_callback<TFV_CallbackRectangle>(
+    TFV_Int id, TFV_CallbackRectangle cb_func) {
+    return new tfv::RectangleCallback(id, cb_func);
+}
+
+template <>
+tfv::Callback* tfv::make_callback<TFV_CallbackString>(
+    TFV_Int id, TFV_CallbackString cb_func) {
+    return new tfv::StringCallback(id, cb_func);
+}
+
+void tfv::ValueCallback::operator()(tfv::Result const* result) {
+    cb(id, dynamic_cast<ScalarResult const*>(result)->scalar, nullptr);
+}
+
+void tfv::PointCallback::operator()(tfv::Result const* result) {
+    auto point = dynamic_cast<PointResult const*>(result);
+    cb(id, point->x, point->y, nullptr);
+}
+
+void tfv::RectangleCallback::operator()(tfv::Result const* result) {
+    auto rect = dynamic_cast<RectangleResult const*>(result);
+    cb(id, rect->x, rect->y, rect->width, rect->height, nullptr);
+}
+
+void tfv::StringCallback::operator()(tfv::Result const* result) {
+    cb(id, dynamic_cast<StringResult const*>(result)->result.c_str(), nullptr);
+};
+
 void tfv::Module::execute(tfv::Image const& image) {
     tv_module_->execute(image);
 }

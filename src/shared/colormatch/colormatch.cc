@@ -24,12 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 DEFINE_VISION_MODULE(Colormatch)
 
 void tfv::Colormatch::execute(tfv::Image const& image) {
-    Log("COLORMATCH", "Executing for image ", image.timestamp);
     const auto rows = image.height;
     const auto columns = image.width;
     const auto data = image.data;
 
     cv::Mat cv_image(rows, columns, CV_8UC3, data);
+#ifdef DEBUG
+    cv::imshow("Colormatch", cv_image);
+    cv::waitKey(2);
+#endif
     cv::cvtColor(cv_image, cv_image, CV_BGR2HSV);
     cv::Mat mask(rows, columns, CV_8UC3);
 
@@ -53,12 +56,10 @@ void tfv::Colormatch::execute(tfv::Image const& image) {
     } else {
         cv::inRange(cv_image, low, high, mask);
     }
-    // w.update(id(), mask);
 
     // Opening
     cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
     cv::morphologyEx(mask, mask, CV_MOP_OPEN, element);
-    // w.update(id(), mask);
 
     // find elements
     std::vector<cv::Vec4i> hierarchy;
@@ -79,12 +80,9 @@ void tfv::Colormatch::execute(tfv::Image const& image) {
         }
     }
 
-    if (callback and contours.size()) {  // call back with center of finding
-        auto const x = rect.x + (rect.width / 2);
-        auto const y = rect.y + (rect.height / 2);
-        (void)x;
-        (void)y;
-        assert(false);  // callback not implemented currently
-        // callback(static_cast<TFV_Id>(module_id_), x, y, context);
+    if (contours.size()) {  // call back with center of finding
+        Log("COLORMATCH", "Found at ", rect.x, " ", rect.y);
+        result_.x = rect.x + (rect.width / 2);
+        result_.y = rect.y + (rect.height / 2);
     }
 }

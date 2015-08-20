@@ -31,18 +31,21 @@ struct Result {
 };
 
 struct StringResult : public Result {
+    using callback_t = TFV_CallbackString;
     std::string result = "";
     StringResult(void) = default;
     StringResult(std::string const& s) : result(s) {}
 };
 
 struct ScalarResult : public Result {
+    using callback_t = TFV_CallbackValue;
     TFV_Size scalar = 0;
     ScalarResult(void) = default;
     ScalarResult(TFV_Size i) : scalar(i) {}
 };
 
 struct PointResult : public Result {
+    using callback_t = TFV_CallbackPoint;
     TFV_Size x = 0;
     TFV_Size y = 0;
     PointResult(void) = default;
@@ -50,6 +53,7 @@ struct PointResult : public Result {
 };
 
 struct RectangleResult : public Result {
+    using callback_t = TFV_CallbackRectangle;
     int x = 0;
     int y = 0;
     int width = 0;
@@ -80,9 +84,7 @@ public:
 
     virtual bool modifies_image(void) const { return false; }
     virtual Result const* get_result(void) const { return nullptr; }
-    virtual ColorSpace expected_format(void) const {
-        return ColorSpace::NONE;
-    }
+    virtual ColorSpace expected_format(void) const { return ColorSpace::NONE; }
 
     virtual bool has_parameter(std::string const& parameter) const {
         return false;
@@ -96,11 +98,11 @@ public:
     virtual bool running(void) const noexcept { return true; }
 };
 }
-#define DECLARE_VISION_MODULE(name)            \
+#define DECLARE_VISION_MODULE(name)         \
     extern "C" tfv::TVModule* create(void); \
     extern "C" void destroy(tfv::name* module);
 
-#define DEFINE_VISION_MODULE(name)                                        \
+#define DEFINE_VISION_MODULE(name)                                     \
     extern "C" tfv::TVModule* create(void) { return new tfv::name(); } \
     extern "C" void destroy(tfv::name* module) { delete module; }
 

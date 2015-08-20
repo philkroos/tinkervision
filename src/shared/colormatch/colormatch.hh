@@ -20,6 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef COLORMATCH_H
 #define COLORMATCH_H
 
+#ifdef DEBUG
+#include <iostream>
+#include <opencv2/highgui/highgui.hpp>
+#endif
+
 #include "tv_module.hh"
 
 namespace tfv {
@@ -44,7 +49,6 @@ private:
 
     PointResult result_;
 
-    TFV_CallbackColormatch callback = nullptr;
     TFV_Context context;
     bool in_range(TFV_Word value, TFV_Word low, TFV_Word high) {
         return value >= low and value <= high;
@@ -58,7 +62,11 @@ public:
           user_min_value(min_value),
           user_max_value(max_value),
           user_min_saturation(min_saturation),
-          user_max_saturation(max_saturation) {}
+          user_max_saturation(max_saturation) {
+#ifdef DEBUG
+        cv::namedWindow("Colormatch");
+#endif
+    }
 
     ~Colormatch(void) override = default;
     void execute(tfv::Image const& image) override;
