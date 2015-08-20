@@ -20,13 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef COLORMATCH_H
 #define COLORMATCH_H
 
-#include <typeinfo>
-
-#include "module.hh"
+#include "tv_module.hh"
 
 namespace tfv {
 
-struct Colormatch : public Executable {
+struct Colormatch : public TVModule {
 private:
     TFV_Byte const min_saturation{0};
     TFV_Byte const max_saturation{255};
@@ -53,23 +51,14 @@ private:
     }
 
 public:
-    Colormatch(TFV_Int module_id, Module::Tag tags)
-        : Executable(module_id, "Colormatch", tags) {}
-    Colormatch(TFV_Int module_id, Module::Tag tags, TFV_Byte min_hue,
-               TFV_Byte max_hue, TFV_CallbackColormatch callback,
-               TFV_Context context)
-        : Executable(module_id, "Colormatch", tags),
+    Colormatch(void)
+        : TVModule("Colormatch"),
           user_min_hue(min_hue),
           user_max_hue(max_hue),
           user_min_value(min_value),
           user_max_value(max_value),
           user_min_saturation(min_saturation),
-          user_max_saturation(max_saturation),
-          callback(callback),
-          context(context) {
-        Log("COLORMATCH", "Id:", module_id, " Tracking ", int(min_hue), "-",
-            int(max_hue));
-    }
+          user_max_saturation(max_saturation) {}
 
     ~Colormatch(void) override = default;
     void execute(tfv::Image const& image) override;
@@ -131,13 +120,12 @@ public:
         return -1;  // never reached
     }
 
-    Result const* get_result(void) const override {
-        Log("Colormatch", "Returning result type ", typeid(result_).name());
-        return &result_;
-    }
+    Result const* get_result(void) const override { return &result_; }
+
+    bool running(void) const noexcept override { return true; }
 };
 }
 
-DECLARE_API_MODULE(Colormatch)
+DECLARE_VISION_MODULE(Colormatch)
 
 #endif /* COLORMATCH_H */

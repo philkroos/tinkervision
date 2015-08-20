@@ -71,6 +71,8 @@ private:
         logfile_ << value << std::endl;
     }
 
+    void _print_out(void) {}
+
 public:
     template <typename... Args>
     void log_default(std::string prefix, Args const&... args) {

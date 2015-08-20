@@ -54,10 +54,14 @@ void tfv::Motiondetect::execute(tfv::Image const& image) {
 }
 
 void tfv::Motiondetect::callback(void) const {
+    assert(false);
     if (results_) {
-        callback_(static_cast<TFV_Id>(module_id_), rect_.tl().x, rect_.tl().y,
-                  rect_.br().x - rect_.tl().x, rect_.br().y - rect_.tl().y,
-                  context_);
+        /*
+            callback_(static_cast<TFV_Id>(module_id_), rect_.tl().x,
+           rect_.tl().y,
+                      rect_.br().x - rect_.tl().x, rect_.br().y - rect_.tl().y,
+                      context_);
+        */
     }
 }
 

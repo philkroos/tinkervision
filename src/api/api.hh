@@ -38,7 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "strings.hh"
 #include "tinkervision_defines.h"
 #include "cameracontrol.hh"
-#include "dummy.hh"
 #include "image.hh"
 #include "scenetrees.hh"
 #include "logger.hh"
@@ -156,7 +155,7 @@ public:
         auto result = TFV_OK;  // optimistic because startable only once
 
         if (not idle_process_running_) {
-            result = _module_set<Dummy>(_next_internal_id(), Module::Tag::None);
+            result = module_load("dummy", _next_internal_id());
         }
         idle_process_running_ = (result == TFV_OK);
         return result;
@@ -184,7 +183,7 @@ public:
                                  args...);
     }
 
-    TFV_Result module_load(std::string const& name, TFV_Id id) {
+    TFV_Result module_load(std::string const& name, TFV_Int id) {
         if (modules_.managed(id)) {
             return TFV_INVALID_ID;
         }

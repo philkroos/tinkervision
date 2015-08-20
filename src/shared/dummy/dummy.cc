@@ -17,29 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef DUMMY_H
-#define DUMMY_H
+#include "dummy.hh"
 
-#include "module.hh"
-
-namespace tfv {
-class Dummy : public Module {
-public:
-    Dummy(TFV_Int id, Module::Tag tags) : Module(id, "Dummy", tags) {}
-    void execute(tfv::Image const& image) override final {}
-
-    /**
-     * Signal that this module shall not be executed
-     */
-    // bool running(void) const noexcept override { return false; }
-
-    /**
-     * \return \code ColorSpace::None to indicate that \code execute does not
-     * have to be called.
-     */
-    ColorSpace expected_format(void) const override final {
-        return ColorSpace::NONE;
-    }
-};
-}
-#endif /* DUMMY_H */
+DEFINE_VISION_MODULE(Dummy)

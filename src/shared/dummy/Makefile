@@ -4,8 +4,8 @@ CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
 FOLDER		:= interface
 INC		:= $(addprefix -I/home/philipp/tinkervision/src/,$(FOLDER))
 
-SO		:= colormatch.so
-OBJ		:= colormatch.o
+SO		:= dummy.so
+OBJ		:= dummy.o
 
 all: so
 

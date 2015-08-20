@@ -28,53 +28,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "image.hh"
 #include "bitflag.hh"
 #include "logger.hh"
+#include "tv_module.hh"
 
 namespace tfv {
-struct Result {
-    virtual ~Result(void) = default;
-};
 
-struct StringResult : public Result {
-    std::string result = "";
-    StringResult(void) = default;
-    StringResult(std::string const& s) : result(s) {}
-};
-
-struct ScalarResult : public Result {
-    TFV_Size scalar = 0;
-    ScalarResult(void) = default;
-    ScalarResult(TFV_Size i) : scalar(i) {}
-};
-
-struct PointResult : public Result {
-    TFV_Size x = 0;
-    TFV_Size y = 0;
-    PointResult(void) = default;
-    PointResult(TFV_Size x, TFV_Size y) : x(x), y(y) {}
-};
-
-struct RectangleResult : public Result {
-    int x = 0;
-    int y = 0;
-    int width = 0;
-    int height = 0;
-    RectangleResult(void) = default;
-    RectangleResult(int x, int y, int width, int height)
-        : x(x), y(y), width(width), height(height) {}
-};
+class Result;
+class TVModule;
 
 bool is_compatible_callback(Result const* result, TFV_CallbackPoint const&);
 bool is_compatible_callback(Result const* result, TFV_CallbackValue const&);
 bool is_compatible_callback(Result const* result, TFV_CallbackRectangle const&);
 bool is_compatible_callback(Result const* result, TFV_CallbackString const&);
 
-class Executable;
 class Module {
 public:
     enum class Tag : unsigned {
         // static tags
         None = 0x00,
-        Executable = 0x01,
+        TVModule = 0x01,
         Fx = 0x02,
         Analysis = 0x04,
         Output = 0x08,
@@ -87,17 +58,19 @@ public:
     };
 
 private:
-    std::string type_;
     bool active_;
     Module::Tag tags_;
+    TFV_Int module_id_;
 
-    Executable* executable_ = nullptr;
+    TVModule* tv_module_;
 
 public:
-    TFV_Int module_id_;
     // deprecated
     Module(TFV_Int module_id, std::string type, Tag tags)
-        : type_{type}, active_{true}, tags_{tags}, module_id_{module_id} {
+        : active_{true},
+          tags_{tags},
+          module_id_{module_id},
+          tv_module_{nullptr} {
         Log("MODULE", "Constructing module ", module_id);
     }
 
@@ -105,8 +78,12 @@ public:
     Module(TFV_Int module_id, std::string type)
         : Module(module_id, type, Tag::None) {}
 
-    Module(Executable* executable) : executable_(executable) {
-        assert(executable_ != nullptr);
+    Module(TVModule* executable, TFV_Int module_id, Tag tags)
+        : active_{false},
+          tags_(tags),
+          module_id_(module_id),
+          tv_module_(executable) {
+        assert(tv_module_ != nullptr);
     }
 
     virtual void execute(tfv::Image const& image);
@@ -114,7 +91,7 @@ public:
     virtual bool modifies_image(void) const;
 
 public:
-    virtual ~Module(void) { Log("MODULE::Destructor", type_); }
+    virtual ~Module(void) { Log("MODULE::Destructor", name()); }
 
     // No copy allowed
     Module(Module const& other) = delete;
@@ -123,7 +100,7 @@ public:
     Module& operator=(Module&& rhs) = delete;
 
     TFV_Int id(void) const { return module_id_; }
-    std::string const& name(void) const { return type_; }
+    std::string name(void) const;
 
     bool running(void) const noexcept;
 
@@ -169,65 +146,10 @@ public:
 
     virtual Result const* get_result(void) const;
 
-    Tag const& tags(void) const;
-    void tag(Tag tags);
+    Tag const& tags(void) const { return tags_; }
+    void tag(Tag tags) { tags_ |= tags; }
 
-    Executable* executable(void) { return executable_; }
-};
-
-class Executable {
-private:
-    std::string type_;
-    bool active_{false};
-    Module::Tag tags_;
-
-protected:
-    TFV_Int module_id_;
-
-public:
-    Executable(TFV_Int module_id, std::string type, tfv::Module::Tag tags)
-        : type_{type}, active_{true}, tags_{tags}, module_id_{module_id} {
-        Log("EXECUTABLE", "Constructing  ", module_id);
-    }
-
-    Executable(TFV_Int module_id, std::string type)
-        : Executable(module_id, type, Module::Tag::None) {}
-
-    virtual ~Executable(void) { Log("EXECUTABLE::Destructor", type_); }
-    virtual void execute(tfv::Image const& image) {
-        LogError("MODULE", "execute called");
-    }
-    virtual void execute_modifying(tfv::Image& image) {
-        LogError("MODULE", "execute_modifying called");
-    }
-
-    virtual bool modifies_image(void) const { return false; }
-    virtual Result const* get_result(void) const { return nullptr; }
-    virtual ColorSpace expected_format(void) const = 0;
-
-    virtual bool has_parameter(std::string const& parameter) const {
-        return false;
-    }
-
-    virtual bool set(std::string const& parameter, TFV_Word value) {
-        return false;
-    }
-    virtual TFV_Word get(std::string const& parameter) { return 0; }
-
-    virtual bool running(void) const noexcept { return true; }
-
-    Module::Tag const& tags(void) const { return tags_; }
-    void tag(Module::Tag tags) { tags_ |= tags; }
+    TVModule* executable(void) { return tv_module_; }
 };
 }
-#define DECLARE_API_MODULE(name)                                           \
-    extern "C" tfv::Executable* create(TFV_Int id, tfv::Module::Tag tags); \
-    extern "C" void destroy(tfv::name* module);
-
-#define DEFINE_API_MODULE(name)                                             \
-    extern "C" tfv::Executable* create(TFV_Int id, tfv::Module::Tag tags) { \
-        return new tfv::name(id, tags);                                     \
-    }                                                                       \
-    extern "C" void destroy(tfv::name* module) { delete module; }
-
 #endif

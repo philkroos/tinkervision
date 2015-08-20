@@ -36,7 +36,7 @@ public:
     virtual void execute(tfv::Image const& image) {
         try {
             const auto file = std::string{
-                "Snapshot" + std::to_string(module_id_) + "_at_" +
+                "Snapshot" +
                 std::to_string(image.timestamp.time_since_epoch().count()) +
                 ".yuv"};
 

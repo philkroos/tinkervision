@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "colormatch.hh"
 
-DEFINE_API_MODULE(Colormatch)
+DEFINE_VISION_MODULE(Colormatch)
 
 void tfv::Colormatch::execute(tfv::Image const& image) {
     Log("COLORMATCH", "Executing for image ", image.timestamp);
@@ -82,6 +82,9 @@ void tfv::Colormatch::execute(tfv::Image const& image) {
     if (callback and contours.size()) {  // call back with center of finding
         auto const x = rect.x + (rect.width / 2);
         auto const y = rect.y + (rect.height / 2);
-        callback(static_cast<TFV_Id>(module_id_), x, y, context);
+        (void)x;
+        (void)y;
+        assert(false);  // callback not implemented currently
+        // callback(static_cast<TFV_Id>(module_id_), x, y, context);
     }
 }

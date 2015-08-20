@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
     TFV_Size width = 640;
     TFV_Size height = 480;
 
-    TFV_Id result = preselect_framesize(width, height);
+    TFV_Result result = preselect_framesize(width, height);
 
     printf ("PreselectFramesize: %d (%s)\n", result, result_string(result));
     sleep(1);
@@ -66,6 +66,7 @@ int main(int argc, char* argv[]) {
     printf ("StartIdle: %d (%s)\n", result, result_string(result));
     sleep(2);
 
+    width = height = 0;
     result = get_resolution(&width, &height);
     printf ("GetResolution: %d (%s)\n", result, result_string(result));
     printf ("WxH: %lux%lu\n", (long unsigned)width, (long unsigned)height);

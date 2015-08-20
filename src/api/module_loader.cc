@@ -54,7 +54,7 @@ bool tfv::ModuleLoader::load_module_from_library(Module** target,
     }
 
     *target =
-        new Module(ConstructorFunction(dlsym(handle, "create"))(id, tags));
+        new Module(ConstructorFunction(dlsym(handle, "create"))(), id, tags);
 
     handles_[*target] = {libname, handle};
     return true;

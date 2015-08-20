@@ -17,4 +17,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include "dummy.hh"
+#ifndef DUMMY_H
+#define DUMMY_H
+
+#include "tv_module.hh"
+
+namespace tfv {
+class Dummy : public TVModule {
+public:
+    Dummy() : TVModule("Dummy") {}
+};
+}
+
+DECLARE_VISION_MODULE(Dummy)
+
+#endif /* DUMMY_H */

@@ -3,7 +3,7 @@ CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -D_GLIBCXX_USE_NANOSLEEP -fPIC -DDEBU
 
 # structure
 MODULES         := stream record motiondetect
-PARTS		:= api imaging debug modules $(addprefix modules/,$(MODULES))
+PARTS		:= api imaging debug modules interface $(addprefix modules/,$(MODULES))
 BUILD_PREFIX	:= build
 BUILD_DIR	:= $(addprefix $(BUILD_PREFIX)/,$(PARTS))
 SRC_PREFIX	:= src
