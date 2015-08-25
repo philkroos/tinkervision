@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "h264_byte_source.hh"
 
 tfv::H264ByteSource* tfv::H264ByteSource::createNew(

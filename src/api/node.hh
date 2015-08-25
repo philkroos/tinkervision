@@ -114,10 +114,6 @@ public:
     bool is_used_by_any_scene(void) const { return not scenes_.empty(); }
 
     bool is_used_by_scene(TFV_Scene id) const {
-        std::cout << "Used by " << id << "?" << std::endl;
-        for (auto id : scenes_) {
-            std::cout << "-- Used by " << id << std::endl;
-        }
         return std::find(scenes_.cbegin(), scenes_.cend(), id) !=
                scenes_.cend();
     }

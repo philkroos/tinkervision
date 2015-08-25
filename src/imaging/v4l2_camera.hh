@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // baseclass
 #include "camera.hh"
+#include "logger.hh"
 
 // aliases for v4l2 types and functions plus definition of related types
 namespace v4l2 {
@@ -200,11 +201,10 @@ private:
 
         auto result = io_control_(device_handle, request, arg);
         if (not result) {
-            // auto err = io_control_.result;
-            // std::cout << "Error " << strerror(err) << "(" << err
-            //           << "), which is "
-            //           << (ignorable == err ? "ignorable" : "not ignorable")
-            //           << " for request " << request.name << std::endl;
+            LogError("V4L2_CAM", strerror(io_control_.result), " (",
+                     io_control_.result, ") ", " for request ", request.name,
+                     (ignorable == io_control_.result ? ": ignorable"
+                                                      : ": not ignorable"));
         }
         return result;
     }

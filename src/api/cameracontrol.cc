@@ -20,7 +20,6 @@
 #include <thread>
 #include <chrono>
 #include <fstream>
-#include <iostream>
 
 #include "cameracontrol.hh"
 #include "logger.hh"
@@ -190,7 +189,6 @@ void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ColorSpace format) {
 }
 
 void tfv::CameraControl::regenerate_image_from(Image const& image) {
-    // std::cout << "Request to regenerate for " << image.format << std::endl;
     if (image.format != image_.format) {
         auto converter = get_converter(image.format, image_.format);
         if (not converter) {

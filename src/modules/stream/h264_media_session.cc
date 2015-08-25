@@ -19,8 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "h264_media_session.hh"
 
-#include <iostream>
-
 tfv::H264MediaSession* tfv::H264MediaSession::createNew(
     UsageEnvironment& env, tfv::ExecutionContext& context) {
 
@@ -65,7 +63,6 @@ void tfv::H264MediaSession::check_for_aux_sdp_line() {
         setDoneFlag();
 
     } else {
-        // std::cout << "checking again later" << std::endl;
         int uSecsDelay = 100000;
         nextTask() = envir().taskScheduler().scheduleDelayedTask(
             uSecsDelay, (TaskFunc*)checkForAuxSDPLine, this);
@@ -76,7 +73,6 @@ char const* tfv::H264MediaSession::getAuxSDPLine(RTPSink* rtpSink,
                                                  FramedSource* inputSource) {
     if (aux_SDP_line_ == NULL) {
         if (dummy_sink_ == NULL) {
-            // std::cout << "Start playing dummy sink" << std::endl;
             dummy_sink_ = rtpSink;
             dummy_sink_->startPlaying(*inputSource, afterPlayingDummy, this);
             checkForAuxSDPLine(this);

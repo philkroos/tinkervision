@@ -115,8 +115,12 @@ void tfv::Api::execute(void) {
 
             // retrieve the frame in the requested format and execute the module
             camera_control_.get_frame(image_, module.expected_format());
+
+#ifdef DEBUG
             static Window w;
             w.update(0, image_.data, image_.height, image_.width);
+#endif
+
             module.exec(image_);
             auto result = module.get_result();
             (void)result;
@@ -141,9 +145,9 @@ void tfv::Api::execute(void) {
     auto node_exec = [&](TFV_Int module_id) {
         (void)modules_.exec_one(module_id,
                                 [&module_id, &module_exec](Module& module) {
-            module_exec(module_id, module);
-            return TFV_OK;
-        });
+                                    module_exec(module_id, module);
+                                    return TFV_OK;
+                                });
     };
 
     // mainloop

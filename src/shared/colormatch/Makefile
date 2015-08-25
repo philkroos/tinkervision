@@ -1,8 +1,8 @@
 CC		:= g++
-CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
+CCFLAGS		:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
 
-FOLDER		:= interface
-INC		:= $(addprefix -I/home/philipp/tinkervision/src/,$(FOLDER))
+INC		:= -I/usr/local/include `pkg-config --cflags opencv`
+LDFLAGS		:= `pkg-config --libs opencv`
 
 SO		:= colormatch.so
 OBJ		:= colormatch.o

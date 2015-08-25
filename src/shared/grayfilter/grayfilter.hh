@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define GRAYFILTER_H
 
 #include <opencv2/opencv.hpp>
-#ifdef DEBUG
+#ifdef DEBUG // need to link with libtinkervision_dbg
 #include <iostream>
 #include <opencv2/highgui/highgui.hpp>
 #endif

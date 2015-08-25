@@ -1,8 +1,7 @@
 CC		:= g++
-CCFLAGS		:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
+CCFLAGS		:= -Wall -Werror -O3 -std=c++11 -shared -fPIC
 
-FOLDER		:= interface
-INC		:= $(addprefix -I/home/philipp/tinkervision/src/,$(FOLDER)) `pkg-config --cflags opencv`
+INC		:= -I/usr/local/include `pkg-config --cflags opencv`
 LDFLAGS		:= `pkg-config --libs opencv`
 
 SO		:= motiondetect.so

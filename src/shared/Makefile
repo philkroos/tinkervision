@@ -1,4 +1,4 @@
-MODULES	:= grayfilter dummy colormatch
+MODULES	:= grayfilter dummy colormatch motiondetect
 
 all:
 	@for module in $(MODULES); do \

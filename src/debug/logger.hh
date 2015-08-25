@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define LOGGER_H
 
 #ifndef DEBUG
+#include <string>
 namespace tfv {
 
 template <typename... Args>
@@ -35,6 +36,8 @@ template <typename... Args>
 void LogWarning(std::string const& prefix, Args const&... args) {}
 
 #else
+
+
 #include <fstream>
 #include <iostream>
 #include <bitset>
@@ -55,20 +58,20 @@ private:
     static std::string PREFIX_ERROR;
 
     Logger(void) {
-        logfile_.open(logfilename_, std::ios::out | std::ios::trunc);
+	logfile_.open(logfilename_, std::ios::out | std::ios::trunc);
     }
 
     ~Logger(void) { logfile_.close(); }
 
     template <typename T, typename... Args>
     void _print_out(T const& value, Args const&... args) {
-        logfile_ << value;
-        _print_out(args...);
+	logfile_ << value;
+	_print_out(args...);
     }
 
     template <typename T>
     void _print_out(T const& value) {
-        logfile_ << value << std::endl;
+	logfile_ << value << std::endl;
     }
 
     void _print_out(void) {}
@@ -76,27 +79,27 @@ private:
 public:
     template <typename... Args>
     void log_default(std::string prefix, Args const&... args) {
-        if (not logfile_.is_open()) {
-            return;
-        }
+	if (not logfile_.is_open()) {
+	    return;
+	}
 
-        logfile_ << prefix << ": ";
-        _print_out(args...);
+	logfile_ << prefix << ": ";
+	_print_out(args...);
     }
 
     template <typename... Args>
     void log_warning(std::string prefix, Args const&... args) {
-        log_default(Logger::PREFIX_WARNING + "::" + prefix, args...);
+	log_default(Logger::PREFIX_WARNING + "::" + prefix, args...);
     }
 
     template <typename... Args>
     void log_error(std::string prefix, Args const&... args) {
-        log_default(Logger::PREFIX_ERROR + "::" + prefix, args...);
+	log_default(Logger::PREFIX_ERROR + "::" + prefix, args...);
     }
 
     static Logger& instance(void) {
-        static Logger logger;
-        return logger;
+	static Logger logger;
+	return logger;
     }
 };
 

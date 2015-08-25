@@ -53,7 +53,6 @@ TFV_Result tfv::SceneTrees::scene_start(TFV_Scene scene_id, TFV_Int module_id) {
         auto tree = *it;
         auto const node_id = tree->root().id();
         return scene_nodes_.exec_one(node_id, [&](Node& node) {
-            std::cout << "Adding " << scene_id << std::endl;
             node.add_to_scene(scene_id);
             tree->add_node_to_scene(scene_id, &node);
             tree->log_scenes();
@@ -71,7 +70,6 @@ TFV_Result tfv::SceneTrees::add_to_scene(TFV_Scene scene_id,
         [&](SceneTree* tree) { return tree->contains_scene(scene_id); });
 
     if (scene_trees_.end() == it) {  // no such scene (or a bug:))
-        std::cout << "Invalid scene" << std::endl;
         return TFV_INVALID_ID;
     }
 

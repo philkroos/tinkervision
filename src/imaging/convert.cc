@@ -227,8 +227,6 @@ void tfv::YV12ToRGBType::convert(tfv::Image const& source,
 
             auto uv_idx = (j >> 1) + row_uv;
 
-            // std::cout << row_y + j << "," << uv_idx << std::endl;
-
             int const y = static_cast<int>(source.data[row_y + j]);
             int const u = static_cast<int>(u_plane[uv_idx]);
             int const v = static_cast<int>(v_plane[uv_idx]);

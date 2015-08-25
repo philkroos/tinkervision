@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef COLORMATCH_H
 #define COLORMATCH_H
 
-#ifdef DEBUG
+#ifdef DEBUG // need to link with libtinkervision_dbg
 #include <iostream>
 #include <opencv2/highgui/highgui.hpp>
 #endif

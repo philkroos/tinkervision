@@ -58,6 +58,6 @@ public:
 };
 }
 
-#endif  // DEV
+#endif  // DEBUG
 
 #endif /* WINDOW_H */

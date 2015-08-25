@@ -40,14 +40,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cameracontrol.hh"
 #include "image.hh"
 #include "scenetrees.hh"
-#include "logger.hh"
 #include "module_loader.hh"
 #include "shared_resource.hh"
 
-#if defined DEV or defined DEBUG_CAM
-#include <iostream>
 #include "window.hh"
-#endif
+#include "logger.hh"
 
 namespace tfv {
 
