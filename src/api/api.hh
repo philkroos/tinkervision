@@ -197,10 +197,16 @@ public:
             return module_loader_.last_error();
         }
 
+        if (not camera_control_.acquire()) {
+            return TFV_CAMERA_ACQUISITION_FAILED;
+        }
+
         if (not modules_.insert(id, module, [this](Module& module) {
                 module_loader_.destroy_module(&module);
             })) {
-            return false;
+
+            camera_control_.release();
+            return TFV_MODULE_INITIALIZATION_FAILED;
         }
 
         module->switch_active(true);
