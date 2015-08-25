@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "api.hh"
 #include "tinkervision.h"
-#include "motiondetect.hh"
 #include "stream.hh"
 #include "record.hh"
 
@@ -96,16 +95,6 @@ TFV_Result module_start(TFV_String name, TFV_Id id) {
 TFV_Result module_stop(TFV_Id id) { return tfv::get_api().module_destroy(id); }
 
 //
-// Motiondetect interface
-//
-
-TFV_Result motiondetect_start(TFV_Id id, TFV_CallbackMotiondetect callback,
-                              TFV_Context context) {
-
-    return tfv::get_api().module_set<tfv::Motiondetect>(id, callback, context);
-}
-
-//
 // Streamer interface
 //
 
@@ -129,6 +118,12 @@ TFV_Result set_value_callback(TFV_Id module, TFV_CallbackValue callback) {
     return tfv::get_api().callback_set(module, callback);
 }
 TFV_Result set_point_callback(TFV_Id module, TFV_CallbackPoint callback) {
+    return tfv::get_api().callback_set(module, callback);
+}
+TFV_Result set_rect_callback(TFV_Id module, TFV_CallbackRectangle callback) {
+    return tfv::get_api().callback_set(module, callback);
+}
+TFV_Result set_string_callback(TFV_Id module, TFV_CallbackString callback) {
     return tfv::get_api().callback_set(module, callback);
 }
 }

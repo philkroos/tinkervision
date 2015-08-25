@@ -22,11 +22,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <opencv2/opencv.hpp>
 
-#include "executable.hh"
+#include "tv_module.hh"
 
 namespace tfv {
 
-struct Motiondetect : public Analysis {
+struct Motiondetect : public TVModule {
 private:
     // see <opencv-source>/modules/video/src/bgfg_gaussmix2.cpp
     int history_{20};      // default constructor: 500
@@ -34,32 +34,30 @@ private:
     bool shadows_{false};  // default constructor: true
     cv::BackgroundSubtractorMOG2 background_subtractor_{history_, threshold_,
                                                         shadows_};
-
     const size_t min_contour_count_{10};  ///< ignoring 'small' motions
     int framecounter_{0};                 ///< ignoring the first frames
 
     bool results_{false};  ///< true if motion detected in last frame
-    cv::Rect rect_;        ///< if results_, rect around detected motion
+
+    RectangleResult rect_around_motion_;
 
 public:
-    TFV_CallbackMotiondetect callback_;
-    TFV_Context context_;
+    Motiondetect(void) : TVModule{"Motiondetect"} {}
 
-    Motiondetect(TFV_Int module_id, Module::Tag tags,
-                 TFV_CallbackMotiondetect callback, TFV_Context context)
-        : Analysis{module_id, "Motiondetect", tags},
-          callback_{callback},
-          context_{context} {}
+    ~Motiondetect(void) override = default;
+    void execute(tfv::Image const& image) override;
 
-    virtual ~Motiondetect(void) = default;
-    virtual void execute(tfv::Image const& image) override;
-
-    virtual ColorSpace expected_format(void) const override {
+    ColorSpace expected_format(void) const override {
         return ColorSpace::BGR888;
     }
 
-    virtual void callback(void) const final override;
-    virtual void apply(tfv::Image& image) const final override;
+    Result const* get_result(void) const override {
+        return &rect_around_motion_;
+    }
 };
+
+
+DECLARE_VISION_MODULE(Motiondetect)
+
 }
 #endif /* MOTIONDETECT_H */

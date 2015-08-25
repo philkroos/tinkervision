@@ -95,12 +95,6 @@ TFV_Result module_start(TFV_String name, TFV_Id feature_id);
 
 TFV_Result module_stop(TFV_Id feature_id);
 
-/* motiondetect */
-
-TFV_Result motiondetect_start(TFV_Id feature_id,
-                              TFV_CallbackMotiondetect callback,
-                              TFV_Context opaque);
-
 /* streamer */
 
 TFV_Result streamer_stream(TFV_Id streamer_id);

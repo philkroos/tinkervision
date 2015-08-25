@@ -91,8 +91,8 @@ public:
     Node* get_child_from_module_id(TFV_Int module_id) {
         auto node = std::find_if(children_.begin(), children_.end(),
                                  [&module_id](Node const* node) {
-            return node->module_id() == module_id;
-        });
+                                     return node->module_id() == module_id;
+                                 });
 
         if (node == children_.end()) {
             return nullptr;

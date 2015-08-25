@@ -59,24 +59,21 @@ int main(int argc, char* argv[]) {
     /* Runtime of program */
     int runtime = 20;
 
+    TFV_Id module_id = 0;
+
     /* Start an idle process in the api to get access to the frame parameters */
     TFV_Result result = start_idle();
 
     if (result) {
-        printf("Starting the idle process failed with %d: %s", result,
+        printf("Starting the idle process failed with %d: %s\n", result,
                result_string(result));
         exit(-1);
     }
 
-    /* Just to verify that only one dummy started (monitor the "Destroying ..."
-       messages on quit). This should give an OK here. */
-    printf("Starting the idle process again: %s\n",
-           result_string(start_idle()));
-
     result = get_resolution(&width, &height);
 
     if (result) {
-        printf("Retrieving the framesize failed with %d: %s", result,
+        printf("Retrieving the framesize failed with %d: %s\n", result,
                result_string(result));
         exit(-1);
     }
@@ -84,7 +81,14 @@ int main(int argc, char* argv[]) {
     image = cvCreateImage(cvSize(width, height), 8, 3);
     cvNamedWindow("Motion", CV_WINDOW_AUTOSIZE);
 
-    result = motiondetect_start(0, tfv_motiondetect_callback, NULL);
+    result = module_start("motiondetect", module_id);
+
+    if (result != TFV_OK) {
+        printf("Error - could not start the motiondetector: %d (%s)\n", result,
+               result_string(result));
+    }
+
+    result = set_rect_callback(module_id, tfv_motiondetect_callback);
 
     if (!result) {
         printf(

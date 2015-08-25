@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "motiondetect.hh"
 
-// member functions
+DEFINE_VISION_MODULE(Motiondetect)
 
 void tfv::Motiondetect::execute(tfv::Image const& image) {
     cv::Mat frame(image.height, image.width, CV_8UC3, image.data);
@@ -48,27 +48,11 @@ void tfv::Motiondetect::execute(tfv::Image const& image) {
                 }
             }
 
-            rect_ = cv::boundingRect(all_points);
+            auto rect = cv::boundingRect(all_points);
+            rect_around_motion_.x = rect.x;
+            rect_around_motion_.y = rect.y;
+            rect_around_motion_.width = rect.width;
+            rect_around_motion_.height = rect.height;
         }
-    }
-}
-
-void tfv::Motiondetect::callback(void) const {
-    assert(false);
-    if (results_) {
-        /*
-            callback_(static_cast<TFV_Id>(module_id_), rect_.tl().x,
-           rect_.tl().y,
-                      rect_.br().x - rect_.tl().x, rect_.br().y - rect_.tl().y,
-                      context_);
-        */
-    }
-}
-
-void tfv::Motiondetect::apply(tfv::Image& image) const {
-    if (results_) {
-        std::cout << "Applying motionrect" << std::endl;
-        cv::Mat frame(image.height, image.width, CV_8UC3, image.data);
-        cv::rectangle(frame, rect_, cv::Scalar(255, 0, 0), 3);
     }
 }
