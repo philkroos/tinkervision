@@ -38,6 +38,8 @@ private:
 public:
     void update(TFV_Id id, TFV_ImageData const* data, int rows, int columns,
                 int format = CV_8UC3) {
+        assert(rows > 0 and columns > 0 and data);
+
         if (windows_.find(id) == windows_.end()) {
             windows_[id] = prefix + std::to_string(id) + " ";
             cv::namedWindow(windows_[id]);
@@ -48,6 +50,8 @@ public:
     }
 
     void update(TFV_Id id, cv::Mat const& image) {
+        assert(image.rows > 0 and image.cols > 0 and image.data);
+
         if (windows_.find(id) == windows_.end()) {
             windows_[id] = prefix + std::to_string(id) + " ";
             cv::namedWindow(windows_[id]);

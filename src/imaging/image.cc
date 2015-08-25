@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "image.hh"
 
 #include <algorithm>  // copy
+#include <cassert>
 
 #include "logger.hh"
 
@@ -31,11 +32,7 @@ tfv::Image& tfv::Image::operator=(tfv::Image const& other) {
     format = other.format;
     if (bytesize) {
         data_ = other.data_;
-        foreign_data_ = other.foreign_data_;
-    }
-
-    if (not foreign_data_) {
-        LogWarning("IMAGE", "Created a flat copy of allocated data");
+        foreign_data_ = true;
     }
 
     return *this;
@@ -69,7 +66,7 @@ void tfv::Image::set(tfv::ImageData* data, size_t bytesize) {
         delete_data();
     }
     this->bytesize = bytesize;
-    this->data_ = data_;
+    data_ = data;
     foreign_data_ = true;
 }
 
@@ -84,7 +81,7 @@ void tfv::Image::init(size_t width, size_t height, size_t bytesize) {
     foreign_data_ = false;
 }
 
-void tfv::Image::copy(tfv::ImageData* data, size_t width, size_t height,
+void tfv::Image::copy(tfv::ImageData const* data, size_t width, size_t height,
                       size_t bytesize) {
     if (this->data_ and bytesize != this->bytesize) {
         delete_data();

@@ -75,10 +75,13 @@ public:
     virtual ~TVModule(void) { Log("EXECUTABLE", "Destructor for ", name_); }
 
     const char* name(void) const { return name_.c_str(); }
-    virtual void execute(tfv::Image const& image) {
+    // virtual void execute(tfv::Image const& image) {
+    virtual void execute(tfv::ImageData const* data, size_t width,
+                         size_t height) {
         LogError("EXECUTABLE", "execute called");
     }
-    virtual void execute_modifying(tfv::Image& image) {
+    virtual void execute_modifying(tfv::ImageData* data, size_t width,
+                                   size_t height) {
         LogError("EXECUTABLE", "execute_modifying called");
     }
 

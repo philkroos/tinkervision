@@ -183,6 +183,7 @@ void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ColorSpace format) {
             image.timestamp != image_.timestamp) {
 
             // conversion and flat copy
+            assert(image_.data_);
             image = (*converter)(image_);
         }
     }
@@ -230,6 +231,7 @@ bool tfv::CameraControl::update_frame(void) {
         } else if (not camera_->get_frame(image_)) {
             return false;
         }
+	assert(image_.data_);
     }
 
     if (not fallback.active) {

@@ -17,42 +17,32 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef GRAYFILTER_H
-#define GRAYFILTER_H
-
-#include <opencv2/opencv.hpp>
-#ifdef DEBUG  // need to link with libtinkervision_dbg
-#include <iostream>
-#include <opencv2/highgui/highgui.hpp>
-#endif
+#ifndef SNAPSHOT_H
+#define SNAPSHOT_H
 
 #include "tv_module.hh"
 
 namespace tfv {
-
-struct Grayfilter : public TVModule {
-private:
-    TFV_Context context;
+class Snapshot : public tfv::TVModule {
 
 public:
-    Grayfilter(void) : TVModule("Grayfilter") {
-#ifdef DEBUG
-        cv::namedWindow("Grayfilter");
-#endif
+    Snapshot(void) : TVModule("Snapshot") {}
+    ~Snapshot(void) override = default;
+
+    void execute(tfv::ImageData const* data, size_t width,
+                 size_t height) override;
+
+    tfv::ColorSpace expected_format(void) const override {
+        return tfv::ColorSpace::YV12;
     }
 
-    ~Grayfilter(void) override = default;
+    tfv::Result const* get_result(void) const;
 
-    void execute_modifying(tfv::ImageData* data, size_t width,
-                           size_t height) override;
-    ColorSpace expected_format(void) const override {
-        return ColorSpace::BGR888;
-    }
-
-    bool modifies_image(void) const override { return true; }
+private:
+    tfv::StringResult filename_;
+    tfv::Image image_{};
 };
 }
-
-DECLARE_VISION_MODULE(Grayfilter)
+DECLARE_VISION_MODULE(Snapshot)
 
 #endif

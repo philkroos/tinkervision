@@ -17,42 +17,34 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef GRAYFILTER_H
-#define GRAYFILTER_H
+#ifndef EXECUTION_CONTEXT_H
+#define EXECUTION_CONTEXT_H
 
-#include <opencv2/opencv.hpp>
-#ifdef DEBUG  // need to link with libtinkervision_dbg
-#include <iostream>
-#include <opencv2/highgui/highgui.hpp>
-#endif
-
-#include "tv_module.hh"
+#include "h264_encoder.hh"
 
 namespace tfv {
 
-struct Grayfilter : public TVModule {
+struct ExecutionContext {
+    H264Encoder encoder;
+    bool quit = false;
+
+    static ExecutionContext& get(void) {
+        if (not ExecutionContext::singleton_) {
+            singleton_ = new ExecutionContext{};
+        }
+        return *ExecutionContext::singleton_;
+    }
+
+    ~ExecutionContext(void) {
+        if (ExecutionContext::singleton_) {
+            delete ExecutionContext::singleton_;
+        }
+    }
+
 private:
-    TFV_Context context;
-
-public:
-    Grayfilter(void) : TVModule("Grayfilter") {
-#ifdef DEBUG
-        cv::namedWindow("Grayfilter");
-#endif
-    }
-
-    ~Grayfilter(void) override = default;
-
-    void execute_modifying(tfv::ImageData* data, size_t width,
-                           size_t height) override;
-    ColorSpace expected_format(void) const override {
-        return ColorSpace::BGR888;
-    }
-
-    bool modifies_image(void) const override { return true; }
+    ExecutionContext(void) = default;
+    static ExecutionContext* singleton_;
 };
 }
-
-DECLARE_VISION_MODULE(Grayfilter)
 
 #endif

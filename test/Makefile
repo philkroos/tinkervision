@@ -1,13 +1,13 @@
 COLORTRACK	:= colormatch
 STREAM		:= stream
-CONVERT	:= convert
-RECORD		:= record
+CONVERT		:= convert
+SNAPSHOT	:= snapshot
 MOTIONDETECT	:= motiondetect
 SCENES		:= scenes
-GENERAL	:= general
+GENERAL		:= general
 
 ALL		:= $(COLORTRACK) $(STREAM) $(CONVERT) \
-		   $(RECORD) $(MOTIONDETECT) \
+		   $(SNAPSHOT) $(MOTIONDETECT) \
 		   $(GENERAL) $(SCENES)
 
 all:

@@ -17,42 +17,45 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef GRAYFILTER_H
-#define GRAYFILTER_H
+#include "snapshot.hh"
 
-#include <opencv2/opencv.hpp>
-#ifdef DEBUG  // need to link with libtinkervision_dbg
 #include <iostream>
-#include <opencv2/highgui/highgui.hpp>
-#endif
+#include <fstream>
 
-#include "tv_module.hh"
+DEFINE_VISION_MODULE(Snapshot)
 
-namespace tfv {
+using namespace tfv;
+void Snapshot::execute(tfv::ImageData const* data, size_t width,
+                       size_t height) {
+    try {
 
-struct Grayfilter : public TVModule {
-private:
-    TFV_Context context;
+        static auto counter = int(0);
+        counter++;
+        filename_.result =
+            std::string{"Snapshot" + std::to_string(counter) + ".yuv"};
 
-public:
-    Grayfilter(void) : TVModule("Grayfilter") {
-#ifdef DEBUG
-        cv::namedWindow("Grayfilter");
-#endif
+        image_.copy(data, width, height, width * height);
+
+    } catch (...) {
+        // ignore
     }
-
-    ~Grayfilter(void) override = default;
-
-    void execute_modifying(tfv::ImageData* data, size_t width,
-                           size_t height) override;
-    ColorSpace expected_format(void) const override {
-        return ColorSpace::BGR888;
-    }
-
-    bool modifies_image(void) const override { return true; }
-};
 }
 
-DECLARE_VISION_MODULE(Grayfilter)
+tfv::Result const* Snapshot::get_result(void) const {
 
-#endif
+    if (not image_.data_) {
+        return nullptr;
+    }
+
+    std::ofstream ofs{filename_.result, std::ios::out | std::ios::binary};
+
+    if (ofs.is_open()) {
+        char const* data = reinterpret_cast<char const*>(image_.data_);
+
+        ofs.write(data, image_.bytesize);
+    }
+
+    ofs.close();
+
+    return &filename_;
+}

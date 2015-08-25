@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef COLORMATCH_H
 #define COLORMATCH_H
 
-#ifdef DEBUG // need to link with libtinkervision_dbg
+#ifdef DEBUG  // need to link with libtinkervision_dbg
 #include <iostream>
 #include <opencv2/highgui/highgui.hpp>
 #endif
@@ -69,7 +69,9 @@ public:
     }
 
     ~Colormatch(void) override = default;
-    void execute(tfv::Image const& image) override;
+    // void execute(tfv::Image const& image) override;
+    void execute(tfv::ImageData const* data, size_t width,
+                 size_t height) override;
     ColorSpace expected_format(void) const override {
         return ColorSpace::BGR888;
     }

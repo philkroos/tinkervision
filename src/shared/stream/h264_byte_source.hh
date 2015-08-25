@@ -17,42 +17,37 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef GRAYFILTER_H
-#define GRAYFILTER_H
+#ifndef H264BYTESOURCE_H
+#define H264BYTESOURCE_H
 
-#include <opencv2/opencv.hpp>
-#ifdef DEBUG  // need to link with libtinkervision_dbg
-#include <iostream>
-#include <opencv2/highgui/highgui.hpp>
-#endif
+#include <queue>
 
-#include "tv_module.hh"
+#include <FramedSource.hh>
+
+#include "execution_context.hh"
+#include "h264_encoder.hh"
 
 namespace tfv {
-
-struct Grayfilter : public TVModule {
-private:
-    TFV_Context context;
-
+class H264ByteSource : public FramedSource {
 public:
-    Grayfilter(void) : TVModule("Grayfilter") {
-#ifdef DEBUG
-        cv::namedWindow("Grayfilter");
-#endif
-    }
+    static H264ByteSource* createNew(UsageEnvironment& env,
+                                     tfv::ExecutionContext& context);
+    static EventTriggerId eventTriggerId;
 
-    ~Grayfilter(void) override = default;
+protected:
+    H264ByteSource(UsageEnvironment& env, tfv::ExecutionContext& context);
+    virtual ~H264ByteSource(void);
 
-    void execute_modifying(tfv::ImageData* data, size_t width,
-                           size_t height) override;
-    ColorSpace expected_format(void) const override {
-        return ColorSpace::BGR888;
-    }
+private:
+    unsigned char* frame_ = nullptr;
 
-    bool modifies_image(void) const override { return true; }
+    virtual void doGetNextFrame();
+    static void deliverFrame0(void* clientData);
+    void deliverFrame();
+    static unsigned referenceCount;
+    std::queue<x264::Nal> nals_;
+    timeval currentTime;
+    ExecutionContext& context_;
 };
 }
-
-DECLARE_VISION_MODULE(Grayfilter)
-
-#endif
+#endif /* H264BYTESOURCE_H */

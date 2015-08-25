@@ -96,11 +96,15 @@ public:
 
     ImageData const* data(void) const { return data_; }
 
+    /**
+     * Set data allocated elsewhere!
+     */
     void set(ImageData* data, size_t bytesize);
 
     void init(size_t width, size_t height, size_t bytesize);
 
-    void copy(ImageData* data, size_t width, size_t height, size_t bytesize);
+    void copy(ImageData const* data, size_t width, size_t height,
+              size_t bytesize);
 
     /**
      * Image is shallow if data was allocated elsewhere.

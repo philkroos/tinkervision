@@ -104,6 +104,12 @@ TFV_Result set_point_callback(TFV_Id module, TFV_CallbackPoint callback);
 TFV_Result set_rect_callback(TFV_Id module, TFV_CallbackRectangle callback);
 TFV_Result set_string_callback(TFV_Id module, TFV_CallbackString callback);
 
+TFV_Result get_value_result(TFV_Id module, TFV_Size* value);
+TFV_Result get_point_result(TFV_Id module, TFV_Size* x, TFV_Size* y);
+TFV_Result get_rect_result(TFV_Id module, TFV_Size* x, TFV_Size* y,
+                           TFV_Size* width, TFV_Size* height);
+TFV_Result get_string_result(TFV_Id module, TFV_String* result);
+
 #ifdef __cplusplus
 }
 #endif

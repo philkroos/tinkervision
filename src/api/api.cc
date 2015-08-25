@@ -118,7 +118,7 @@ void tfv::Api::execute(void) {
 
 #ifdef DEBUG
             static Window w;
-            w.update(0, image_.data(), image_.height, image_.width);
+            w.update(0, image_.data_, image_.height, image_.width);
 #endif
 
             module.exec(image_);

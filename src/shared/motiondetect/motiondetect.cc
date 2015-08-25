@@ -21,8 +21,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 DEFINE_VISION_MODULE(Motiondetect)
 
-void tfv::Motiondetect::execute(tfv::Image const& image) {
-    cv::Mat frame(image.height, image.width, CV_8UC3, image.data);
+void tfv::Motiondetect::execute(tfv::ImageData const* data, size_t width,
+                                size_t height) {
+    cv::Mat frame(height, width, CV_8UC3, const_cast<tfv::ImageData*>(data));
 
     cv::Mat foreground;
 
