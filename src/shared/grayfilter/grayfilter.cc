@@ -26,20 +26,20 @@ void tfv::Grayfilter::execute_modifying(tfv::Image& image) {
 
     const auto rows = image.height;
     const auto columns = image.width;
-    const auto data = image.data;
+    const auto data = image.data_;
 
     cv::Mat cv_image(rows, columns, CV_8UC3, data);
     cv::cvtColor(cv_image, cv_image, CV_BGR2GRAY);
 
     image.bytesize = rows * columns;
     for (size_t i = 0; i < image.bytesize; ++i) {
-        image.data[i] = cv_image.data[i];
+        image.data_[i] = cv_image.data[i];
     }
 
     image.format = ColorSpace::GRAY;
 
 #ifdef DEBUG
-    cv::Mat output(rows, columns, CV_8UC1, image.data);
+    cv::Mat output(rows, columns, CV_8UC1, image.data_);
     cv::imshow("Grayfilter", output);
     cv::waitKey(2);
 #endif

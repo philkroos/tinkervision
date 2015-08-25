@@ -371,8 +371,8 @@ bool tfv::V4L2USBCamera::retrieve_frame(tfv::Image& frame) {
         if (not frame_bytesize_) {
             _retrieve_properties();
         }
-        frame.data = static_cast<TFV_ImageData*>(frames_[buffer_.index].start);
-        frame.bytesize = frame_bytesize_;
+        frame.set(static_cast<TFV_ImageData*>(frames_[buffer_.index].start),
+                  frame_bytesize_);
         frame.width = frame_width_;
         frame.height = frame_height_;
     }

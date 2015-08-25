@@ -61,8 +61,6 @@ void tfv::OpenCvUSBCamera::retrieve_properties(uint16_t& width,
 }
 
 bool tfv::OpenCvUSBCamera::retrieve_frame(tfv::Image& image) {
-    image.data = nullptr;
-    image.bytesize = 0;
 
     auto result = is_open();
     if (result) {
@@ -76,8 +74,7 @@ bool tfv::OpenCvUSBCamera::retrieve_frame(tfv::Image& image) {
             // assert:
             // container_.cols * container_.elemSize() == bytesize
 
-            image.data = container_.data;
-            image.bytesize = frame_bytesize_;
+	    image.set(container_.data, frame_bytesize_);
             image.width = frame_width_;
             image.height = frame_height_;
         }

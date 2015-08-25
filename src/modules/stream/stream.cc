@@ -77,5 +77,5 @@ void tfv::Stream::execute(tfv::Image const& image) {
     }
 
     /// \todo check for constant frame dimensions
-    context_.encoder.add_frame(image.data);
+    context_.encoder.add_frame(image.data_);
 }

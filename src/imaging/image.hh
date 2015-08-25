@@ -20,8 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef IMAGING_H
 #define IMAGING_H
 
-#include <cstddef>
 #include <chrono>  // timestamp
+
+#include "tinkervision_defines.h"
 
 namespace tfv {
 
@@ -67,15 +68,54 @@ enum class ColorSpace : char {
 
 using Clock = std::chrono::steady_clock;
 using Timestamp = Clock::time_point;
-using ImageData = unsigned char;
+using ImageData = TFV_ImageData;
 
-struct Image {
+class Image {
+private:
+    // \todo Make image data private. Needs restructuring of the converters.
+    // ImageData* data = nullptr;
+
+    bool foreign_data_{false};  ///< True if the data was allocated elsewhere.
+
+public:
+    ImageData* data_ = nullptr;
     size_t width = 0;
     size_t height = 0;
     size_t bytesize = 0;
-    ImageData* data = nullptr;
     Timestamp timestamp;
     ColorSpace format = ColorSpace::INVALID;
+
+    Image(void) = default;
+
+    // flat copy assignment!
+    Image& operator=(Image const& other);
+
+    ~Image(void);
+
+    void copy_to(Image& other) const;
+
+    ImageData const* data(void) const { return data_; }
+
+    void set(ImageData* data, size_t bytesize);
+
+    void init(size_t width, size_t height, size_t bytesize);
+
+    void copy(ImageData* data, size_t width, size_t height, size_t bytesize);
+
+    /**
+     * Image is shallow if data was allocated elsewhere.
+     * In that case it has to be deleted elsewhere, too.
+     */
+    bool is_shallow(void) const { return foreign_data_; }
+
+private:
+    // deep copy
+    Image(Image const& other);
+
+    Image(Image&& other);
+    Image& operator=(Image&& other);
+
+    void delete_data(void);
 };
 }
 

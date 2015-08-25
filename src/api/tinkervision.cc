@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "api.hh"
 #include "tinkervision.h"
 #include "stream.hh"
-#include "record.hh"
 
 extern "C" {
 
@@ -103,16 +102,8 @@ TFV_Result streamer_stream(TFV_Id streamer_id) {
 }
 
 //
-// Record interface
+// Callbacks
 //
-
-TFV_Result singleshot(void) {
-    return tfv::get_api().module_once<tfv::Snapshot>();
-}
-
-TFV_Result snapshot(TFV_Id module_id) {
-    return tfv::get_api().module_set<tfv::Snapshot>(module_id);
-}
 
 TFV_Result set_value_callback(TFV_Id module, TFV_CallbackValue callback) {
     return tfv::get_api().callback_set(module, callback);

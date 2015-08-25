@@ -95,6 +95,9 @@ public:
     }
     virtual TFV_Word get(std::string const& parameter) { return 0; }
 
+    /**
+     * If this module is running constantly or only on request.
+     */
     virtual bool running(void) const noexcept { return true; }
 };
 }

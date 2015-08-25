@@ -26,7 +26,7 @@ DEFINE_VISION_MODULE(Colormatch)
 void tfv::Colormatch::execute(tfv::Image const& image) {
     const auto rows = image.height;
     const auto columns = image.width;
-    const auto data = image.data;
+    const auto data = image.data_;
 
     cv::Mat cv_image(rows, columns, CV_8UC3, data);
 #ifdef DEBUG

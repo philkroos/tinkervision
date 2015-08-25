@@ -174,15 +174,9 @@ private:
 
     Converter* get_converter(tfv::ColorSpace from, tfv::ColorSpace to);
 
-    using FallbackImage = struct _ {
+    struct FallbackImage {
         Image image = {};
         bool active = false;
-
-        ~_(void) {
-            if (image.data) {
-                delete[] image.data;
-            }
-        }
     };
 
     FallbackImage fallback;  ///< Set to the last retrieved image on

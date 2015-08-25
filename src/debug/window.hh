@@ -36,13 +36,13 @@ private:
     std::string prefix = "Camera ";
 
 public:
-    void update(TFV_Id id, TFV_ImageData* data, int rows, int columns,
+    void update(TFV_Id id, TFV_ImageData const* data, int rows, int columns,
                 int format = CV_8UC3) {
         if (windows_.find(id) == windows_.end()) {
             windows_[id] = prefix + std::to_string(id) + " ";
             cv::namedWindow(windows_[id]);
         }
-        cv::Mat frame(rows, columns, format, data);
+        cv::Mat frame(rows, columns, format, const_cast<TFV_ImageData*>(data));
         cv::imshow(windows_[id], frame);
         cv::waitKey(100);  // skip time to give window-update thread a chance
     }

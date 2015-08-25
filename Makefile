@@ -3,8 +3,8 @@ CCFLAGS_DEBUG	:= -Wall -Werror -g -O0 -std=c++11 -fPIC -DDEBUG
 CCFLAGS		:= -Wall -Werror -O3 -std=c++11 -fPIC
 
 # structure
-MODULES         := stream record
-PARTS		:= api imaging modules debug interface \
+MODULES         := stream
+PARTS		:= api imaging debug modules interface \
 		   $(addprefix modules/,$(MODULES))
 BUILD_PREFIX	:= build
 BUILD_DIR	:= $(addprefix $(BUILD_PREFIX)/,$(PARTS))
@@ -89,9 +89,9 @@ doc:
 prefix		:= /usr/local
 EXP_HEADER	:= src/api/tinkervision.h \
 		   src/api/tinkervision_defines.h \
-                   src/interface/tv_module.hh
+                   src/interface/tv_module.hh \
+                   src/imaging/image.hh
 EXP_HEADER_DBG	:= $(EXP_HEADER) \
-                   src/imaging/image.hh \
 		   src/debug/logger.hh
 
 install: $(LIB_REL)

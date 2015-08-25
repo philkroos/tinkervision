@@ -108,11 +108,11 @@ protected:
                        size_t& target_bytesize) const override final;
 
     void convert_yuyv(Image const& source, Image& target) const {
-        convert_any(source, target, source.data + 1, source.data + 3);
+        convert_any(source, target, source.data_ + 1, source.data_ + 3);
     }
 
     void convert_yvyu(Image const& source, Image& target) const {
-        convert_any(source, target, source.data + 3, source.data + 1);
+        convert_any(source, target, source.data_ + 3, source.data_ + 1);
     }
 
     // output is in order y-block, v-block, u-block

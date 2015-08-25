@@ -149,9 +149,9 @@ tfv::Converter* tfv::CameraControl::get_converter(tfv::ColorSpace from,
     auto it = std::find_if(provided_formats_.begin(), provided_formats_.end(),
                            [&](Converter const& converter) {
 
-        return (converter.source_format() == from) and
-               (converter.target_format() == to);
-    });
+                               return (converter.source_format() == from) and
+                                      (converter.target_format() == to);
+                           });
 
     if (it == provided_formats_.end()) {
         provided_formats_.emplace_back(from, to);
@@ -182,7 +182,7 @@ void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ColorSpace format) {
         if (image.format == tfv::ColorSpace::INVALID or
             image.timestamp != image_.timestamp) {
 
-            // conversion
+            // conversion and flat copy
             image = (*converter)(image_);
         }
     }
@@ -222,6 +222,7 @@ bool tfv::CameraControl::update_frame(void) {
             if (fallback.active) {
                 Log("CAMERACONTROL", "Fallback image");
                 image_ = fallback.image;
+
             } else {
                 return false;
             }
@@ -279,22 +280,13 @@ void tfv::CameraControl::_close_device() {
 
     if (camera_) {
 
-        if (fallback.image.data) {
-            delete[] fallback.image.data;
-        }
-
         Image temp;
         fallback.active = camera_->get_frame(temp);
 
         if (fallback.active) {  // image retrieved
 
-            // copies the image properties
-            fallback.image = temp;
-
-            // create a deep copy of the data
-            fallback.image.data = new TFV_ImageData[fallback.image.bytesize];
-            std::copy_n(temp.data, fallback.image.bytesize,
-                        fallback.image.data);
+            // deep copies the image
+            temp.copy_to(fallback.image);
         }
         camera_->stop();
 
