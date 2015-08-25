@@ -24,15 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 tfv::Image const& tfv::Convert::operator()(tfv::Image const& source) {
     size_t width, height, bytesize;
     target_format(source, width, height, bytesize);
-    if (not target or bytesize != target->bytesize) {
-        target->init(width, height, bytesize);
+    if (not target.data_ or bytesize != target.bytesize) {
+        target.init(width, height, bytesize);
     }
 
-    convert(source, *target);
-    target->timestamp = source.timestamp;
-    target->format = target_format_;
+    convert(source, target);
+    target.timestamp = source.timestamp;
+    target.format = target_format_;
 
-    return *target;
+    return target;
 }
 
 void tfv::Convert::operator()(tfv::Image const& source, tfv::Image& target) {
@@ -432,9 +432,9 @@ tfv::Converter::Converter(tfv::ColorSpace source, tfv::ColorSpace target) {
     auto it = std::find_if(conversions_.begin(), conversions_.end(),
                            [&source, &target](Conversion const& conversion) {
 
-        return (std::get<0>(conversion) == source) and
-               (std::get<1>(conversion) == target);
-    });
+                               return (std::get<0>(conversion) == source) and
+                                      (std::get<1>(conversion) == target);
+                           });
 
     if (it != conversions_.end()) {
         auto maker = std::get<2>(*it);

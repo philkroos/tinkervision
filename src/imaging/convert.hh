@@ -62,11 +62,7 @@ class Converter;
  */
 struct Convert {
     Convert(ColorSpace source, ColorSpace target);
-    virtual ~Convert(void) {
-        if (target) {
-            delete target;
-        }
-    }
+    virtual ~Convert(void) = default;
 
     Convert(Convert const&) = delete;
     Convert(Convert const&&) = delete;
@@ -84,7 +80,7 @@ protected:
 
 private:
     friend class Converter;
-    Image* target{nullptr};
+    Image target;
 
     ColorSpace const source_format_;
     ColorSpace const target_format_;
@@ -439,8 +435,8 @@ public:
     void operator()(Image const& source, Image& target) const;
 
     Image const& result(void) const {
-        return (converter_ and converter_->target) ? *(converter_->target)
-                                                   : invalid_image_;
+        return (converter_ and converter_->target.data_) ? converter_->target
+                                                         : invalid_image_;
     }
 
     ColorSpace target_format(void) const {
