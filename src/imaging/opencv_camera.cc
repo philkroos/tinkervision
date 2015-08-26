@@ -74,7 +74,7 @@ bool tfv::OpenCvUSBCamera::retrieve_frame(tfv::Image& image) {
             // assert:
             // container_.cols * container_.elemSize() == bytesize
 
-	    image.set(container_.data, frame_bytesize_);
+            image.set(container_.data, frame_bytesize_);
             image.width = frame_width_;
             image.height = frame_height_;
         }

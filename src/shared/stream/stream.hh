@@ -20,13 +20,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef STREAM_H
 #define STREAM_H
 
+#include "tv_module.hh"
+
 #include <future>  // async
 
 #include <liveMedia.hh>
 #include <BasicUsageEnvironment.hh>
 #include <GroupsockHelper.hh>
-
-#include "executable.hh"
 
 #include "execution_context.hh"
 #include "h264_media_session.hh"
@@ -34,15 +34,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
-struct Stream : public Output {
+struct Stream : public TVModule {
 
-    Stream(TFV_Int module_id, Module::Tag tags);
+    Stream(void);
 
-    virtual ~Stream(void);
+    ~Stream(void) override;
 
-    virtual void execute(tfv::Image const& image);
+    void execute(tfv::ImageData const* data, size_t width,
+                 size_t height) override;
 
-    virtual ColorSpace expected_format(void) const { return ColorSpace::YV12; }
+    ColorSpace expected_format(void) const override { return ColorSpace::YV12; }
 
 private:
     TaskScheduler* task_scheduler_ = nullptr;
@@ -60,10 +61,10 @@ private:
     using AsyncTask = std::future<void>;
     AsyncTask streamer_;
 
-    char killswitch_ =
-        0;  ///< signal for the streamer library to stop the event loop
+    char killswitch_ = 0;  ///< signal live555 to stop the event loop
 };
-
 }
+
+DECLARE_VISION_MODULE(Stream)
 
 #endif /* STREAM_H */

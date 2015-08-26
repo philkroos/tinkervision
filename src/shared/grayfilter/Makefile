@@ -2,7 +2,7 @@ CC		:= g++
 CCFLAGS		:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
 
 INC		:= -I/usr/local/include `pkg-config --cflags opencv`
-LDFLAGS		:= `pkg-config --libs opencv`
+LDFLAGS	:= `pkg-config --libs opencv`
 
 SO		:= grayfilter.so
 OBJ		:= grayfilter.o

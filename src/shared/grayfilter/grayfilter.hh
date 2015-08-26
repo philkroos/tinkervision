@@ -45,6 +45,7 @@ public:
 
     void execute_modifying(tfv::ImageData* data, size_t width,
                            size_t height) override;
+
     ColorSpace expected_format(void) const override {
         return ColorSpace::BGR888;
     }

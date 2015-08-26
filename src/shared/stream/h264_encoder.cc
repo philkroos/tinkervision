@@ -84,10 +84,11 @@ void tfv::H264Encoder::initialize(std::size_t framewidth,
     initialized_ = true;
 }
 
-void tfv::H264Encoder::add_frame(TFV_ImageData* data) {
+void tfv::H264Encoder::add_frame(TFV_ImageData const* image_data) {
     x264::Nal* nals{};
     auto nal_count = int{0};
 
+    auto data = const_cast<uint8_t*>(image_data);
     picture_.img.plane[0] = data;                                    // y
     picture_.img.plane[2] = data + framesize_;                       // v
     picture_.img.plane[1] = picture_.img.plane[2] + framesize_ / 4;  // u

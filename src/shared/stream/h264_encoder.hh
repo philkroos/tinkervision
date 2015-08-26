@@ -50,7 +50,7 @@ public:
     /**
      * Add a frame to be encoded.
      */
-    void add_frame(TFV_ImageData* data);
+    void add_frame(TFV_ImageData const* data);
 
     /**
      * Push all encoded nal-unites into output and clear the

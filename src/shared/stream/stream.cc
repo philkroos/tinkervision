@@ -17,11 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#include "stream.hh"
+
 #include <chrono>
 
-#include "stream.hh"
 #include "exceptions.hh"
 
+DEFINE_VISION_MODULE(Stream)
 
 tfv::Stream::~Stream(void) {
     killswitch_ = 1;
@@ -33,8 +35,7 @@ tfv::Stream::~Stream(void) {
     streamer_.get();
 }
 
-tfv::Stream::Stream(TFV_Int module_id, Module::Tag tags)
-    : Output(module_id, "Stream", tags), context_(ExecutionContext::get()) {
+tfv::Stream::Stream() : TVModule("Stream"), context_(ExecutionContext::get()) {
 
     task_scheduler_ = BasicTaskScheduler::createNew();
 
@@ -51,10 +52,11 @@ tfv::Stream::Stream(TFV_Int module_id, Module::Tag tags)
                                              streamname_, streamtypename_);
 }
 
-void tfv::Stream::execute(tfv::Image const& image) {
+void tfv::Stream::execute(tfv::ImageData const* data, size_t width,
+                          size_t height) {
     if (not subsession_) {
 
-        context_.encoder.initialize(image.width, image.height, 10);  // FPS!
+        context_.encoder.initialize(width, height, 10);  // FPS!
 
         subsession_ =
             tfv::H264MediaSession::createNew(*usage_environment_, context_);
@@ -77,5 +79,5 @@ void tfv::Stream::execute(tfv::Image const& image) {
     }
 
     /// \todo check for constant frame dimensions
-    context_.encoder.add_frame(image.data_);
+    context_.encoder.add_frame(data);
 }

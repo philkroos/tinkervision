@@ -35,6 +35,7 @@ def apt_get(package_name, clean = False, dry_run = False):
         print "Failed to install " + package_name + ":", \
               "Can't lock the the package cache"
 
+
 # install header and dynamic libraries for the live555 video stremer
 def live(address, clean, dry_run):
     dirs = ['BasicUsageEnvironment', 'UsageEnvironment', 'groupsock', 'liveMedia']
@@ -68,9 +69,6 @@ def live(address, clean, dry_run):
         execute('sudo make install', '/tmp/live555/' + dir, dry_run)
 
 
-
-
-
 if __name__ == '__main__':
 
     if os.geteuid() != 0:
@@ -88,8 +86,9 @@ if __name__ == '__main__':
     requirements = {
         'libv4l-dev' : apt_get,
         'libopencv-dev' : apt_get,
-        'libx264-dev' : apt_get,
-        'https://github.com/hackeron/live555.git' : live
+        # These live now in shared/stream:
+#        'libx264-dev' : apt_get,
+#        'https://github.com/hackeron/live555.git' : live
     }
 
     for req in requirements:
