@@ -1,7 +1,7 @@
 CC	:= g++
 CCFLAGS := -Wall -Werror -g -O0 -ansi -pedantic -std=c++11 -D_POSIX_C_SOURCE=199309L
 
-INC	:= -I../ -I../../src/imaging `pkg-config --cflags opencv`
+INC	:= -I../ -I../../lib/imaging `pkg-config --cflags opencv`
 LDFLAGS := -g -Wall -ltinkervision -lstdc++ `pkg-config --libs opencv`
 
 OBJ	:= tfv_convert.o
