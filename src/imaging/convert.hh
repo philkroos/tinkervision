@@ -41,7 +41,7 @@ private:
     In const max_{static_cast<In>(std::numeric_limits<Out>::max())};
 
 public:
-    Out constexpr operator()(In const& value) {
+    Out constexpr operator()(In const& value) const {
         return static_cast<Out>(
             std::round((value < min_) ? min_ : (value > max_) ? max_ : value));
     }
