@@ -39,7 +39,12 @@ auto
 *.h264
 
 # On-device-testing-temporaries
-test/red-brick/python-bindings-generator/python/unzipped/
+src/test/red-brick/python-bindings-generator/python/unzipped/
+
+# Testing binaries
+src/test/*/*
+!src/test/*/*.c
+!src/test/*/*.py
 
 # Documentation
 doc
