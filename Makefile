@@ -11,9 +11,12 @@ SRC_DIR		:= $(addprefix $(SRC_PREFIX)/,$(PARTS))
 TEST_DIR	:= test
 
 #LIBS_OPENCV	:= `pkg-config --libs opencv`
-LIBS_OPENCV	:= /usr/local/lib/libopencv_highgui.so /usr/local/lib/libopencv_imgproc.so /usr/local/lib/libopencv_video.so -lrt -lpthread -lm -ldl
+LIBS_OPENCV	:= /usr/local/lib/libopencv_highgui.so \
+		   /usr/local/lib/libopencv_imgproc.so \
+                   /usr/local/lib/libopencv_video.so \
+                   -lrt -lpthread -lm -ldl
 LIBS_SYSTEM	:= -lstdc++ -lv4l2 -lm
-LDFLAGS	:= $(LIBS_SYSTEM) $(LIBS_OPENCV)
+LDFLAGS	:= $(LIBS_SYSTEM) $(LIBS_OPENCV) -rdynamic
 
 # Header
 #OCV_INC	:= `pkg-config --cflags opencv`
@@ -83,6 +86,7 @@ prefix		:= /usr/local
 EXP_HEADER	:= src/api/tinkervision.h \
 		   src/api/tinkervision_defines.h \
                    src/interface/tv_module.hh \
+		   src/api/exceptions.hh \
                    src/imaging/image.hh
 EXP_HEADER_DBG	:= $(EXP_HEADER) \
 		   src/debug/logger.hh

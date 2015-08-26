@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <sys/stat.h>  // stat, for _device_exists()
 
 #include "module_loader.hh"
+#include "exceptions.hh"
 #include "logger.hh"
 
 TFV_Result tfv::ModuleLoader::last_error(void) {
@@ -75,8 +76,14 @@ bool tfv::ModuleLoader::_load_module_from_library(
         }
     }
 
-    *target =
-        new Module(ConstructorFunction(dlsym(handle, "create"))(), id, tags);
+    try {
+        *target = new Module(ConstructorFunction(dlsym(handle, "create"))(), id,
+                             tags);
+
+    } catch (Exception& ce) {
+        LogError("MODULE_LOADER", ce.what());
+        return false;
+    }
 
     Log("MODULE_LOADER", "Loaded ", libname, " from ", library_root);
     handles_[*target] = {libname, handle};

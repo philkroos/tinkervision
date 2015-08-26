@@ -33,6 +33,7 @@ protected:
         : message_{"tfv::Exception in class " + classname + ": " + error} {}
 
 public:
+    virtual ~Exception(void) = default;
     virtual const char* what(void) const noexcept { return message_.c_str(); }
 };
 
@@ -40,6 +41,8 @@ struct ConstructionException : public Exception {
 public:
     ConstructionException(std::string classname, std::string error)
         : Exception(classname, "During construction: " + error) {}
+
+    ~ConstructionException(void) override = default;
 };
 }
 #endif /* EXCEPTIONS_H */
