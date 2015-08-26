@@ -1,41 +1,34 @@
 CC		:= g++
 CCFLAGS_DEBUG	:= -Wall -Werror -g -O0 -std=c++11 -fPIC -DDEBUG
-CCFLAGS		:= -Wall -Werror -O3 -std=c++11 -fPIC
+CCFLAGS	:= -Wall -Werror -O3 -std=c++11 -fPIC
 
 # structure
-MODULES         := stream
-PARTS		:= api imaging debug modules interface \
-		   $(addprefix modules/,$(MODULES))
+PARTS		:= api imaging debug modules interface
 BUILD_PREFIX	:= build
 BUILD_DIR	:= $(addprefix $(BUILD_PREFIX)/,$(PARTS))
 SRC_PREFIX	:= src
 SRC_DIR		:= $(addprefix $(SRC_PREFIX)/,$(PARTS))
 TEST_DIR	:= test
 
-# LIVE555 streamer
-LIVE_MODULES	:= BasicUsageEnvironment UsageEnvironment groupsock liveMedia
-
-# Libraries
-LIBS_LIVE       := $(addprefix -l,$(LIVE_MODULES))
-LIBS_X264	:= -lx264
-LIBS_OPENCV	:= `pkg-config --libs opencv`
+#LIBS_OPENCV	:= `pkg-config --libs opencv`
+LIBS_OPENCV	:= /usr/local/lib/libopencv_highgui.so /usr/local/lib/libopencv_imgproc.so /usr/local/lib/libopencv_video.so -lrt -lpthread -lm -ldl
 LIBS_SYSTEM	:= -lstdc++ -lv4l2 -lm
-LDFLAGS		:= $(LIBS_SYSTEM) $(LIBS_OPENCV) $(LIBS_X264) $(LIBS_LIVE)
+LDFLAGS	:= $(LIBS_SYSTEM) $(LIBS_OPENCV)
 
 # Header
-OCV_INC		:= `pkg-config --cflags opencv`
-LIVE_INC	:= $(addprefix -I/usr/include/,$(LIVE_MODULES))
-INC             := $(addprefix -I./src/,$(PARTS)) $(OCV_INC) $(LIVE_INC)
+#OCV_INC	:= `pkg-config --cflags opencv`
+OCV_INC	:= -I/usr/local/include/opencv -I/usr/local/include
+INC             := $(addprefix -I./src/,$(PARTS)) $(OCV_INC)
 
 # files
 SRC		:= $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cc))
 OBJ		:= $(patsubst src/%.cc,build/%.o,$(SRC))
-OBJ_DBG		:= $(patsubst src/%.cc,build/%_dbg.o,$(SRC))
+OBJ_DBG	:= $(patsubst src/%.cc,build/%_dbg.o,$(SRC))
 
 
 # binary targets
-LIB_REL		:= build/libtinkervision.so
-LIB_DBG		:= build/libtinkervision_dbg.so
+LIB_REL	:= build/libtinkervision.so
+LIB_DBG	:= build/libtinkervision_dbg.so
 
 all: directories release debug
 release: directories lib
