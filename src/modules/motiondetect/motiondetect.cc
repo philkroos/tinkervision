@@ -22,8 +22,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 DEFINE_VISION_MODULE(Motiondetect)
 
 void tfv::Motiondetect::execute(tfv::Image const& image) {
-    cv::Mat frame(image.height, image.width, CV_8UC3);
-    std::copy_n(image.data, image.bytesize, frame.data);
+
+    // Not modifying the image data in this method, so a cast is fine.
+    // Thereby the original data can be used to initialize
+    // the OpenCV image and no copy is necessary.
+    cv::Mat frame(image.height, image.width, CV_8UC3,
+                  static_cast<void*>(image.data));
+    // std::copy_n(image.data, image.bytesize, frame.data);
 
     cv::Mat foreground;
 
