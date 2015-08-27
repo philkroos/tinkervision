@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#ifndef WITH_OPENCV_CAM
+
 #include <cstring>  // memset
 
 // cam access
@@ -452,3 +454,5 @@ int tfv::V4L2USBCamera::_capture_frame_byte_size(void) {
 
     return format.fmt.pix.bytesperline * format.fmt.pix.height;
 }
+
+#endif

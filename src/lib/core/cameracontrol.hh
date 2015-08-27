@@ -24,10 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string>
 #include <mutex>
 
-#include "opencv_camera.hh"
-#include "v4l2_camera.hh"
 #include "image.hh"
 #include "convert.hh"
+#include "camera.hh"
 
 namespace tfv {
 

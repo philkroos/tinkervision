@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef V4L2_CAMERA_H
 #define V4L2_CAMERA_H
 
+#ifndef WITH_OPENCV_CAM
+
 #include <array>
 
 #include <fcntl.h>
@@ -216,4 +218,6 @@ private:
     }
 };
 }
+#endif
+
 #endif

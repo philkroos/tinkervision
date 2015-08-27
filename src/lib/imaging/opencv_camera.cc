@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#ifdef WITH_OPENCV_CAM
+
 #include "opencv_camera.hh"
 
 tfv::OpenCvUSBCamera::OpenCvUSBCamera(TFV_Id camera_id) : Camera(camera_id) {}
@@ -88,3 +90,5 @@ void tfv::OpenCvUSBCamera::_retrieve_properties(void) {
         frame_bytesize_ = frame_width_ * frame_height_ * 3;  // RGB
     }
 }
+
+#endif

@@ -23,6 +23,11 @@
 
 #include "cameracontrol.hh"
 #include "logger.hh"
+#ifdef WITH_OPENCV_CAM
+#include "opencv_camera.hh"
+#else
+#include "v4l2_camera.hh"
+#endif
 
 tfv::CameraControl::~CameraControl(void) { release_all(); }
 
@@ -254,9 +259,13 @@ bool tfv::CameraControl::_open_device(void) {
     for (; i >= 0; --i) {
         if (_device_exists(i)) {
 
-            Log("CAMERACONTROL", "Opening camera device ", i);
+#ifdef WITH_OPENCV_CAM
+            Log("CAMERACONTROL", "Opening OpenCV camera device ", i);
+            camera_ = new OpenCvUSBCamera(i);
+#else
+            Log("CAMERACONTROL", "Opening V4L2 camera device ", i);
             camera_ = new V4L2USBCamera(i, requested_width_, requested_height_);
-            // camera_ = new OpenCvUSBCamera(i);
+#endif
 
             if (camera_->open()) {
                 fallback_.active = false;
