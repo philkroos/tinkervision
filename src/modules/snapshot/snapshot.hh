@@ -29,8 +29,7 @@ public:
     Snapshot(void) : TVModule("Snapshot") {}
     ~Snapshot(void) override = default;
 
-    void execute(tfv::ImageData const* data, size_t width,
-                 size_t height) override;
+    void execute(tfv::Image const& image) override;
 
     tfv::ColorSpace expected_format(void) const override {
         return tfv::ColorSpace::YV12;

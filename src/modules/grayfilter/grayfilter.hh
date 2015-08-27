@@ -43,8 +43,7 @@ public:
 
     ~Grayfilter(void) override = default;
 
-    void execute_modifying(tfv::ImageData* data, size_t width,
-                           size_t height) override;
+    void execute_modifying(tfv::Image& image) override;
 
     ColorSpace expected_format(void) const override {
         return ColorSpace::BGR888;

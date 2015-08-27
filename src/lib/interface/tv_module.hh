@@ -76,12 +76,10 @@ public:
 
     const char* name(void) const { return name_.c_str(); }
     // virtual void execute(tfv::Image const& image) {
-    virtual void execute(tfv::ImageData const* data, size_t width,
-                         size_t height) {
+    virtual void execute(tfv::Image const& image) {
         LogError("EXECUTABLE", "execute called");
     }
-    virtual void execute_modifying(tfv::ImageData* data, size_t width,
-                                   size_t height) {
+    virtual void execute_modifying(tfv::Image& image) {
         LogError("EXECUTABLE", "execute_modifying called");
     }
 

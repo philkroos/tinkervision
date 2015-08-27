@@ -69,9 +69,8 @@ public:
     }
 
     ~Colormatch(void) override = default;
-    // void execute(tfv::Image const& image) override;
-    void execute(tfv::ImageData const* data, size_t width,
-                 size_t height) override;
+
+    void execute(tfv::Image const& image) override;
     ColorSpace expected_format(void) const override {
         return ColorSpace::BGR888;
     }

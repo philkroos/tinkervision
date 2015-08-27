@@ -26,8 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 DEFINE_VISION_MODULE(Snapshot)
 
 using namespace tfv;
-void Snapshot::execute(tfv::ImageData const* data, size_t width,
-                       size_t height) {
+void Snapshot::execute(tfv::Image const& image) {
     try {
 
         static auto counter = int(0);
@@ -35,10 +34,8 @@ void Snapshot::execute(tfv::ImageData const* data, size_t width,
         filename_.result =
             std::string{"Snapshot" + std::to_string(counter) + ".yuv"};
 
-        image_.width = width;
-        image_.height = height;
-        image_.bytesize = width * height;
-        std::copy_n(data, width * height, image_.data);
+        image_ = image;
+        std::copy_n(image.data, image.bytesize, image_.data);
 
     } catch (...) {
         // ignore

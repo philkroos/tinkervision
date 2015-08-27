@@ -63,10 +63,10 @@ void tfv::StringCallback::operator()(tfv::Result const* result) {
 };
 
 void tfv::Module::execute(tfv::Image const& image) {
-    tv_module_->execute(image.data, image.width, image.height);
+    tv_module_->execute(image);
 }
 void tfv::Module::execute_modifying(tfv::Image& image) {
-    tv_module_->execute_modifying(image.data, image.width, image.height);
+    tv_module_->execute_modifying(image);
 }
 bool tfv::Module::modifies_image(void) const {
     return tv_module_->modifies_image();

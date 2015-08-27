@@ -52,11 +52,10 @@ tfv::Stream::Stream() : TVModule("Stream"), context_(ExecutionContext::get()) {
                                              streamname_, streamtypename_);
 }
 
-void tfv::Stream::execute(tfv::ImageData const* data, size_t width,
-                          size_t height) {
+void tfv::Stream::execute(tfv::Image const& image) {
     if (not subsession_) {
 
-        context_.encoder.initialize(width, height, 10);  // FPS!
+        context_.encoder.initialize(image.width, image.height, 10);  // FPS!
 
         subsession_ =
             tfv::H264MediaSession::createNew(*usage_environment_, context_);
@@ -79,5 +78,5 @@ void tfv::Stream::execute(tfv::ImageData const* data, size_t width,
     }
 
     /// \todo check for constant frame dimensions
-    context_.encoder.add_frame(data);
+    context_.encoder.add_frame(image.data);
 }

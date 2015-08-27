@@ -40,8 +40,7 @@ struct Stream : public TVModule {
 
     ~Stream(void) override;
 
-    void execute(tfv::ImageData const* data, size_t width,
-                 size_t height) override;
+    void execute(tfv::Image const& image) override;
 
     ColorSpace expected_format(void) const override { return ColorSpace::YV12; }
 
