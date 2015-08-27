@@ -24,18 +24,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tinkervision.h"
 
 int main(int argc, char* argv[]) {
-    TFV_Id id = 20;
-    TFV_String* fname = NULL;
+    TFV_Id id = 0;
+    TFV_CharArray fname;
+    TFV_Size width, height;
 
     TFV_Result result = module_start("snapshot", id);
     printf("Load module snapshot: result %d: %s\n", result,
            result_string(result));
 
-    sleep(2);
+    result = get_resolution(&width, &height);
+    printf("Framesize is %dx%d\n", width, height);
+
+    /* Wait for a moment to have the Snapshot module executed at least once */
+    sleep(1);
 
     result = get_string_result(id, fname);
-    printf("Tried to take a snapshot: %d (%s)\n", result,
-           result_string(result));
+    printf("Snapshot result: %d (%s)\n", result, result_string(result));
+    if (result == TFV_OK) {
+        printf("Snapshot is %s\n", fname);
+    }
+
+    /*
+     Check image on http://rawpixels.net/ Settings:
+     - Predefined format: YUV420p
+     - Pixel format: YVU
+     - Deselect 'Alpha first'
+     - width/height: see output
+     - Pixel Plane: Planar
+    */
 
     return 0;
 }
