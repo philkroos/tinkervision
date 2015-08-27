@@ -45,8 +45,13 @@ vpath %.cc $(src_dir)
 
 # generates targets, called at below
 define make-goal
+ifdef DEBUG
+$1/%_dbg.o: %.cc
+	$(cc) $(ccflags) -c $$< -o $$@ $(inc)
+else
 $1/%.o: %.cc
 	$(cc) $(ccflags) -c $$< -o $$@ $(inc)
+endif
 endef
 
 # setup directory structure
