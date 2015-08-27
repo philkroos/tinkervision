@@ -27,7 +27,7 @@ class Snapshot : public tfv::TVModule {
 
 public:
     Snapshot(void) : TVModule("Snapshot") {}
-    ~Snapshot(void) override = default;
+    ~Snapshot(void) override;
 
     void execute(tfv::Image const& image) override;
 

@@ -1,8 +1,8 @@
 CC		:= g++
-CCFLAGS		:= -Wall -Werror -O3 -std=c++11 -shared -fPIC
+CCFLAGS	:= -Wall -Werror -O0 -g -std=c++11 -shared -fPIC
 
-INC		:= -I/usr/local/include `pkg-config --cflags opencv`
-LDFLAGS		:= `pkg-config --libs opencv`
+INC		:= -I/usr/local/include
+LDFLAGS	:=
 
 SO		:= snapshot.so
 OBJ		:= snapshot.o
