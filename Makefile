@@ -15,11 +15,11 @@ src_dir	:= $(addprefix $(src_prefix)/,$(parts))
 
 libs		:= -lstdc++ -lv4l2 -lm
 inc		:= $(addprefix -I./$(src_prefix)/,$(parts)) $(OCV_inc)
-ifdef WITH_OPENCV_CAM
+ifneq ($(or $(WITH_OPENCV_CAM),$(DEBUG)),)
 	libs	+= /usr/local/lib/libopencv_highgui.so \
 		   /usr/local/lib/libopencv_imgproc.so \
 		   /usr/local/lib/libopencv_video.so \
-		   -lrt -lpthread -lm -ldl
+		   -lrt -lpthread -ldl
 	inc	+= -I/usr/local/include/opencv -I/usr/local/include
 endif
 
