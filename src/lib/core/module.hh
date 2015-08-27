@@ -48,7 +48,7 @@ struct Callback {
 };
 
 struct PointCallback : public Callback {
-    virtual ~PointCallback(void) = default;
+    ~PointCallback(void) override final = default;
 
     TFV_CallbackPoint cb;
     PointCallback(TFV_Int id, TFV_CallbackPoint cb) : Callback(id), cb(cb) {}
@@ -56,7 +56,7 @@ struct PointCallback : public Callback {
 };
 
 struct ValueCallback : public Callback {
-    virtual ~ValueCallback(void) = default;
+    ~ValueCallback(void) override final = default;
 
     TFV_CallbackValue cb;
     ValueCallback(TFV_Int id, TFV_CallbackValue cb) : Callback(id), cb(cb) {}
@@ -64,7 +64,7 @@ struct ValueCallback : public Callback {
 };
 
 struct RectangleCallback : public Callback {
-    virtual ~RectangleCallback(void) = default;
+    ~RectangleCallback(void) override final = default;
 
     TFV_CallbackRectangle cb;
     RectangleCallback(TFV_Int id, TFV_CallbackRectangle cb)
@@ -73,7 +73,7 @@ struct RectangleCallback : public Callback {
 };
 
 struct StringCallback : public Callback {
-    virtual ~StringCallback(void) = default;
+    ~StringCallback(void) override final = default;
 
     TFV_CallbackString cb;
     StringCallback(TFV_Int id, TFV_CallbackString cb) : Callback(id), cb(cb) {}
@@ -160,7 +160,7 @@ public:
         assert(tv_module_ != nullptr);
     }
 
-    virtual ~Module(void) { Log("MODULE::Destructor", name()); }
+    ~Module(void) { Log("MODULE::Destructor", name()); }
 
     // No copy allowed
     Module(Module const& other) = delete;
@@ -180,9 +180,9 @@ public:
         return true;
     }
 
-    virtual void execute(tfv::Image const& image);
-    virtual void execute_modifying(tfv::Image& image);
-    virtual bool modifies_image(void) const;
+    void execute(tfv::Image const& image);
+    void execute_modifying(tfv::Image& image);
+    bool modifies_image(void) const;
 
     TFV_Int id(void) const { return module_id_; }
     std::string name(void) const;
@@ -217,13 +217,13 @@ public:
             (*cb_.cb)(get_result());
         }
     }
-    virtual ColorSpace expected_format(void) const;
+    ColorSpace expected_format(void) const;
 
-    virtual bool has_parameter(std::string const& parameter) const;
+    bool has_parameter(std::string const& parameter) const;
 
-    virtual bool set(std::string const& parameter, TFV_Word value);
+    bool set(std::string const& parameter, TFV_Word value);
 
-    virtual TFV_Word get(std::string const& parameter);
+    TFV_Word get(std::string const& parameter);
 
     bool set_parameter(std::string const& parameter, TFV_Word value) {
         return set(parameter, value);
@@ -233,7 +233,7 @@ public:
         value = get(parameter);
     }
 
-    virtual Result const* get_result(void) const;
+    Result const* get_result(void) const;
 
     Tag const& tags(void) const { return tags_; }
     void tag(Tag tags) { tags_ |= tags; }
