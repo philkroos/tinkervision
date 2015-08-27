@@ -118,12 +118,13 @@ void tfv::Api::execute(void) {
 
 #ifdef DEBUG
             static Window w;
-            w.update(0, image_.data, image_.height, image_.width);
+            static Image debug_image;
+            camera_control_.get_frame(debug_image, ColorSpace::BGR888);
+            w.update(0, debug_image.data, debug_image.height,
+                     debug_image.width);
 #endif
 
             module.exec(image_);
-            auto result = module.get_result();
-            (void)result;
         }
 
         auto& tags = module.tags();
