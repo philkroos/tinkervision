@@ -27,12 +27,12 @@ std::string tfv::Logger::PREFIX_WARNING = "WARNING";
 std::string tfv::Logger::PREFIX_ERROR = "ERROR";
 
 std::ostream& tfv::operator<<(std::ostream& stream, tfv::Module* module) {
-    /*
+
     auto tags_bits = std::bitset<16>(
         static_cast<std::underlying_type<Module::Tag>::type>(module->tags()));
 
     stream << "Id: " << module->id() << " Tags: " << tags_bits;
-    */
+
     return stream;
 }
 
@@ -93,6 +93,11 @@ std::ostream& tfv::operator<<(std::ostream& ost,
 std::ostream& tfv::operator<<(std::ostream& stream, tfv::Timestamp ts) {
     stream << ts.time_since_epoch().count();
 
+    return stream;
+}
+
+std::ostream& tfv::operator<<(std::ostream& stream, TFV_Id id) {
+    stream << static_cast<int>(id);
     return stream;
 }
 
