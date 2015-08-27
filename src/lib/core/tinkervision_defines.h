@@ -28,6 +28,8 @@ typedef uint16_t TFV_UWord;
 typedef uint32_t TFV_UInt;
 typedef uint8_t TFV_Byte;
 typedef const char* TFV_String;
+#define TFV_CHAR_ARRAY_SIZE 20
+typedef char TFV_CharArray[TFV_CHAR_ARRAY_SIZE];
 
 typedef TFV_Word TFV_Int;
 
@@ -87,6 +89,10 @@ typedef TFV_CallbackRectangle TFV_CallbackMotiondetect;
 #define TFV_MODULE_DLOPEN_FAILED 700
 #define TFV_MODULE_DLSYM_FAILED 701
 #define TFV_MODULE_DLCLOSE_FAILED 702
+
+/* Callback/Result request errors: 750... */
+#define TFV_RESULT_NOT_AVAILABLE 750
+#define TFV_INCOMPATIBLE_RESULT_TYPE 751
 
 /* Internally used where a return value has only temporary means. Never returned
  * outside: 1000... */

@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <map>
 #include <string>
+#include <cstring>
 
 #include "api.hh"
 #include "tinkervision.h"
@@ -109,17 +110,27 @@ TFV_Result set_string_callback(TFV_Id module, TFV_CallbackString callback) {
     return tfv::get_api().callback_set(module, callback);
 }
 
+//
+// Accessors for the same data provided by the callbacks
+//
+
 TFV_Result get_value_result(TFV_Id module, TFV_Size* value) {
-    return TFV_NOT_IMPLEMENTED;
+    return tfv::get_api().get_result(module, *value);
 }
 TFV_Result get_point_result(TFV_Id module, TFV_Size* x, TFV_Size* y) {
-    return TFV_NOT_IMPLEMENTED;
+    return tfv::get_api().get_result(module, *x, *y);
 }
 TFV_Result get_rect_result(TFV_Id module, TFV_Size* x, TFV_Size* y,
                            TFV_Size* width, TFV_Size* height) {
-    return TFV_NOT_IMPLEMENTED;
+    return tfv::get_api().get_result(module, *x, *y, *width, *height);
 }
-TFV_Result get_string_result(TFV_Id module, TFV_String* result) {
-    return TFV_NOT_IMPLEMENTED;
+TFV_Result get_string_result(TFV_Id module, TFV_CharArray result) {
+    std::string result_string;
+    auto err = tfv::get_api().get_result(module, result_string);
+    if (err == TFV_OK) {
+        std::strncpy(result, result_string.c_str(), TFV_CHAR_ARRAY_SIZE - 1);
+        result[TFV_CHAR_ARRAY_SIZE - 1] = '\0';
+    }
+    return err;
 }
 }

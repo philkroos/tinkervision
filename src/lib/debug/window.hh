@@ -44,7 +44,7 @@ public:
             windows_[id] = prefix + std::to_string(id) + " ";
             cv::namedWindow(windows_[id]);
         }
-        cv::Mat frame(rows, columns, format, const_cast<TFV_ImageData*>(data));
+        cv::Mat frame(rows, columns, format, (void*)data);
         cv::imshow(windows_[id], frame);
         cv::waitKey(100);  // skip time to give window-update thread a chance
     }

@@ -108,7 +108,7 @@ TFV_Result get_value_result(TFV_Id module, TFV_Size* value);
 TFV_Result get_point_result(TFV_Id module, TFV_Size* x, TFV_Size* y);
 TFV_Result get_rect_result(TFV_Id module, TFV_Size* x, TFV_Size* y,
                            TFV_Size* width, TFV_Size* height);
-TFV_Result get_string_result(TFV_Id module, TFV_String* result);
+TFV_Result get_string_result(TFV_Id module, TFV_CharArray result);
 
 #ifdef __cplusplus
 }

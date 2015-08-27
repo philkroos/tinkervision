@@ -51,12 +51,17 @@ private:
         {TFV_MODULE_ERROR_SETTING_PARAMETER,
          "Error - Module parameterization failed"},
         {TFV_MODULE_NO_SUCH_PARAMETER, "Error - No such parameter"},
-        // 650..
+        // 650...
         {TFV_EXEC_THREAD_FAILURE, "Error - The main thread did not react"},
-        // 700..
+        // 700...
         {TFV_MODULE_DLOPEN_FAILED, "Error - Could not open requested module"},
         {TFV_MODULE_DLSYM_FAILED,
-         "Error - Required function not defined in module"}};
+         "Error - Required function not defined in module"},
+        // 750...
+        {TFV_RESULT_NOT_AVAILABLE,
+         "Error - Result requested where none is provided"},
+        {TFV_INCOMPATIBLE_RESULT_TYPE,
+         "Error - Result of incompatible type requested"}};
 
 public:
     static constexpr TFV_String UNKNOWN_CODE{"Unknown result code"};

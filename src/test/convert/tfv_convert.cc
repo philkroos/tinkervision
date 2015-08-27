@@ -65,7 +65,7 @@ int main() {
     // This was recorded with `luvcview -d /dev/video1 -f YUYV -s 1280x720 -C`
     // http://rawpixels.net/ Settings:
     // - Predefined format: YUY2
-    // - Pixel format: YUV
+    // - Pixel format: YVU
     // - Deselect 'Alpha first'
     // - width/height: 1280/720
     // - Pixel Plane: PackedYUV
@@ -130,7 +130,7 @@ int main() {
     // Files are in format YV12 (420p). Can be checked here:
     // http://rawpixels.net/ Settings:
     // - Predefined format: YUV420p
-    // - Pixel format: YUV
+    // - Pixel format: YVU
     // - Deselect 'Alpha first'
     // - width/height: 1280/720
     // - Pixel Plane: planar

@@ -566,6 +566,67 @@ public:
         return TFV_OK;
     }
 
+    template <typename TypedResult>
+    using ResultSetter = std::function<void(TypedResult const&)>;
+
+    template <typename TypedResult>
+    TFV_Result _get_result(TFV_Id module_id, ResultSetter<TypedResult> setter) {
+
+        return modules_.exec_one(module_id, [&](Module& module) {
+            auto result = module.get_result();
+            if (result == nullptr) {
+                return TFV_RESULT_NOT_AVAILABLE;
+            }
+            auto typed = dynamic_cast<TypedResult const*>(result);
+            if (typed == nullptr) {
+                return TFV_INCOMPATIBLE_RESULT_TYPE;
+            }
+            setter(*typed);
+            return TFV_OK;
+        });
+    }
+
+    template <typename... Args>
+    TFV_Result get_result(TFV_Id module_id, Args...) {
+        Log("API", "Unknown result type requested from module ", module_id);
+        return TFV_INCOMPATIBLE_RESULT_TYPE;
+    }
+
+    TFV_Result get_result(TFV_Id module_id, TFV_Size& value) {
+        Log("API", "Getting ScalarResult from module ", module_id);
+        return _get_result<ScalarResult>(
+            module_id,
+            [&](ScalarResult const& scalar) { value = scalar.scalar; });
+    }
+
+    TFV_Result get_result(TFV_Id module_id, TFV_Size& x, TFV_Size& y) {
+        Log("API", "Getting PointResult from module ", module_id);
+        return _get_result<PointResult>(module_id,
+                                        [&](PointResult const& point) {
+            x = point.x;
+            y = point.y;
+        });
+    }
+
+    TFV_Result get_result(TFV_Id module_id, TFV_Size& x, TFV_Size& y,
+                          TFV_Size& width, TFV_Size& height) {
+        Log("API", "Getting RectangleResult from module ", module_id);
+        return _get_result<RectangleResult>(module_id,
+                                            [&](RectangleResult const& rect) {
+            x = rect.x;
+            y = rect.y;
+            width = rect.width;
+            height = rect.height;
+        });
+    }
+
+    TFV_Result get_result(TFV_Id module_id, std::string& result) {
+        Log("API", "Getting StringResult from module ", module_id);
+        return _get_result<StringResult>(
+            module_id,
+            [&](StringResult const& string) { result = string.result; });
+    }
+
 private:
     CameraControl camera_control_;      ///< Camera access abstraction
     TFVStringMap result_string_map_;    ///< String mapping of Api-return values
