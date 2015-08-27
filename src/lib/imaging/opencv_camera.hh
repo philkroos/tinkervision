@@ -31,17 +31,19 @@ class OpenCvUSBCamera : public Camera {
 
 public:
     explicit OpenCvUSBCamera(TFV_Id camera_id);
-    virtual ~OpenCvUSBCamera(void) { close(); }
+    ~OpenCvUSBCamera(void) override final { close(); }
 
-    virtual bool open(void);
-    virtual bool is_open(void) const;
-    virtual ColorSpace image_format(void) const { return ColorSpace::BGR888; }
+    bool open_device(void) override final;
+    bool is_open(void) const override final;
+    ColorSpace image_format(void) const override final {
+        return ColorSpace::BGR888;
+    }
 
 protected:
-    virtual bool retrieve_frame(tfv::Image& frame);
-    virtual void retrieve_properties(uint16_t& width, uint16_t& height,
-                                     size_t& frame_bytesize);
-    virtual void close(void);
+    bool retrieve_frame(tfv::ImageData** data) override final;
+    void retrieve_properties(uint16_t& width, uint16_t& height,
+                             size_t& frame_bytesize) override final;
+    void close(void) override final;
 
 private:
     cv::VideoCapture* camera_ = nullptr;

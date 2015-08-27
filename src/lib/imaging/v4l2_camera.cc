@@ -89,7 +89,7 @@ tfv::V4L2USBCamera::~V4L2USBCamera(void) {
 
 bool tfv::V4L2USBCamera::is_open(void) const { return device_ != 0; }
 
-bool tfv::V4L2USBCamera::open(void) {
+bool tfv::V4L2USBCamera::open_device(void) {
     if (is_open()) {
         return true;
     }
@@ -340,7 +340,7 @@ void tfv::V4L2USBCamera::close(void) {
     running_ = false;
 }
 
-bool tfv::V4L2USBCamera::retrieve_frame(tfv::Image& frame) {
+bool tfv::V4L2USBCamera::retrieve_frame(tfv::ImageData** data) {
     auto result = false;
 
     fd_set fds;
@@ -368,13 +368,7 @@ bool tfv::V4L2USBCamera::retrieve_frame(tfv::Image& frame) {
     }
 
     if (result) {
-        if (not frame_bytesize_) {
-            _retrieve_properties();
-        }
-        frame.set(static_cast<TFV_ImageData*>(frames_[buffer_.index].start),
-                  frame_bytesize_);
-        frame.width = frame_width_;
-        frame.height = frame_height_;
+        *data = static_cast<TFV_ImageData*>(frames_[buffer_.index].start);
     }
 
     return result;

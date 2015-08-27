@@ -149,9 +149,9 @@ tfv::Converter* tfv::CameraControl::get_converter(tfv::ColorSpace from,
     auto it = std::find_if(provided_formats_.begin(), provided_formats_.end(),
                            [&](Converter const& converter) {
 
-                               return (converter.source_format() == from) and
-                                      (converter.target_format() == to);
-                           });
+        return (converter.source_format() == from) and
+               (converter.target_format() == to);
+    });
 
     if (it == provided_formats_.end()) {
         provided_formats_.emplace_back(from, to);
@@ -183,7 +183,7 @@ void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ColorSpace format) {
             image.timestamp != image_.timestamp) {
 
             // conversion and flat copy
-            assert(image_.data_);
+            assert(image_.data);
             image = (*converter)(image_);
         }
     }
@@ -220,9 +220,9 @@ bool tfv::CameraControl::update_frame(void) {
         }
 
         if (not camera_) {
-            if (fallback.active) {
-                Log("CAMERACONTROL", "Fallback image");
-                image_ = fallback.image;
+            if (fallback_.active) {
+                Log("CAMERACONTROL", "Fallback_ image");
+                image_ = fallback_.image;
 
             } else {
                 return false;
@@ -231,10 +231,10 @@ bool tfv::CameraControl::update_frame(void) {
         } else if (not camera_->get_frame(image_)) {
             return false;
         }
-	assert(image_.data_);
+        assert(image_.data);
     }
 
-    if (not fallback.active) {
+    if (&image_ != &fallback_.image) {
         image_.timestamp = Clock::now();
     }
 
@@ -258,8 +258,8 @@ bool tfv::CameraControl::_open_device(void) {
             camera_ = new V4L2USBCamera(i, requested_width_, requested_height_);
             // camera_ = new OpenCvUSBCamera(i);
 
-            fallback.active = not camera_->open();
-            if (not fallback.active) {
+            if (camera_->open()) {
+                fallback_.active = false;
                 stopped_ = false;
                 break;
             } else {
@@ -277,18 +277,13 @@ void tfv::CameraControl::_close_device() {
     // Save the last image in case it is requested again.
     // This is a precaution to prevent possible race conditions
     // and to simplify interface usage if being accessed from several
-    // threads
-    // without making things overcomplicated.
+    // threads without making things overcomplicated.
 
     if (camera_) {
 
-        Image temp;
-        fallback.active = camera_->get_frame(temp);
+        if (camera_->get_frame(fallback_.image)) {  // image retrieved
 
-        if (fallback.active) {  // image retrieved
-
-            // deep copies the image
-            temp.copy_to(fallback.image);
+            fallback_.active = true;
         }
         camera_->stop();
 

@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 tfv::OpenCvUSBCamera::OpenCvUSBCamera(TFV_Id camera_id) : Camera(camera_id) {}
 
-bool tfv::OpenCvUSBCamera::open(void) {
+bool tfv::OpenCvUSBCamera::open_device(void) {
 
     camera_ = new cv::VideoCapture(camera_id_);
 
@@ -60,7 +60,7 @@ void tfv::OpenCvUSBCamera::retrieve_properties(uint16_t& width,
     frame_bytesize = frame_bytesize_;
 }
 
-bool tfv::OpenCvUSBCamera::retrieve_frame(tfv::Image& image) {
+bool tfv::OpenCvUSBCamera::retrieve_frame(tfv::ImageData** data) {
 
     auto result = is_open();
     if (result) {
@@ -71,12 +71,8 @@ bool tfv::OpenCvUSBCamera::retrieve_frame(tfv::Image& image) {
         result = camera_->retrieve(container_);
 
         if (result) {
-            // assert:
-            // container_.cols * container_.elemSize() == bytesize
 
-            image.set(container_.data, frame_bytesize_);
-            image.width = frame_width_;
-            image.height = frame_height_;
+            *data = container_.data;
         }
     }
 

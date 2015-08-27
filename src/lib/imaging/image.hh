@@ -70,56 +70,13 @@ using Clock = std::chrono::steady_clock;
 using Timestamp = Clock::time_point;
 using ImageData = TFV_ImageData;
 
-class Image {
-private:
-    // \todo Make image data private. Needs restructuring of the converters.
-    // ImageData* data = nullptr;
-
-    bool foreign_data_{false};  ///< True if the data was allocated elsewhere.
-
-public:
-    ImageData* data_ = nullptr;
-    size_t width = 0;
-    size_t height = 0;
+struct Image {
+    uint16_t width = 0;
+    uint16_t height = 0;
     size_t bytesize = 0;
+    ImageData* data = nullptr;
     Timestamp timestamp;
     ColorSpace format = ColorSpace::INVALID;
-
-    Image(void) = default;
-
-    // flat copy assignment!
-    Image& operator=(Image const& other);
-
-    ~Image(void);
-
-    void copy_to(Image& other) const;
-
-    ImageData const* data(void) const { return data_; }
-
-    /**
-     * Set data allocated elsewhere!
-     */
-    void set(ImageData* data, size_t bytesize);
-
-    void init(size_t width, size_t height, size_t bytesize);
-
-    void copy(ImageData const* data, size_t width, size_t height,
-              size_t bytesize);
-
-    /**
-     * Image is shallow if data was allocated elsewhere.
-     * In that case it has to be deleted elsewhere, too.
-     */
-    bool is_shallow(void) const { return foreign_data_; }
-
-private:
-    // deep copy
-    Image(Image const& other);
-
-    Image(Image&& other);
-    Image& operator=(Image&& other);
-
-    void delete_data(void);
 };
 }
 

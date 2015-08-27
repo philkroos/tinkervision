@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 DEFINE_VISION_MODULE(Snapshot)
 
@@ -34,7 +35,10 @@ void Snapshot::execute(tfv::ImageData const* data, size_t width,
         filename_.result =
             std::string{"Snapshot" + std::to_string(counter) + ".yuv"};
 
-        image_.copy(data, width, height, width * height);
+        image_.width = width;
+        image_.height = height;
+        image_.bytesize = width * height;
+        std::copy_n(data, width * height, image_.data);
 
     } catch (...) {
         // ignore
@@ -43,14 +47,14 @@ void Snapshot::execute(tfv::ImageData const* data, size_t width,
 
 tfv::Result const* Snapshot::get_result(void) const {
 
-    if (not image_.data_) {
+    if (not image_.data) {
         return nullptr;
     }
 
     std::ofstream ofs{filename_.result, std::ios::out | std::ios::binary};
 
     if (ofs.is_open()) {
-        char const* data = reinterpret_cast<char const*>(image_.data_);
+        char const* data = reinterpret_cast<char const*>(image_.data);
 
         ofs.write(data, image_.bytesize);
     }

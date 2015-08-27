@@ -179,8 +179,8 @@ private:
         bool active = false;
     };
 
-    FallbackImage fallback;  ///< Set to the last retrieved image on
-                             /// _close_device() and used for subsequent
+    FallbackImage fallback_;  ///< Set to the last retrieved image on
+                              /// _close_device() and used for subsequent
     /// get_frame() calls until the next successfull _open_device()
 
     int usercount_ = 0;

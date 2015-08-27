@@ -35,10 +35,9 @@ public:
     bool get_frame(Image& frame);
     bool get_properties(uint16_t& height, uint16_t& width,
                         size_t& framebytesize);
+    bool open(void);
 
-    virtual bool open(void) = 0;
     virtual bool is_open(void) const = 0;
-
     virtual ColorSpace image_format(void) const = 0;
 
 protected:
@@ -54,7 +53,8 @@ protected:
 
     // These are Template Methods, see implementation
     // of the corresponding get_ methods.
-    virtual bool retrieve_frame(Image& frame) = 0;
+    virtual bool open_device(void) = 0;
+    virtual bool retrieve_frame(tfv::ImageData** data) = 0;
     virtual void retrieve_properties(uint16_t& width, uint16_t& height,
                                      size_t& framebytesize) = 0;
     virtual void close(void) = 0;
@@ -63,6 +63,8 @@ private:
     bool active_{true};
     uint16_t requested_width_{0};
     uint16_t requested_height_{0};
+
+    Image image_{};  ///< Image container, data filled by subclass
 };
 }
 

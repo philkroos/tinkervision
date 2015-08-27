@@ -40,14 +40,12 @@ bool tfv::Camera::get_frame(tfv::Image& image) {
         return false;
     }
 
-    auto result = retrieve_frame(image);
-
-    if (result) {
-
-        image.format = image_format();
+    if (not retrieve_frame(&image_.data)) {
+        return false;
     }
 
-    return result;
+    image = image_;
+    return true;
 }
 
 bool tfv::Camera::get_properties(uint16_t& width, uint16_t& height,
@@ -57,6 +55,16 @@ bool tfv::Camera::get_properties(uint16_t& width, uint16_t& height,
         return true;
     }
     return false;
+}
+
+bool tfv::Camera::open(void) {
+    auto success = open_device();
+    if (success) {
+        active_ = true;
+        retrieve_properties(image_.width, image_.height, image_.bytesize);
+        image_.format = image_format();
+    }
+    return success;
 }
 
 void tfv::Camera::stop(void) {

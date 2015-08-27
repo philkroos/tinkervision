@@ -118,7 +118,7 @@ void tfv::Api::execute(void) {
 
 #ifdef DEBUG
             static Window w;
-            w.update(0, image_.data_, image_.height, image_.width);
+            w.update(0, image_.data, image_.height, image_.width);
 #endif
 
             module.exec(image_);
@@ -145,9 +145,9 @@ void tfv::Api::execute(void) {
     auto node_exec = [&](TFV_Int module_id) {
         (void)modules_.exec_one(module_id,
                                 [&module_id, &module_exec](Module& module) {
-                                    module_exec(module_id, module);
-                                    return TFV_OK;
-                                });
+            module_exec(module_id, module);
+            return TFV_OK;
+        });
     };
 
     // mainloop
@@ -173,7 +173,7 @@ void tfv::Api::execute(void) {
                 }
 
             } else {
-                // Log a warning
+                LogWarning("API", "Could not retrieve the next frame");
             }
         }
 

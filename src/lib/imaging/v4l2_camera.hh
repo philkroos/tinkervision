@@ -118,21 +118,21 @@ class V4L2USBCamera : public Camera {
 public:
     explicit V4L2USBCamera(TFV_Id camera_id);
     V4L2USBCamera(TFV_Id camera_id, size_t framewidth, size_t frameheight);
-    virtual ~V4L2USBCamera(void);
+    ~V4L2USBCamera(void) override final;
 
-    virtual bool open(void);
-    virtual bool is_open(void) const;
-    virtual ColorSpace image_format(void) const {
+    bool open_device(void) override final;
+    bool is_open(void) const override final;
+    ColorSpace image_format(void) const override final {
         return supported_codings_[coding_].tfv_id;
     }
 
     bool select_best_available_settings(void);
 
 protected:
-    virtual bool retrieve_frame(tfv::Image& image);
-    virtual void retrieve_properties(uint16_t& width, uint16_t& height,
-                                     size_t& frame_bytesize);
-    virtual void close(void);
+    bool retrieve_frame(tfv::ImageData** data) override final;
+    void retrieve_properties(uint16_t& width, uint16_t& height,
+                             size_t& frame_bytesize) override final;
+    void close(void) override final;
 
 private:
     std::array<ColorSpaceMapping, 1> supported_codings_ = {{
