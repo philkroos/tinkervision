@@ -170,14 +170,6 @@ public:
     }
 
     TFV_Result module_destroy(TFV_Id id) {
-        if (not modules_.managed(id)) {
-            return TFV_INVALID_ID;
-        }
-
-        if (not modules_.remove(id)) {
-            return TFV_INTERNAL_ERROR;
-        }
-
         if (_scenes_active()) {
             return TFV_NOT_IMPLEMENTED;
         }
@@ -191,8 +183,6 @@ public:
             camera_control_.release();
             return TFV_OK;
         });
-
-        return TFV_OK;
     }
 
     TFV_Result set_parameter(TFV_Id module_id, std::string parameter,
