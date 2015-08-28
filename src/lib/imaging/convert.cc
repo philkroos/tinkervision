@@ -22,8 +22,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <algorithm>
 
 tfv::Image const& tfv::Convert::operator()(tfv::Image const& source) {
+    operator()(source, target);
+    return target;
+}
+
+tfv::Convert::~Convert(void) {
+    if (target.data) {
+        delete[] target.data;
+    }
+}
+
+void tfv::Convert::operator()(tfv::Image const& source, tfv::Image& target) {
     size_t width, height, bytesize;
     target_format(source, width, height, bytesize);
+
+    // Not build for varying ratios of width and height!
     if (not target.data or bytesize != target.bytesize) {
         if (target.data) {
             delete[] target.data;
@@ -37,19 +50,6 @@ tfv::Image const& tfv::Convert::operator()(tfv::Image const& source) {
     convert(source, target);
     target.timestamp = source.timestamp;
     target.format = target_format_;
-
-    return target;
-}
-
-tfv::Convert::~Convert(void) {
-    if (target.data) {
-        delete[] target.data;
-    }
-}
-
-void tfv::Convert::operator()(tfv::Image const& source, tfv::Image& target) {
-    convert(source, target);
-    target.timestamp = source.timestamp;
 }
 
 tfv::Convert::Convert(tfv::ColorSpace source, tfv::ColorSpace target)

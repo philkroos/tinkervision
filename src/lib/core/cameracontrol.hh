@@ -32,7 +32,7 @@ namespace tfv {
 
 class CameraControl {
 public:
-    CameraControl(void) = default;
+    CameraControl(void);
     ~CameraControl(void);
 
     CameraControl(CameraControl const&) = delete;
@@ -167,21 +167,14 @@ private:
     size_t requested_width_{0};
     size_t requested_height_{0};
 
-    Image image_;  ///< The image as obtained from the active camera module
-
     using ProvidedFormats = std::vector<Converter>;
     ProvidedFormats provided_formats_;
 
     Converter* get_converter(tfv::ColorSpace from, tfv::ColorSpace to);
 
-    struct FallbackImage {
-        Image image = {};
-        bool active = false;
-    };
-
-    FallbackImage fallback_;  ///< Set to the last retrieved image on
-                              /// _close_device() and used for subsequent
-    /// get_frame() calls until the next successfull _open_device()
+    Image fallback_{};      ///< Black frame
+    Image camera_image_{};  ///< Data obtained from the camera
+    Image image_{};         ///< Data exchanged with the Api
 
     int usercount_ = 0;
     bool stopped_ = false;
@@ -195,7 +188,12 @@ private:
     std::mutex camera_mutex_;  //< This locks access to the private methods
 
     bool _open_device(void);
-    void _close_device();
+    void _close_device(void);
+    bool _test_device(void);
+    bool _init(void);
+    bool _update_from_camera(void);
+    bool _update_from_fallback(void);
+    void _copy_data(Image const& source);
 };
 };
 

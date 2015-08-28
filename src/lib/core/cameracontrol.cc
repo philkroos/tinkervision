@@ -29,7 +29,24 @@
 #include "v4l2_camera.hh"
 #endif
 
-tfv::CameraControl::~CameraControl(void) { release_all(); }
+tfv::CameraControl::~CameraControl(void) {
+    release_all();
+    if (image_.data) {
+        delete[] image_.data;
+    }
+    if (fallback_.data) {
+        delete[] fallback_.data;
+    }
+}
+
+tfv::CameraControl::CameraControl(void) {
+    fallback_.width = 640;
+    fallback_.height = 480;
+    fallback_.bytesize = 640 * 480 * 3;  // RGB
+    fallback_.format = ColorSpace::BGR888;
+    fallback_.data = new TFV_ImageData[fallback_.bytesize];
+    std::fill_n(fallback_.data, fallback_.bytesize, 255);
+}
 
 bool tfv::CameraControl::is_available(void) {
 
@@ -39,12 +56,7 @@ bool tfv::CameraControl::is_available(void) {
         result = true;  // already open
 
     } else {
-        std::lock_guard<std::mutex> cam_mutex(camera_mutex_);
-        if (_open_device()) {
-
-            _close_device();
-            result = true;  // opening possible
-        }
+        return _test_device();
     }
     return result;
 }
@@ -81,10 +93,7 @@ bool tfv::CameraControl::acquire(void) {
             release();
         }
 
-        {
-            std::lock_guard<std::mutex> cam_mutex(camera_mutex_);
-            open = _open_device();
-        }
+        open = _init();
     }
 
     if (open) {
@@ -221,32 +230,15 @@ bool tfv::CameraControl::regenerate_image_from(Image const& image) {
 
 bool tfv::CameraControl::update_frame(void) {
 
-    {
-        std::lock_guard<std::mutex> cam_lock(camera_mutex_);
-        if (stopped_) {
-            if (not _open_device()) {
-                assert(stopped_);
-                return false;
-            }
-        }
-
-        if (not camera_) {
-            if (fallback_.active) {
-                Log("CAMERACONTROL", "Fallback_ image");
-                image_ = fallback_.image;
-
-            } else {
-                return false;
-            }
-
-        } else if (not camera_->get_frame(image_)) {
+    if (stopped_) {
+        if (not _init()) {
+            assert(stopped_);
             return false;
         }
-        assert(image_.data);
     }
 
-    if (&image_ != &fallback_.image) {
-        image_.timestamp = Clock::now();
+    if (not _update_from_camera() and not _update_from_fallback()) {
+        return false;
     }
 
     if (image_.format == tfv::ColorSpace::INVALID) {
@@ -255,6 +247,55 @@ bool tfv::CameraControl::update_frame(void) {
     }
 
     return true;
+}
+
+bool tfv::CameraControl::_update_from_camera(void) {
+    {
+        std::lock_guard<std::mutex> cam_lock(camera_mutex_);
+        if (not camera_ or not camera_->get_frame(camera_image_)) {
+            return false;
+        }
+    }
+
+    _copy_data(camera_image_);
+    image_.timestamp = Clock::now();
+    return true;
+}
+
+bool tfv::CameraControl::_update_from_fallback(void) {
+    Log("CAMERACONTROL", "Fallback_ image");
+    _copy_data(fallback_);
+    return true;
+}
+
+void tfv::CameraControl::_copy_data(Image const& source) {
+    if (not image_.data or (image_.bytesize != source.bytesize)) {
+
+        delete[] image_.data;
+        image_.width = source.width;
+        image_.height = source.height;
+        image_.bytesize = source.bytesize;
+        image_.data = new TFV_ImageData[image_.bytesize];
+    }
+    image_.format = source.format;
+    std::copy_n(source.data, source.bytesize, image_.data);
+}
+
+bool tfv::CameraControl::_test_device(void) {
+    std::lock_guard<std::mutex> cam_mutex(camera_mutex_);
+
+    if (not _open_device()) {
+        return false;
+    }
+
+    _close_device();
+    return true;
+}
+
+bool tfv::CameraControl::_init(void) {
+    std::lock_guard<std::mutex> cam_mutex(camera_mutex_);
+
+    return _open_device();
 }
 
 bool tfv::CameraControl::_open_device(void) {
@@ -274,7 +315,6 @@ bool tfv::CameraControl::_open_device(void) {
 #endif
 
             if (camera_->open()) {
-                fallback_.active = false;
                 stopped_ = false;
                 break;
             } else {
@@ -289,17 +329,8 @@ bool tfv::CameraControl::_open_device(void) {
 
 void tfv::CameraControl::_close_device() {
 
-    // Save the last image in case it is requested again.
-    // This is a precaution to prevent possible race conditions
-    // and to simplify interface usage if being accessed from several
-    // threads without making things overcomplicated.
-
     if (camera_) {
 
-        if (camera_->get_frame(fallback_.image)) {  // image retrieved
-
-            fallback_.active = true;
-        }
         camera_->stop();
 
         delete camera_;
