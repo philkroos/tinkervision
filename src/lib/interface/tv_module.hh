@@ -82,10 +82,13 @@ protected:
 public:
     virtual ~TVModule(void) { Log("EXECUTABLE", "Destructor for ", name_); }
 
-    const char* name(void) const { return name_.c_str(); }
+    std::string const& name(void) const { return name_; }
     ModuleType const& type(void) const { return type_; }
 
     virtual void execute(tfv::Image const& image) {
+        LogError("EXECUTABLE", "execute called");
+    }
+    virtual void execute(tfv::Image const& in, tfv::Image& out) {
         LogError("EXECUTABLE", "execute called");
     }
     virtual void execute_modifying(tfv::Image& image) {

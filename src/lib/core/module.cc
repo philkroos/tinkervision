@@ -63,6 +63,14 @@ void tfv::StringCallback::operator()(tfv::Result const* result) {
 };
 
 void tfv::Module::execute(tfv::Image const& image) {
+
+    static Image for_downscaler;
+    if (not for_downscaler.data) {
+        for_downscaler.data = new TFV_ImageData[640 * 360 * 3];
+    }
+    if (tv_module_->name() == "Downscale") {
+        tv_module_->execute(image, for_downscaler);
+    }
     tv_module_->execute(image);
 }
 void tfv::Module::execute_modifying(tfv::Image& image) {
