@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
-struct Motiondetect : public TVModule {
+struct Motiondetect : public Analyzer {
 private:
     // see <opencv-source>/modules/video/src/bgfg_gaussmix2.cpp
     int history_{20};      // default constructor: 500
@@ -42,7 +42,7 @@ private:
     RectangleResult rect_around_motion_;
 
 public:
-    Motiondetect(void) : TVModule{"Motiondetect"} {}
+    Motiondetect(void) : Analyzer{"Motiondetect"} {}
 
     ~Motiondetect(void) override = default;
     void execute(tfv::Image const& image) override;

@@ -63,19 +63,28 @@ struct RectangleResult : public Result {
         : x(x), y(y), width(width), height(height) {}
 };
 
+enum class ModuleType : uint8_t {
+    Modifier,
+    Analyzer,
+    Publisher,
+};
+
 class TVModule {
 private:
     std::string const name_;
+    ModuleType const type_;
 
-public:
-    explicit TVModule(const char* name) : name_{name} {
+protected:
+    TVModule(const char* name, ModuleType type) : name_{name}, type_(type) {
         Log("EXECUTABLE", "Constructor for ", name);
     }
 
+public:
     virtual ~TVModule(void) { Log("EXECUTABLE", "Destructor for ", name_); }
 
     const char* name(void) const { return name_.c_str(); }
-    // virtual void execute(tfv::Image const& image) {
+    ModuleType const& type(void) const { return type_; }
+
     virtual void execute(tfv::Image const& image) {
         LogError("EXECUTABLE", "execute called");
     }
@@ -101,7 +110,33 @@ public:
      */
     virtual bool running(void) const noexcept { return true; }
 };
+
+//
+// Choose what you are:
+//
+
+class Analyzer : public TVModule {
+    using TVModule::TVModule;
+
+public:
+    Analyzer(char const* name) : TVModule(name, ModuleType::Analyzer) {}
+};
+
+class Modifier : public TVModule {
+    using TVModule::TVModule;
+
+public:
+    Modifier(char const* name) : TVModule(name, ModuleType::Modifier) {}
+};
+
+class Publisher : public TVModule {
+    using TVModule::TVModule;
+
+public:
+    Publisher(char const* name) : TVModule(name, ModuleType::Publisher) {}
+};
 }
+
 #define DECLARE_VISION_MODULE(name)         \
     extern "C" tfv::TVModule* create(void); \
     extern "C" void destroy(tfv::name* module);

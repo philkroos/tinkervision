@@ -34,6 +34,7 @@ namespace tfv {
 
 class Result;
 class TVModule;
+enum class ModuleType : uint8_t;
 
 bool is_compatible_callback(Result const* result, TFV_CallbackPoint const&);
 bool is_compatible_callback(Result const* result, TFV_CallbackValue const&);
@@ -114,19 +115,13 @@ struct CallbackWrapper {
 
 class Module {
 public:
+    // runtime tags describing some sort of status this module is in, as
+    // relevant for the execution of the Api
     enum class Tag : unsigned {
-        // static tags
-        None = 0x00,
-        TVModule = 0x01,
-        Fx = 0x02,
-        Analysis = 0x04,
-        Output = 0x08,
-
-        // runtime tags
         ExecAndRemove = 0x10,
         ExecAndDisable = 0x20,
         Removable = 0x30,
-        Sequential = 0x40
+        Sequential = 0x40,
     };
 
 private:
@@ -139,26 +134,8 @@ private:
     CallbackWrapper cb_;
 
 public:
-    // deprecated
-    Module(TFV_Int module_id, std::string type, Tag tags)
-        : active_{true},
-          tags_{tags},
-          module_id_{module_id},
-          tv_module_{nullptr} {
-        Log("MODULE", "Constructing module ", module_id);
-    }
-
-    // deprecated
-    Module(TFV_Int module_id, std::string type)
-        : Module(module_id, type, Tag::None) {}
-
-    Module(TVModule* executable, TFV_Int module_id, Tag tags)
-        : active_{false},
-          tags_(tags),
-          module_id_(module_id),
-          tv_module_(executable) {
-        assert(tv_module_ != nullptr);
-    }
+    Module(TVModule* executable, TFV_Int module_id)
+        : active_(false), module_id_(module_id), tv_module_(executable) {}
 
     ~Module(void) { Log("MODULE::Destructor", name()); }
 
@@ -186,6 +163,7 @@ public:
 
     TFV_Int id(void) const { return module_id_; }
     std::string name(void) const;
+    ModuleType const& type(void) const;
 
     bool running(void) const noexcept;
 

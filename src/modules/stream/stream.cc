@@ -35,7 +35,7 @@ tfv::Stream::~Stream(void) {
     streamer_.get();
 }
 
-tfv::Stream::Stream() : TVModule("Stream"), context_(ExecutionContext::get()) {
+tfv::Stream::Stream() : Publisher("Stream"), context_(ExecutionContext::get()) {
 
     task_scheduler_ = BasicTaskScheduler::createNew();
 

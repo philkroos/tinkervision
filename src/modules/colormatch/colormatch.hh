@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
-class Colormatch : public TVModule {
+class Colormatch : public Analyzer {
 private:
     TFV_Byte const min_saturation{0};
     TFV_Byte const max_saturation{255};
@@ -56,7 +56,7 @@ private:
 
 public:
     Colormatch(void)
-        : TVModule("Colormatch"),
+        : Analyzer("Colormatch"),
           user_min_hue(min_hue),
           user_max_hue(max_hue),
           user_min_value(min_value),

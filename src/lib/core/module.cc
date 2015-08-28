@@ -77,6 +77,9 @@ tfv::ColorSpace tfv::Module::expected_format(void) const {
 }
 
 std::string tfv::Module::name(void) const { return tv_module_->name(); }
+tfv::ModuleType const& tfv::Module::type(void) const {
+    return tv_module_->type();
+}
 
 bool tfv::Module::has_parameter(std::string const& parameter) const {
     return tv_module_->has_parameter(parameter);

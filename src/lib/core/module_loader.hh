@@ -67,7 +67,7 @@ public:
      * \see Module, describing the structure of the modules that can be loaded.
      */
     bool load_module_from_library(Module** target, std::string const& libname,
-                                  TFV_Int id, Module::Tag tags);
+                                  TFV_Int id);
 
     /**
      * Destruct the module and dlclose the associated library (once).
@@ -113,7 +113,6 @@ private:
     bool _file_exists(std::string const& fullname) const;
     bool _load_module_from_library(Module** target,
                                    std::string const& library_root,
-                                   std::string const& libname, TFV_Int id,
-                                   Module::Tag tags);
+                                   std::string const& libname, TFV_Int id);
 };
 }

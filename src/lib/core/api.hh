@@ -148,8 +148,7 @@ public:
         Log("API", "Open library ", name);
 
         auto module = (Module*)(nullptr);
-        if (not module_loader_.load_module_from_library(&module, name, id,
-                                                        Module::Tag::None)) {
+        if (not module_loader_.load_module_from_library(&module, name, id)) {
             Log("API", "Loading library ", name, " failed");
             return module_loader_.last_error();
         }

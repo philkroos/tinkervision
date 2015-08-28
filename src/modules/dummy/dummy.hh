@@ -23,9 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tv_module.hh"
 
 namespace tfv {
-class Dummy : public TVModule {
+class Dummy : public Analyzer {
 public:
-    Dummy() : TVModule("Dummy") {}
+    Dummy() : Analyzer("Dummy") {}
 
     bool running(void) const noexcept override { return false; }
 };

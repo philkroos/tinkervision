@@ -30,12 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
-struct Grayfilter : public TVModule {
+struct Grayfilter : public Modifier {
 private:
     TFV_Context context;
 
 public:
-    Grayfilter(void) : TVModule("Grayfilter") {
+    Grayfilter(void) : Modifier("Grayfilter") {
 #ifdef DEBUG
         cv::namedWindow("Grayfilter");
 #endif

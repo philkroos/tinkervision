@@ -23,10 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tv_module.hh"
 
 namespace tfv {
-class Snapshot : public tfv::TVModule {
+class Snapshot : public Publisher {
 
 public:
-    Snapshot(void) : TVModule("Snapshot") {}
+    Snapshot(void) : Publisher("Snapshot") {}
     ~Snapshot(void) override;
 
     void execute(tfv::Image const& image) override;

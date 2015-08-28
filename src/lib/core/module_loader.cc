@@ -38,12 +38,12 @@ bool tfv::ModuleLoader::_file_exists(std::string const& fullname) const {
 
 bool tfv::ModuleLoader::load_module_from_library(Module** target,
                                                  std::string const& libname,
-                                                 TFV_Int id, Module::Tag tags) {
+                                                 TFV_Int id) {
     // prefer user modules
-    if (not(_load_module_from_library(target, user_load_path_, libname, id,
-                                      tags) or
-            _load_module_from_library(target, system_load_path_, libname, id,
-                                      tags))) {
+    if (not(_load_module_from_library(target, user_load_path_, libname, id) or
+
+            _load_module_from_library(target, system_load_path_, libname,
+                                      id))) {
 
         LogError("MODULE_LOADER", "Loading of library ", libname, " failed.");
         return false;
@@ -54,7 +54,7 @@ bool tfv::ModuleLoader::load_module_from_library(Module** target,
 
 bool tfv::ModuleLoader::_load_module_from_library(
     Module** target, std::string const& library_root,
-    std::string const& libname, TFV_Int id, Module::Tag tags) {
+    std::string const& libname, TFV_Int id) {
 
     auto handle = dlopen((library_root + libname + ".so").c_str(), RTLD_LAZY);
     if (not handle) {
@@ -77,8 +77,8 @@ bool tfv::ModuleLoader::_load_module_from_library(
     }
 
     try {
-        *target = new Module(ConstructorFunction(dlsym(handle, "create"))(), id,
-                             tags);
+        auto shared_object = ConstructorFunction(dlsym(handle, "create"))();
+        *target = new Module(shared_object, id);
 
     } catch (Exception& ce) {
         LogError("MODULE_LOADER", ce.what());

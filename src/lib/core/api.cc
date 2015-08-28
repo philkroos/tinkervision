@@ -127,12 +127,14 @@ void tfv::Api::execute(void) {
             module.exec(image_);
         }
 
-        auto& tags = module.tags();
-        if (not camera_control_.regenerate_image_from(image_)) {
-            LogError("API", "Regeneration of images from ", image_.format,
-                     " failed");
+        if (module.type() == ModuleType::Modifier) {
+            if (not camera_control_.regenerate_image_from(image_)) {
+                LogError("API", "Regeneration of images from ", image_.format,
+                         " failed");
+            }
         }
 
+        auto& tags = module.tags();
         if (tags & Module::Tag::ExecAndRemove) {
             module.tag(Module::Tag::Removable);
             camera_control_.release();
