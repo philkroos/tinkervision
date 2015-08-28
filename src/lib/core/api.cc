@@ -103,6 +103,12 @@ TFV_Result tfv::Api::quit(void) {
 
 void tfv::Api::execute(void) {
 
+#ifdef DEBUG
+    static Window w;
+    static Image dbg_img_0;
+    static Image dbg_img_1;
+#endif
+
     // Execute active module. This is the ONLY place where modules are executed.
     auto module_exec = [&](TFV_Int id, tfv::Module& module) {
 
@@ -117,11 +123,8 @@ void tfv::Api::execute(void) {
             camera_control_.get_frame(image_, module.expected_format());
 
 #ifdef DEBUG
-            static Window w;
-            static Image debug_image;
-            camera_control_.get_frame(debug_image, ColorSpace::BGR888);
-            w.update(0, debug_image.data, debug_image.height,
-                     debug_image.width);
+            camera_control_.get_frame(dbg_img_0, ColorSpace::BGR888);
+            w.update(0, dbg_img_0.data, dbg_img_0.height, dbg_img_0.width);
 #endif
 
             module.exec(image_);
@@ -133,6 +136,11 @@ void tfv::Api::execute(void) {
                          " failed");
             }
         }
+
+#ifdef DEBUG
+        camera_control_.get_frame(dbg_img_1, ColorSpace::BGR888);
+        w.update(1, dbg_img_1.data, dbg_img_1.height, dbg_img_1.width);
+#endif
 
         auto& tags = module.tags();
         if (tags & Module::Tag::ExecAndRemove) {
