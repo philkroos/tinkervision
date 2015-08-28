@@ -25,12 +25,14 @@ void tfv::Grayfilter::execute_modifying(tfv::Image& image) {
     cv::Mat cv_image(image.height, image.width, CV_8UC3, image.data);
     cv::cvtColor(cv_image, cv_image, CV_BGR2GRAY);
 
-    for (size_t i = 0; i < image.bytesize; ++i) {
-        image.data[i] = cv_image.data[i];
+    auto rgb = image.data;
+    for (auto i = 0; i < image.width * image.height; ++i) {
+        *rgb = *(rgb + 1) = *(rgb + 2) = cv_image.data[i];
+        rgb += 3;
     }
 
 #ifdef DEBUG
-    cv::Mat output(image.width, image.height, CV_8UC1, image.data);
+    cv::Mat output(image.height, image.width, CV_8UC3, image.data);
     cv::imshow("Grayfilter", output);
     cv::waitKey(2);
 #endif
