@@ -44,8 +44,6 @@ TFV_Result get_resolution(TFV_Size* width, TFV_Size* height) {
     return tfv::get_api().resolution(*width, *height);
 }
 
-TFV_Result stop_module(TFV_Id id) { return tfv::get_api().stop_id(id); }
-
 TFV_Result stop(void) { return tfv::get_api().stop(); }
 
 TFV_Result start(void) { return tfv::get_api().start(); }
@@ -82,16 +80,18 @@ TFV_Result get_parameter(TFV_Id module_id, TFV_String const parameter,
     return tfv::get_api().get_parameter(module_id, parameter, value);
 }
 
-TFV_Result restart_id(TFV_Id id) { return tfv::get_api().start_id(id); }
-
-TFV_Result stop_id(TFV_Id id) { return tfv::get_api().stop_id(id); }
-
 TFV_Result module_start(TFV_String name, TFV_Id id) {
 
     return tfv::get_api().module_load(name, id);
 }
 
-TFV_Result module_stop(TFV_Id id) { return tfv::get_api().module_destroy(id); }
+TFV_Result module_restart(TFV_Id id) { return tfv::get_api().module_start(id); }
+
+TFV_Result module_stop(TFV_Id id) { return tfv::get_api().module_stop(id); }
+
+TFV_Result module_remove(TFV_Id id) {
+    return tfv::get_api().module_destroy(id);
+}
 
 //
 // Callbacks

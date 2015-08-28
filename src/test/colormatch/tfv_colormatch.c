@@ -143,8 +143,8 @@ int main(int argc, char* argv[]) {
 
     sleep(10);
 
-    result = module_stop(id);
-    printf("Stopped module %d: Code %d (%s)\n", id, result,
+    result = module_remove(id);
+    printf("Removed module %d: Code %d (%s)\n", id, result,
            result_string(result));
 
     cvReleaseImage(&image);

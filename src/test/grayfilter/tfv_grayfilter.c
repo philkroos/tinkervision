@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 
     sleep(5);
 
-    result = module_stop(id);
+    result = module_remove(id);
     printf("Stopped grayfilter %d: Code %d (%s)\n", id, result,
            result_string(result));
 

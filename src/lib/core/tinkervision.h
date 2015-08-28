@@ -75,10 +75,6 @@ TFV_Result start(void);
  */
 TFV_Result quit(void);
 
-TFV_Result stop_id(TFV_Id id);
-
-TFV_Result restart_id(TFV_Id id);
-
 TFV_Result scene_from_module(TFV_Id module, TFV_Scene* scene);
 TFV_Result scene_add_module(TFV_Scene scene, TFV_Id module);
 TFV_Result scene_remove(TFV_Scene scene);
@@ -94,6 +90,10 @@ TFV_Result get_parameter(TFV_Id module_id, TFV_String const parameter,
 TFV_Result module_start(TFV_String name, TFV_Id id);
 
 TFV_Result module_stop(TFV_Id id);
+
+TFV_Result module_restart(TFV_Id id);
+
+TFV_Result module_remove(TFV_Id id);
 
 /* streamer */
 
