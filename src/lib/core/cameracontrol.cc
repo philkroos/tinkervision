@@ -194,23 +194,29 @@ void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ColorSpace format) {
     }
 }
 
-void tfv::CameraControl::regenerate_image_from(Image const& image) {
+bool tfv::CameraControl::regenerate_image_from(Image const& image) {
+    // Assert that the adequate converter is available and regenerate image_
     if (image.format != image_.format) {
         auto converter = get_converter(image.format, image_.format);
         if (not converter) {
             LogError("CAMERACONTROL", "Can't regenerate formats from ",
                      image.format, " (baseformat: ", image_.format, ")");
-            return;
+            return false;
         }
         (*converter)(image, image_);
     }
 
+    // Regenerate all images held by the available converters, skip the
+    // converter from above.
     for (auto& converter : provided_formats_) {
-        if (converter.target_format() == image_.format) {
-            continue;
+        if ((converter.source_format() == image.format) and
+            not(converter.target_format() == image_.format)) {
+
+            converter(image);
         }
-        converter(image);
     }
+
+    return true;
 }
 
 bool tfv::CameraControl::update_frame(void) {

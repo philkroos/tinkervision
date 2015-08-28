@@ -158,8 +158,9 @@ public:
     /**
      * Recreate the images in all provided formats from the supplied template.
      * \param[in] image The source for the conversion.
+     * \return false if the conversion failed.
      */
-    void regenerate_image_from(Image const& image);
+    bool regenerate_image_from(Image const& image);
 
 private:
     Camera* camera_ = nullptr;
