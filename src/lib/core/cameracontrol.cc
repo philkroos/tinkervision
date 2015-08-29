@@ -34,18 +34,11 @@ tfv::CameraControl::~CameraControl(void) {
     if (image_.data) {
         delete[] image_.data;
     }
-    if (fallback_.data) {
-        delete[] fallback_.data;
-    }
 }
 
 tfv::CameraControl::CameraControl(void) {
-    fallback_.width = 640;
-    fallback_.height = 480;
-    fallback_.bytesize = 640 * 480 * 3;  // RGB
-    fallback_.format = ColorSpace::BGR888;
-    fallback_.data = new TFV_ImageData[fallback_.bytesize];
-    std::fill_n(fallback_.data, fallback_.bytesize, 255);
+    fallback_.allocate(640, 480, 640 * 480 * 3, ColorSpace::BGR888);
+    std::fill_n(fallback_.image().data, fallback_.image().bytesize, 255);
 }
 
 bool tfv::CameraControl::is_available(void) {
@@ -237,8 +230,8 @@ bool tfv::CameraControl::update_frame(void) {
         }
     }
 
-    if (not _update_from_camera() and not _update_from_fallback()) {
-        return false;
+    if (not _update_from_camera()) {
+        _copy_data(fallback_.image());
     }
 
     if (image_.format == tfv::ColorSpace::INVALID) {
@@ -259,12 +252,6 @@ bool tfv::CameraControl::_update_from_camera(void) {
 
     _copy_data(camera_image_);
     image_.timestamp = Clock::now();
-    return true;
-}
-
-bool tfv::CameraControl::_update_from_fallback(void) {
-    Log("CAMERACONTROL", "Fallback_ image");
-    _copy_data(fallback_);
     return true;
 }
 

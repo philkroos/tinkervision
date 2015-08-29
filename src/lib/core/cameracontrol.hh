@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string>
 #include <mutex>
 
-#include "image.hh"
+#include "image_allocator.hh"
 #include "convert.hh"
 #include "camera.hh"
 
@@ -172,9 +172,9 @@ private:
 
     Converter* get_converter(tfv::ColorSpace from, tfv::ColorSpace to);
 
-    Image fallback_{};      ///< Black frame
-    Image camera_image_{};  ///< Data obtained from the camera
-    Image image_{};         ///< Data exchanged with the Api
+    ImageAllocator fallback_{};  ///< Black frame
+    Image camera_image_{};       ///< Data obtained from the camera
+    Image image_{};              ///< Data exchanged with the Api
 
     int usercount_ = 0;
     bool stopped_ = false;
