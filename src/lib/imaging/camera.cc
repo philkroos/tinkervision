@@ -61,8 +61,9 @@ bool tfv::Camera::open(void) {
     auto success = open_device();
     if (success) {
         active_ = true;
-        retrieve_properties(image_.width, image_.height, image_.bytesize);
-        image_.format = image_format();
+        auto& header = image_.header;
+        retrieve_properties(header.width, header.height, header.bytesize);
+        header.format = image_format();
     }
     return success;
 }

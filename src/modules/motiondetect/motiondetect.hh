@@ -45,7 +45,8 @@ public:
     Motiondetect(void) : Analyzer{"Motiondetect"} {}
 
     ~Motiondetect(void) override = default;
-    void execute(tfv::Image const& image) override;
+    void execute(tfv::ImageHeader const& header,
+                 ImageData const* data) override;
 
     ColorSpace expected_format(void) const override {
         return ColorSpace::BGR888;

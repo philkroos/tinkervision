@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "convert.hh"
 
 #include <algorithm>
+#include <iostream>
 
 tfv::Image const& tfv::Convert::operator()(tfv::Image const& source) {
     operator()(source, target);
@@ -33,23 +34,35 @@ tfv::Convert::~Convert(void) {
 }
 
 void tfv::Convert::operator()(tfv::Image const& source, tfv::Image& target) {
-    size_t width, height, bytesize;
-    target_format(source, width, height, bytesize);
+    uint16_t width, height;
+    size_t bytesize;
+    target_format(source.header, width, height, bytesize);
 
     // Not build for varying ratios of width and height!
-    if (not target.data or bytesize != target.bytesize) {
+    if (not target.data or bytesize != target.header.bytesize) {
         if (target.data) {
             delete[] target.data;
         }
-        target.width = width;
-        target.height = height;
-        target.bytesize = bytesize;
+        target.header.width = width;
+        target.header.height = height;
+        target.header.bytesize = bytesize;
         target.data = new TFV_ImageData[bytesize];
     }
 
     convert(source, target);
-    target.timestamp = source.timestamp;
-    target.format = target_format_;
+    target.header.timestamp = source.header.timestamp;
+    target.header.format = target_format_;
+}
+
+tfv::ImageHeader tfv::Convert::convert_header(ImageHeader const& source) {
+    ImageHeader converted;
+    target_format(source, converted.width, converted.height,
+                  converted.bytesize);
+
+    converted.format = target_format_;
+    converted.timestamp = source.timestamp;
+
+    return converted;
 }
 
 tfv::Convert::Convert(tfv::ColorSpace source, tfv::ColorSpace target)
@@ -82,9 +95,9 @@ tfv::ConvertBGRToGray::ConvertBGRToGray(void)
 tfv::ConvertGrayToBGR::ConvertGrayToBGR(void)
     : Convert(tfv::ColorSpace::GRAY, tfv::ColorSpace::BGR888) {}
 
-void tfv::ConvertYUV422ToYUV420::target_format(tfv::Image const& source,
-                                               size_t& target_width,
-                                               size_t& target_height,
+void tfv::ConvertYUV422ToYUV420::target_format(tfv::ImageHeader const& source,
+                                               uint16_t& target_width,
+                                               uint16_t& target_height,
                                                size_t& target_bytesize) const {
     target_width = source.width;
     target_height = source.height;
@@ -99,12 +112,12 @@ void tfv::ConvertYUV422ToYUV420::convert_any(tfv::Image const& source,
     auto to = target.data;  // moving pointer
 
     // Y: every second byte
-    for (size_t i = 0; i < source.bytesize; i += 2) {
+    for (size_t i = 0; i < source.header.bytesize; i += 2) {
         *to++ = *(source.data + i);
     }
 
-    const size_t width = source.width * 2;  // in byte
-    const size_t height = source.height;
+    const size_t width = source.header.width * 2;  // in byte
+    const size_t height = source.header.height;
 
     auto copy_u_or_v = [&width, &height, &to](TFV_ImageData const* u_or_v_ptr) {
 
@@ -125,8 +138,8 @@ void tfv::ConvertYUV422ToYUV420::convert_any(tfv::Image const& source,
     copy_u_or_v(u_ptr);
 }
 
-void tfv::YUVToRGB::target_size(tfv::Image const& source, size_t& target_width,
-                                size_t& target_height,
+void tfv::YUVToRGB::target_size(tfv::ImageHeader const& source,
+                                uint16_t& target_width, uint16_t& target_height,
                                 size_t& target_bytesize) const {
     target_width = source.width;
     target_height = source.height;
@@ -179,11 +192,12 @@ void tfv::YUVToRGB::convert(int y, int u, int v, TFV_ImageData* rgb) const {
 template <size_t r, size_t g, size_t b>
 void tfv::YUYVToRGBType::convert(tfv::Image const& source,
                                  tfv::Image& target) const {
-    assert(source.format == ColorSpace::YUYV);
+    assert(source.header.format == ColorSpace::YUYV);
 
     auto to = target.data;
 
-    for (auto src = source.data; src < (source.data + source.bytesize);) {
+    for (auto src = source.data;
+         src < (source.data + source.header.bytesize);) {
 
         int const y1 = static_cast<int>(*src++);
         int const u = static_cast<int>(*src++);
@@ -197,16 +211,16 @@ void tfv::YUYVToRGBType::convert(tfv::Image const& source,
     }
 }
 
-void tfv::ConvertYUYVToRGB::target_format(tfv::Image const& source,
-                                          size_t& target_width,
-                                          size_t& target_height,
+void tfv::ConvertYUYVToRGB::target_format(tfv::ImageHeader const& source,
+                                          uint16_t& target_width,
+                                          uint16_t& target_height,
                                           size_t& target_bytesize) const {
     target_size(source, target_width, target_height, target_bytesize);
 }
 
-void tfv::ConvertYUYVToBGR::target_format(tfv::Image const& source,
-                                          size_t& target_width,
-                                          size_t& target_height,
+void tfv::ConvertYUYVToBGR::target_format(tfv::ImageHeader const& source,
+                                          uint16_t& target_width,
+                                          uint16_t& target_height,
                                           size_t& target_bytesize) const {
     target_size(source, target_width, target_height, target_bytesize);
 }
@@ -214,18 +228,20 @@ void tfv::ConvertYUYVToBGR::target_format(tfv::Image const& source,
 template <size_t r, size_t g, size_t b>
 void tfv::YV12ToRGBType::convert(tfv::Image const& source,
                                  tfv::Image& target) const {
-    assert(source.format == ColorSpace::YV12);
+    assert(source.header.format == ColorSpace::YV12);
 
     auto to = target.data;
-    auto const v_plane = source.data + source.width * source.height;
-    auto const u_plane = v_plane + ((source.width * source.height) >> 2);
-    auto const uv_offset = source.width >> 1;
+    auto const v_plane =
+        source.data + source.header.width * source.header.height;
+    auto const u_plane =
+        v_plane + ((source.header.width * source.header.height) >> 2);
+    auto const uv_offset = source.header.width >> 1;
 
     // abbreviated version of http://en.wikipedia.org/wiki/YUV
-    for (size_t i = 0; i < source.height; i++) {
+    for (size_t i = 0; i < source.header.height; i++) {
         auto const row_uv = (i >> 1) * uv_offset;
-        auto const row_y = i * source.width;
-        for (size_t j = 0; j < source.width; j++) {
+        auto const row_y = i * source.header.width;
+        for (size_t j = 0; j < source.header.width; j++) {
 
             // Every u(v)-value corresponds to one four-block of
             // Y-values,
@@ -248,9 +264,9 @@ void tfv::YV12ToRGBType::convert(tfv::Image const& source,
     }
 }
 
-void tfv::ConvertYV12ToRGB::target_format(tfv::Image const& source,
-                                          size_t& target_width,
-                                          size_t& target_height,
+void tfv::ConvertYV12ToRGB::target_format(tfv::ImageHeader const& source,
+                                          uint16_t& target_width,
+                                          uint16_t& target_height,
                                           size_t& target_bytesize) const {
     target_size(source, target_width, target_height, target_bytesize);
 }
@@ -260,9 +276,9 @@ void tfv::ConvertYV12ToRGB::convert(tfv::Image const& source,
     tfv::YV12ToRGBType::convert<0, 1, 2>(source, target);
 }
 
-void tfv::ConvertYV12ToBGR::target_format(tfv::Image const& source,
-                                          size_t& target_width,
-                                          size_t& target_height,
+void tfv::ConvertYV12ToBGR::target_format(tfv::ImageHeader const& source,
+                                          uint16_t& target_width,
+                                          uint16_t& target_height,
                                           size_t& target_bytesize) const {
     target_size(source, target_width, target_height, target_bytesize);
 }
@@ -272,8 +288,9 @@ void tfv::ConvertYV12ToBGR::convert(tfv::Image const& source,
     tfv::YV12ToRGBType::convert<2, 1, 0>(source, target);
 }
 
-void tfv::RGBFromToBGR::target_size(tfv::Image const& source,
-                                    size_t& target_width, size_t& target_height,
+void tfv::RGBFromToBGR::target_size(tfv::ImageHeader const& source,
+                                    uint16_t& target_width,
+                                    uint16_t& target_height,
                                     size_t& target_bytesize) const {
     target_width = source.width;
     target_height = source.height;
@@ -283,32 +300,32 @@ void tfv::RGBFromToBGR::target_size(tfv::Image const& source,
 void tfv::RGBFromToBGR::convert(tfv::Image const& source,
                                 tfv::Image& target) const {
     auto to = target.data;
-    for (size_t i = 0; i < source.bytesize; i += 3) {
+    for (size_t i = 0; i < source.header.bytesize; i += 3) {
         *to++ = source.data[i + 2];
         *to++ = source.data[i + 1];
         *to++ = source.data[i];
     }
 }
 
-void tfv::ConvertRGBToBGR::target_format(tfv::Image const& source,
-                                         size_t& target_width,
-                                         size_t& target_height,
+void tfv::ConvertRGBToBGR::target_format(tfv::ImageHeader const& source,
+                                         uint16_t& target_width,
+                                         uint16_t& target_height,
                                          size_t& target_bytesize) const {
 
     target_size(source, target_width, target_height, target_bytesize);
 }
 
-void tfv::ConvertBGRToRGB::target_format(tfv::Image const& source,
-                                         size_t& target_width,
-                                         size_t& target_height,
+void tfv::ConvertBGRToRGB::target_format(tfv::ImageHeader const& source,
+                                         uint16_t& target_width,
+                                         uint16_t& target_height,
                                          size_t& target_bytesize) const {
 
     target_size(source, target_width, target_height, target_bytesize);
 }
 
-void tfv::ConvertBGRToYV12::target_format(tfv::Image const& source,
-                                          size_t& target_width,
-                                          size_t& target_height,
+void tfv::ConvertBGRToYV12::target_format(tfv::ImageHeader const& source,
+                                          uint16_t& target_width,
+                                          uint16_t& target_height,
                                           size_t& target_bytesize) const {
 
     target_width = source.width;
@@ -317,17 +334,17 @@ void tfv::ConvertBGRToYV12::target_format(tfv::Image const& source,
 }
 
 void tfv::ConvertBGRToYV12::convert(Image const& source, Image& target) const {
-    assert(source.format == ColorSpace::BGR888);
+    assert(source.header.format == ColorSpace::BGR888);
 
     auto row0 = source.data;
-    auto row1 = source.data + source.width * 3;
+    auto row1 = source.data + source.header.width * 3;
     auto y0 = target.data;
-    auto y1 = target.data + target.width;
-    auto v = target.data + target.width * target.height;
-    auto u = v + ((target.width * target.height) >> 2);
+    auto y1 = target.data + target.header.width;
+    auto v = target.data + target.header.width * target.header.height;
+    auto u = v + ((target.header.width * target.header.height) >> 2);
 
-    for (size_t i = 0; i < source.height; i += 2) {
-        for (size_t j = 0; j < source.width; j += 2) {
+    for (size_t i = 0; i < source.header.height; i += 2) {
+        for (size_t j = 0; j < source.header.width; j += 2) {
             *y0++ = 0.299 * row0[2] + 0.587 * row0[1] + 0.114 * row0[0];
             *y0++ = 0.299 * row0[5] + 0.587 * row0[4] + 0.114 * row0[3];
             *y1++ = 0.299 * row1[2] + 0.587 * row1[1] + 0.114 * row1[0];
@@ -350,15 +367,15 @@ void tfv::ConvertBGRToYV12::convert(Image const& source, Image& target) const {
         }
 
         y0 = y1;
-        y1 = y1 + target.width;
+        y1 = y1 + target.header.width;
         row0 = row1;
-        row1 += source.width * 3;
+        row1 += source.header.width * 3;
     }
 }
 
-void tfv::ConvertBGRToYUYV::target_format(tfv::Image const& source,
-                                          size_t& target_width,
-                                          size_t& target_height,
+void tfv::ConvertBGRToYUYV::target_format(tfv::ImageHeader const& source,
+                                          uint16_t& target_width,
+                                          uint16_t& target_height,
                                           size_t& target_bytesize) const {
 
     target_width = source.width;
@@ -367,7 +384,7 @@ void tfv::ConvertBGRToYUYV::target_format(tfv::Image const& source,
 }
 
 void tfv::ConvertBGRToYUYV::convert(Image const& source, Image& target) const {
-    assert(source.format == ColorSpace::BGR888);
+    assert(source.header.format == ColorSpace::BGR888);
 
     auto rgb = source.data;
     auto y0 = target.data;
@@ -375,8 +392,8 @@ void tfv::ConvertBGRToYUYV::convert(Image const& source, Image& target) const {
     auto v = u + 1;
     auto y1 = v + 1;
 
-    for (size_t i = 0; i < source.height; ++i) {
-        for (size_t j = 0; j < source.width; j += 2) {
+    for (size_t i = 0; i < source.header.height; ++i) {
+        for (size_t j = 0; j < source.header.width; j += 2) {
 
             *y0 = 0.299 * rgb[2] + 0.587 * rgb[1] + 0.114 * rgb[0];
             *y1 = 0.299 * rgb[5] + 0.587 * rgb[4] + 0.114 * rgb[3];
@@ -399,9 +416,9 @@ void tfv::ConvertBGRToYUYV::convert(Image const& source, Image& target) const {
     }
 }
 
-void tfv::ConvertBGRToGray::target_format(tfv::Image const& source,
-                                          size_t& target_width,
-                                          size_t& target_height,
+void tfv::ConvertBGRToGray::target_format(tfv::ImageHeader const& source,
+                                          uint16_t& target_width,
+                                          uint16_t& target_height,
                                           size_t& target_bytesize) const {
     target_width = source.width;
     target_height = source.height;
@@ -409,11 +426,11 @@ void tfv::ConvertBGRToGray::target_format(tfv::Image const& source,
 }
 
 void tfv::ConvertBGRToGray::convert(Image const& source, Image& target) const {
-    assert(source.format == ColorSpace::BGR888);
+    assert(source.header.format == ColorSpace::BGR888);
 
     auto bgr = source.data;
     auto gray = target.data;
-    for (size_t i = 0; i < target.bytesize; ++i) {
+    for (size_t i = 0; i < target.header.bytesize; ++i) {
         *gray = static_cast<TFV_ImageData>(
             std::round(0.114 * bgr[2] + 0.587 * bgr[1] + 0.299 * bgr[0]));
         // above formula yields 255 for b=g=r=255, no clamping needed
@@ -422,9 +439,9 @@ void tfv::ConvertBGRToGray::convert(Image const& source, Image& target) const {
     }
 }
 
-void tfv::ConvertGrayToBGR::target_format(tfv::Image const& source,
-                                          size_t& target_width,
-                                          size_t& target_height,
+void tfv::ConvertGrayToBGR::target_format(tfv::ImageHeader const& source,
+                                          uint16_t& target_width,
+                                          uint16_t& target_height,
                                           size_t& target_bytesize) const {
     target_width = source.width;
     target_height = source.height;
@@ -432,11 +449,11 @@ void tfv::ConvertGrayToBGR::target_format(tfv::Image const& source,
 }
 
 void tfv::ConvertGrayToBGR::convert(Image const& source, Image& target) const {
-    assert(source.format == ColorSpace::GRAY);
+    assert(source.header.format == ColorSpace::GRAY);
 
     auto bgr = target.data;
     auto gray = source.data;
-    for (size_t i = 0; i < source.bytesize; ++i) {
+    for (size_t i = 0; i < source.header.bytesize; ++i) {
         bgr[0] = bgr[1] = bgr[2] = *gray;
         bgr += 3;
         ++gray;
@@ -463,6 +480,15 @@ tfv::Converter::~Converter(void) {
     }
 }
 
+tfv::Image const& tfv::Converter::operator()(
+    tfv::ImageAllocator const& source) const {
+    if (not converter_) {
+        return invalid_image_;
+    }
+
+    return (*converter_)(source());
+}
+
 tfv::Image const& tfv::Converter::operator()(tfv::Image const& source) const {
     if (not converter_) {
         return invalid_image_;
@@ -476,4 +502,13 @@ void tfv::Converter::operator()(tfv::Image const& source,
     if (converter_) {
         (*converter_)(source, target);
     }
+}
+
+tfv::ImageHeader tfv::Converter::convert_header(
+    ImageHeader const& source) const {
+    if (not converter_) {
+        return ImageHeader();
+    }
+
+    return converter_->convert_header(source);
 }

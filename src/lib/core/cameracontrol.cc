@@ -29,16 +29,11 @@
 #include "v4l2_camera.hh"
 #endif
 
-tfv::CameraControl::~CameraControl(void) {
-    release_all();
-    if (image_.data) {
-        delete[] image_.data;
-    }
-}
+tfv::CameraControl::~CameraControl(void) { release_all(); }
 
 tfv::CameraControl::CameraControl(void) {
-    fallback_.allocate(640, 480, 640 * 480 * 3, ColorSpace::BGR888);
-    std::fill_n(fallback_.image().data, fallback_.image().bytesize, 255);
+    fallback_.allocate(640, 480, 640 * 480 * 3, ColorSpace::BGR888, false);
+    std::fill_n(fallback_().data, fallback_().header.bytesize, 255);
 }
 
 bool tfv::CameraControl::is_available(void) {
@@ -86,12 +81,15 @@ bool tfv::CameraControl::acquire(void) {
             release();
         }
 
+        // on first open, get a frame to learn the header.
         open = _init();
     }
 
     if (open) {
         usercount_++;
         Log("CAMERACONTROL::acquire", usercount_, " users.");
+    } else {
+        _close_device();
     }
 
     return open;
@@ -172,8 +170,8 @@ void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ColorSpace format) {
 
     // If the requested format is the same as provided by the camera,
     // image_.
-    if (format == image_.format) {
-        image = image_;
+    if (format == image_().header.format) {
+        image = image_();
         return;
     }
 
@@ -182,37 +180,43 @@ void tfv::CameraControl::get_frame(tfv::Image& image, tfv::ColorSpace format) {
     // valid result with the same timestamp as image_. If, it has been run
     // already, just return the result. Else, run the converter.
 
-    auto converter = get_converter(image_.format, format);
+    auto converter = get_converter(image_().header.format, format);
     if (converter) {
         image = converter->result();
 
-        if (image.format == tfv::ColorSpace::INVALID or
-            image.timestamp != image_.timestamp) {
+        if (image.header.format == tfv::ColorSpace::INVALID or
+            image.header.timestamp != image_().header.timestamp) {
 
             // conversion and flat copy
-            assert(image_.data);
-            image = (*converter)(image_);
+            assert(image_().data);
+            image = (*converter)(image_());
         }
     }
 }
 
 bool tfv::CameraControl::regenerate_image_from(Image const& image) {
     // Assert that the adequate converter is available and regenerate image_
-    if (image.format != image_.format) {
-        auto converter = get_converter(image.format, image_.format);
+    if (image.header.format != image_().header.format) {
+        auto converter =
+            get_converter(image.header.format, image_().header.format);
         if (not converter) {
             LogError("CAMERACONTROL", "Can't regenerate formats from ",
-                     image.format, " (baseformat: ", image_.format, ")");
+                     image.header.format, " (baseformat: ",
+                     image_().header.format, ")");
             return false;
         }
-        (*converter)(image, image_);
+        Image converted;
+        (*converter)(image, converted);
+
+        image_.allocate(converted.header, false);
+        image_.copy_data(converted.data, converted.header.bytesize);
     }
 
     // Regenerate all images held by the available converters, skip the
     // converter from above.
     for (auto& converter : provided_formats_) {
-        if ((converter.source_format() == image.format) and
-            not(converter.target_format() == image_.format)) {
+        if ((converter.source_format() == image.header.format) and
+            not(converter.target_format() == image_().header.format)) {
 
             converter(image);
         }
@@ -231,10 +235,10 @@ bool tfv::CameraControl::update_frame(void) {
     }
 
     if (not _update_from_camera()) {
-        _copy_data(fallback_.image());
+        image_.set_from_image(fallback_.image());
     }
 
-    if (image_.format == tfv::ColorSpace::INVALID) {
+    if (image_().header.format == tfv::ColorSpace::INVALID) {
         LogWarning("CAMERACONTROL", "INVALID image format");
         return false;
     }
@@ -242,30 +246,34 @@ bool tfv::CameraControl::update_frame(void) {
     return true;
 }
 
+tfv::ImageHeader tfv::CameraControl::image_header(tfv::ColorSpace format) {
+
+    if (format == image_().header.format) {
+        return image_().header;
+    }
+
+    auto converter = get_converter(image_().header.format, format);
+    if (not converter) {
+        LogError("CAMERACONTROL", "Can't get header for format ", format,
+                 " (baseformat: ", image_().header.format, ")");
+        return ImageHeader();
+    }
+
+    return converter->convert_header(image_().header);
+}
+
 bool tfv::CameraControl::_update_from_camera(void) {
     {
         std::lock_guard<std::mutex> cam_lock(camera_mutex_);
-        if (not camera_ or not camera_->get_frame(camera_image_)) {
+        Image image;
+        if (not camera_ or not camera_->get_frame(image)) {
             return false;
         }
+        image_.copy_data(image.data, image.header.bytesize);
     }
 
-    _copy_data(camera_image_);
-    image_.timestamp = Clock::now();
+    image_.image().header.timestamp = Clock::now();
     return true;
-}
-
-void tfv::CameraControl::_copy_data(Image const& source) {
-    if (not image_.data or (image_.bytesize != source.bytesize)) {
-
-        delete[] image_.data;
-        image_.width = source.width;
-        image_.height = source.height;
-        image_.bytesize = source.bytesize;
-        image_.data = new TFV_ImageData[image_.bytesize];
-    }
-    image_.format = source.format;
-    std::copy_n(source.data, source.bytesize, image_.data);
 }
 
 bool tfv::CameraControl::_test_device(void) {
@@ -282,7 +290,12 @@ bool tfv::CameraControl::_test_device(void) {
 bool tfv::CameraControl::_init(void) {
     std::lock_guard<std::mutex> cam_mutex(camera_mutex_);
 
-    return _open_device();
+    auto success = _open_device();
+    if (success) {
+        image_.allocate(camera_->frame_header(), false);
+    }
+
+    return success;
 }
 
 bool tfv::CameraControl::_open_device(void) {

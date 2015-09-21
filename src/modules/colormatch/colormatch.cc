@@ -23,17 +23,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 DEFINE_VISION_MODULE(Colormatch)
 
-void tfv::Colormatch::execute(tfv::Image const& image) {
+void tfv::Colormatch::execute(tfv::ImageHeader const& header,
+                              ImageData const* data) {
 
-    cv::Mat cv_image(image.height, image.width, CV_8UC3);
-    std::copy_n(image.data, image.bytesize, cv_image.data);
+    cv::Mat cv_image(header.height, header.width, CV_8UC3);
+    std::copy_n(data, header.bytesize, cv_image.data);
 
 #ifdef DEBUG
     cv::imshow("Colormatch", cv_image);
     cv::waitKey(2);
 #endif
     cv::cvtColor(cv_image, cv_image, CV_BGR2HSV);
-    cv::Mat mask(image.height, image.width, CV_8UC3);
+    cv::Mat mask(header.height, header.width, CV_8UC3);
 
     // The hue-range is circular, i.e. it is possible that for a requested color
     // range, the minimum hue > maximum hue. In that case, the range is divided
@@ -45,8 +46,8 @@ void tfv::Colormatch::execute(tfv::Image const& image) {
     cv::Scalar high(split ? max_hue : user_max_hue, max_saturation, max_value);
 
     if (split) {
-        cv::Mat mask0(image.height, image.width, CV_8UC3);
-        cv::Mat mask1(image.height, image.width, CV_8UC3);
+        cv::Mat mask0(header.height, header.width, CV_8UC3);
+        cv::Mat mask1(header.height, header.width, CV_8UC3);
         cv::inRange(cv_image, low, high, mask0);
         low[0] = min_hue;
         high[0] = user_max_hue;

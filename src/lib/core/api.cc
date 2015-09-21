@@ -111,7 +111,6 @@ void tfv::Api::execute(void) {
 
     // Execute active module. This is the ONLY place where modules are executed.
     auto module_exec = [&](TFV_Int id, tfv::Module& module) {
-
         // skip paused modules and those that don't want to execute
         if (not module.enabled() or not module.running()) {
             return;
@@ -124,22 +123,29 @@ void tfv::Api::execute(void) {
 
 #ifdef DEBUG
             camera_control_.get_frame(dbg_img_0, ColorSpace::BGR888);
-            w.update(0, dbg_img_0.data, dbg_img_0.height, dbg_img_0.width);
+            w.update(0, dbg_img_0.data, dbg_img_0.header.height,
+                     dbg_img_0.header.width);
 #endif
-
             module.exec(image_);
         }
 
+        /*
         if (module.type() == ModuleType::Modifier) {
-            if (not camera_control_.regenerate_image_from(image_)) {
-                LogError("API", "Regeneration of images from ", image_.format,
-                         " failed");
+            auto modifier = static_cast<Modifier*>(module.executable());
+
+            if (not camera_control_.regenerate_image_from(
+                    modifier->modified_image())) {
+
+                LogError("API", "Regeneration of images from ",
+                         image_.header.format, " failed");
             }
         }
+        */
 
 #ifdef DEBUG
         camera_control_.get_frame(dbg_img_1, ColorSpace::BGR888);
-        w.update(1, dbg_img_1.data, dbg_img_1.height, dbg_img_1.width);
+        w.update(1, dbg_img_1.data, dbg_img_1.header.height,
+                 dbg_img_1.header.width);
 #endif
 
         auto& tags = module.tags();

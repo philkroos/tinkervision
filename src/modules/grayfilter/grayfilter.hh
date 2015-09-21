@@ -31,9 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 namespace tfv {
 
 struct Grayfilter : public Modifier {
-private:
-    TFV_Context context;
-
 public:
     Grayfilter(void) : Modifier("Grayfilter") {
 #ifdef DEBUG
@@ -43,13 +40,14 @@ public:
 
     ~Grayfilter(void) override = default;
 
-    void execute_modifying(tfv::Image& image) override;
+    void execute(tfv::ImageHeader const& header, tfv::ImageData const* data,
+                 tfv::Image& output) override final;
 
     ColorSpace expected_format(void) const override {
         return ColorSpace::BGR888;
     }
 
-    bool modifies_image(void) const override { return true; }
+    bool initialize(ImageHeader const& ref, ImageHeader& output) override final;
 };
 }
 

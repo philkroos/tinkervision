@@ -72,9 +72,11 @@ struct Convert {
     Image const& operator()(Image const& source);
     void operator()(Image const& source, Image& target);
 
+    ImageHeader convert_header(ImageHeader const& source);
+
 protected:
-    virtual void target_format(Image const& source, size_t& target_width,
-                               size_t& target_height,
+    virtual void target_format(ImageHeader const& source,
+                               uint16_t& target_width, uint16_t& target_height,
                                size_t& target_bytesize) const = 0;
     virtual void convert(Image const& source, Image& target) const = 0;
 
@@ -99,8 +101,8 @@ public:
     ~ConvertYUV422ToYUV420(void) override = default;
 
 protected:
-    void target_format(Image const& source, size_t& target_width,
-                       size_t& target_height,
+    void target_format(ImageHeader const& source, uint16_t& target_width,
+                       uint16_t& target_height,
                        size_t& target_bytesize) const override final;
 
     void convert_yuyv(Image const& source, Image& target) const {
@@ -122,7 +124,7 @@ public:
 
 protected:
     void convert(Image const& source, Image& target) const override final {
-        assert(source.format == ColorSpace::YUYV);
+        assert(source.header.format == ColorSpace::YUYV);
         convert_yuyv(source, target);
     }
 };
@@ -158,8 +160,8 @@ private:
     double constexpr static normalizer = 256000.0;
 
 protected:
-    void target_size(Image const& source, size_t& target_width,
-                     size_t& target_height, size_t& target_bytesize) const;
+    void target_size(ImageHeader const& source, uint16_t& target_width,
+                     uint16_t& target_height, size_t& target_bytesize) const;
 
 public:
     template <size_t r = 0, size_t g = 1, size_t b = 2>
@@ -182,12 +184,12 @@ public:
     ~ConvertYUYVToRGB(void) override final = default;
 
 protected:
-    void target_format(Image const& source, size_t& target_width,
-                       size_t& target_height,
+    void target_format(ImageHeader const& source, uint16_t& target_width,
+                       uint16_t& target_height,
                        size_t& target_bytesize) const override final;
 
     void convert(Image const& source, Image& target) const override final {
-        assert(source.format == ColorSpace::YUYV);
+        assert(source.header.format == ColorSpace::YUYV);
         YUYVToRGBType::convert<0, 1, 2>(source, target);
     }
 };
@@ -198,12 +200,12 @@ public:
     ~ConvertYUYVToBGR(void) override final = default;
 
 protected:
-    void target_format(Image const& source, size_t& target_width,
-                       size_t& target_height,
+    void target_format(ImageHeader const& source, uint16_t& target_width,
+                       uint16_t& target_height,
                        size_t& target_bytesize) const override final;
 
     void convert(Image const& source, Image& target) const override final {
-        assert(source.format == ColorSpace::YUYV);
+        assert(source.header.format == ColorSpace::YUYV);
         YUYVToRGBType::convert<2, 1, 0>(source, target);
     }
 };
@@ -224,8 +226,8 @@ public:
     ~ConvertYV12ToRGB(void) override final = default;
 
 protected:
-    void target_format(Image const& source, size_t& target_width,
-                       size_t& target_height,
+    void target_format(ImageHeader const& source, uint16_t& target_width,
+                       uint16_t& target_height,
                        size_t& target_bytesize) const override final;
 
     void convert(Image const& source, Image& target) const override final;
@@ -237,8 +239,8 @@ public:
     ~ConvertYV12ToBGR(void) override final = default;
 
 protected:
-    void target_format(Image const& source, size_t& target_width,
-                       size_t& target_height,
+    void target_format(ImageHeader const& source, uint16_t& target_width,
+                       uint16_t& target_height,
                        size_t& target_bytesize) const override final;
 
     void inline convert(Image const& source,
@@ -255,8 +257,8 @@ public:
     ~RGBFromToBGR(void) override = default;
 
 protected:
-    void target_size(Image const& source, size_t& target_width,
-                     size_t& target_height, size_t& target_bytesize) const;
+    void target_size(ImageHeader const& source, uint16_t& target_width,
+                     uint16_t& target_height, size_t& target_bytesize) const;
 
     void convert(Image const& source, Image& target) const override final;
 };
@@ -267,8 +269,8 @@ public:
     ~ConvertRGBToBGR(void) override final = default;
 
 protected:
-    void target_format(Image const& source, size_t& target_width,
-                       size_t& target_height,
+    void target_format(ImageHeader const& source, uint16_t& target_width,
+                       uint16_t& target_height,
                        size_t& target_bytesize) const override final;
 };
 
@@ -282,8 +284,8 @@ public:
     ~ConvertBGRToRGB(void) override final = default;
 
 protected:
-    virtual void target_format(Image const& source, size_t& target_width,
-                               size_t& target_height,
+    virtual void target_format(ImageHeader const& source,
+                               uint16_t& target_width, uint16_t& target_height,
                                size_t& target_bytesize) const;
 };
 
@@ -293,8 +295,8 @@ public:
     ~ConvertBGRToYV12(void) override final = default;
 
 protected:
-    void target_format(Image const& source, size_t& target_width,
-                       size_t& target_height,
+    void target_format(ImageHeader const& source, uint16_t& target_width,
+                       uint16_t& target_height,
                        size_t& target_bytesize) const override final;
 
     void convert(Image const& source, Image& target) const override final;
@@ -306,8 +308,8 @@ public:
     ~ConvertBGRToYUYV(void) override final = default;
 
 protected:
-    void target_format(Image const& source, size_t& target_width,
-                       size_t& target_height,
+    void target_format(ImageHeader const& source, uint16_t& target_width,
+                       uint16_t& target_height,
                        size_t& target_bytesize) const override final;
 
     void convert(Image const& source, Image& target) const override final;
@@ -322,8 +324,8 @@ public:
     ~ConvertBGRToGray(void) override = default;
 
 protected:
-    void target_format(Image const& source, size_t& target_width,
-                       size_t& target_height,
+    void target_format(ImageHeader const& source, uint16_t& target_width,
+                       uint16_t& target_height,
                        size_t& target_bytesize) const override final;
 
     /**
@@ -345,8 +347,8 @@ public:
     ~ConvertGrayToBGR(void) override = default;
 
 protected:
-    void target_format(Image const& source, size_t& target_width,
-                       size_t& target_height,
+    void target_format(ImageHeader const& source, uint16_t& target_width,
+                       uint16_t& target_height,
                        size_t& target_bytesize) const override final;
 
     void convert(Image const& source, Image& target) const override final;
@@ -428,8 +430,11 @@ public:
 
     // static bool known_conversion(ColorSpace source, ColorSpace target);
 
+    Image const& operator()(ImageAllocator const& source) const;
     Image const& operator()(Image const& source) const;
     void operator()(Image const& source, Image& target) const;
+
+    ImageHeader convert_header(ImageHeader const& source) const;
 
     Image const& result(void) const {
         return (converter_ and converter_->target.data) ? converter_->target

@@ -33,7 +33,7 @@ Snapshot::~Snapshot(void) {
     }
 }
 
-void Snapshot::execute(tfv::Image const& image) {
+void Snapshot::execute(ImageHeader const& header, ImageData const* data) {
     try {
 
         static auto counter = int(0);
@@ -42,12 +42,12 @@ void Snapshot::execute(tfv::Image const& image) {
             std::string{"Snapshot" + std::to_string(counter) + ".yuv"};
 
         if (not image_.data) {
-            image_.width = image.width;
-            image_.height = image.height;
-            image_.bytesize = image.bytesize;
-            image_.data = new TFV_ImageData[image.bytesize];
+            image_.header.width = header.width;
+            image_.header.height = header.height;
+            image_.header.bytesize = header.bytesize;
+            image_.data = new TFV_ImageData[header.bytesize];
         }
-        std::copy_n(image.data, image.bytesize, image_.data);
+        std::copy_n(data, header.bytesize, image_.data);
 
     } catch (...) {
         std::cout << "Exception during Snapshotting" << std::endl;
@@ -66,7 +66,7 @@ tfv::Result const* Snapshot::get_result(void) const {
         char const* data = reinterpret_cast<char const*>(image_.data);
 
         Log("SNAPSHOT", "Wrote image as: ", filename_);
-        ofs.write(data, image_.bytesize);
+        ofs.write(data, image_.header.bytesize);
     }
 
     ofs.close();

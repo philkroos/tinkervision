@@ -75,43 +75,51 @@ int main() {
     auto width = 1280;
     auto height = 720;
 
-    tfv::Image original;
+    tfv::ImageAllocator original;
 
     auto bytesize = size_t(width * height * 2);
 
     if (yuyv.is_open() and size_t(yuyv.tellg()) == bytesize) {
 
         // data managed by image
-        original.width = width;
-        original.height = height;
-        original.bytesize = bytesize;
-        original.format = tfv::ColorSpace::YUYV;
-        original.data = new TFV_ImageData[bytesize];
+        original.allocate(width, height, bytesize, tfv::ColorSpace::YUYV);
         yuyv.seekg(0, std::ios::beg);
-        yuyv.read((char*)original.data, bytesize);
+        yuyv.read((char*)original.image().data, bytesize);
         yuyv.close();
-        std::cout << "file is in memory: " << original.bytesize << " byte."
-                  << std::endl;
+        std::cout << "file is in memory: " << original.image().header.bytesize
+                  << " byte." << std::endl;
     } else {
         std::cout << "Input file frame.raw not found" << std::endl;
         return -1;
     }
 
-    print_max_and_min_yuv(original.data, original.width, original.height);
+    auto& header = original.image().header;
+    auto& image = original.image();
+    print_max_and_min_yuv(image.data, header.width, header.height);
 
     tfv::Window window;
     TFV_Id win_id = 1;
 
-    tfv::ConvertYUYVToYV12 yuyvToYv12_converter;
-    tfv::ConvertYUYVToRGB yuyvToRgb_converter;
-    tfv::ConvertYV12ToRGB yv12ToRgb_converter;
-    tfv::ConvertBGRToRGB bgrToRgb_converter;
-    tfv::ConvertYUYVToBGR yuyvToBgr_converter;
-    tfv::ConvertYV12ToBGR yv12ToBgr_converter;
-    tfv::ConvertRGBToBGR rgbToBgr_converter;
-    tfv::ConvertBGRToYV12 bgrToYv12_converter;
-    tfv::ConvertBGRToGray bgrToGray_converter;
-    tfv::ConvertGrayToBGR grayToBgr_converter;
+    auto yuyvToYv12_converter =
+        tfv::Converter(tfv::ColorSpace::YUYV, tfv::ColorSpace::YV12);
+    auto yuyvToRgb_converter =
+        tfv::Converter(tfv::ColorSpace::YUYV, tfv::ColorSpace::RGB888);
+    auto yv12ToRgb_converter =
+        tfv::Converter(tfv::ColorSpace::YV12, tfv::ColorSpace::RGB888);
+    auto bgrToRgb_converter =
+        tfv::Converter(tfv::ColorSpace::BGR888, tfv::ColorSpace::RGB888);
+    auto yuyvToBgr_converter =
+        tfv::Converter(tfv::ColorSpace::YUYV, tfv::ColorSpace::BGR888);
+    auto yv12ToBgr_converter =
+        tfv::Converter(tfv::ColorSpace::YV12, tfv::ColorSpace::BGR888);
+    auto rgbToBgr_converter =
+        tfv::Converter(tfv::ColorSpace::RGB888, tfv::ColorSpace::BGR888);
+    auto bgrToYv12_converter =
+        tfv::Converter(tfv::ColorSpace::BGR888, tfv::ColorSpace::YV12);
+    auto bgrToGray_converter =
+        tfv::Converter(tfv::ColorSpace::BGR888, tfv::ColorSpace::GRAY);
+    auto grayToBgr_converter =
+        tfv::Converter(tfv::ColorSpace::GRAY, tfv::ColorSpace::BGR888);
 
     // operator() returns tfv::Image
     auto& yuyvToYv12_result = yuyvToYv12_converter(original);
@@ -135,11 +143,13 @@ int main() {
     // - width/height: 1280/720
     // - Pixel Plane: planar
     std::ofstream ofs("/tmp/uvoutput.yuv", std::ios::out | std::ios::binary);
-    ofs.write((const char*)yuyvToYv12_result.data, yuyvToYv12_result.bytesize);
+    ofs.write((const char*)yuyvToYv12_result.data,
+              yuyvToYv12_result.header.bytesize);
     ofs.close();
     std::ofstream ofs2("/tmp/uvoutput_after.yuv",
                        std::ios::out | std::ios::binary);
-    ofs2.write((const char*)bgrToYv12_result.data, bgrToYv12_result.bytesize);
+    ofs2.write((const char*)bgrToYv12_result.data,
+               bgrToYv12_result.header.bytesize);
     ofs2.close();
 
     // Next few are viewable with opencv
@@ -168,11 +178,8 @@ int main() {
     window.wait_for_input();
 
     // second window
-    window.update(win_id + 1, bgrToGray_result.data, bgrToGray_result.height,
-                  bgrToGray_result.width, "BGR to Gray", CV_8UC1);
+    window.update(win_id + 1, bgrToGray_result.data,
+                  bgrToGray_result.header.height, bgrToGray_result.header.width,
+                  "BGR to Gray", CV_8UC1);
     window.wait_for_input();
-
-    if (original.data) {
-        delete[] original.data;
-    }
 }

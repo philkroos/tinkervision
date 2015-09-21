@@ -157,11 +157,20 @@ public:
             return TFV_CAMERA_ACQUISITION_FAILED;
         }
 
+        auto header = camera_control_.image_header(module->expected_format());
+        if (header.format == ColorSpace::INVALID) {
+            return TFV_INTERNAL_ERROR;
+        }
+
         if (not modules_.insert(id, module, [this](Module& module) {
                 module_loader_.destroy_module(&module);
             })) {
 
             camera_control_.release();
+            return TFV_MODULE_INITIALIZATION_FAILED;
+        }
+
+        if (not module->init(header)) {
             return TFV_MODULE_INITIALIZATION_FAILED;
         }
 

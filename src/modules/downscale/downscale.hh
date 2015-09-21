@@ -29,7 +29,7 @@ namespace tfv {
 
 struct Downscale : public Modifier {
 private:
-    uint8_t factor_{0};  ///< 1 is half size, 2 quarter, ...
+    uint8_t factor_{1};  ///< 1 is half size, 2 quarter, ...
     uint8_t max_factor_{5};
 
 public:
@@ -40,13 +40,14 @@ public:
 
     ~Downscale(void) override final = default;
 
-    void execute(tfv::Image const& image, tfv::Image& out) override final;
+    bool initialize(ImageHeader const& ref, ImageHeader& output) override final;
+
+    void execute(tfv::ImageHeader const& header, tfv::ImageData const* data,
+                 tfv::Image& output) override final;
 
     ColorSpace expected_format(void) const override final {
         return ColorSpace::BGR888;
     }
-
-    bool modifies_image(void) const override final { return false; }
 
     /**
      * If factor is zero, no need to be executed.

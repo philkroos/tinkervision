@@ -275,7 +275,7 @@ bool tfv::V4L2USBCamera::_set_highest_framerate(v4l2::PixelFormat& px_format) {
 
     int max_numerator = 0;
     int max_denominator = 1;  // prevent /0
-    framerate_ = 0.0d;
+    framerate_ = 0.0;
 
     // enumerate possibilities
     for (int i = 0;; i++) {

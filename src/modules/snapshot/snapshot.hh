@@ -29,7 +29,8 @@ public:
     Snapshot(void) : Publisher("Snapshot") {}
     ~Snapshot(void) override;
 
-    void execute(tfv::Image const& image) override;
+    void execute(ImageHeader const& header,
+                 ImageData const* data) override final;
 
     tfv::ColorSpace expected_format(void) const override {
         return tfv::ColorSpace::YV12;

@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
-class Result;
+struct Result;
 class TVModule;
 enum class ModuleType : uint8_t;
 
@@ -159,7 +159,6 @@ public:
 
     void execute(tfv::Image const& image);
     void execute_modifying(tfv::Image& image);
-    bool modifies_image(void) const;
 
     TFV_Int id(void) const { return module_id_; }
     std::string name(void) const;
@@ -168,6 +167,10 @@ public:
     bool running(void) const noexcept;
 
     bool enabled(void) const noexcept { return active_; }
+
+    bool init(ImageHeader const& header) {
+        return tv_module_ and tv_module_->init(header);
+    }
 
     // return false if previous state was the same
     bool enable(void) noexcept { return switch_active(true); }
@@ -185,16 +188,12 @@ public:
     }
 
     void exec(tfv::Image& image) {
-        if (modifies_image()) {
-            execute_modifying(image);
-        } else {
-            execute(image);
-        }
-
+        execute(image);
         if (cb_.cb) {
             (*cb_.cb)(get_result());
         }
     }
+
     ColorSpace expected_format(void) const;
 
     bool has_parameter(std::string const& parameter) const;

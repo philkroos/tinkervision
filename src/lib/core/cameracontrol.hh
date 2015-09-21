@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string>
 #include <mutex>
 
-#include "image_allocator.hh"
+#include "image.hh"
 #include "convert.hh"
 #include "camera.hh"
 
@@ -144,6 +144,8 @@ public:
      */
     void add_user(size_t count) { usercount_ += count; }
 
+    ImageHeader image_header(tfv::ColorSpace format);
+
     /**
      * Get the grabbed frame in the requested format.  This assumes that
      * update_frame() has already been called.
@@ -153,7 +155,9 @@ public:
      */
     void get_frame(Image& image, ColorSpace format);
 
-    Timestamp latest_frame_timestamp(void) const { return image_.timestamp; }
+    Timestamp latest_frame_timestamp(void) const {
+        return image_().header.timestamp;
+    }
 
     /**
      * Recreate the images in all provided formats from the supplied template.
@@ -173,8 +177,7 @@ private:
     Converter* get_converter(tfv::ColorSpace from, tfv::ColorSpace to);
 
     ImageAllocator fallback_{};  ///< Black frame
-    Image camera_image_{};       ///< Data obtained from the camera
-    Image image_{};              ///< Data exchanged with the Api
+    ImageAllocator image_{};     ///< Data exchanged with the Api
 
     int usercount_ = 0;
     bool stopped_ = false;
@@ -193,7 +196,6 @@ private:
     bool _init(void);
     bool _update_from_camera(void);
     bool _update_from_fallback(void);
-    void _copy_data(Image const& source);
 };
 };
 

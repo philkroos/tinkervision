@@ -28,6 +28,7 @@ public:
     Dummy() : Analyzer("Dummy") {}
 
     bool running(void) const noexcept override { return false; }
+    void execute(ImageHeader const&, ImageData const*) override final {}
 };
 }
 

@@ -52,7 +52,7 @@ tfv::Stream::Stream() : Publisher("Stream"), context_(ExecutionContext::get()) {
                                              streamname_, streamtypename_);
 }
 
-void tfv::Stream::execute(tfv::Image const& image) {
+void tfv::Stream::execute(tfv::ImageHeader const& header, ImageData const* data) {
     if (not subsession_) {
 
         context_.encoder.initialize(image.width, image.height, 10);  // FPS!
@@ -78,5 +78,5 @@ void tfv::Stream::execute(tfv::Image const& image) {
     }
 
     /// \todo check for constant frame dimensions
-    context_.encoder.add_frame(image.data);
+    context_.encoder.add_frame(data);
 }

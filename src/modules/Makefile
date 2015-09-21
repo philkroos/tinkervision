@@ -1,4 +1,4 @@
-MODULES	:= grayfilter dummy colormatch motiondetect snapshot
+MODULES	:= grayfilter dummy colormatch motiondetect snapshot downscale
 
 all:
 	@for module in $(MODULES); do \

@@ -21,24 +21,40 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 DEFINE_VISION_MODULE(Downscale)
 
-void tfv::Downscale::execute(tfv::Image const& image, tfv::Image& out) {
-    auto const channels = 3;        // receiving RGB image
-    auto const skip = factor_ * 2;  // downscalable by a factor of 2
+using namespace tfv;
 
-    cv::Mat c_image(image.height, image.width, CV_8UC3);
-    std::copy_n(image.data, image.bytesize, c_image.data);
+bool tfv::Downscale::initialize(ImageHeader const& ref, ImageHeader& output) {
+    if (factor_ == 0) {
+        return false;
+    }
+    auto const skip = factor_ * 2;  // downscalable by a factor of 2
+    output.width = ref.width / skip;
+    output.height = ref.height / skip;
+    output.bytesize = output.height * output.width * 3;
+    output.format = expected_format();
+
+    return true;
+}
+
+void tfv::Downscale::execute(tfv::ImageHeader const& header,
+                             tfv::ImageData const* data, tfv::Image& output) {
+
+    cv::Mat c_image(header.height, header.width, CV_8UC3);
+    std::copy_n(data, header.bytesize, c_image.data);
     cv::imshow("Downscale0", c_image);
     cv::waitKey(2);
 
-    auto source = image.data;
-    auto target = out.data;
+    std::fill_n(output.data, output.header.bytesize, 200);
 
-    out.width = image.width / skip;
-    out.height = image.height / skip;
-    out.bytesize = image.bytesize / (skip * 2);
+    /*
+    auto const channels = 3;  // receiving RGB image
+    auto const skip = factor_ * 2;  // downscalable by a factor of 2
+    auto source = data;
+    auto target = output.data;
+    auto const out_header = output.header;
 
-    for (auto i = 0; i < out.height; ++i) {
-        for (auto j = 0; j < out.width; ++j) {
+    for (auto i = 0; i < out_header.height; ++i) {
+        for (auto j = 0; j < out_header.width; ++j) {
             target[0] = source[0];
             target[1] = source[1];
             target[2] = source[2];
@@ -47,12 +63,13 @@ void tfv::Downscale::execute(tfv::Image const& image, tfv::Image& out) {
             source += channels * skip;
         }
         // skip the next skip-1 rows, e.g. 1 row if skip is 2
-        source += image.width * channels * (skip - 1);
+        source += header.width * channels * (skip - 1);
     }
 
-    cv::Mat cv_image(out.height, out.width, CV_8UC3);
-    std::copy_n(out.data, out.bytesize, cv_image.data);
+    cv::Mat cv_image(out_header.height, out_header.width, CV_8UC3);
+    std::copy_n(output.data, out_header.bytesize, cv_image.data);
 
     cv::imshow("Downscale", cv_image);
     cv::waitKey(2);
+    */
 }

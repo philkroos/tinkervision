@@ -37,6 +37,8 @@ public:
                         size_t& framebytesize);
     bool open(void);
 
+    ImageHeader frame_header(void) const { return image_.header; }
+
     virtual bool is_open(void) const = 0;
     virtual ColorSpace image_format(void) const = 0;
 
