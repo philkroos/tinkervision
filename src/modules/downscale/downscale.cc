@@ -39,14 +39,6 @@ bool tfv::Downscale::initialize(ImageHeader const& ref, ImageHeader& output) {
 void tfv::Downscale::execute(tfv::ImageHeader const& header,
                              tfv::ImageData const* data, tfv::Image& output) {
 
-    cv::Mat c_image(header.height, header.width, CV_8UC3);
-    std::copy_n(data, header.bytesize, c_image.data);
-    cv::imshow("Downscale0", c_image);
-    cv::waitKey(2);
-
-    std::fill_n(output.data, output.header.bytesize, 200);
-
-    /*
     auto const channels = 3;  // receiving RGB image
     auto const skip = factor_ * 2;  // downscalable by a factor of 2
     auto source = data;
@@ -71,5 +63,4 @@ void tfv::Downscale::execute(tfv::ImageHeader const& header,
 
     cv::imshow("Downscale", cv_image);
     cv::waitKey(2);
-    */
 }
