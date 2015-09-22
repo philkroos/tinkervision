@@ -157,20 +157,11 @@ public:
             return TFV_CAMERA_ACQUISITION_FAILED;
         }
 
-        auto header = camera_control_.image_header(module->expected_format());
-        if (header.format == ColorSpace::INVALID) {
-            return TFV_INTERNAL_ERROR;
-        }
-
         if (not modules_.insert(id, module, [this](Module& module) {
                 module_loader_.destroy_module(&module);
             })) {
 
             camera_control_.release();
-            return TFV_MODULE_INITIALIZATION_FAILED;
-        }
-
-        if (not module->init(header)) {
             return TFV_MODULE_INITIALIZATION_FAILED;
         }
 
@@ -434,13 +425,12 @@ public:
     }
 
 private:
-    CameraControl camera_control_;      ///< Camera access abstraction
+    CameraControl camera_control_;  ///< Camera access abstraction
+    FrameConversions conversions_;
     TFVStringMap result_string_map_;    ///< String mapping of Api-return values
     bool idle_process_running_{false};  ///< Dummy module activated?
 
     ModuleLoader module_loader_{SYS_MODULE_LOAD_PATH, ADD_MODULE_LOAD_PATH};
-
-    Image image_;  ///< The container filled with the current frame
 
     /**
      * Instantiation of the resource manager using the abstract base

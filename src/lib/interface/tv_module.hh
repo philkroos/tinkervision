@@ -85,8 +85,6 @@ public:
     std::string const& name(void) const { return name_; }
     ModuleType const& type(void) const { return type_; }
 
-    virtual bool init(tfv::ImageHeader const& ref_header) { return true; }
-
     virtual void execute(tfv::Image const& image) = 0;
 
     virtual Result const* get_result(void) const { return nullptr; }
@@ -128,21 +126,14 @@ class Modifier : public TVModule {
     using TVModule::TVModule;
 
     ImageAllocator image_;
-    ImageHeader ref_header_;
+    ImageHeader output_header_;
 
     void execute(Image const& image) override final {
-        execute(image.header, image.data, image_.image());
-    }
-
-    bool init(tfv::ImageHeader const& ref_header) override final {
-        assert(ref_header.format == expected_format());
-
-        ref_header_ = ref_header;  // needing this in set
-        ImageHeader header;
-        if (not initialize(ref_header, header) or not header) {
-            return false;
+        get_header(image.header, output_header_);
+        if (image_().header != output_header_) {
+            image_.allocate(output_header_, false);
         }
-        return image_.allocate(header, false);
+        execute(image.header, image.data, image_.image());
     }
 
 public:
@@ -152,11 +143,11 @@ public:
     virtual void execute(ImageHeader const& header, ImageData const* data,
                          Image& output) = 0;
 
-    virtual bool set(std::string const& parameter, TFV_Word value) {
-        return set(parameter, value) and init(ref_header_);
-    }
-
-    virtual bool initialize(ImageHeader const& ref, ImageHeader& output) = 0;
+    /**
+     * Called immediately before execute.
+     */
+    virtual void get_header(ImageHeader const& ref_header,
+                            ImageHeader& output) = 0;
 
     Image const& modified_image(void) { return image_.image(); }
 };

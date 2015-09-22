@@ -47,7 +47,7 @@ public:
         return ColorSpace::BGR888;
     }
 
-    bool initialize(ImageHeader const& ref, ImageHeader& output) override final;
+    void get_header(ImageHeader const& ref, ImageHeader& output) override final;
 };
 }
 

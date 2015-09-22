@@ -168,10 +168,6 @@ public:
 
     bool enabled(void) const noexcept { return active_; }
 
-    bool init(ImageHeader const& header) {
-        return tv_module_ and tv_module_->init(header);
-    }
-
     // return false if previous state was the same
     bool enable(void) noexcept { return switch_active(true); }
 

@@ -109,41 +109,38 @@ void tfv::Api::execute(void) {
     static Image dbg_img_1;
 #endif
 
+    auto image = Image();
+
     // Execute active module. This is the ONLY place where modules are executed.
     auto module_exec = [&](TFV_Int id, tfv::Module& module) {
-        // skip paused modules and those that don't want to execute
-        if (not module.enabled() or not module.running()) {
+
+        if (not module.enabled() or
+            not module.running()) {  // skip paused modules and those that don't
+                                     // want to execute
             return;
         }
 
-        if (module.expected_format() != ColorSpace::NONE) {
+        if (module.expected_format() !=
+            ColorSpace::NONE) {  // retrieve the frame in the requested format
+                                 // and execute the module
 
-            // retrieve the frame in the requested format and execute the module
-            camera_control_.get_frame(image_, module.expected_format());
+            conversions_.get_frame(image, module.expected_format());
 
 #ifdef DEBUG
-            camera_control_.get_frame(dbg_img_0, ColorSpace::BGR888);
+            conversions_.get_frame(dbg_img_0, ColorSpace::BGR888);
             w.update(0, dbg_img_0.data, dbg_img_0.header.height,
                      dbg_img_0.header.width);
 #endif
-            module.exec(image_);
+            module.exec(image);
         }
 
-        /*
         if (module.type() == ModuleType::Modifier) {
             auto modifier = static_cast<Modifier*>(module.executable());
-
-            if (not camera_control_.regenerate_image_from(
-                    modifier->modified_image())) {
-
-                LogError("API", "Regeneration of images from ",
-                         image_.header.format, " failed");
-            }
+            conversions_.set_frame(modifier->modified_image());
         }
-        */
 
 #ifdef DEBUG
-        camera_control_.get_frame(dbg_img_1, ColorSpace::BGR888);
+        conversions_.get_frame(dbg_img_1, ColorSpace::BGR888);
         w.update(1, dbg_img_1.data, dbg_img_1.header.height,
                  dbg_img_1.header.width);
 #endif
@@ -175,13 +172,15 @@ void tfv::Api::execute(void) {
         last_loop_time_point = Clock::now();
         // Log("API", "Execution at ", last_loop_time_point);
 
+        Image frame;
         if (active_modules()) {  // This does not account for modules
             // being 'stopped', i.e. this is true even if all modules are in
             // paused state.  Then, camera_control_ will return the last
             // image retrieved from the camera (and it will be ignored by
             // update_module anyways)
 
-            if (camera_control_.update_frame()) {
+            if (camera_control_.update_frame(frame)) {
+                conversions_.set_frame(frame);
 
                 if (not _scenes_active()) {
                     modules_.exec_all(module_exec);
@@ -195,7 +194,7 @@ void tfv::Api::execute(void) {
             }
         }
 
-        // Finally propagate deletion of modules marked for removal
+        // Propagate deletion of modules marked for removal
         modules_.free_if([](tfv::Module const& module) {
             return module.tags() & Module::Tag::Removable;
         });

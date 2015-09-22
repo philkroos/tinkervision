@@ -23,12 +23,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <cmath>
 #include <array>
 #include <vector>
+#include <algorithm>
 #include <tuple>
 #include <limits>
 #include <cassert>
 
 #include "image.hh"
 #include "tinkervision_defines.h"
+#include "logger.hh"
 
 namespace tfv {
 
@@ -437,8 +439,17 @@ public:
     ImageHeader convert_header(ImageHeader const& source) const;
 
     Image const& result(void) const {
-        return (converter_ and converter_->target.data) ? converter_->target
-                                                        : invalid_image_;
+        return ((converter_ != nullptr) and
+                (converter_->target.data != nullptr) and
+                (converter_->target.header.format != ColorSpace::INVALID))
+                   ? converter_->target
+                   : invalid_image_;
+    }
+
+    void reset(void) {
+        if (converter_ != nullptr) {
+            converter_->target.header.format = ColorSpace::INVALID;
+        }
     }
 
     ColorSpace target_format(void) const {
@@ -449,6 +460,88 @@ public:
     ColorSpace source_format(void) const {
         return converter_ ? converter_->source_format_
                           : tfv::ColorSpace::INVALID;
+    }
+};
+
+class FrameConversions {
+private:
+    Image const* frame_{nullptr};
+
+    using ProvidedFormats = std::vector<Converter>;
+    ProvidedFormats provided_formats_;
+
+    Converter* get_converter(tfv::ColorSpace from, tfv::ColorSpace to) {
+
+        auto it =
+            std::find_if(provided_formats_.begin(), provided_formats_.end(),
+                         [&](Converter const& converter) {
+
+                return (converter.source_format() == from) and
+                       (converter.target_format() == to);
+            });
+
+        if (it == provided_formats_.end()) {
+            provided_formats_.emplace_back(from, to);
+            it = --provided_formats_.end();
+        }
+
+        return &(*it);
+    }
+
+public:
+    void set_frame(Image const& image) {
+        frame_ = &image;
+        for (auto& converter : provided_formats_) {
+            // signal for conversion necessary, see get_frame
+            converter.reset();
+        }
+    }
+
+    void get_frame(Image& image, tfv::ColorSpace format) {
+        assert(frame_ and frame_->header.format != ColorSpace::INVALID);
+
+        // If the requested format is the same as provided by the camera,
+        // image_.
+        if (format == frame_->header.format) {
+            image = *frame_;
+            return;
+        }
+
+        // Else, check if a converter for the requested format already is
+        // instantiated. If not, insert a new one. Else, check if it
+        // contains a
+        // valid result with the same timestamp as image_. If, it has been
+        // run
+        // already, just return the result. Else, run the converter.
+
+        auto converter = get_converter(frame_->header.format, format);
+        if (converter) {
+            image = converter->result();
+
+            if (image.header.format == tfv::ColorSpace::INVALID or
+                image.header.timestamp != frame_->header.timestamp) {
+
+                // conversion and flat copy
+                assert(frame_->data);
+                image = (*converter)(*frame_);
+            }
+        }
+    }
+
+    tfv::ImageHeader get_header(tfv::ColorSpace format) {
+
+        if (format == frame_->header.format) {
+            return frame_->header;
+        }
+
+        auto converter = get_converter(frame_->header.format, format);
+        if (not converter) {
+            LogError("CAMERACONTROL", "Can't get header for format ", format,
+                     " (baseformat: ", frame_->header.format, ")");
+            return ImageHeader();
+        }
+
+        return converter->convert_header(frame_->header);
     }
 };
 }

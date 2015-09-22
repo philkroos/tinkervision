@@ -135,46 +135,24 @@ public:
      * Grab a frame if a camera is available.  Sets image_.
      * If the camera had been stopped before, tries to open it again; requests a
      * frame.
+     * \param[out] image Set to the grabbed frame on success, else not touched.
      * \return True if image acquisition succeeded.
      */
-    bool update_frame(void);
+    bool update_frame(Image& image);
 
     /**
      * Add a number to the internal usercounter.
      */
     void add_user(size_t count) { usercount_ += count; }
 
-    ImageHeader image_header(tfv::ColorSpace format);
-
-    /**
-     * Get the grabbed frame in the requested format.  This assumes that
-     * update_frame() has already been called.
-     * \param[out] image The container will contain valid data after this
-     * method.
-     * \param[in] format The format requested for the returned image.
-     */
-    void get_frame(Image& image, ColorSpace format);
-
     Timestamp latest_frame_timestamp(void) const {
         return image_().header.timestamp;
     }
-
-    /**
-     * Recreate the images in all provided formats from the supplied template.
-     * \param[in] image The source for the conversion.
-     * \return false if the conversion failed.
-     */
-    bool regenerate_image_from(Image const& image);
 
 private:
     Camera* camera_ = nullptr;
     size_t requested_width_{0};
     size_t requested_height_{0};
-
-    using ProvidedFormats = std::vector<Converter>;
-    ProvidedFormats provided_formats_;
-
-    Converter* get_converter(tfv::ColorSpace from, tfv::ColorSpace to);
 
     ImageAllocator fallback_{};  ///< Black frame
     ImageAllocator image_{};     ///< Data exchanged with the Api

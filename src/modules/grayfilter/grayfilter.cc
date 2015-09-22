@@ -41,7 +41,6 @@ void tfv::Grayfilter::execute(tfv::ImageHeader const& header,
 #endif
 }
 
-bool tfv::Grayfilter::initialize(ImageHeader const& ref, ImageHeader& output) {
+void tfv::Grayfilter::get_header(ImageHeader const& ref, ImageHeader& output) {
     output = ref;
-    return true;
 }

@@ -33,14 +33,13 @@ private:
     uint8_t max_factor_{5};
 
 public:
-    Downscale(void) : Modifier("Downscale") {
-        cv::namedWindow("Downscale0");
-        cv::namedWindow("Downscale");
+    Downscale(void)
+        : Modifier("Downscale") { /* cv::namedWindow("Downscale"); */
     }
 
     ~Downscale(void) override final = default;
 
-    bool initialize(ImageHeader const& ref, ImageHeader& output) override final;
+    void get_header(ImageHeader const& ref, ImageHeader& output) override final;
 
     void execute(tfv::ImageHeader const& header, tfv::ImageData const* data,
                  tfv::Image& output) override final;

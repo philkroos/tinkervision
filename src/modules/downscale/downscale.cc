@@ -23,23 +23,25 @@ DEFINE_VISION_MODULE(Downscale)
 
 using namespace tfv;
 
-bool tfv::Downscale::initialize(ImageHeader const& ref, ImageHeader& output) {
+void tfv::Downscale::get_header(ImageHeader const& ref, ImageHeader& output) {
     if (factor_ == 0) {
-        return false;
+        output = ref;
     }
     auto const skip = factor_ * 2;  // downscalable by a factor of 2
     output.width = ref.width / skip;
     output.height = ref.height / skip;
     output.bytesize = output.height * output.width * 3;
     output.format = expected_format();
-
-    return true;
 }
 
 void tfv::Downscale::execute(tfv::ImageHeader const& header,
                              tfv::ImageData const* data, tfv::Image& output) {
+    if (factor_ == 0) {
+        std::copy_n(data, header.bytesize, output.data);
+        return;
+    }
 
-    auto const channels = 3;  // receiving RGB image
+    auto const channels = 3;        // receiving RGB image
     auto const skip = factor_ * 2;  // downscalable by a factor of 2
     auto source = data;
     auto target = output.data;
@@ -58,9 +60,11 @@ void tfv::Downscale::execute(tfv::ImageHeader const& header,
         source += header.width * channels * (skip - 1);
     }
 
+    /*
     cv::Mat cv_image(out_header.height, out_header.width, CV_8UC3);
     std::copy_n(output.data, out_header.bytesize, cv_image.data);
 
     cv::imshow("Downscale", cv_image);
     cv::waitKey(2);
+    */
 }
