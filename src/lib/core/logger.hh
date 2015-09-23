@@ -40,6 +40,8 @@ void LogWarning(std::string const& prefix, Args const&... args) {}
 #include <fstream>
 #include <iostream>
 #include <bitset>
+#include <chrono>
+#include <iomanip>
 
 #include "image.hh"
 
@@ -51,10 +53,13 @@ class SceneTree;
 
 class Logger {
 private:
-    std::string logfilename_ = "/tmp/tfv.log";
-    std::ofstream logfile_;
     static std::string PREFIX_WARNING;
     static std::string PREFIX_ERROR;
+
+    std::chrono::time_point<std::chrono::steady_clock> zero_{
+        std::chrono::steady_clock::now()};
+    std::string logfilename_ = "/tmp/tfv.log";
+    std::ofstream logfile_;
 
     Logger(void) {
         logfile_.open(logfilename_, std::ios::out | std::ios::trunc);
@@ -82,7 +87,11 @@ public:
             return;
         }
 
-        logfile_ << prefix << ": ";
+        auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
+                       std::chrono::steady_clock::now() - zero_).count();
+
+        logfile_ << std::setw(8) << std::setfill('0') << now << "::" << prefix
+                 << ": ";
         _print_out(args...);
     }
 
