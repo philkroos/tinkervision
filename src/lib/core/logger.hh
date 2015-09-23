@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#ifndef DEBUG
+#if !defined(DEBUG) && !defined(WITH_LOGGER)
 #include <string>
 namespace tfv {
 

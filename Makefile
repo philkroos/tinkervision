@@ -3,7 +3,7 @@ cc		:= g++
 ifdef DEBUG
 	ccflags := -Wall -Werror -g -O0 -std=c++11 -fPIC -DDEBUG
 else
-	ccflags := -Wall -Werror -O3 -std=c++11 -fPIC
+	ccflags := -Wall -Werror -O3 -std=c++11 -fPIC -DWITH_LOGGER
 endif
 
 # structure
@@ -84,11 +84,11 @@ header		:= $(src_prefix)/core/tinkervision.h \
 		   $(src_prefix)/core/tinkervision_defines.h \
                    $(src_prefix)/interface/tv_module.hh \
 		   $(src_prefix)/core/exceptions.hh \
-                   $(src_prefix)/imaging/image.hh
+                   $(src_prefix)/imaging/image.hh \
+		   $(src_prefix)/core/logger.hh
 
 install: $(build_prefix)/$(output)
 	install -m 544 $(build_prefix)/$(output) $(prefix)/lib/$(output)
 	install -m 544 $(header) $(prefix)/include/
-	install -m 544 $(src_prefix)/debug/logger.hh $(prefix)/include/
 
 .PHONY: install
