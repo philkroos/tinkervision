@@ -26,79 +26,85 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 std::string tfv::Logger::PREFIX_WARNING = "WARNING";
 std::string tfv::Logger::PREFIX_ERROR = "ERROR";
 
-std::ostream& tfv::operator<<(std::ostream& stream, tfv::Module* module) {
+std::ostream& tfv::operator<<(std::ostream& os, tfv::Module* module) {
 
     auto tags_bits = std::bitset<16>(
         static_cast<std::underlying_type<Module::Tag>::type>(module->tags()));
 
-    stream << "Id: " << module->id() << " Tags: " << tags_bits;
+    os << "Id: " << module->id() << " Tags: " << tags_bits;
 
-    return stream;
+    return os;
 }
 
-std::ostream& tfv::operator<<(std::ostream& stream,
-                              tfv::SceneTree const& tree) {
+std::ostream& tfv::operator<<(std::ostream& os, tfv::SceneTree const& tree) {
 
     std::function<void(Node const&, size_t)> node_recursion =
         [&](Node const& node, size_t siblings) {
 
-        stream << node.module_id();
+        os << node.module_id();
         if (not node.is_leaf()) {
             auto children = node.children().size();
-            stream << " (";
+            os << " (";
             for (auto child : node.children()) {
                 node_recursion(*child, --children);
             }
-            stream << ")";
+            os << ")";
         }
         if (siblings > 0) {
-            stream << " ";
+            os << " ";
         }
     };
 
     auto node = tree.root();
 
-    stream << "(";
+    os << "(";
     node_recursion(node, 0);
-    stream << ")" << std::endl;
+    os << ")" << std::endl;
 
-    return stream;
+    return os;
 }
 
-std::ostream& tfv::operator<<(std::ostream& ost,
-                              tfv::ColorSpace const& format) {
+std::ostream& tfv::operator<<(std::ostream& os, tfv::ColorSpace const& format) {
     switch (format) {
         case tfv::ColorSpace::INVALID:
-            ost << "INVALID";
+            os << "INVALID";
             break;
         case tfv::ColorSpace::YUYV:
-            ost << "YUYV";
+            os << "YUYV";
             break;
         case tfv::ColorSpace::YV12:
-            ost << "YV12";
+            os << "YV12";
             break;
         case tfv::ColorSpace::BGR888:
-            ost << "BGR";
+            os << "BGR";
             break;
         case tfv::ColorSpace::RGB888:
-            ost << "RGB";
+            os << "RGB";
             break;
         default:
-            ost << "??UNKNOWN??";
+            os << "??UNKNOWN??";
             break;
     }
-    return ost;
+    return os;
 }
 
-std::ostream& tfv::operator<<(std::ostream& stream, tfv::Timestamp ts) {
-    stream << ts.time_since_epoch().count();
-
-    return stream;
+std::ostream& tfv::operator<<(std::ostream& os,
+                              tfv::ImageHeader const& header) {
+    // Header:WxH,Bytesize,Format
+    os << header.width << "x" << header.height << "," << header.bytesize << ","
+       << header.format;
+    return os;
 }
 
-std::ostream& tfv::operator<<(std::ostream& stream, TFV_Id id) {
-    stream << static_cast<int>(id);
-    return stream;
+std::ostream& tfv::operator<<(std::ostream& os, tfv::Timestamp ts) {
+    os << ts.time_since_epoch().count();
+
+    return os;
+}
+
+std::ostream& tfv::operator<<(std::ostream& os, TFV_Id id) {
+    os << static_cast<int>(id);
+    return os;
 }
 
 #endif

@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <chrono>
 
+#include "logger.hh"
+
 tfv::Camera::Camera(TFV_Id camera_id) : camera_id_(camera_id) {}
 
 tfv::Camera::Camera(TFV_Id camera_id, uint16_t requested_width,
@@ -64,6 +66,7 @@ bool tfv::Camera::open(void) {
         auto& header = image_.header;
         retrieve_properties(header.width, header.height, header.bytesize);
         header.format = image_format();
+        Log("CAMERA", "Opened camera ", header);
     }
     return success;
 }

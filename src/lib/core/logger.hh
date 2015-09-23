@@ -126,11 +126,12 @@ void LogWarning(std::string const& prefix, Args const&... args) {
     Logger::instance().log_warning(prefix, args...);
 }
 
-std::ostream& operator<<(std::ostream& stream, Module* module);
-std::ostream& operator<<(std::ostream& stream, SceneTree const& tree);
-std::ostream& operator<<(std::ostream& ost, ColorSpace const& format);
-std::ostream& operator<<(std::ostream& stream, Timestamp ts);
-std::ostream& operator<<(std::ostream& stream, TFV_Id id);
+std::ostream& operator<<(std::ostream& os, Module* module);
+std::ostream& operator<<(std::ostream& os, SceneTree const& tree);
+std::ostream& operator<<(std::ostream& os, ColorSpace const& format);
+std::ostream& operator<<(std::ostream& os, ImageHeader const& header);
+std::ostream& operator<<(std::ostream& os, Timestamp ts);
+std::ostream& operator<<(std::ostream& os, TFV_Id id);
 
 #endif
 }

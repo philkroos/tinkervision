@@ -151,8 +151,8 @@ public:
 
 private:
     Camera* camera_ = nullptr;
-    size_t requested_width_{0};
-    size_t requested_height_{0};
+    size_t requested_width_{640};
+    size_t requested_height_{480};
 
     ImageAllocator fallback_{};  ///< Black frame
     ImageAllocator image_{};     ///< Data exchanged with the Api
