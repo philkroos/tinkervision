@@ -89,8 +89,6 @@ header		:= $(src_prefix)/core/tinkervision.h \
 install: $(build_prefix)/$(output)
 	install -m 544 $(build_prefix)/$(output) $(prefix)/lib/$(output)
 	install -m 544 $(header) $(prefix)/include/
-ifdef DEBUG
 	install -m 544 $(src_prefix)/debug/logger.hh $(prefix)/include/
-endif
 
 .PHONY: install
