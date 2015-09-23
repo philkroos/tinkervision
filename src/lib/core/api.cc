@@ -151,6 +151,7 @@ void tfv::Api::execute(void) {
             camera_control_.release();
 
         } else if (tags & Module::Tag::ExecAndDisable) {
+            Log("API", "Disabling ExecAndDisable-tagged id ", module.id());
             if (module.disable()) {
                 camera_control_.release();
             }

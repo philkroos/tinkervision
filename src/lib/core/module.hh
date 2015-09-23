@@ -118,15 +118,16 @@ public:
     // runtime tags describing some sort of status this module is in, as
     // relevant for the execution of the Api
     enum class Tag : unsigned {
-        ExecAndRemove = 0x10,
-        ExecAndDisable = 0x20,
-        Removable = 0x30,
-        Sequential = 0x40,
+        None = 0x01,
+        ExecAndRemove = 0x02,
+        ExecAndDisable = 0x04,
+        Removable = 0x08,
+        Sequential = 0x10,
     };
 
 private:
     bool active_;
-    Module::Tag tags_;
+    Module::Tag tags_ = Module::Tag::None;
     TFV_Int module_id_;
 
     TVModule* tv_module_;

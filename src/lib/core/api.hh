@@ -170,6 +170,8 @@ public:
     }
 
     TFV_Result module_destroy(TFV_Id id) {
+        Log("API", "Destroying module ", id);
+
         if (_scenes_active()) {
             return TFV_NOT_IMPLEMENTED;
         }
@@ -256,6 +258,8 @@ public:
      *  - TFV_UNCONFIGURED_ID if the id is not registered
      */
     TFV_Result module_stop(TFV_Id module_id) {
+        Log("API", "Stopping module ", module_id);
+
         auto id = static_cast<TFV_Int>(module_id);
 
         if (not modules_.managed(id)) {
@@ -483,9 +487,9 @@ private:
     }
 
     TFV_Result _enable_module(TFV_Int id) {
-        return modules_.exec_one(id, [this](tfv::Module& comp) {
-            if (comp.enabled() or camera_control_.acquire()) {
-                comp.enable();  // possibly redundant
+        return modules_.exec_one(id, [this](tfv::Module& module) {
+            if (module.enabled() or camera_control_.acquire()) {
+                module.enable();  // possibly redundant
                 return TFV_OK;
             } else {
                 return TFV_CAMERA_ACQUISITION_FAILED;
@@ -494,8 +498,8 @@ private:
     }
 
     TFV_Result _disable_module(TFV_Int id) {
-        return modules_.exec_one(id, [this](tfv::Module& comp) {
-            comp.disable();
+        return modules_.exec_one(id, [this](tfv::Module& module) {
+            module.disable();
             camera_control_.release();
             return TFV_OK;
         });
