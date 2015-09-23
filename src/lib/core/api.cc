@@ -169,6 +169,8 @@ void tfv::Api::execute(void) {
     // mainloop
     auto inv_framerate = std::chrono::milliseconds(execution_latency_ms_);
     auto last_loop_time_point = Clock::now();
+    auto duration = Clock::duration(0);
+    auto loops = 0;
     while (active_) {
         last_loop_time_point = Clock::now();
         // Log("API", "Execution at ", last_loop_time_point);
@@ -200,6 +202,17 @@ void tfv::Api::execute(void) {
             return module.tags() & Module::Tag::Removable;
         });
 
+        loops++;
+        duration += (Clock::now() - last_loop_time_point);
+        if (loops == 10) {
+            Log("API", "Avg. real vs. fixed framerate: ",
+                std::chrono::duration_cast<std::chrono::milliseconds>(duration)
+                        .count() /
+                    10.0,
+                "/", inv_framerate.count());
+            loops = 0;
+            duration = Clock::duration(0);
+        }
         std::this_thread::sleep_until(last_loop_time_point + inv_framerate);
     }
 }
