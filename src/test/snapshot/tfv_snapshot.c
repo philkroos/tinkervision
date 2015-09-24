@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <unistd.h> /* sleep (posix) */
 #include <time.h>   /* nanosleep (posix) */
 
-#include "tinkervision.h"
+#include "tinkervision/tinkervision.h"
 
 int main(int argc, char* argv[]) {
     TFV_Id id = 0;

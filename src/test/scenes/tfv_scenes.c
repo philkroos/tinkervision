@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <unistd.h> /* sleep (posix) */
 #include <time.h>   /* nanosleep (posix) */
 #include <stdlib.h>
-#include "tinkervision.h"
+#include "tinkervision/tinkervision.h"
 
 void tfcv_callback(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
     printf("Executing id %d\n", id);
@@ -29,26 +29,27 @@ void tfcv_callback(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
 
 void colormatch_start(TFV_Id id, int min_hue, int max_hue) {
     TFV_Result result = module_start("colormatch", id);
-    printf ("Colormatch Id %d Start: %d (%s)\n", id, result, result_string(result));
+    printf("Colormatch Id %d Start: %d (%s)\n", id, result,
+           result_string(result));
     if (result != TFV_OK) {
         return;
     }
     result = set_parameter(id, "min-hue", min_hue);
-    printf ("Set min-hue: %d (%s)\n", result, result_string(result));
+    printf("Set min-hue: %d (%s)\n", result, result_string(result));
     if (result != TFV_OK) {
         return;
     }
     result = set_parameter(id, "max-hue", max_hue);
-    printf ("Set max-hue: %d (%s)\n", result, result_string(result));
+    printf("Set max-hue: %d (%s)\n", result, result_string(result));
     if (result != TFV_OK) {
         return;
     }
     result = set_point_callback(id, tfcv_callback);
     if (result != TFV_OK) {
-        printf ("Setting the callback failed: %d (%s)\n", result, result_string(result));
+        printf("Setting the callback failed: %d (%s)\n", result,
+               result_string(result));
     }
 }
-
 
 int main(int argc, char* argv[]) {
     TFV_Id ids_count = 10;

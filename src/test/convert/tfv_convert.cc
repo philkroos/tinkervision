@@ -82,7 +82,8 @@ int main() {
     if (yuyv.is_open() and size_t(yuyv.tellg()) == bytesize) {
 
         // data managed by image
-        original.allocate(width, height, bytesize, tfv::ColorSpace::YUYV);
+        original.allocate(width, height, bytesize, tfv::ColorSpace::YUYV,
+                          false);
         yuyv.seekg(0, std::ios::beg);
         yuyv.read((char*)original.image().data, bytesize);
         yuyv.close();

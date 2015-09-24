@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 
-#include "tinkervision.h"
+#include "tinkervision/tinkervision.h"
 
 int main(int argc, char* argv[]) {
     TFV_Id id = 0;

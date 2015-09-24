@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <map>
 #include <opencv2/opencv.hpp>
 
-#include "tinkervision_defines.h"
+#include "tinkervision/tinkervision_defines.h"
 
 namespace tfv {
 class Window {
