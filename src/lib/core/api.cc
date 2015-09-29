@@ -83,6 +83,7 @@ TFV_Result tfv::Api::stop(void) {
 }
 
 TFV_Result tfv::Api::quit(void) {
+    Log("Api::quit");
 
     // disable all ...
     modules_.exec_all(
@@ -91,7 +92,7 @@ TFV_Result tfv::Api::quit(void) {
     // ... remove all modules from the shared context ...
     modules_.free_all();
 
-    Log("API::quit", "All modules released");
+    Log("Api", "All modules released");
 
     // (This included the dummy module)
     idle_process_running_ = false;
