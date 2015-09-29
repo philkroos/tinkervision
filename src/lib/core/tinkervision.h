@@ -39,7 +39,7 @@ TFV_Result camera_available(void);
  * This can only be done while no modules are active.
  * This does not guarantee that the requested framesize will be used. It is only
  * checked once the camera device is opened if the settings are supported, e.g.
- * during module_load().
+ * during module_start().
  * \param[in] width
  * \param[in] height
  * \return
