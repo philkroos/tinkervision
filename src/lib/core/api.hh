@@ -48,6 +48,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tfv {
 
+/** Defines the public api of the Tinkervision library.
+ */
 class Api {
 private:
     Api(void);
@@ -66,7 +68,7 @@ public:
      * necessary if the Api had been stopped.  The method is
      * automatically called during construction of the Api.
      * \sa stop()
-     * \return TFV_OK if execution started successfully.
+     * \return #TFV_OK if execution started successfully.
      */
     TFV_Result start(void);
 
@@ -76,13 +78,13 @@ public:
      * being executed.  If calling start(), the Api will resume
      * execution with the same configuration.
      * This will also stop a running dummy module.
-     * \sa \code start_idle()
+     * \sa start_idle()
      * \note Even while the api is paused there can still be new modules
      * registered. They will start execution once start() is called.
      * \sa quit() If the whole thing shall be stopped.
      * \return A result code:
-     *     - TFV_OK when execution halted successfully.
-     *     - TFV_EXEC_THREAD_FAILURE when the thread is still running.
+     *     - #TFV_OK when execution halted successfully.
+     *     - #TFV_EXEC_THREAD_FAILURE when the thread is still running.
      */
     TFV_Result stop(void);
 
@@ -94,12 +96,12 @@ public:
      * restart including reset of the camera is desired, this can be
      * used.  This will also stop and remove a running dummy module.
      *
-     * \sa \code start_idle()
+     * \sa start_idle()
      *
-     * \sa \code start()
+     * \sa  start()
      * \return A result code:
-     *     - TFV_OK when execution halted successfully.
-     *     - TFV_EXEC_THREAD_FAILURE when the thread is still running.
+     *     - #TFV_OK when execution halted successfully.
+     *     - #TFV_EXEC_THREAD_FAILURE when the thread is still running.
      */
     TFV_Result quit(void);
 
@@ -108,8 +110,8 @@ public:
      * not active currently, i.e. if the API is in a stopped state and no module
      * is active.
      * \return
-     * - TFV_CAMERA_SETTINGS_FAILED if there are active modules already
-     * - TFV_OK else
+     * - #TFV_CAMERA_SETTINGS_FAILED if there are active modules already
+     * - #TFV_OK else
      */
     TFV_Result preselect_framesize(TFV_Size width, TFV_Size height) {
         return camera_control_.preselect_framesize(width, height)
@@ -124,11 +126,11 @@ public:
      * device blocked so it may be used to hold on the camera handle
      * even if no 'real' module is running.  This dummy process can
      * not be referred to since the assigned id is not retreivable by
-     * the user, and it is (currently) not deactivatable unless \code
-     * quit() is called.  Also, the process will only be started once,
+     * the user, and it is (currently) not deactivatable unless quit() is
+     * called.  Also, the process will only be started once,
      * no matter how often this method gets called.
      *
-     * \return TFV_OK if the process is running afterwards
+     * \return #TFV_OK if the process is running afterwards
      */
     TFV_Result start_idle(void) {
         auto result = TFV_OK;  // optimistic because startable only once
@@ -169,16 +171,27 @@ public:
         return TFV_OK;
     }
 
+    /** Deactivate and remove a module.
+     * \return
+     *   - #TFV_NOT_IMPLEMENTED if scenes are active
+     *   - #TFV_INVALID_ID if the module does not exist
+     *   - #TFV_OK if removal succeeded.
+     *
+     * The method will succeed if:
+     */
     TFV_Result module_destroy(TFV_Id id) {
         Log("API", "Destroying module ", id);
 
+        /// - no scenes are active (currently). Then,
         if (_scenes_active()) {
             return TFV_NOT_IMPLEMENTED;
         }
 
-        // Delay removal until executed in the main loop.
-        // \todo Is this still necessary now that the allocation stage
-        // was removed from SharedResource? Not sure, probably not.
+        /// the module will be disabled and registered for removal which will
+        /// happen in the main execution loop.
+        /// \todo Is a two-stage-removal process still necessary now that
+        /// the allocation stage was removed from SharedResource? Not sure,
+        /// probably not.
         return modules_.exec_one(id, [this](tfv::Module& module) {
             module.disable();
             module.tag(Module::Tag::Removable);
@@ -223,11 +236,11 @@ public:
      * \param[in] id The id of the module to start.
      *
      * \return
-     * - TFV_UNCONFIGURED_ID if no module is registered with
+     * - #TFV_UNCONFIGURED_ID if no module is registered with
      *   the given id.
-     * - TFV_CAMERA_ACQUISATION_FAILED if the
+     * - #TFV_CAMERA_ACQUISATION_FAILED if the
      *   camera specified for the module is not available
-     * - TFV_OK iff the module is running after returning.
+     * - #TFV_OK iff the module is running after returning.
      */
     TFV_Result module_start(TFV_Id module_id) {
         auto id = static_cast<TFV_Int>(module_id);
@@ -254,8 +267,8 @@ public:
      *associated
      * module has to match Module.
      * \return
-     *  - TFV_OK if the module was stopped and marked for removal
-     *  - TFV_UNCONFIGURED_ID if the id is not registered
+     *  - #TFV_OK if the module was stopped and marked for removal
+     *  - #TFV_UNCONFIGURED_ID if the id is not registered
      */
     TFV_Result module_stop(TFV_Id module_id) {
         Log("API", "Stopping module ", module_id);
@@ -281,8 +294,8 @@ public:
     /**
      * Check if a camera is available in the system.
      * \return
-     *  - TFV_CAMERA_ACQUISITION_FAILED if the camera is not available,
-     *  - TFV_OK else
+     *  - #TFV_CAMERA_ACQUISITION_FAILED if the camera is not available,
+     *  - #TFV_OK else
      */
     TFV_Result is_camera_available(void) {
         return camera_control_.is_available() ? TFV_OK
@@ -297,8 +310,8 @@ public:
      * \param[out] width The framewidth in pixels
      * \param[out] width The frameheight in pixels
      * \return
-     *  - TFV_CAMERA_NOT_AVAILABLE if the camera is not open
-     *  - TFV_OK else.
+     *  - #TFV_CAMERA_NOT_AVAILABLE if the camera is not open
+     *  - #TFV_OK else.
      */
     TFV_Result resolution(TFV_Size& width, TFV_Size& height) {
         return camera_control_.get_resolution(width, height)

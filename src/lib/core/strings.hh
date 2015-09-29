@@ -36,6 +36,7 @@ private:
         {TFV_INVALID_CONFIGURATION, "Error - Invalid feature configuration"},
         {TFV_NODE_ALLOCATION_FAILED,
          "Error - Allocation of a scene node failed"},
+        {TFV_NO_ACTIVE_MODULES, "Error - No active modules"},
         // 550...
         {TFV_CAMERA_ACQUISITION_FAILED, "Error - Device could not be opened"},
         {TFV_CAMERA_NOT_AVAILABLE, "Error - Camera not available"},
@@ -53,6 +54,7 @@ private:
         {TFV_MODULE_NO_SUCH_PARAMETER, "Error - No such parameter"},
         // 650...
         {TFV_EXEC_THREAD_FAILURE, "Error - The main thread did not react"},
+        {TFV_THREAD_RUNNING, "Error - The main thread is already running"},
         // 700...
         {TFV_MODULE_DLOPEN_FAILED, "Error - Could not open requested module"},
         {TFV_MODULE_DLSYM_FAILED,

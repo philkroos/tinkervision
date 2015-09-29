@@ -333,8 +333,8 @@ public:
      * \param[in] first The id to be executed first
      * \param[in] second The id to be executed second
      *
-     * \return True if both id's are managed, in which case \code
-     * first will be executed first afterwards.
+     * \return True if both id's are managed, in which case first
+     * will be executed first afterwards.
      */
     bool sort(TFV_Id first, TFV_Id second) {
         if (not managed(first) or not managed(second)) {

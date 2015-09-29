@@ -23,20 +23,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * A tree is merely a view on the scenes managed. A scene itself
  * provides a manner of ordered module execution. It is implemented as
- * a linked list of instances of \code Node, which are wrappers around
+ * a linked list of instances of Node, which are wrappers around
  * the actual modules. However, multiple scenes may share the same
  * nodes. As long as the first nodes of two scenes are equal, it makes
  * sense to share the nodes between them, preventing multiple
  * executions, resource conflicts and generally have a reasonable
  * internal representation of the scenes setup.  Effectively, this
  * idea leans toward the representation of scenes merged into
- * trees. This is what this module does. A \code SceneTree hereby is
+ * trees. This is what this module does. A SceneTree hereby is
  * the view on related scenes (i.e. linked nodes with equal
- * beginning).  \code SceneTrees wraps all trees into a single
- * interface and also holds a synchronized container (\code
- * SharedResource) of all created nodes, including the logic of
- * creating or destroying individual nodes and linking them into the
- * correct tree.
+ * beginning).  SceneTrees wraps all trees into a single
+ * interface and also holds a synchronized container (SharedResource)
+ * of all created nodes, including the logic of creating or destroying
+ * individual nodes and linking them into the correct tree.
  *
  * \see Node.hh
  *
@@ -55,6 +54,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "logger.hh"
 
 namespace tfv {
+
+/** A tree-like representation of linked Module's */
 class SceneTree {
 private:
     Node* root_;  ///< Rootnode may refer to multiple scenes.
@@ -80,9 +81,9 @@ public:
     Node& root(void) const { return *root_; }
 
     /**
-     * Check if this tree contains the scene \code id.
+     * Check if this tree contains the scene id.
      * \param[in] id The scene searched for.
-     * \return \code t if the \code root_ is associated with the scene \code id.
+     * \return true if the root_ is associated with the scene id.
      */
     bool contains_scene(TFV_Scene id) const {
         std::lock_guard<std::mutex> lock(exec_lock_);
@@ -121,6 +122,7 @@ public:
     void deactivate(void) { active_ = false; }
 };
 
+/** Administration of multiple SceneTree's */
 class SceneTrees {
 private:
     using Nodes = SharedResource<Node>;
@@ -137,14 +139,14 @@ public:
 
     /**
      * Are there active nodes/scene trees?
-     * \return \code empty_
+     * \return empty_
      */
     bool empty(void) const { return scene_trees_.size() == 0; }
 
     /**
-     * \note \code scene_id must be unique, it is not checked here but
+     * \note scene_id must be unique, it is not checked here but
      * things will break badly if it's not. Also, it is not checked
-     * here if the module for \code module_id does exist.
+     * here if the module for module_id does exist.
      */
     TFV_Result scene_start(TFV_Scene scene_id, TFV_Int module_id);
 
@@ -152,22 +154,20 @@ public:
      * Add an existing module to the end of an existing scene.
      *
      *  \todo This might fail if executed in quick succession of the
-     * corresponding call to \code scene_start, due to the root node
+     * corresponding call to scene_start, due to the root node
      * being allocated sequentially in this thread but actually
      * persisted in the parrallel (execution) thread. The workaround
-     * on the calling side is to introduce a short delay after \code
-     * scene_start.  This is currently expected to be done outside
-     * of the api.
+     * on the calling side is to introduce a short delay after scene_start().
+     * This is currently expected to be done outside of the api.
      *
      * \param[in] scene_id Id of an existing scene.
      *
      * \param[in] module_id Id of an existing module.
      *
      * \return
-     * - \code TFV_OK if good.
-     * - \code TFV_NODE_ALLOCATION_FAILED an error occured in \code
-     * SharedResource.
-     * - \code TFV_INVALID_ID one of both id's is invalid.
+     * - #TFV_OK if good.
+     * - #TFV_NODE_ALLOCATION_FAILED an error occured in SharedResource.
+     * - #TFV_INVALID_ID one of both id's is invalid.
      */
     TFV_Result add_to_scene(TFV_Scene scene_id, TFV_Int module_id);
 

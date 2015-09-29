@@ -52,6 +52,7 @@ bool tfv::CameraControl::is_available(void) {
 bool tfv::CameraControl::preselect_framesize(uint16_t framewidth,
                                              uint16_t frameheight) {
     if (not usercount_) {
+        // \todo Check if the requested settings are supported by the cam.
         requested_width_ = framewidth;
         requested_height_ = frameheight;
     }

@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     \see The manpage for dlopen/dlsym/dlclose.
     \see SharedResource which is used to lock usage of loaded modules.
     \see Api::module_load, from where the instantiated library object
-    is passed into \code SharedResource.
+    is passed into SharedResource.
 */
 
 #include <unordered_map>
@@ -55,7 +55,7 @@ public:
           user_load_path_(user_lib_load_path) {}
 
     /**
-     * Load a vision-module from library \code libname.
+     * Load a vision-module from library libname.
      *
      * \param[inout] target Pointer to the Module pointer which will
      *               point to the loaded module.
@@ -84,9 +84,9 @@ public:
 
     /**
      * Return the last error produced by one of the api methods, if
-     * any. This should be called whenever one of \code
-     * destroy_module, \code load_module_from_library return \code false.
-     * Calling this will also reset the internal error to \code TFV_OK.
+     * any. This should be called whenever one of destroy_module or
+     * load_module_from_library return false.
+     * Calling this will also reset the internal error to TFV_OK.
      * \return The last error produced, one of TFV*. TFV_OK if none.
      */
     TFV_Result last_error(void);

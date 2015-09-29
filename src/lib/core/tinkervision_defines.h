@@ -17,6 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+/** \file tinkervision_defines.h
+    Common definitions for the public and internal apis.
+*/
 #include <stdint.h>
 
 /* \todo: Use these types everywhere, e.g. see cameracontrol. */
@@ -57,7 +60,8 @@ typedef TFV_CallbackRectangle TFV_CallbackMotiondetect;
 #define ADD_MODULE_LOAD_PATH "/tmp/lib/tinkervision/"
 /* result codes */
 
-/* General 'ok' results */
+/** Default 'no-error' result
+ */
 #define TFV_OK 0
 #define TFV_NEW_FEATURE_CONFIGURED 10
 #define TFV_FEATURE_RECONFIGURED 11
@@ -67,7 +71,9 @@ typedef TFV_CallbackRectangle TFV_CallbackMotiondetect;
 #define TFV_INTERNAL_ERROR 501
 #define TFV_UNKNOWN_ERROR 502
 #define TFV_INVALID_CONFIGURATION 503
+/** Could not allocate a node in a SceneTree */
 #define TFV_NODE_ALLOCATION_FAILED 504
+#define TFV_NO_ACTIVE_MODULES 505
 
 /* Camera errors: 550... */
 #define TFV_CAMERA_ACQUISITION_FAILED 550
@@ -77,6 +83,7 @@ typedef TFV_CallbackRectangle TFV_CallbackMotiondetect;
 /* Configuration errors: 600... */
 #define TFV_UNCONFIGURED_ID 600
 #define TFV_FEATURE_CONFIGURATION_FAILED 601
+/** An id passed to Api is not registered as Module */
 #define TFV_INVALID_ID 602
 #define TFV_MODULE_INITIALIZATION_FAILED 603
 #define TFV_MODULE_NO_SUCH_PARAMETER 604
@@ -84,6 +91,7 @@ typedef TFV_CallbackRectangle TFV_CallbackMotiondetect;
 
 /* System thread errors: 650... */
 #define TFV_EXEC_THREAD_FAILURE 650
+#define TFV_THREAD_RUNNING 651
 
 /* External library errors: 700... */
 #define TFV_MODULE_DLOPEN_FAILED 700
