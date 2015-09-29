@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef SNAPSHOT_H
 #define SNAPSHOT_H
 
-#include "tv_module.hh"
+#include "tinkervision/tv_module.hh"
 
 namespace tfv {
 class Snapshot : public Publisher {
