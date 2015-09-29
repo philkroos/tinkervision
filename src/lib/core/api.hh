@@ -380,6 +380,24 @@ public:
 
     TFV_Result scene_enable(TFV_Scene scene_id) { return TFV_NOT_IMPLEMENTED; }
 
+    TFV_Result module_get_name(TFV_Id module_id, std::string& name) const {
+        if (not modules_.managed(module_id)) {
+            return TFV_UNCONFIGURED_ID;
+        }
+
+        name = modules_[module_id].name();
+        return TFV_OK;
+    }
+
+    TFV_Result module_enumerate_parameters(TFV_Id module_id,
+                                           TFV_CallbackString callback) {
+        return TFV_NOT_IMPLEMENTED;
+    }
+
+    TFV_Result enumerate_available_modules(TFV_CallbackString callback) {
+        return TFV_NOT_IMPLEMENTED;
+    }
+
     template <typename... Args>
     using AnyCallback = void (*)(Args...);
 

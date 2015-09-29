@@ -149,6 +149,16 @@ TFV_Result module_restart(TFV_Id id);
 
 TFV_Result module_remove(TFV_Id id);
 
+/*
+Not yet integrated
+*/
+TFV_Result module_get_name(TFV_Id module_id, TFV_CharArray name);
+TFV_Result module_enumerate_parameters(TFV_Id module_id,
+                                       TFV_CallbackString callback);
+
+TFV_Result enumerate_available_modules(TFV_CallbackString callback);
+/**/
+
 TFV_Result scene_from_module(TFV_Id module, TFV_Scene* scene);
 TFV_Result scene_add_module(TFV_Scene scene, TFV_Id module);
 TFV_Result scene_remove(TFV_Scene scene);

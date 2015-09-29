@@ -127,6 +127,28 @@ TFV_Result module_remove(TFV_Id id) {
     return tfv::get_api().module_destroy(id);
 }
 
+TFV_Result module_get_name(TFV_Id module_id, TFV_CharArray name) {
+    tfv::Log("Tinkervision::ModuleGetName", module_id);
+    std::string module_name;
+    auto err = tfv::get_api().module_get_name(module_id, module_name);
+    if (err == TFV_OK) {
+        std::strncpy(name, module_name.c_str(), TFV_CHAR_ARRAY_SIZE - 1);
+        name[TFV_CHAR_ARRAY_SIZE - 1] = '\0';
+    }
+    return err;
+}
+
+TFV_Result module_enumerate_parameters(TFV_Id module_id,
+                                       TFV_CallbackString callback) {
+    tfv::Log("Tinkervision::ModuleEnumerateParameters", module_id);
+    return tfv::get_api().module_enumerate_parameters(module_id, callback);
+}
+
+TFV_Result enumerate_available_modules(TFV_CallbackString callback) {
+    tfv::Log("Tinkervision::EnumerateAvailableModules");
+    return tfv::get_api().enumerate_available_modules(callback);
+}
+
 //
 // Callbacks
 //

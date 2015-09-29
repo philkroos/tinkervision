@@ -78,7 +78,7 @@ private:
         logfile_ << value << std::endl;
     }
 
-    void _print_out(void) {}
+    void _print_out(void) { logfile_ << std::endl; }
 
 public:
     template <typename... Args>
