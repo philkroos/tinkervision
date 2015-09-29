@@ -33,42 +33,44 @@ tfv::Api::Api(void) { (void)start(); }
 tfv::Api::~Api(void) { (void)quit(); }
 
 TFV_Result tfv::Api::start(void) {
-    Log("API", "Starting");
+    Log("API", "Restarting");
 
-    auto result = TFV_EXEC_THREAD_FAILURE;
-
-    // Allow mainloop to run
-    active_ = true;
+    if (executor_.joinable()) {
+        return TFV_THREAD_RUNNING;
+    }
 
     auto active_count = modules_.count(
         [](tfv::Module const& module) { return module.enabled(); });
 
-    camera_control_.acquire(active_count);
+    if (active_count == 0) {
+        return TFV_NO_ACTIVE_MODULES;
+    }
+
+    if (not camera_control_.acquire(active_count)) {
+        return TFV_CAMERA_ACQUISITION_FAILED;
+    }
 
     Log("API", "Restarting with ", active_count, " modules");
 
     // Start threaded execution of mainloop
+    active_ = true;
+    executor_ = std::thread(&tfv::Api::execute, this);
+
     if (not executor_.joinable()) {
-        executor_ = std::thread(&tfv::Api::execute, this);
+        active_ = false;
+        return TFV_EXEC_THREAD_FAILURE;
     }
 
-    if (executor_.joinable()) {
-        result = TFV_OK;
-    }
-
-    return result;
+    return TFV_OK;
 }
 
 TFV_Result tfv::Api::stop(void) {
-
-    auto result = TFV_EXEC_THREAD_FAILURE;
 
     if (executor_.joinable()) {
 
         // Notify the threaded execution-context to stop and wait for it
         active_ = false;
         executor_.join();
-        result = TFV_OK;
     }
 
     Log("API::stop", "Execution thread stopped");
@@ -77,7 +79,7 @@ TFV_Result tfv::Api::stop(void) {
 
     Log("API::stop", "Camera released");
 
-    return result;
+    return TFV_OK;
 }
 
 TFV_Result tfv::Api::quit(void) {
@@ -98,7 +100,10 @@ TFV_Result tfv::Api::quit(void) {
     module_loader_.destroy_all();
 
     // ... release the camera and join the execution thread
-    return stop();
+    (void)stop();
+
+    // \todo assert that everything has been stopped.
+    return TFV_OK;
 }
 
 void tfv::Api::execute(void) {
