@@ -175,6 +175,6 @@ private:
     bool _update_from_camera(void);
     bool _update_from_fallback(void);
 };
-};
+}
 
 #endif /* CAMERACONTROL_H */

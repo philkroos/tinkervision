@@ -1,9 +1,9 @@
 cc		:= g++
 
 ifdef DEBUG
-	ccflags := -Wall -Werror -g -O0 -std=c++11 -fPIC -DDEBUG
+	ccflags := -Wall -Werror -pedantic -g -O0 -std=c++11 -fPIC -DDEBUG
 else
-	ccflags := -Wall -Werror -O3 -std=c++11 -fPIC -DWITH_LOGGER
+	ccflags := -Wall -Werror -pedantic -O3 -std=c++11 -fPIC -DWITH_LOGGER
 endif
 
 # structure
