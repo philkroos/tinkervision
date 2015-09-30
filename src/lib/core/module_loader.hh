@@ -2,10 +2,11 @@
 /// \author philipp.kroos@fh-bielefeld.de
 /// \date 2015
 ///
-/// Declaration of the class \c ModuleLoader.
+/// \brief Declaration of the class \c ModuleLoader.
 ///
 /// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
 /// \sa https://github.com/Tinkerforge/red-brick
+///
 /// \copyright
 ///
 /// This program is free software; you can redistribute it and/or
@@ -54,6 +55,11 @@ public:
                           std::string const& user_lib_load_path)
         : system_load_path_(system_lib_load_path),
           user_load_path_(user_lib_load_path) {}
+
+    /// List all available modules. Both system_load_path_ and
+    /// user_lib_load_path_ are searched for loadable modules, which are
+    /// identified by their basename.
+    void list_available_modules(std::vector<std::string>& modules) const;
 
     /// \param[inout] modules List of all modules found.
     /// Load a vision-module from library libname.
@@ -104,7 +110,6 @@ private:
 
     // internally used helper methods
     bool _free_lib(LibraryHandle handle);
-    bool _file_exists(std::string const& fullname) const;
     bool _load_module_from_library(Module** target,
                                    std::string const& library_root,
                                    std::string const& libname, TFV_Int id);

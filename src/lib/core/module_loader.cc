@@ -1,29 +1,49 @@
-/*
-Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
+/// \file module_loader.cc
+/// \author philipp.kroos@fh-bielefeld.de
+/// \date 2015
+///
+/// \brief Implementation of ModuleLoader.
+///
+/// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
+/// \sa https://github.com/Tinkerforge/red-brick
+/// \sa module_loader.hh
+///
+/// \copyright
+///
+/// This program is free software; you can redistribute it and/or
+/// modify it under the terms of the GNU General Public License
+/// as published by the Free Software Foundation; either version 2
+/// of the License, or (at your option) any later version.
+///
+/// This program is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+///
+/// You should have received a copy of the GNU General Public License
+/// along with this program; if not, write to the Free Software
+/// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+/// USA.
 
 #include <dlfcn.h>
 #include <cassert>
-#include <sys/stat.h>  // stat, for _device_exists()
 
 #include "module_loader.hh"
 #include "exceptions.hh"
+#include "filesystem.hh"
 #include "logger.hh"
+
+void tfv::ModuleLoader::list_available_modules(
+    std::vector<std::string>& modules) const {
+
+    auto filter = [](std::string const&, std::string ext,
+                     bool is_file) { return is_file and ext == "so"; };
+
+    /// \todo Check here if the found libraries actually contain valid
+    /// vision-modules.
+    list_directory_content(system_load_path_, modules, filter);
+    list_directory_content(user_load_path_, modules, filter);
+}
 
 bool tfv::ModuleLoader::load_module_from_library(Module** target,
                                                  std::string const& libname,
@@ -124,9 +144,4 @@ bool tfv::ModuleLoader::_load_module_from_library(
     Log("MODULE_LOADER", "Loaded ", libname, " from ", library_root);
     handles_[*target] = {libname, handle};
     return true;
-}
-
-bool tfv::ModuleLoader::_file_exists(std::string const& fullname) const {
-    struct stat buffer;
-    return (stat(fullname.c_str(), &buffer) == 0);
 }
