@@ -27,6 +27,10 @@ void callback(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
     printf("Callback for module %d\n", id);
 }
 
+void str_callback(TFV_Id id, TFV_String string, TFV_Context context) {
+    printf("String-callback: %d, %s\n", id, string);
+}
+
 void colormatch_start(TFV_Id id, int min_hue, int max_hue) {
     TFV_Result result = module_start("colormatch", id);
     printf("Colormatch Id %d Start: %d (%s)\n", id, result,
@@ -63,6 +67,10 @@ int main(int argc, char* argv[]) {
     result = camera_available();
     printf("CameraAvailable: %d (%s)\n", result, result_string(result));
     sleep(1);
+
+    result = enumerate_available_modules(str_callback);
+    printf("Enumerate Modules registered: %d\n", result);
+    sleep(4);
 
     result = start_idle();
     printf("StartIdle: %d (%s)\n", result, result_string(result));

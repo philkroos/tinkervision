@@ -396,7 +396,16 @@ public:
     }
 
     TFV_Result enumerate_available_modules(TFV_CallbackString callback) {
-        return TFV_NOT_IMPLEMENTED;
+        std::thread([&, callback](void) {
+                        std::vector<std::string> modules;
+                        module_loader_.list_available_modules(modules);
+                        for (auto const& module : modules) {
+                            callback(0, module.c_str(), NULL);
+                        }
+                        callback(0, "", NULL);
+                    }).detach();
+
+        return TFV_OK;
     }
 
     template <typename... Args>
