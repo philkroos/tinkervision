@@ -142,6 +142,7 @@ public:
         return result;
     }
 
+    /// Load a module by its basename under the given id.
     TFV_Result module_load(std::string const& name, TFV_Int id) {
         if (modules_.managed(id)) {
             return TFV_INVALID_ID;

@@ -25,17 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "exceptions.hh"
 #include "logger.hh"
 
-TFV_Result tfv::ModuleLoader::last_error(void) {
-    auto last = error_;
-    error_ = TFV_OK;
-    return last;
-}
-
-bool tfv::ModuleLoader::_file_exists(std::string const& fullname) const {
-    struct stat buffer;
-    return (stat(fullname.c_str(), &buffer) == 0);
-}
-
 bool tfv::ModuleLoader::load_module_from_library(Module** target,
                                                  std::string const& libname,
                                                  TFV_Int id) {
@@ -49,6 +38,53 @@ bool tfv::ModuleLoader::load_module_from_library(Module** target,
         return false;
     }
 
+    return true;
+}
+
+bool tfv::ModuleLoader::destroy_module(Module* module) {
+    auto entry = handles_.find(module);
+    if (entry == handles_.cend()) {  // bug if this happens
+        error_ = TFV_INTERNAL_ERROR;
+        return false;
+    }
+
+    auto handle = entry->second.handle;
+    handles_.erase(module);
+    DestructorFunction(dlsym(handle, "destroy"))(module->executable());
+
+    delete module;
+    return _free_lib(handle);
+}
+
+void tfv::ModuleLoader::destroy_all(void) {
+    for (auto lib : handles_) {
+        auto handle = lib.second.handle;
+        auto name = lib.second.libname;
+
+        Log("MODULE_LOADER", "Close library ", name);
+        if (0 != dlclose(handle)) {
+            LogError("API::quit", "dlclose(", name, "): ", dlerror());
+            // Can't do nothing about that.
+        }
+    }
+    handles_.clear();
+}
+
+TFV_Result tfv::ModuleLoader::last_error(void) {
+    auto last = error_;
+    error_ = TFV_OK;
+    return last;
+}
+
+bool tfv::ModuleLoader::_free_lib(LibraryHandle handle) {
+    (void)dlerror();
+    auto result = dlclose(handle);
+
+    if (result != 0) {
+        Log("MODULE_LOADER", "dlclose(..): (", result, ") ", dlerror());
+        error_ = TFV_MODULE_DLCLOSE_FAILED;
+        return false;
+    }
     return true;
 }
 
@@ -90,43 +126,7 @@ bool tfv::ModuleLoader::_load_module_from_library(
     return true;
 }
 
-bool tfv::ModuleLoader::_free_lib(LibraryHandle handle) {
-    (void)dlerror();
-    auto result = dlclose(handle);
-
-    if (result != 0) {
-        Log("MODULE_LOADER", "dlclose(..): (", result, ") ", dlerror());
-        error_ = TFV_MODULE_DLCLOSE_FAILED;
-        return false;
-    }
-    return true;
-}
-
-bool tfv::ModuleLoader::destroy_module(Module* module) {
-    auto entry = handles_.find(module);
-    if (entry == handles_.cend()) {  // bug if this happens
-        error_ = TFV_INTERNAL_ERROR;
-        return false;
-    }
-
-    auto handle = entry->second.handle;
-    handles_.erase(module);
-    DestructorFunction(dlsym(handle, "destroy"))(module->executable());
-
-    delete module;
-    return _free_lib(handle);
-}
-
-void tfv::ModuleLoader::destroy_all(void) {
-    for (auto lib : handles_) {
-        auto handle = lib.second.handle;
-        auto name = lib.second.libname;
-
-        Log("MODULE_LOADER", "Close library ", name);
-        if (0 != dlclose(handle)) {
-            LogError("API::quit", "dlclose(", name, "): ", dlerror());
-            // Can't do nothing about that.
-        }
-    }
-    handles_.clear();
+bool tfv::ModuleLoader::_file_exists(std::string const& fullname) const {
+    struct stat buffer;
+    return (stat(fullname.c_str(), &buffer) == 0);
 }
