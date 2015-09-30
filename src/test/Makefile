@@ -1,14 +1,16 @@
 COLORTRACK	:= colormatch
 STREAM		:= stream
-CONVERT		:= convert
+CONVERT	:= convert
 SNAPSHOT	:= snapshot
 MOTIONDETECT	:= motiondetect
 SCENES		:= scenes
-GENERAL		:= general
+GENERAL	:= general
+FS		:= filesystem
+ML		:= moduleloader
 
 ALL		:= $(COLORTRACK) $(STREAM) $(CONVERT) \
 		   $(SNAPSHOT) $(MOTIONDETECT) \
-		   $(GENERAL) $(SCENES)
+		   $(GENERAL) $(SCENES) $(ML) $(FS)
 
 all:
 	@for test in $(ALL); do \
