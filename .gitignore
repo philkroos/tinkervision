@@ -44,6 +44,8 @@ src/test/red-brick/python-bindings-generator/python/unzipped/
 # Testing binaries
 src/test/*/*
 !src/test/*/*.c
+!src/test/*/*.cc
+!src/test/*/Makefile
 !src/test/*/*.py
 
 # Documentation
