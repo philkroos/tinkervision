@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef TV_MODULE_H
 #define TV_MODULE_H
 
+#include <vector>
+
 #include "image.hh"
 #include "tinkervision_defines.h"
 #include "logger.hh"
@@ -94,9 +96,14 @@ public:
         return false;
     }
 
+    virtual void parameter_list(std::vector<std::string>& parameters) {
+        return;
+    }
+
     virtual bool set(std::string const& parameter, TFV_Word value) {
         return false;
     }
+
     virtual TFV_Word get(std::string const& parameter) { return 0; }
 
     /**

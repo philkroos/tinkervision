@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <typeinfo>
 #include <type_traits>
 #include <cassert>
+#include <vector>
 
 #include "tinkervision_defines.h"
 #include "image.hh"
@@ -192,6 +193,8 @@ public:
     }
 
     ColorSpace expected_format(void) const;
+
+    void get_parameters_list(std::vector<std::string>& parameter) const;
 
     bool has_parameter(std::string const& parameter) const;
 

@@ -76,6 +76,15 @@ public:
         return ColorSpace::BGR888;
     }
 
+    virtual void parameter_list(std::vector<std::string>& parameters) {
+        parameters.push_back("min-hue");
+        parameters.push_back("max-hue");
+        parameters.push_back("min-value");
+        parameters.push_back("max-value");
+        parameters.push_back("min-saturation");
+        parameters.push_back("max-saturation");
+    }
+
     bool has_parameter(std::string const& parameter) const override {
         return parameter == "min-hue" or parameter == "min-value" or
                parameter == "min-saturation" or parameter == "max-hue" or

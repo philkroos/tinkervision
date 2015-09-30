@@ -391,8 +391,24 @@ public:
     }
 
     TFV_Result module_enumerate_parameters(TFV_Id module_id,
-                                           TFV_CallbackString callback) {
-        return TFV_NOT_IMPLEMENTED;
+                                           TFV_CallbackString callback) const {
+        if (not modules_.managed(module_id)) {
+            return TFV_UNCONFIGURED_ID;
+        }
+
+        std::vector<std::string> parameters;
+        modules_[module_id].get_parameters_list(parameters);
+
+        if (parameters.size()) {
+            std::thread([module_id, parameters, callback](void) {
+                            for (auto const& par : parameters) {
+                                callback(0, par.c_str(), NULL);
+                            }
+                            callback(module_id, "", NULL);
+                        }).detach();
+        }
+
+        return TFV_OK;
     }
 
     TFV_Result enumerate_available_modules(TFV_CallbackString callback) {

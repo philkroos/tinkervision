@@ -87,6 +87,9 @@ int main(int argc, char* argv[]) {
       Starting a module, quitting the api, starting same id again failed.
     */
     colormatch_start(1, 20, 25);
+    result = module_enumerate_parameters(1, str_callback);
+    printf("Enumerate Parameters registered: %d\n", result);
+
     sleep(3);
 
     result = quit();

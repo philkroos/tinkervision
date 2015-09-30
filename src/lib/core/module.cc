@@ -75,6 +75,11 @@ tfv::ModuleType const& tfv::Module::type(void) const {
     return tv_module_->type();
 }
 
+void tfv::Module::get_parameters_list(
+    std::vector<std::string>& parameters) const {
+    tv_module_->parameter_list(parameters);
+}
+
 bool tfv::Module::has_parameter(std::string const& parameter) const {
     return tv_module_->has_parameter(parameter);
 }
