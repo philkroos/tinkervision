@@ -1,9 +1,10 @@
 cc		:= g++
+ccflags	:= -Wall -Werror -pedantic -std=c++11 -fpic -DWITH_LOGGER
 
 ifdef DEBUG
-	ccflags := -Wall -Werror -pedantic -g -O0 -std=c++11 -fPIC -DDEBUG
+	ccflags += -g -O0 -DDEBUG
 else
-	ccflags := -Wall -Werror -pedantic -O3 -std=c++11 -fPIC -DWITH_LOGGER
+	ccflags += -O3
 endif
 
 # structure
@@ -15,10 +16,8 @@ src_dir	:= $(addprefix $(src_prefix)/,$(parts))
 
 libs		:= -lstdc++ -lv4l2 -lm
 inc		:= $(addprefix -I./$(src_prefix)/,$(parts)) $(OCV_inc)
-ifneq ($(or $(WITH_OPENCV_CAM),$(DEBUG)),)
-	libs	+= /usr/local/lib/libopencv_highgui.so \
-		   /usr/local/lib/libopencv_imgproc.so \
-		   /usr/local/lib/libopencv_video.so \
+ifneq ($(or $(WITH_OPENCV_CAM),$(DEBUG_WINDOW)),)
+	libs	+= -lopencv_highgui -lopencv_imgproc -lopencv_video \
 		   -lrt -lpthread -ldl
 	inc	+= -I/usr/local/include/opencv -I/usr/local/include
 endif
@@ -26,14 +25,9 @@ endif
 ldflags	:= $(libs) -rdynamic
 
 # files
-SRC		:= $(foreach sdir,$(src_dir),$(wildcard $(sdir)/*.cc))
-ifdef DEBUG
-	obj	:= $(patsubst $(src_prefix)/%.cc,build/%_dbg.o,$(SRC))
-	output	:= libtinkervision_dbg.so
-else
-	obj	:= $(patsubst $(src_prefix)/%.cc,build/%.o,$(SRC))
-	output	:= libtinkervision.so
-endif
+src		:= $(foreach sdir,$(src_dir),$(wildcard $(sdir)/*.cc))
+obj		:= $(patsubst $(src_prefix)/%.cc,build/%.o,$(src))
+output		:= libtinkervision.so
 
 
 all: directories lib
@@ -45,13 +39,8 @@ vpath %.cc $(src_dir)
 
 # generates targets, called at below
 define make-goal
-ifdef DEBUG
-$1/%_dbg.o: %.cc
-	$(cc) $(ccflags) -c $$< -o $$@ $(inc)
-else
 $1/%.o: %.cc
 	$(cc) $(ccflags) -c $$< -o $$@ $(inc)
-endif
 endef
 
 # setup directory structure

@@ -1,8 +1,13 @@
 CC		:= g++
-CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC
 
-INC		:= -I/usr/local/include
-LDFLAGS	:=
+ifeq ($(DEBUG),yes)
+	CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
+	INC		:= -I/usr/local/include `pkg-config --cflags opencv`
+	LDFLAGS	:= `pkg-config --libs opencv`
+else
+	CCFLAGS	:= -Wall -Werror -O3 -std=c++11 -shared -fPIC
+	INC		:= -I/usr/local/include
+endif
 
 SO		:= downscale.so
 OBJ		:= downscale.o

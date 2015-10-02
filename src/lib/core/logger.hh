@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#if !defined(DEBUG) && !defined(WITH_LOGGER)
+#if !defined(WITH_LOGGER)
 #include <string>
 namespace tfv {
 
@@ -50,6 +50,7 @@ namespace tfv {
 // forward, for ostream declarations
 class Module;
 class SceneTree;
+class StringResult;
 
 class Logger {
 private:
@@ -132,6 +133,7 @@ std::ostream& operator<<(std::ostream& os, ColorSpace const& format);
 std::ostream& operator<<(std::ostream& os, ImageHeader const& header);
 std::ostream& operator<<(std::ostream& os, Timestamp ts);
 std::ostream& operator<<(std::ostream& os, TFV_Id id);
+std::ostream& operator<<(std::ostream& os, StringResult const& string);
 
 #endif
 }

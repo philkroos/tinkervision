@@ -1,8 +1,10 @@
 MODULES	:= grayfilter dummy colormatch motiondetect snapshot downscale
 
+DEBUG ?= no
+
 all:
 	@for module in $(MODULES); do \
-		cd $$module && make && cd ..; \
+		cd $$module && DEBUG=$(DEBUG) make && cd ..; \
 	done
 
 clean:

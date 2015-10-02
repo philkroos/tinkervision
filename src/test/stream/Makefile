@@ -4,7 +4,7 @@ INC		:= `pkg-config --cflags opencv`
 LIBS_X264	:= -lx264
 LIBS_LIVE	:= -lBasicUsageEnvironment -lUsageEnvironment -lgroupsock -lliveMedia
 LIBS_OPENCV	:= `pkg-config --libs opencv`
-LIBS		:= -ltinkervision_dbg -lstdc++ -lv4l2 \
+LIBS		:= -ltinkervision -lstdc++ -lv4l2 \
 		   $(LIBS_OPENCV) $(LIBS_EXTERNAL)  $(LIB_X264) $(LIBS_LIVE)
 
 OBJ		:= tfv_stream.o
