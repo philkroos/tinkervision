@@ -10,6 +10,12 @@ LIBS_LIVE       := $(addprefix -l,$(LIVE_MODULES))
 LIBS_X264	:= -lx264
 LDFLAGS	:= $(LIBS_X264) $(LIBS_LIVE) -rdynamic
 
+ifeq ($(DEBUG),yes)
+	CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
+	INC		+= `pkg-config --cflags opencv`
+	LDFLAGS	+= `pkg-config --libs opencv`
+endif
+
 SO		:= stream.so
 OBJ		:= stream.o h264_media_session.o execution_context.o h264_encoder.o
 

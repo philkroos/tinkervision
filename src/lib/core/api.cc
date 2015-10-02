@@ -24,10 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "api.hh"
 #include "module.hh"
 
-#ifdef DEBUG
-#include "window.hh"
-#endif
-
 tfv::Api::Api(void) { (void)start(); }
 
 tfv::Api::~Api(void) { (void)quit(); }
@@ -109,12 +105,6 @@ TFV_Result tfv::Api::quit(void) {
 
 void tfv::Api::execute(void) {
 
-#ifdef DEBUG
-    static Window w;
-    static Image dbg_img_0;
-    static Image dbg_img_1;
-#endif
-
     auto image = Image();
 
     // Execute active module. This is the ONLY place where modules are executed.
@@ -132,11 +122,6 @@ void tfv::Api::execute(void) {
 
             conversions_.get_frame(image, module.expected_format());
 
-#ifdef DEBUG
-            conversions_.get_frame(dbg_img_0, ColorSpace::BGR888);
-            w.update(0, dbg_img_0.data, dbg_img_0.header.height,
-                     dbg_img_0.header.width);
-#endif
             module.exec(image);
         }
 
@@ -144,12 +129,6 @@ void tfv::Api::execute(void) {
             auto modifier = static_cast<Modifier*>(module.executable());
             conversions_.set_frame(modifier->modified_image());
         }
-
-#ifdef DEBUG
-        conversions_.get_frame(dbg_img_1, ColorSpace::BGR888);
-        w.update(1, dbg_img_1.data, dbg_img_1.header.height,
-                 dbg_img_1.header.width);
-#endif
 
         auto& tags = module.tags();
         if (tags & Module::Tag::ExecAndRemove) {

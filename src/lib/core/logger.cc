@@ -17,10 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#if defined(DEBUG) || defined(WITH_LOGGER)
+#if defined(WITH_LOGGER)
 
 #include "logger.hh"
 #include "module.hh"
+#include "tv_module.hh"
 #include "scenetrees.hh"
 
 std::string tfv::Logger::PREFIX_WARNING = "WARNING";
@@ -104,6 +105,11 @@ std::ostream& tfv::operator<<(std::ostream& os, tfv::Timestamp ts) {
 
 std::ostream& tfv::operator<<(std::ostream& os, TFV_Id id) {
     os << static_cast<int>(id);
+    return os;
+}
+
+std::ostream& tfv::operator<<(std::ostream& os, StringResult const& string) {
+    os << string.result;
     return os;
 }
 

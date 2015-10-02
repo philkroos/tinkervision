@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#if defined DEBUG
+#if defined DEBUG_WINDOW
 
 #include <iostream>
 #include <map>
@@ -62,6 +62,6 @@ public:
 };
 }
 
-#endif  // DEBUG
+#endif  // DEBUG_WINDOW
 
 #endif /* WINDOW_H */

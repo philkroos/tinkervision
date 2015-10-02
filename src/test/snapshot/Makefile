@@ -1,6 +1,6 @@
 CC		:= gcc
 CFLAGS		:= -Wall -Werror -g -O0 -ansi -pedantic -D_POSIX_C_SOURCE=199309L
-LIBS		:= -ltinkervision_dbg -lstdc++ -lv4l2
+LIBS		:= -ltinkervision -lstdc++ -lv4l2
 
 OBJ		:= tfv_snapshot.o
 OUT		:= tfv-snapshot
