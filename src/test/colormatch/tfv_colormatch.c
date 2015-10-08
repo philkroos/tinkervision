@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
 
     sleep(1);
 
-    result = module_start("colormatch", id);
+    result = module_start("colormatch", &id);
 
     printf("Configured module id %d: Code %d (%s)\n", id, result,
            result_string(result));

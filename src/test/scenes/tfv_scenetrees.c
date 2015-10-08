@@ -44,7 +44,7 @@ void scene_add(TFV_Scene scene, TFV_Id module) {
 }
 
 void colormatch_start(TFV_Id id, int min_hue, int max_hue) {
-    TFV_Result result = module_start("colormatch", id);
+    TFV_Result result = module_start("colormatch", &id);
     printf("Colormatch Id %d Start: %d (%s)\n", id, result,
            result_string(result));
     if (result != TFV_OK) {

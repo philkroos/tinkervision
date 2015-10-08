@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
     TFV_Size width, height;
     TFV_ModuleResult m_result;
 
-    TFV_Result result = module_start("snapshot", id);
+    TFV_Result result = module_start("snapshot", &id);
     printf("Load module snapshot: result %d: %s\n", result,
            result_string(result));
 

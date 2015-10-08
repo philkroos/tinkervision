@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
     image = cvCreateImage(cvSize(width, height), 8, 3);
     cvNamedWindow("Motion", CV_WINDOW_AUTOSIZE);
 
-    result = module_start("motiondetect", module_id);
+    result = module_start("motiondetect", &module_id);
 
     if (result != TFV_OK) {
         printf("Error - could not start the motiondetector: %d (%s)\n", result,

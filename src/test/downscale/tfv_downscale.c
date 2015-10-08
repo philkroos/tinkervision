@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
 
     sleep(1);
 
-    result = module_start("downscale", id);
+    result = module_start("downscale", &id);
 
     printf("Configured downscale id %d: Code %d (%s)\n", id, result,
            result_string(result));
