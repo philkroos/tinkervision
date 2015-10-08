@@ -141,7 +141,7 @@ TFV_Result set_parameter(TFV_Id module_id, TFV_String const parameter,
 TFV_Result get_parameter(TFV_Id module_id, TFV_String const parameter,
                          TFV_Int* value);
 
-TFV_Result module_start(TFV_String name, TFV_Id id);
+TFV_Result module_start(TFV_String name, TFV_Id* id);
 
 TFV_Result module_stop(TFV_Id id);
 

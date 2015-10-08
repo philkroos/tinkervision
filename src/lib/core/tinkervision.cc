@@ -107,9 +107,9 @@ TFV_Result get_parameter(TFV_Id module_id, TFV_String const parameter,
     return tfv::get_api().get_parameter(module_id, parameter, value);
 }
 
-TFV_Result module_start(TFV_String name, TFV_Id id) {
-    tfv::Log("Tinkervision::ModuleStart", name, " ", id);
-    return tfv::get_api().module_load(name, id);
+TFV_Result module_start(TFV_String name, TFV_Id* id) {
+    tfv::Log("Tinkervision::ModuleStart", name);
+    return tfv::get_api().module_load(name, *id);
 }
 
 TFV_Result module_restart(TFV_Id id) {

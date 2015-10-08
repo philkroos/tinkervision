@@ -137,40 +137,30 @@ public:
         auto result = TFV_OK;  // optimistic because startable only once
 
         if (not idle_process_running_) {
-            result = module_load("dummy", _next_internal_id());
+            result = _module_load("dummy", _next_internal_id());
         }
         idle_process_running_ = (result == TFV_OK);
         return result;
     }
 
     /// Load a module by its basename under the given id.
-    TFV_Result module_load(std::string const& name, TFV_Int id) {
-        if (modules_.managed(id)) {
-            return TFV_INVALID_ID;
+    TFV_Result module_load(std::string const& name, TFV_Id& id) {
+        auto module_id = _next_public_id();
+
+        assert(module_id < std::numeric_limits<TFV_Id>::max() and
+               module_id > 0);
+
+        auto result = _module_load(name, static_cast<TFV_Int>(module_id));
+
+        if (TFV_INVALID_ID == result) {
+            // this is an unhandled id clash, see _next_public_id
+            result = TFV_INTERNAL_ERROR;
         }
 
-        Log("API", "Open library ", name);
-
-        auto module = (Module*)(nullptr);
-        if (not module_loader_.load_module_from_library(&module, name, id)) {
-            Log("API", "Loading library ", name, " failed");
-            return module_loader_.last_error();
+        if (TFV_OK == result) {
+            id = static_cast<TFV_Id>(module_id);
         }
-
-        if (not camera_control_.acquire()) {
-            return TFV_CAMERA_ACQUISITION_FAILED;
-        }
-
-        if (not modules_.insert(id, module, [this](Module& module) {
-                module_loader_.destroy_module(&module);
-            })) {
-
-            camera_control_.release();
-            return TFV_MODULE_INITIALIZATION_FAILED;
-        }
-
-        module->switch_active(true);
-        return TFV_OK;
+        return result;
     }
 
     /** Deactivate and remove a module.
@@ -503,6 +493,36 @@ private:
      */
     void execute(void);
 
+    TFV_Result _module_load(std::string const& name, TFV_Int id) {
+        Log("API", "ModuleLoad ", name, " ", id);
+
+        if (modules_[id]) {
+            return TFV_INVALID_ID;
+        }
+
+        auto module = (Module*)(nullptr);
+        if (not module_loader_.load_module_from_library(&module, name, id)) {
+            Log("API", "Loading library ", name, " failed");
+            return module_loader_.last_error();
+        }
+
+        if (not camera_control_.acquire()) {
+            return TFV_CAMERA_ACQUISITION_FAILED;
+        }
+
+        if (not modules_.insert(id, module, [this](Module& module) {
+
+                module_loader_.destroy_module(&module);
+            })) {
+
+            camera_control_.release();
+            return TFV_MODULE_INITIALIZATION_FAILED;
+        }
+
+        module->switch_active(true);
+        return TFV_OK;
+    }
+
     void _disable_all_modules(void) {
         modules_.exec_all([this](TFV_Int id, tfv::Module& module) {
             module.disable();
@@ -551,6 +571,19 @@ private:
     }
 
     bool _scenes_active(void) const { return not scene_trees_.empty(); }
+
+    /// Generate a new module id.
+    /// \todo There is currently no code that would prevent regeneration of an
+    /// id that is currently in use in case of an overflow and a long running
+    /// module.
+    TFV_Int _next_public_id(void) const {
+        static TFV_Id public_id{0};
+        if (++public_id == 0) {
+            public_id = 1;
+            LogWarning("API", "Overflow of public ids");
+        }
+        return static_cast<TFV_Int>(public_id);
+    }
 
     TFV_Int _next_internal_id(void) const {
         static TFV_Int internal_id{std::numeric_limits<TFV_Id>::max() + 1};
