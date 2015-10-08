@@ -39,12 +39,6 @@ def run(red):
     red.register_callback(red.CALLBACK_VISION_POINT, colorcallback)
 
     sleep(5)
-
-    ok = red.vision_quit()
-
-    if ok != 0:
-        raise Exception("VisionQuit returned error: " + str(ok))
-
     exit(0)
 
     ok = red.vision_module_start(1, "motion")
@@ -54,7 +48,6 @@ def run(red):
 
     red.register_callback(red.CALLBACK_VISION_MOTION, motioncallback)
 
-    # Wait a while, then quit controlled.
     sleep(30)
 
     print "Stopping both modules"
