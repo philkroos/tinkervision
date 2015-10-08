@@ -107,10 +107,4 @@ std::ostream& tfv::operator<<(std::ostream& os, TFV_Id id) {
     os << static_cast<int>(id);
     return os;
 }
-
-std::ostream& tfv::operator<<(std::ostream& os, StringResult const& string) {
-    os << string.result;
-    return os;
-}
-
 #endif
