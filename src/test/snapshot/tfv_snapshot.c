@@ -25,8 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 int main(int argc, char* argv[]) {
     TFV_Id id = 0;
-    TFV_CharArray fname;
     TFV_Size width, height;
+    TFV_ModuleResult m_result;
 
     TFV_Result result = module_start("snapshot", id);
     printf("Load module snapshot: result %d: %s\n", result,
@@ -38,10 +38,10 @@ int main(int argc, char* argv[]) {
     /* Wait for a moment to have the Snapshot module executed at least once */
     sleep(1);
 
-    result = get_string_result(id, fname);
+    result = get_result(id, &m_result);
     printf("Snapshot result: %d (%s)\n", result, result_string(result));
     if (result == TFV_OK) {
-        printf("Snapshot is %s\n", fname);
+        printf("Snapshot is %s\n", m_result.string);
     }
 
     /*

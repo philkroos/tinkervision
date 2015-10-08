@@ -62,7 +62,7 @@ private:
         // 750...
         {TFV_RESULT_NOT_AVAILABLE,
          "Error - Result requested where none is provided"},
-        {TFV_INCOMPATIBLE_RESULT_TYPE,
+        {TFV_GLOBAL_CALLBACK_ACTIVE,
          "Error - Result of incompatible type requested"}};
 
 public:

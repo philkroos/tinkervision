@@ -31,9 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <typeinfo>
 #include <limits>
 #include <functional>
+#include <algorithm>
 #include <atomic>
 #include <tuple>
-#include <typeinfo>
+#include <cstring>
 
 #include "strings.hh"
 #include "tinkervision_defines.h"
@@ -391,7 +392,7 @@ public:
     }
 
     TFV_Result module_enumerate_parameters(TFV_Id module_id,
-                                           TFV_CallbackString callback) const {
+                                           TFV_StringCallback callback) const {
         if (not modules_.managed(module_id)) {
             return TFV_UNCONFIGURED_ID;
         }
@@ -402,33 +403,33 @@ public:
         if (parameters.size()) {
             std::thread([module_id, parameters, callback](void) {
                             for (auto const& par : parameters) {
-                                callback(0, par.c_str(), NULL);
+                                callback(module_id, par.c_str());
                             }
-                            callback(module_id, "", NULL);
+                            callback(module_id, "");
                         }).detach();
         }
 
         return TFV_OK;
     }
 
-    TFV_Result enumerate_available_modules(TFV_CallbackString callback) {
+    TFV_Result enumerate_available_modules(TFV_StringCallback callback) {
         std::thread([&, callback](void) {
                         std::vector<std::string> modules;
                         module_loader_.list_available_modules(modules);
                         for (auto const& module : modules) {
-                            callback(0, module.c_str(), NULL);
+                            callback(0, module.c_str());
                         }
-                        callback(0, "", NULL);
+                        callback(0, "");
                     }).detach();
 
         return TFV_OK;
     }
 
-    template <typename... Args>
-    using AnyCallback = void (*)(Args...);
+    TFV_Result callback_set(TFV_Id module_id, TFV_Callback callback) {
+        if (default_callback_ != nullptr) {
+            return TFV_GLOBAL_CALLBACK_ACTIVE;
+        }
 
-    template <typename... Args>
-    TFV_Result callback_set(TFV_Id module_id, AnyCallback<Args...> callback) {
         if (not modules_[module_id]) {
             return TFV_UNCONFIGURED_ID;
         }
@@ -436,53 +437,38 @@ public:
         auto& module = *modules_[module_id];
 
         if (not module.register_callback(callback)) {
-            LogError("API", "Invalid Callback for module ", module.name(),
-                     " passed.");
+            LogError("API", "Could not set callback for module ",
+                     module.name());
             return TFV_INTERNAL_ERROR;
         }
 
         return TFV_OK;
     }
 
-    template <typename... Args>
-    TFV_Result get_result(TFV_Id module_id, Args...) {
-        Log("API", "Unknown result type requested from module ", module_id);
-        return TFV_INCOMPATIBLE_RESULT_TYPE;
+    TFV_Result callback_default(TFV_Callback callback) {
+        default_callback_ = callback;
+        return TFV_OK;
     }
 
-    TFV_Result get_result(TFV_Id module_id, TFV_Size& value) {
-        Log("API", "Getting ScalarResult from module ", module_id);
-        return _get_result<ScalarResult>(
-            module_id,
-            [&](ScalarResult const& scalar) { value = scalar.scalar; });
-    }
+    TFV_Result get_result(TFV_Id module_id, TFV_ModuleResult& result) {
+        Log("API", "Getting result from module ", module_id);
 
-    TFV_Result get_result(TFV_Id module_id, TFV_Size& x, TFV_Size& y) {
-        Log("API", "Getting PointResult from module ", module_id);
-        return _get_result<PointResult>(module_id,
-                                        [&](PointResult const& point) {
-            x = point.x;
-            y = point.y;
+        return modules_.exec_one(module_id, [&](Module& module) {
+            auto res = module.result();
+            if (res == nullptr) {
+                return TFV_RESULT_NOT_AVAILABLE;
+            }
+            result.x = res->x;
+            result.y = res->y;
+            result.width = res->width;
+            result.height = res->height;
+            std::strncpy(result.string, res->result.c_str(),
+                         TFV_CHAR_ARRAY_SIZE - 1);
+            std::fill(result.string + res->result.size(),
+                      result.string + TFV_CHAR_ARRAY_SIZE - 1, '\0');
+            result.string[TFV_CHAR_ARRAY_SIZE - 1] = '\0';
+            return TFV_OK;
         });
-    }
-
-    TFV_Result get_result(TFV_Id module_id, TFV_Size& x, TFV_Size& y,
-                          TFV_Size& width, TFV_Size& height) {
-        Log("API", "Getting RectangleResult from module ", module_id);
-        return _get_result<RectangleResult>(module_id,
-                                            [&](RectangleResult const& rect) {
-            x = rect.x;
-            y = rect.y;
-            width = rect.width;
-            height = rect.height;
-        });
-    }
-
-    TFV_Result get_result(TFV_Id module_id, std::string& result) {
-        Log("API", "Getting StringResult from module ", module_id);
-        return _get_result<StringResult>(
-            module_id,
-            [&](StringResult const& string) { result = string.result; });
     }
 
 private:
@@ -505,6 +491,8 @@ private:
     unsigned execution_latency_ms_ = 100;  ///< Pause during mainloop
 
     SceneTrees scene_trees_;
+
+    TFV_Callback default_callback_ = nullptr;
 
     /**
      * Threaded execution context of vision algorithms (modules).
@@ -558,26 +546,6 @@ private:
         return modules_.exec_one(id, [this](tfv::Module& module) {
             module.disable();
             camera_control_.release();
-            return TFV_OK;
-        });
-    }
-
-    template <typename TypedResult>
-    using ResultSetter = std::function<void(TypedResult const&)>;
-
-    template <typename TypedResult>
-    TFV_Result _get_result(TFV_Id module_id, ResultSetter<TypedResult> setter) {
-
-        return modules_.exec_one(module_id, [&](Module& module) {
-            auto result = module.get_result();
-            if (result == nullptr) {
-                return TFV_RESULT_NOT_AVAILABLE;
-            }
-            auto typed = dynamic_cast<TypedResult const*>(result);
-            if (typed == nullptr) {
-                return TFV_INCOMPATIBLE_RESULT_TYPE;
-            }
-            setter(*typed);
             return TFV_OK;
         });
     }

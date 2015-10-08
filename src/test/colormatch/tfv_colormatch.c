@@ -33,11 +33,12 @@ void invalid_callback(TFV_Id id, TFV_Size x, TFV_Context context) {
     (void)x;
     (void)context;
 }
-void callback(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
+
+void callback(TFV_Id id, TFV_ModuleResult result, TFV_Context context) {
     CvPoint center;
 
-    center.x = x;
-    center.y = y;
+    center.x = result.x;
+    center.y = result.y;
 
     printf("Id %d: Located at %d/%d\n", id, center.x, center.y);
 
@@ -98,11 +99,11 @@ int main(int argc, char* argv[]) {
     printf("Configured module id %d: Code %d (%s)\n", id, result,
            result_string(result));
 
-    result = set_value_callback(id, invalid_callback);
-    printf("Set value callback: Code %d (%s)\n", result, result_string(result));
+    result = set_callback(id, callback);
+    printf("Set callback: Code %d (%s)\n", result, result_string(result));
 
-    result = set_point_callback(id, callback);
-    printf("Set point callback: Code %d (%s)\n", result, result_string(result));
+    result = set_callback(id, callback);
+    printf("Set callback: Code %d (%s)\n", result, result_string(result));
 
     result = set_parameter(id, "min-hue", min_hue);
     printf("Set min-hue: Code %d (%s)\n", result, result_string(result));
@@ -137,6 +138,8 @@ int main(int argc, char* argv[]) {
     sleep(2);
 
     get_resolution(&width, &height);
+    printf("WxH: %dx%d (Code %d: %s)\n", width, height, result,
+           result_string(result));
     image = cvCreateImage(cvSize(width, height), 8, 3);
     cvZero(image);
     cvNamedWindow("Result", CV_WINDOW_AUTOSIZE);

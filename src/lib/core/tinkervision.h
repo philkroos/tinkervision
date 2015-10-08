@@ -154,25 +154,20 @@ Not yet integrated
 */
 TFV_Result module_get_name(TFV_Id module_id, TFV_CharArray name);
 TFV_Result module_enumerate_parameters(TFV_Id module_id,
-                                       TFV_CallbackString callback);
+                                       TFV_StringCallback callback);
 
-TFV_Result enumerate_available_modules(TFV_CallbackString callback);
+TFV_Result enumerate_available_modules(TFV_StringCallback callback);
 /**/
 
 TFV_Result scene_from_module(TFV_Id module, TFV_Scene* scene);
 TFV_Result scene_add_module(TFV_Scene scene, TFV_Id module);
 TFV_Result scene_remove(TFV_Scene scene);
 
-TFV_Result set_value_callback(TFV_Id module, TFV_CallbackValue callback);
-TFV_Result set_point_callback(TFV_Id module, TFV_CallbackPoint callback);
-TFV_Result set_rect_callback(TFV_Id module, TFV_CallbackRectangle callback);
-TFV_Result set_string_callback(TFV_Id module, TFV_CallbackString callback);
+TFV_Result set_callback(TFV_Id module, TFV_Callback callback);
 
-TFV_Result get_value_result(TFV_Id module, TFV_Size* value);
-TFV_Result get_point_result(TFV_Id module, TFV_Size* x, TFV_Size* y);
-TFV_Result get_rect_result(TFV_Id module, TFV_Size* x, TFV_Size* y,
-                           TFV_Size* width, TFV_Size* height);
-TFV_Result get_string_result(TFV_Id module, TFV_CharArray result);
+TFV_Result enable_default_callback(TFV_Callback callback);
+
+TFV_Result get_result(TFV_Id module, TFV_ModuleResult* result);
 
 TFV_String result_string(TFV_Result code);
 

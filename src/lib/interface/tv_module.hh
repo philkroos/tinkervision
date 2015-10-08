@@ -29,40 +29,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 namespace tfv {
 
 struct Result {
-    virtual ~Result(void) = default;
-};
-
-struct StringResult : public Result {
-    using callback_t = TFV_CallbackString;
+    uint16_t x = 0;
+    uint16_t y = 0;
+    uint16_t width = 0;
+    uint16_t height = 0;
     std::string result = "";
-    StringResult(void) = default;
-    StringResult(std::string const& s) : result(s) {}
-};
-
-struct ScalarResult : public Result {
-    using callback_t = TFV_CallbackValue;
-    TFV_Size scalar = 0;
-    ScalarResult(void) = default;
-    ScalarResult(TFV_Size i) : scalar(i) {}
-};
-
-struct PointResult : public Result {
-    using callback_t = TFV_CallbackPoint;
-    TFV_Size x = 0;
-    TFV_Size y = 0;
-    PointResult(void) = default;
-    PointResult(TFV_Size x, TFV_Size y) : x(x), y(y) {}
-};
-
-struct RectangleResult : public Result {
-    using callback_t = TFV_CallbackRectangle;
-    int x = 0;
-    int y = 0;
-    int width = 0;
-    int height = 0;
-    RectangleResult(void) = default;
-    RectangleResult(int x, int y, int width, int height)
-        : x(x), y(y), width(width), height(height) {}
 };
 
 enum class ModuleType : uint8_t {

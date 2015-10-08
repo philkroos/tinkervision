@@ -139,12 +139,12 @@ TFV_Result module_get_name(TFV_Id module_id, TFV_CharArray name) {
 }
 
 TFV_Result module_enumerate_parameters(TFV_Id module_id,
-                                       TFV_CallbackString callback) {
+                                       TFV_StringCallback callback) {
     tfv::Log("Tinkervision::ModuleEnumerateParameters", module_id);
     return tfv::get_api().module_enumerate_parameters(module_id, callback);
 }
 
-TFV_Result enumerate_available_modules(TFV_CallbackString callback) {
+TFV_Result enumerate_available_modules(TFV_StringCallback callback) {
     tfv::Log("Tinkervision::EnumerateAvailableModules");
     return tfv::get_api().enumerate_available_modules(callback);
 }
@@ -153,48 +153,22 @@ TFV_Result enumerate_available_modules(TFV_CallbackString callback) {
 // Callbacks
 //
 
-TFV_Result set_value_callback(TFV_Id module, TFV_CallbackValue callback) {
-    tfv::Log("Tinkervision::SetValueCallback", module);
+TFV_Result set_callback(TFV_Id module, TFV_Callback callback) {
+    tfv::Log("Tinkervision::SetCallback", module);
     return tfv::get_api().callback_set(module, callback);
 }
-TFV_Result set_point_callback(TFV_Id module, TFV_CallbackPoint callback) {
-    tfv::Log("Tinkervision::SetPointCallback", module);
-    return tfv::get_api().callback_set(module, callback);
-}
-TFV_Result set_rect_callback(TFV_Id module, TFV_CallbackRectangle callback) {
-    tfv::Log("Tinkervision::SetRectCallback", module);
-    return tfv::get_api().callback_set(module, callback);
-}
-TFV_Result set_string_callback(TFV_Id module, TFV_CallbackString callback) {
-    tfv::Log("Tinkervision::SetStringCallback", module);
-    return tfv::get_api().callback_set(module, callback);
+
+TFV_Result enable_default_callback(TFV_Callback callback) {
+    tfv::Log("Tinkervision::EnableDefaultCallback");
+    return tfv::get_api().callback_default(callback);
 }
 
 //
 // Accessors for the same data provided by the callbacks
 //
 
-TFV_Result get_value_result(TFV_Id module, TFV_Size* value) {
-    tfv::Log("Tinkervision::GetValueResult", module);
-    return tfv::get_api().get_result(module, *value);
-}
-TFV_Result get_point_result(TFV_Id module, TFV_Size* x, TFV_Size* y) {
-    tfv::Log("Tinkervision::GetPointResult", module);
-    return tfv::get_api().get_result(module, *x, *y);
-}
-TFV_Result get_rect_result(TFV_Id module, TFV_Size* x, TFV_Size* y,
-                           TFV_Size* width, TFV_Size* height) {
-    tfv::Log("Tinkervision::GetRectResult", module);
-    return tfv::get_api().get_result(module, *x, *y, *width, *height);
-}
-TFV_Result get_string_result(TFV_Id module, TFV_CharArray result) {
-    tfv::Log("Tinkervision::GetStringResult", module);
-    std::string result_string;
-    auto err = tfv::get_api().get_result(module, result_string);
-    if (err == TFV_OK) {
-        std::strncpy(result, result_string.c_str(), TFV_CHAR_ARRAY_SIZE - 1);
-        result[TFV_CHAR_ARRAY_SIZE - 1] = '\0';
-    }
-    return err;
+TFV_Result get_result(TFV_Id module, TFV_ModuleResult* result) {
+    tfv::Log("Tinkervision::GetResult", module);
+    return tfv::get_api().get_result(module, *result);
 }
 }

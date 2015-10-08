@@ -17,6 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#ifndef TINKERVISION_DEFINES_H
+#define TINKERVISION_DEFINES_H
+
 /** \file tinkervision_defines.h
     Common definitions for the public and internal apis.
 */
@@ -43,15 +46,17 @@ typedef TFV_Int TFV_Scene;
 typedef TFV_Int TFV_Result;
 typedef void* TFV_Context;
 
-typedef void (*TFV_CallbackValue)(TFV_Id, TFV_Size x, TFV_Context);
-typedef void (*TFV_CallbackPoint)(TFV_Id, TFV_Size x, TFV_Size y, TFV_Context);
-typedef void (*TFV_CallbackRectangle)(TFV_Id, TFV_Size x_topleft,
-                                      TFV_Size y_topleft, TFV_Size width,
-                                      TFV_Size height, TFV_Context);
-typedef void (*TFV_CallbackString)(TFV_Id, TFV_String string, TFV_Context);
+typedef struct TFV_ModuleResult {
+    TFV_UWord x;
+    TFV_UWord y;
+    TFV_UWord width;
+    TFV_UWord height;
+    TFV_CharArray string;
+} TFV_ModuleResult;
 
-typedef TFV_CallbackPoint TFV_CallbackColormatch;
-typedef TFV_CallbackRectangle TFV_CallbackMotiondetect;
+/// General callback applicable for every module that produces a result.
+typedef void (*TFV_Callback)(TFV_Id, TFV_ModuleResult result, TFV_Context);
+typedef void (*TFV_StringCallback)(TFV_Id, TFV_String string);
 
 #define TFV_UNUSED_ID -1
 
@@ -100,8 +105,10 @@ typedef TFV_CallbackRectangle TFV_CallbackMotiondetect;
 
 /* Callback/Result request errors: 750... */
 #define TFV_RESULT_NOT_AVAILABLE 750
-#define TFV_INCOMPATIBLE_RESULT_TYPE 751
+#define TFV_GLOBAL_CALLBACK_ACTIVE 751
 
 /* Internally used where a return value has only temporary means. Never returned
  * outside: 1000... */
 #define TFV_INTERNAL_NODE_UNCONFIGURED 1000
+
+#endif /* TINKERVISION_DEFINES_H */

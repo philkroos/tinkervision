@@ -39,7 +39,7 @@ private:
 
     bool results_{false};  ///< true if motion detected in last frame
 
-    RectangleResult rect_around_motion_;
+    Result rect_around_motion_;
 
 public:
     Motiondetect(void) : Analyzer{"Motiondetect"} {}

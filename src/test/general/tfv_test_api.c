@@ -23,11 +23,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision/tinkervision.h"
 
-void callback(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
+void callback(TFV_Id id, TFV_ModuleResult result, TFV_Context context) {
     printf("Callback for module %d\n", id);
 }
 
-void str_callback(TFV_Id id, TFV_String string, TFV_Context context) {
+void str_callback(TFV_Id id, TFV_String string) {
     printf("String-callback: %d, %s\n", id, string);
 }
 
@@ -48,7 +48,7 @@ void colormatch_start(TFV_Id id, int min_hue, int max_hue) {
     if (result != TFV_OK) {
         return;
     }
-    result = set_point_callback(id, callback);
+    result = set_callback(id, callback);
     if (result != TFV_OK) {
         printf("Setting the callback failed: %d (%s)\n", result,
                result_string(result));

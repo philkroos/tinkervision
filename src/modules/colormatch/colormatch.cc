@@ -26,13 +26,10 @@ DEFINE_VISION_MODULE(Colormatch)
 void tfv::Colormatch::execute(tfv::ImageHeader const& header,
                               ImageData const* data) {
 
+    Log("COLORMATCH", "execute");
     cv::Mat cv_image(header.height, header.width, CV_8UC3);
     std::copy_n(data, header.bytesize, cv_image.data);
 
-#ifdef DEBUG
-    cv::imshow("Colormatch", cv_image);
-    cv::waitKey(2);
-#endif
     cv::cvtColor(cv_image, cv_image, CV_BGR2HSV);
     cv::Mat mask(header.height, header.width, CV_8UC3);
 

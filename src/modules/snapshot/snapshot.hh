@@ -39,7 +39,7 @@ public:
     tfv::Result const* get_result(void) const;
 
 private:
-    tfv::StringResult filename_;
+    tfv::Result filename_;
     tfv::Image image_{};
 };
 }
