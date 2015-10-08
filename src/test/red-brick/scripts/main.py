@@ -3,8 +3,6 @@ import sys
 
 # RedBrick resource wrapper
 from rb_setup import RedBrick
-# local dll
-from lib_setup import Lib
 # available testfiles
 import shutdown, availability, stream, common, colormotion, scenes
 
