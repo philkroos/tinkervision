@@ -28,9 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 static IplImage* image = NULL;
 
-void tfv_motiondetect_callback(TFV_Id id, TFV_Size x_topleft,
-                               TFV_Size y_topleft, TFV_Size width,
-                               TFV_Size height, TFV_Context context) {
+void tfv_callback(TFV_Id id, TFV_ModuleResult result, TFV_Context context) {
 
     int thickness = 2;
     int linetype = CV_AA;
@@ -38,10 +36,10 @@ void tfv_motiondetect_callback(TFV_Id id, TFV_Size x_topleft,
     CvPoint topleft;
     CvPoint bottomright;
 
-    topleft.x = x_topleft;
-    topleft.y = y_topleft;
-    bottomright.x = topleft.x + width;
-    bottomright.y = topleft.y + height;
+    topleft.x = result.x;
+    topleft.y = result.y;
+    bottomright.x = result.x + result.width;
+    bottomright.y = result.y + result.height;
 
     cvRectangle(image, topleft, bottomright, CV_RGB(255, 0, 0), thickness,
                 linetype, shift);
@@ -81,14 +79,14 @@ int main(int argc, char* argv[]) {
     image = cvCreateImage(cvSize(width, height), 8, 3);
     cvNamedWindow("Motion", CV_WINDOW_AUTOSIZE);
 
-    result = module_start("motiondetect", module_id);
+    result = module_start("motiondetect", &module_id);
 
     if (result != TFV_OK) {
         printf("Error - could not start the motiondetector: %d (%s)\n", result,
                result_string(result));
     }
 
-    result = set_rect_callback(module_id, tfv_motiondetect_callback);
+    result = set_callback(module_id, tfv_callback);
 
     if (!result) {
         printf(

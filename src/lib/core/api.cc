@@ -24,7 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "api.hh"
 #include "module.hh"
 
-tfv::Api::Api(void) { (void)start(); }
+tfv::Api::Api(void) {
+    active_ = true;
+    executor_ = std::thread(&tfv::Api::execute, this);
+
+    if (not executor_.joinable()) {
+        active_ = false;
+        LogError("API", "Construction failed.");
+    }
+}
 
 tfv::Api::~Api(void) { (void)quit(); }
 
@@ -104,11 +112,13 @@ TFV_Result tfv::Api::quit(void) {
 }
 
 void tfv::Api::execute(void) {
+    Log("API", "Starting main loop");
 
     auto image = Image();
 
     // Execute active module. This is the ONLY place where modules are executed.
     auto module_exec = [&](TFV_Int id, tfv::Module& module) {
+        Log("API", "Executing module ", id);
 
         if (not module.enabled() or
             not module.running()) {  // skip paused modules and those that don't
@@ -123,6 +133,23 @@ void tfv::Api::execute(void) {
             conversions_.get_frame(image, module.expected_format());
 
             module.exec(image);
+
+            auto result = module.result();
+            auto callback =
+                default_callback_ ? default_callback_ : module.callback();
+            if (result and callback) {
+                Log("API", "Callback for id ", id);
+                TFV_ModuleResult res = {result->x, result->y, result->width,
+                                        result->height};
+
+                std::strncpy(res.string, result->result.c_str(),
+                             TFV_CHAR_ARRAY_SIZE - 1);
+                std::fill(res.string + result->result.size(),
+                          res.string + TFV_CHAR_ARRAY_SIZE - 1, '\0');
+                res.string[TFV_CHAR_ARRAY_SIZE - 1] = '\0';
+
+                callback(id, res, nullptr);
+            }
         }
 
         if (module.type() == ModuleType::Modifier) {
@@ -158,7 +185,7 @@ void tfv::Api::execute(void) {
     auto loops = 0;
     while (active_) {
         last_loop_time_point = Clock::now();
-        // Log("API", "Execution at ", last_loop_time_point);
+        Log("API", "Execution at ", last_loop_time_point);
 
         Image frame;
         if (active_modules()) {  // This does not account for modules
@@ -200,6 +227,7 @@ void tfv::Api::execute(void) {
         }
         std::this_thread::sleep_until(last_loop_time_point + inv_framerate);
     }
+    Log("API", "Mainloop stopped");
 }
 
 /*

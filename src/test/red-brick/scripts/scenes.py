@@ -48,4 +48,3 @@ def run(red):
     scene_add(red, scene3, 5)
 
     sleep(5)
-    red.vision_quit()

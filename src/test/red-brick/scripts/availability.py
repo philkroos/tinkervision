@@ -5,6 +5,3 @@ def run(red):
         print "TinkerVision is available"
     else:
         print "Tinkervision returned error: " + str(available)
-
-    # Actually no need to do this explicitly
-    red.vision_quit()

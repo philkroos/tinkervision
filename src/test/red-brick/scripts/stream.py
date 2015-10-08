@@ -24,9 +24,3 @@ def run(red):
 
     print "Streaming for 60 seconds"
     sleep(60)
-
-   # Actually no need to do this explicitly
-    ok = red.vision_quit()
-
-    if ok != 0:
-        raise Exception("vision::Quit returned error: " + str(ok))

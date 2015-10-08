@@ -20,11 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef COLORMATCH_H
 #define COLORMATCH_H
 
-#ifdef DEBUG  // need to link with libtinkervision_dbg
-#include <iostream>
-#include <opencv2/highgui/highgui.hpp>
-#endif
-
 #include "tinkervision/tv_module.hh"
 
 namespace tfv {
@@ -47,7 +42,7 @@ private:
     TFV_Byte user_min_saturation;  ///< The used minimum saturation
     TFV_Byte user_max_saturation;  ///< The used maximum saturation
 
-    PointResult result_;
+    Result result_;
 
     TFV_Context context;
     bool in_range(TFV_Word value, TFV_Word low, TFV_Word high) {
@@ -62,11 +57,7 @@ public:
           user_min_value(min_value),
           user_max_value(max_value),
           user_min_saturation(min_saturation),
-          user_max_saturation(max_saturation) {
-#ifdef DEBUG
-        cv::namedWindow("Colormatch");
-#endif
-    }
+          user_max_saturation(max_saturation) {}
 
     ~Colormatch(void) override = default;
 

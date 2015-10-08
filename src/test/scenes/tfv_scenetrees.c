@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdlib.h>
 #include "tinkervision/tinkervision.h"
 
-void tfcv_callback(TFV_Id id, TFV_Size x, TFV_Size y, TFV_Context context) {
-    /* printf("Executing id %d\n", id); */
+void tfcv_callback(TFV_Id id, TFV_ModuleResult result, TFV_Context context) {
+    printf("Executing id %d\n", id);
 }
 
 TFV_Result result;
@@ -44,7 +44,7 @@ void scene_add(TFV_Scene scene, TFV_Id module) {
 }
 
 void colormatch_start(TFV_Id id, int min_hue, int max_hue) {
-    TFV_Result result = module_start("colormatch", id);
+    TFV_Result result = module_start("colormatch", &id);
     printf("Colormatch Id %d Start: %d (%s)\n", id, result,
            result_string(result));
     if (result != TFV_OK) {
@@ -60,7 +60,7 @@ void colormatch_start(TFV_Id id, int min_hue, int max_hue) {
     if (result != TFV_OK) {
         return;
     }
-    result = set_point_callback(id, tfcv_callback);
+    result = set_callback(id, tfcv_callback);
     if (result != TFV_OK) {
         printf("Setting the callback failed: %d (%s)\n", result,
                result_string(result));
