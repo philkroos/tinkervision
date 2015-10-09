@@ -80,75 +80,78 @@ int main(int argc, char* argv[]) {
     printf("Using H-S-V: [%d,%d]-[%d,%d]-[%d,%d]\n", min_hue, max_hue,
            min_value, max_value, min_saturation, max_saturation);
 
-    result = camera_available();
+    result = tv_camera_available();
     if (result != 0) {
-        printf("Requested camera not available: %s\n", result_string(result));
+        printf("Requested camera not available: %s\n",
+               tv_result_string(result));
         exit(-1);
     }
 
     sleep(1);
 
-    result = module_start("colormatch", &id);
+    result = tv_module_start("colormatch", &id);
 
     printf("Configured module id %d: Code %d (%s)\n", id, result,
-           result_string(result));
+           tv_result_string(result));
 
-    result = set_callback(id, callback);
-    printf("Set callback: Code %d (%s)\n", result, result_string(result));
+    result = tv_set_callback(id, callback);
+    printf("Set callback: Code %d (%s)\n", result, tv_result_string(result));
 
-    result = set_callback(id, callback);
-    printf("Set callback: Code %d (%s)\n", result, result_string(result));
+    result = tv_set_callback(id, callback);
+    printf("Set callback: Code %d (%s)\n", result, tv_result_string(result));
 
-    result = set_parameter(id, "min-hue", min_hue);
-    printf("Set min-hue: Code %d (%s)\n", result, result_string(result));
-    result = get_parameter(id, "min-hue", &min_hue);
-    printf("%d Code %d (%s)\n", min_hue, result, result_string(result));
+    result = tv_set_parameter(id, "min-hue", min_hue);
+    printf("Set min-hue: Code %d (%s)\n", result, tv_result_string(result));
+    result = tv_get_parameter(id, "min-hue", &min_hue);
+    printf("%d Code %d (%s)\n", min_hue, result, tv_result_string(result));
 
-    result = set_parameter(id, "max-hue", max_hue);
-    printf("Set max-hue: Code %d (%s)\n", result, result_string(result));
-    result = get_parameter(id, "max-hue", &min_hue);
-    printf("%d Code %d (%s)\n", max_hue, result, result_string(result));
+    result = tv_set_parameter(id, "max-hue", max_hue);
+    printf("Set max-hue: Code %d (%s)\n", result, tv_result_string(result));
+    result = tv_get_parameter(id, "max-hue", &min_hue);
+    printf("%d Code %d (%s)\n", max_hue, result, tv_result_string(result));
 
-    result = set_parameter(id, "min-value", min_value);
-    printf("Set min-value: Code %d (%s)\n", result, result_string(result));
-    result = get_parameter(id, "min-value", &min_hue);
-    printf("%d Code %d (%s)\n", min_value, result, result_string(result));
+    result = tv_set_parameter(id, "min-value", min_value);
+    printf("Set min-value: Code %d (%s)\n", result, tv_result_string(result));
+    result = tv_get_parameter(id, "min-value", &min_hue);
+    printf("%d Code %d (%s)\n", min_value, result, tv_result_string(result));
 
-    result = set_parameter(id, "max-value", max_value);
-    printf("Set max-value: Code %d (%s)\n", result, result_string(result));
-    result = get_parameter(id, "max-value", &min_hue);
-    printf("%d Code %d (%s)\n", max_value, result, result_string(result));
+    result = tv_set_parameter(id, "max-value", max_value);
+    printf("Set max-value: Code %d (%s)\n", result, tv_result_string(result));
+    result = tv_get_parameter(id, "max-value", &min_hue);
+    printf("%d Code %d (%s)\n", max_value, result, tv_result_string(result));
 
-    result = set_parameter(id, "min-saturation", min_saturation);
-    printf("Set min-sat: Code %d (%s)\n", result, result_string(result));
-    result = get_parameter(id, "min-saturation", &min_saturation);
-    printf("%d Code %d (%s)\n", min_saturation, result, result_string(result));
+    result = tv_set_parameter(id, "min-saturation", min_saturation);
+    printf("Set min-sat: Code %d (%s)\n", result, tv_result_string(result));
+    result = tv_get_parameter(id, "min-saturation", &min_saturation);
+    printf("%d Code %d (%s)\n", min_saturation, result,
+           tv_result_string(result));
 
-    result = set_parameter(id, "max-saturation", max_saturation);
-    printf("Set max-sat: Code %d (%s)\n", result, result_string(result));
-    result = get_parameter(id, "max-saturation", &min_saturation);
-    printf("%d Code %d (%s)\n", max_saturation, result, result_string(result));
+    result = tv_set_parameter(id, "max-saturation", max_saturation);
+    printf("Set max-sat: Code %d (%s)\n", result, tv_result_string(result));
+    result = tv_get_parameter(id, "max-saturation", &min_saturation);
+    printf("%d Code %d (%s)\n", max_saturation, result,
+           tv_result_string(result));
 
     sleep(2);
 
-    get_resolution(&width, &height);
+    tv_get_resolution(&width, &height);
     printf("WxH: %dx%d (Code %d: %s)\n", width, height, result,
-           result_string(result));
+           tv_result_string(result));
     image = cvCreateImage(cvSize(width, height), 8, 3);
     cvZero(image);
     cvNamedWindow("Result", CV_WINDOW_AUTOSIZE);
 
     sleep(10);
 
-    result = module_remove(id);
+    result = tv_module_remove(id);
     printf("Removed module %d: Code %d (%s)\n", id, result,
-           result_string(result));
+           tv_result_string(result));
 
     cvReleaseImage(&image);
 
     /* Stopping manually is not necessary but can be used to stop active
        resources if a client app should have crashed. */
-    quit();
+    tv_quit();
 
     sleep(2);
 

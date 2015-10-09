@@ -60,40 +60,40 @@ int main(int argc, char* argv[]) {
     TV_Id module_id = 0;
 
     /* Start an idle process in the api to get access to the frame parameters */
-    TV_Result result = start_idle();
+    TV_Result result = tv_start_idle();
 
     if (result) {
         printf("Starting the idle process failed with %d: %s\n", result,
-               result_string(result));
+               tv_result_string(result));
         exit(-1);
     }
 
-    result = get_resolution(&width, &height);
+    result = tv_get_resolution(&width, &height);
 
     if (result) {
         printf("Retrieving the framesize failed with %d: %s\n", result,
-               result_string(result));
+               tv_result_string(result));
         exit(-1);
     }
 
     image = cvCreateImage(cvSize(width, height), 8, 3);
     cvNamedWindow("Motion", CV_WINDOW_AUTOSIZE);
 
-    result = module_start("motiondetect", &module_id);
+    result = tv_module_start("motiondetect", &module_id);
 
     if (result != TV_OK) {
         printf("Error - could not start the motiondetector: %d (%s)\n", result,
-               result_string(result));
+               tv_result_string(result));
     }
 
-    result = set_callback(module_id, tv_callback);
+    result = tv_set_callback(module_id, tv_callback);
 
     if (!result) {
         printf(
             "Motiondetection initialized; this will take a few secs to "
             "adjust\n");
     } else {
-        printf("Error %d: %s\n", result, result_string(result));
+        printf("Error %d: %s\n", result, tv_result_string(result));
         cvReleaseImage(&image);
         exit(-1);
     }

@@ -35,7 +35,7 @@ extern "C" {
 /// \return
 ///    - TV_CAMERA_NOT_AVAILABLE if not.
 ///    - TV_OK else.
-TV_Result camera_available(void);
+TV_Result tv_camera_available(void);
 
 /// Selects a framesize WxH.
 /// This can only be done while no modules are active.
@@ -48,7 +48,7 @@ TV_Result camera_available(void);
 /// \return
 ///   - #TV_OK if no module was running.
 ///   - #TV_CAMERA_SETTINGS_FAILED if the settings are ignored.
-TV_Result preselect_framesize(TV_Size width, TV_Size height);
+TV_Result tv_preselect_framesize(TV_Size width, TV_Size height);
 
 /// Starts a dummy module keeping the Api up and running even if no 'real'
 /// module
@@ -58,7 +58,7 @@ TV_Result preselect_framesize(TV_Size width, TV_Size height);
 /// \return
 ///   - #TV_OK if the dummy module was started or already running.
 ///   - An error code if the module failed to load.
-TV_Result start_idle(void);
+TV_Result tv_start_idle(void);
 
 /// Introduce a delay into the execution to save processing power.  All
 /// vision-modules registered and started in the api will be executed
@@ -70,7 +70,7 @@ TV_Result start_idle(void);
 /// execution loops.
 /// \return TV_OK in any case. There is however a minimum internal latency of
 /// currently 20ms which won't be ignored.
-TV_Result set_execution_latency(TV_UInt milliseconds);
+TV_Result tv_set_execution_latency(TV_UInt milliseconds);
 
 /// Request the resolution of the camera frames.  This can only be called once
 /// the camera is active, so in particular, if the resolution needs to be known
@@ -80,7 +80,7 @@ TV_Result set_execution_latency(TV_UInt milliseconds);
 /// \return
 ///  - #TV_Ok if width and height are valid
 ///  - #TV_CAMERA_NOT_AVAILABLE else
-TV_Result get_resolution(TV_Size* width, TV_Size* height);
+TV_Result tv_get_resolution(TV_Size* width, TV_Size* height);
 
 /// Pause the Api, deactivating but not disabling every module.  The camera will
 /// be released and no further callbacks will be called, but on start(), the Api
@@ -88,13 +88,13 @@ TV_Result get_resolution(TV_Size* width, TV_Size* height);
 /// be acquired again).
 ///     - #TV_OK on success.
 ///     - #TV_EXEC_THREAD_FAILURE on error.
-TV_Result stop(void);
+TV_Result tv_stop(void);
 
 /// Restart the API from paused state, initiated through call to stop().
 /// \return
 ///   - #TV_OK if the api was stoppend and is running now.
 ///   - an error code else; also if the api was already running.
-TV_Result start(void);
+TV_Result tv_start(void);
 
 /// Stop all modules and shutdown the api.  This is generally not necessary if
 /// the client application terminates in controlled ways.  However, the
@@ -102,7 +102,7 @@ TV_Result start(void);
 /// there is no way to shutdown the Api correctly in case of the client being
 /// killed.
 /// \return TV_OK
-TV_Result quit(void);
+TV_Result tv_quit(void);
 
 /// Parameterize a module.
 /// \param[in] module_id Id of the module to be parameterized.
@@ -115,8 +115,8 @@ TV_Result quit(void);
 /// of the parameter.
 ///   - #TV_INVALID_ID if no module exists with module_id
 ///   - #TV_OK else.
-TV_Result set_parameter(TV_Id module_id, TV_String const parameter,
-                        TV_Int value);
+TV_Result tv_set_parameter(TV_Id module_id, TV_String const parameter,
+                           TV_Int value);
 
 /// Return the current value of a modules parameter.
 /// \param[in] module_id The id of the module in question.
@@ -126,8 +126,8 @@ TV_Result set_parameter(TV_Id module_id, TV_String const parameter,
 ///   - #TV_INVALID_ID if no module exists with module_id.
 ///   - #TV_MODULE_NO_SUCH_PARAMETER if the module does not support parameter.
 ///   - #TV_OK else.
-TV_Result get_parameter(TV_Id module_id, TV_String const parameter,
-                        TV_Int* value);
+TV_Result tv_get_parameter(TV_Id module_id, TV_String const parameter,
+                           TV_Int* value);
 
 /// Start a vision module identified by its library name.
 /// The requested module will be loaded and started if it is found in one of the
@@ -144,18 +144,18 @@ TV_Result get_parameter(TV_Id module_id, TV_String const parameter,
 ///    - #TV_MODULE_INITIALIZATION_FAILED The module could not be loaded. Maybe
 ///      an invalid name passed.
 ///    - #TV_OK fine, module loaded and active.
-TV_Result module_start(TV_String name, TV_Id* id);
+TV_Result tv_module_start(TV_String name, TV_Id* id);
 
 /// Disable a module without removing it.
 /// A disabled module won't be executed, but it is still available for
 /// configuration or reactivation. The associated camera will be released if it
 /// is not used by other modules.
-/// \see module_restart()
+/// \see tv_module_restart()
 /// \param[in] id Id of the module to be stopped.
 /// \return
 ///    - #TV_INVALID_ID if no such module exists.
 ///    - #TV_OK else, the module is inactive.
-TV_Result module_stop(TV_Id id);
+TV_Result tv_module_stop(TV_Id id);
 
 /// Restart a module that has been stopped with module_stop().
 /// \param[in] id Id of the module to be restarted.
@@ -164,7 +164,7 @@ TV_Result module_stop(TV_Id id);
 ///      the given id.
 ///    - #TV_CAMERA_ACQUISATION_FAILED if the camera is not available
 ///    - #TV_OK iff the module is running.
-TV_Result module_restart(TV_Id id);
+TV_Result tv_module_restart(TV_Id id);
 
 /// Deactivate and remove a module.
 /// The id of a removed module is invalid afterwards.
@@ -173,7 +173,7 @@ TV_Result module_restart(TV_Id id);
 ///    - #TV_NOT_IMPLEMENTED if scenes are active.
 ///    - #TV_INVALID_ID if the module does not exist.
 ///    - #TV_OK if removal succeeded.
-TV_Result module_remove(TV_Id id);
+TV_Result tv_module_remove(TV_Id id);
 
 /// Get the name of a loaded module.
 /// \param[in] id The id of the module.
@@ -182,7 +182,7 @@ TV_Result module_remove(TV_Id id);
 /// \return
 ///    - #TV_INVALID_ID If no such module exists.
 ///    - #TV_OK else, name will be valid.
-TV_Result module_get_name(TV_Id id, TV_CharArray name);
+TV_Result tv_module_get_name(TV_Id id, TV_CharArray name);
 
 /// Get the identifiers of all parameters of a loaded module.
 /// \param[in] id The id of the module.
@@ -196,9 +196,9 @@ TV_Result module_get_name(TV_Id id, TV_CharArray name);
 ///      parameter name per time, and \c context. After all parameter names have
 ///      been passed, the callback receives an id of \c 0 and no further
 ///      callbacks will be received.
-TV_Result module_enumerate_parameters(TV_Id module_id,
-                                      TV_StringCallback callback,
-                                      TV_Context context);
+TV_Result tv_module_enumerate_parameters(TV_Id module_id,
+                                         TV_StringCallback callback,
+                                         TV_Context context);
 
 /// Get the names of all available modules.
 /// \param[in] callback The given method will be called for each loadable
@@ -211,8 +211,8 @@ TV_Result module_enumerate_parameters(TV_Id module_id,
 ///      that would be returned from module_get_name(), and \c context.
 ///      After all modules have been enumerated, the callback receives a \c 0
 ///      and an empty string, and no further callbacks will be received.
-TV_Result enumerate_available_modules(TV_StringCallback callback,
-                                      TV_Context context);
+TV_Result tv_enumerate_available_modules(TV_StringCallback callback,
+                                         TV_Context context);
 
 /// Start a new scene given a loaded module.
 /// \param[in] id Id of a loaded module.
@@ -222,20 +222,20 @@ TV_Result enumerate_available_modules(TV_StringCallback callback,
 ///    - #TV_INVALID_ID (If no module with id exists)
 ///    - #TV_OK (if the scene was started successfully)
 ///    - (else, an error during scene creation occured.)
-TV_Result scene_from_module(TV_Id id, TV_Scene* scene);
+TV_Result tv_scene_from_module(TV_Id id, TV_Scene* scene);
 
 /// Add a module to an existing scene.
 /// \param[in] scene Id of the scene.
 /// \param[in] id Id of the module.
 /// \return
 ///    - #TV_NOT_IMPLEMENTED id currently.
-TV_Result scene_add_module(TV_Scene scene, TV_Id module);
+TV_Result tv_scene_add_module(TV_Scene scene, TV_Id module);
 
 /// Remove a scene without affecting the associated modules.
 /// \param[in] scene Id of the scene.
 /// \return
 ///    - #TV_NOT_IMPLEMENTED id currently.
-TV_Result scene_remove(TV_Scene scene);
+TV_Result tv_scene_remove(TV_Scene scene);
 
 /// Set a callback to the result of a specific module.
 /// The given callback will be called after each execution of the specified
@@ -252,12 +252,12 @@ TV_Result scene_remove(TV_Scene scene);
 /// does not make sense there.  We can't activate callbacks per module with the
 /// generated api.  This method will probably be removed to focus on the
 /// Red-Brick.
-TV_Result set_callback(TV_Id id, TV_Callback callback);
+TV_Result tv_set_callback(TV_Id id, TV_Callback callback);
 
 /// Enable a default callback which will be called for each result of every
 /// module.
 /// \param[in] callback The default callback.
-TV_Result enable_default_callback(TV_Callback callback);
+TV_Result tv_enable_default_callback(TV_Callback callback);
 
 /// Get the result of the latest execution of a given module.
 /// \param[in] id The module in question.
@@ -265,12 +265,12 @@ TV_Result enable_default_callback(TV_Callback callback);
 /// \todo What else?
 /// \return TV_INVALID_ID if no such module exists.
 /// \return TV_OK else.
-TV_Result get_result(TV_Id module, TV_ModuleResult* result);
+TV_Result tv_get_result(TV_Id module, TV_ModuleResult* result);
 
 /// Get a string representation of a result code.
 /// \param[in] code one of the TV_* values.
 /// \return The associated string value.
-TV_String result_string(TV_Result code);
+TV_String tv_result_string(TV_Result code);
 
 #ifdef __cplusplus
 }

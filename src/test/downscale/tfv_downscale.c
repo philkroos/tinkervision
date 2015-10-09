@@ -28,29 +28,30 @@ int main(int argc, char* argv[]) {
     TV_Result result = TV_INTERNAL_ERROR;
     TV_Word factor = 1;
 
-    result = camera_available();
+    result = tv_camera_available();
     if (result != 0) {
-        printf("Requested camera not available: %s\n", result_string(result));
+        printf("Requested camera not available: %s\n",
+               tv_result_string(result));
         return -1;
     }
 
     sleep(1);
 
-    result = module_start("downscale", &id);
+    result = tv_module_start("downscale", &id);
 
     printf("Configured downscale id %d: Code %d (%s)\n", id, result,
-           result_string(result));
+           tv_result_string(result));
 
-    result = set_parameter(id, "factor", factor);
+    result = tv_set_parameter(id, "factor", factor);
 
     printf("Set downscale-factor to %d: Code %d (%s)\n", factor, result,
-           result_string(result));
+           tv_result_string(result));
 
     sleep(10);
 
-    result = module_remove(id);
+    result = tv_module_remove(id);
     printf("Stopped downscale %d: Code %d (%s)\n", id, result,
-           result_string(result));
+           tv_result_string(result));
 
     quit();
 

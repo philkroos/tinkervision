@@ -28,18 +28,18 @@ int main(int argc, char* argv[]) {
     TV_Size width, height;
     TV_ModuleResult m_result;
 
-    TV_Result result = module_start("snapshot", &id);
+    TV_Result result = tv_module_start("snapshot", &id);
     printf("Load module snapshot: result %d: %s\n", result,
-           result_string(result));
+           tv_result_string(result));
 
-    result = get_resolution(&width, &height);
+    result = tv_get_resolution(&width, &height);
     printf("Framesize is %dx%d\n", width, height);
 
     /* Wait for a moment to have the Snapshot module executed at least once */
     sleep(1);
 
-    result = get_result(id, &m_result);
-    printf("Snapshot result: %d (%s)\n", result, result_string(result));
+    result = tv_get_result(id, &m_result);
+    printf("Snapshot result: %d (%s)\n", result, tv_result_string(result));
     if (result == TV_OK) {
         printf("Snapshot is %s\n", m_result.string);
     }

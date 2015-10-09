@@ -30,40 +30,40 @@ void tfcv_callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
 TV_Result result;
 
 void scene_start(TV_Id module, TV_Scene* scene) {
-    result = scene_from_module(module, scene);
+    result = tv_scene_from_module(module, scene);
     printf("Scene from %d as %d: %s (%d)\n", module, *scene,
-           result_string(result), result);
+           tv_result_string(result), result);
     sleep(1);
 }
 
 void scene_add(TV_Scene scene, TV_Id module) {
-    result = scene_add_module(scene, module);
+    result = tv_scene_add_module(scene, module);
     printf("Add %d to scene %d: %s (%d)\n", module, scene,
-           result_string(result), result);
+           tv_result_string(result), result);
     sleep(1);
 }
 
 void colormatch_start(TV_Id id, int min_hue, int max_hue) {
-    TV_Result result = module_start("colormatch", &id);
+    TV_Result result = tv_module_start("colormatch", &id);
     printf("Colormatch Id %d Start: %d (%s)\n", id, result,
-           result_string(result));
+           tv_result_string(result));
     if (result != TV_OK) {
         return;
     }
-    result = set_parameter(id, "min-hue", min_hue);
-    printf("Set min-hue: %d (%s)\n", result, result_string(result));
+    result = tv_set_parameter(id, "min-hue", min_hue);
+    printf("Set min-hue: %d (%s)\n", result, tv_result_string(result));
     if (result != TV_OK) {
         return;
     }
-    result = set_parameter(id, "max-hue", max_hue);
-    printf("Set max-hue: %d (%s)\n", result, result_string(result));
+    result = tv_set_parameter(id, "max-hue", max_hue);
+    printf("Set max-hue: %d (%s)\n", result, tv_result_string(result));
     if (result != TV_OK) {
         return;
     }
-    result = set_callback(id, tfcv_callback);
+    result = tv_set_callback(id, tfcv_callback);
     if (result != TV_OK) {
         printf("Setting the callback failed: %d (%s)\n", result,
-               result_string(result));
+               tv_result_string(result));
     }
 }
 
@@ -151,6 +151,6 @@ int main(int argc, char* argv[]) {
 
     sleep(3);
 
-    quit();
+    tv_quit();
     return 0;
 }

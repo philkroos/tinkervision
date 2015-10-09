@@ -30,24 +30,25 @@ int main(int argc, char* argv[]) {
     TV_Id id = 0;
     TV_Result result = TV_INTERNAL_ERROR;
 
-    result = camera_available();
+    result = tv_camera_available();
     if (result != 0) {
-        printf("Requested camera not available: %s\n", result_string(result));
+        printf("Requested camera not available: %s\n",
+               tv_result_string(result));
         exit(-1);
     }
 
     sleep(1);
 
-    result = module_start("grayfilter", &id);
+    result = tv_module_start("grayfilter", &id);
 
     printf("Configured grayfilter id %d: Code %d (%s)\n", id, result,
-           result_string(result));
+           tv_result_string(result));
 
     sleep(5);
 
-    result = module_remove(id);
+    result = tv_module_remove(id);
     printf("Stopped grayfilter %d: Code %d (%s)\n", id, result,
-           result_string(result));
+           tv_result_string(result));
 
     quit();
 

@@ -23,31 +23,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdlib.h>
 #include "tinkervision/tinkervision.h"
 
-void tfcv_callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
+void tv_callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
     printf("Executing id %d\n", id);
 }
 
 void colormatch_start(TV_Id id, int min_hue, int max_hue) {
-    TV_Result result = module_start("colormatch", &id);
+    TV_Result result = tv_module_start("colormatch", &id);
     printf("Colormatch Id %d Start: %d (%s)\n", id, result,
-           result_string(result));
+           tv_result_string(result));
     if (result != TV_OK) {
         return;
     }
-    result = set_parameter(id, "min-hue", min_hue);
-    printf("Set min-hue: %d (%s)\n", result, result_string(result));
+    result = tv_set_parameter(id, "min-hue", min_hue);
+    printf("Set min-hue: %d (%s)\n", result, tv_result_string(result));
     if (result != TV_OK) {
         return;
     }
-    result = set_parameter(id, "max-hue", max_hue);
-    printf("Set max-hue: %d (%s)\n", result, result_string(result));
+    result = tv_set_parameter(id, "max-hue", max_hue);
+    printf("Set max-hue: %d (%s)\n", result, tv_result_string(result));
     if (result != TV_OK) {
         return;
     }
-    result = set_callback(id, tfcv_callback);
+    result = tv_set_callback(id, tv_callback);
     if (result != TV_OK) {
         printf("Setting the callback failed: %d (%s)\n", result,
-               result_string(result));
+               tv_result_string(result));
     }
 }
 
@@ -71,26 +71,26 @@ int main(int argc, char* argv[]) {
 
     srand(time(NULL));
     scene_start = rand() % ids_count;
-    result = scene_from_module(scene_start, &scene);
+    result = tv_scene_from_module(scene_start, &scene);
     printf("Started scene from %d as %d: %s (%d)\n", scene_start, scene,
-           result_string(result), result);
+           tv_result_string(result), result);
 
     /* scene is activated in separate thread, so wait for it */
     sleep(1);
     for (i = 0; i < ids_count * 2; i++) {
         module = rand() % ids_count;
 
-        result = scene_add_module(scene, module);
+        result = tv_scene_add_module(scene, module);
         printf("Scening %d to %d...: %s (%d)\n", module, scene,
-               result_string(result), result);
+               tv_result_string(result), result);
 
         sleep(1);
     }
 
     printf("Removing Scene");
-    scene_remove(scene);
+    tv_scene_remove(scene);
     sleep(3);
 
-    quit();
+    tv_quit();
     return 0;
 }

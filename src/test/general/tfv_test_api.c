@@ -33,26 +33,26 @@ void str_callback(TV_Id id, TV_String string, TV_Context context) {
 }
 
 void colormatch_start(TV_Id id, int min_hue, int max_hue) {
-    TV_Result result = module_start("colormatch", &id);
+    TV_Result result = tv_module_start("colormatch", &id);
     printf("Colormatch Id %d Start: %d (%s)\n", id, result,
-           result_string(result));
+           tv_result_string(result));
     if (result != TV_OK) {
         return;
     }
-    result = set_parameter(id, "min-hue", min_hue);
-    printf("Set min-hue: %d (%s)\n", result, result_string(result));
+    result = tv_set_parameter(id, "min-hue", min_hue);
+    printf("Set min-hue: %d (%s)\n", result, tv_result_string(result));
     if (result != TV_OK) {
         return;
     }
-    result = set_parameter(id, "max-hue", max_hue);
-    printf("Set max-hue: %d (%s)\n", result, result_string(result));
+    result = tv_set_parameter(id, "max-hue", max_hue);
+    printf("Set max-hue: %d (%s)\n", result, tv_result_string(result));
     if (result != TV_OK) {
         return;
     }
-    result = set_callback(id, callback);
+    result = tv_set_callback(id, callback);
     if (result != TV_OK) {
         printf("Setting the callback failed: %d (%s)\n", result,
-               result_string(result));
+               tv_result_string(result));
     }
 }
 
@@ -62,26 +62,26 @@ int main(int argc, char* argv[]) {
     int enum_modules = 1;
     int enum_pars = 2;
 
-    TV_Result result = preselect_framesize(width, height);
+    TV_Result result = tv_preselect_framesize(width, height);
 
-    printf("PreselectFramesize: %d (%s)\n", result, result_string(result));
+    printf("PreselectFramesize: %d (%s)\n", result, tv_result_string(result));
     sleep(1);
 
-    result = camera_available();
-    printf("CameraAvailable: %d (%s)\n", result, result_string(result));
+    result = tv_camera_available();
+    printf("CameraAvailable: %d (%s)\n", result, tv_result_string(result));
     sleep(1);
 
-    result = enumerate_available_modules(str_callback, &enum_modules);
+    result = tv_enumerate_available_modules(str_callback, &enum_modules);
     printf("Enumerate Modules registered: %d\n", result);
     sleep(4);
 
-    result = start_idle();
-    printf("StartIdle: %d (%s)\n", result, result_string(result));
+    result = tv_start_idle();
+    printf("StartIdle: %d (%s)\n", result, tv_result_string(result));
     sleep(2);
 
     width = height = 0;
-    result = get_resolution(&width, &height);
-    printf("GetResolution: %d (%s)\n", result, result_string(result));
+    result = tv_get_resolution(&width, &height);
+    printf("GetResolution: %d (%s)\n", result, tv_result_string(result));
     printf("WxH: %lux%lu\n", (long unsigned)width, (long unsigned)height);
     sleep(1);
 
@@ -90,13 +90,13 @@ int main(int argc, char* argv[]) {
       Starting a module, quitting the api, starting same id again failed.
     */
     colormatch_start(1, 20, 25);
-    result = module_enumerate_parameters(1, str_callback, &enum_pars);
+    result = tv_module_enumerate_parameters(1, str_callback, &enum_pars);
     printf("Enumerate Parameters registered: %d\n", result);
 
     sleep(3);
 
-    result = quit();
-    printf("Quit: %d (%s)\n", result, result_string(result));
+    result = tv_quit();
+    printf("Quit: %d (%s)\n", result, tv_result_string(result));
     sleep(2);
 
     colormatch_start(1, 20, 25);
@@ -106,8 +106,8 @@ int main(int argc, char* argv[]) {
        That was actually correct behaviour since quit stops the mainloop.
        One could call start...
      */
-    result = start();
-    printf("Api restarted: %d (%s)\n", result, result_string(result));
+    result = tv_start();
+    printf("Api restarted: %d (%s)\n", result, tv_result_string(result));
     sleep(2);
     /*
        08-05-2015
@@ -115,12 +115,12 @@ int main(int argc, char* argv[]) {
        not delete the active modules: No call to colormatch_start here
        and the idle_process would still be running.
      */
-    result = stop();
-    printf("Stop: %d (%s)\n", result, result_string(result));
+    result = tv_stop();
+    printf("Stop: %d (%s)\n", result, tv_result_string(result));
     sleep(2);
 
-    result = start();
-    printf("Api restarted: %d (%s)\n", result, result_string(result));
+    result = tv_start();
+    printf("Api restarted: %d (%s)\n", result, tv_result_string(result));
     sleep(2);
 
     return 0;
