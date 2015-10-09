@@ -338,7 +338,8 @@ public:
             return TFV_INVALID_ID;
         }
 
-        if (modules_[module_id]->tags() & Module::Tag::ExecAndRemove) {
+        if (modules_[module_id]->tags() & Module::Tag::ExecAndRemove or
+            modules_[module_id]->tags() & Module::Tag::Removable) {
             return TFV_NOT_IMPLEMENTED;
         }
 
@@ -354,7 +355,8 @@ public:
     TFV_Result add_to_scene(TFV_Scene scene_id, TFV_Int module_id) {
         Log("API", "Add to scene: ", module_id, " -> ", scene_id);
 
-        if (modules_[module_id]->tags() & Module::Tag::ExecAndRemove) {
+        if (modules_[module_id]->tags() & Module::Tag::ExecAndRemove or
+            modules_[module_id]->tags() & Module::Tag::Removable) {
             return TFV_NOT_IMPLEMENTED;
         }
 
@@ -374,7 +376,7 @@ public:
 
     TFV_Result module_get_name(TFV_Id module_id, std::string& name) const {
         if (not modules_.managed(module_id)) {
-            return TFV_UNCONFIGURED_ID;
+            return TFV_INVALID_ID;
         }
 
         name = modules_[module_id].name();
@@ -382,7 +384,8 @@ public:
     }
 
     TFV_Result module_enumerate_parameters(TFV_Id module_id,
-                                           TFV_StringCallback callback) const {
+                                           TFV_StringCallback callback,
+                                           TFV_Context context) const {
         if (not modules_.managed(module_id)) {
             return TFV_UNCONFIGURED_ID;
         }
@@ -391,25 +394,26 @@ public:
         modules_[module_id].get_parameters_list(parameters);
 
         if (parameters.size()) {
-            std::thread([module_id, parameters, callback](void) {
+            std::thread([module_id, parameters, callback, context](void) {
                             for (auto const& par : parameters) {
-                                callback(module_id, par.c_str());
+                                callback(module_id, par.c_str(), context);
                             }
-                            callback(module_id, "");
+                            callback(0, "", context);  // done
                         }).detach();
         }
 
         return TFV_OK;
     }
 
-    TFV_Result enumerate_available_modules(TFV_StringCallback callback) {
-        std::thread([&, callback](void) {
+    TFV_Result enumerate_available_modules(TFV_StringCallback callback,
+                                           TFV_Context context) {
+        std::thread([&, callback, context](void) {
                         std::vector<std::string> modules;
                         module_loader_.list_available_modules(modules);
                         for (auto const& module : modules) {
-                            callback(0, module.c_str());
+                            callback(1, module.c_str(), context);
                         }
-                        callback(0, "");
+                        callback(0, "", context);
                     }).detach();
 
         return TFV_OK;

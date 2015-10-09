@@ -56,7 +56,8 @@ typedef struct TFV_ModuleResult {
 
 /// General callback applicable for every module that produces a result.
 typedef void (*TFV_Callback)(TFV_Id, TFV_ModuleResult result, TFV_Context);
-typedef void (*TFV_StringCallback)(TFV_Id, TFV_String string);
+typedef void (*TFV_StringCallback)(TFV_Id, TFV_String string,
+                                   TFV_Context context);
 
 #define TFV_UNUSED_ID -1
 

@@ -28,12 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 static IplImage* image = NULL;
 
-void invalid_callback(TFV_Id id, TFV_Size x, TFV_Context context) {
-    (void)id;
-    (void)x;
-    (void)context;
-}
-
 void callback(TFV_Id id, TFV_ModuleResult result, TFV_Context context) {
     CvPoint center;
 

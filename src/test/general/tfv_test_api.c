@@ -27,8 +27,9 @@ void callback(TFV_Id id, TFV_ModuleResult result, TFV_Context context) {
     printf("Callback for module %d\n", id);
 }
 
-void str_callback(TFV_Id id, TFV_String string) {
-    printf("String-callback: %d, %s\n", id, string);
+void str_callback(TFV_Id id, TFV_String string, TFV_Context context) {
+    int ctx = *(int*)(context);
+    printf("String-callback: %d, %s, %d\n", id, string, ctx);
 }
 
 void colormatch_start(TFV_Id id, int min_hue, int max_hue) {
@@ -58,6 +59,8 @@ void colormatch_start(TFV_Id id, int min_hue, int max_hue) {
 int main(int argc, char* argv[]) {
     TFV_Size width = 640;
     TFV_Size height = 480;
+    int enum_modules = 1;
+    int enum_pars = 2;
 
     TFV_Result result = preselect_framesize(width, height);
 
@@ -68,7 +71,7 @@ int main(int argc, char* argv[]) {
     printf("CameraAvailable: %d (%s)\n", result, result_string(result));
     sleep(1);
 
-    result = enumerate_available_modules(str_callback);
+    result = enumerate_available_modules(str_callback, &enum_modules);
     printf("Enumerate Modules registered: %d\n", result);
     sleep(4);
 
@@ -87,7 +90,7 @@ int main(int argc, char* argv[]) {
       Starting a module, quitting the api, starting same id again failed.
     */
     colormatch_start(1, 20, 25);
-    result = module_enumerate_parameters(1, str_callback);
+    result = module_enumerate_parameters(1, str_callback, &enum_pars);
     printf("Enumerate Parameters registered: %d\n", result);
 
     sleep(3);

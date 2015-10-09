@@ -66,17 +66,20 @@ TFV_Result start(void) {
 
 TFV_Result scene_from_module(TFV_Id module, TFV_Scene* scene_id) {
     tfv::Log("Tinkervision::SceneFromModule", module, " ", scene_id);
-    return tfv::get_api().scene_start(module, scene_id);
+    return TFV_NOT_IMPLEMENTED;
+    // return tfv::get_api().scene_start(module, scene_id);
 }
 
 TFV_Result scene_add_module(TFV_Scene scene, TFV_Id module) {
     tfv::Log("Tinkervision::SceneAddModule", scene, " ", module);
-    return tfv::get_api().add_to_scene(scene, module);
+    return TFV_NOT_IMPLEMENTED;
+    // return tfv::get_api().add_to_scene(scene, module);
 }
 
 TFV_Result scene_remove(TFV_Scene scene) {
     tfv::Log("Tinkervision::SceneRemove", scene);
-    return tfv::get_api().scene_remove(scene);
+    return TFV_NOT_IMPLEMENTED;
+    // return tfv::get_api().scene_remove(scene);
 }
 
 TFV_Result quit(void) {
@@ -139,14 +142,17 @@ TFV_Result module_get_name(TFV_Id module_id, TFV_CharArray name) {
 }
 
 TFV_Result module_enumerate_parameters(TFV_Id module_id,
-                                       TFV_StringCallback callback) {
+                                       TFV_StringCallback callback,
+                                       TFV_Context context) {
     tfv::Log("Tinkervision::ModuleEnumerateParameters", module_id);
-    return tfv::get_api().module_enumerate_parameters(module_id, callback);
+    return tfv::get_api().module_enumerate_parameters(module_id, callback,
+                                                      context);
 }
 
-TFV_Result enumerate_available_modules(TFV_StringCallback callback) {
+TFV_Result enumerate_available_modules(TFV_StringCallback callback,
+                                       TFV_Context context) {
     tfv::Log("Tinkervision::EnumerateAvailableModules");
-    return tfv::get_api().enumerate_available_modules(callback);
+    return tfv::get_api().enumerate_available_modules(callback, context);
 }
 
 //
