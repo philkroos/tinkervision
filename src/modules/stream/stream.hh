@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "h264_media_session.hh"
 #include "h264_encoder.hh"
 
-namespace tfv {
+namespace tv {
 
 struct Stream : public Publisher {
 
@@ -40,7 +40,7 @@ struct Stream : public Publisher {
 
     ~Stream(void) override;
 
-    void execute(tfv::ImageHeader const& header, ImageData const* data) override;
+    void execute(tv::ImageHeader const& header, ImageData const* data) override;
 
     ColorSpace expected_format(void) const override { return ColorSpace::YV12; }
 

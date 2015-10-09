@@ -37,7 +37,7 @@ using Picture = x264_picture_t;
 using Nal = x264_nal_t;
 }
 
-namespace tfv {
+namespace tv {
 
 class H264Encoder {
 
@@ -50,7 +50,7 @@ public:
     /**
      * Add a frame to be encoded.
      */
-    void add_frame(TFV_ImageData const* data);
+    void add_frame(TV_ImageData const* data);
 
     /**
      * Push all encoded nal-unites into output and clear the

@@ -1,17 +1,17 @@
 #include "h264_byte_source.hh"
 
-tfv::H264ByteSource* tfv::H264ByteSource::createNew(
-    UsageEnvironment& env, tfv::ExecutionContext& context) {
+tv::H264ByteSource* tv::H264ByteSource::createNew(
+    UsageEnvironment& env, tv::ExecutionContext& context) {
 
-    return new tfv::H264ByteSource{env, context};
+    return new tv::H264ByteSource{env, context};
 }
 
-EventTriggerId tfv::H264ByteSource::eventTriggerId = 0;
+EventTriggerId tv::H264ByteSource::eventTriggerId = 0;
 
-unsigned tfv::H264ByteSource::referenceCount = 0;
+unsigned tv::H264ByteSource::referenceCount = 0;
 
-tfv::H264ByteSource::H264ByteSource(UsageEnvironment& env,
-                                    tfv::ExecutionContext& context)
+tv::H264ByteSource::H264ByteSource(UsageEnvironment& env,
+                                   tv::ExecutionContext& context)
     : FramedSource{env}, context_(context) {
 
     if (referenceCount == 0) {
@@ -25,7 +25,7 @@ tfv::H264ByteSource::H264ByteSource(UsageEnvironment& env,
     }
 }
 
-tfv::H264ByteSource::~H264ByteSource(void) {
+tv::H264ByteSource::~H264ByteSource(void) {
     --referenceCount;
 
     if (not referenceCount) {
@@ -35,11 +35,11 @@ tfv::H264ByteSource::~H264ByteSource(void) {
     eventTriggerId = 0;
 }
 
-void tfv::H264ByteSource::deliverFrame0(void* clientData) {
-    ((tfv::H264ByteSource*)clientData)->deliverFrame();
+void tv::H264ByteSource::deliverFrame0(void* clientData) {
+    ((tv::H264ByteSource*)clientData)->deliverFrame();
 }
 
-void tfv::H264ByteSource::doGetNextFrame() {
+void tv::H264ByteSource::doGetNextFrame() {
 
     while (not context_.quit and nals_.empty()) {
         context_.encoder.get_nals(nals_);
@@ -52,7 +52,7 @@ void tfv::H264ByteSource::doGetNextFrame() {
     }
 }
 
-void tfv::H264ByteSource::deliverFrame() {
+void tv::H264ByteSource::deliverFrame() {
     if (!isCurrentlyAwaitingData() or context_.quit) {
         return;
     } else if (nals_.empty()) {

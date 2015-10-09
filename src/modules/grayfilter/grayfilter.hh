@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision/tv_module.hh"
 
-namespace tfv {
+namespace tv {
 
 struct Grayfilter : public Modifier {
 public:
@@ -40,8 +40,8 @@ public:
 
     ~Grayfilter(void) override = default;
 
-    void execute(tfv::ImageHeader const& header, tfv::ImageData const* data,
-                 tfv::Image& output) override final;
+    void execute(tv::ImageHeader const& header, tv::ImageData const* data,
+                 tv::Image& output) override final;
 
     ColorSpace expected_format(void) const override {
         return ColorSpace::BGR888;

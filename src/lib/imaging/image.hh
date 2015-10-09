@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision_defines.h"
 
-namespace tfv {
+namespace tv {
 
 /**
  * Supported image formats. The value range per entry is 0-255 for each format,
@@ -68,7 +68,7 @@ enum class ColorSpace : char {
 
 using Clock = std::chrono::steady_clock;
 using Timestamp = Clock::time_point;
-using ImageData = TFV_ImageData;
+using ImageData = TV_ImageData;
 
 struct ImageHeader {
     uint16_t width = 0;
@@ -78,7 +78,7 @@ struct ImageHeader {
     ColorSpace format = ColorSpace::INVALID;
     operator bool(void) const {
         return width > 0 and height > 0 and bytesize > 0 and
-               format != tfv::ColorSpace::INVALID;
+               format != tv::ColorSpace::INVALID;
     }
 };
 

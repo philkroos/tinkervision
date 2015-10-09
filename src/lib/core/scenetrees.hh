@@ -53,13 +53,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "scene.hh"
 #include "logger.hh"
 
-namespace tfv {
+namespace tv {
 
 /** A tree-like representation of linked Module's */
 class SceneTree {
 private:
     Node* root_;  ///< Rootnode may refer to multiple scenes.
-    std::map<TFV_Scene, Node*> mutable scenes_;
+    std::map<TV_Scene, Node*> mutable scenes_;
     std::mutex mutable exec_lock_;
 
     bool active_ = false;
@@ -85,17 +85,17 @@ public:
      * \param[in] id The scene searched for.
      * \return true if the root_ is associated with the scene id.
      */
-    bool contains_scene(TFV_Scene id) const {
+    bool contains_scene(TV_Scene id) const {
         std::lock_guard<std::mutex> lock(exec_lock_);
         return scenes_.find(id) != scenes_.cend();
     }
 
-    Node* leaf_of_scene(TFV_Scene id) const {
+    Node* leaf_of_scene(TV_Scene id) const {
         assert(contains_scene(id));
         return scenes_.at(id);
     }
 
-    void add_node_to_scene(TFV_Scene id, Node* node) const {
+    void add_node_to_scene(TV_Scene id, Node* node) const {
         std::lock_guard<std::mutex> lock(exec_lock_);
         Log("SCENETREE::addNodeToScene", node->id(), "/", node->module_id(),
             " -> ", id);
@@ -148,7 +148,7 @@ public:
      * things will break badly if it's not. Also, it is not checked
      * here if the module for module_id does exist.
      */
-    TFV_Result scene_start(TFV_Scene scene_id, TFV_Int module_id);
+    TV_Result scene_start(TV_Scene scene_id, TV_Int module_id);
 
     /**
      * Add an existing module to the end of an existing scene.
@@ -165,18 +165,18 @@ public:
      * \param[in] module_id Id of an existing module.
      *
      * \return
-     * - #TFV_OK if good.
-     * - #TFV_NODE_ALLOCATION_FAILED an error occured in SharedResource.
-     * - #TFV_INVALID_ID one of both id's is invalid.
+     * - #TV_OK if good.
+     * - #TV_NODE_ALLOCATION_FAILED an error occured in SharedResource.
+     * - #TV_INVALID_ID one of both id's is invalid.
      */
-    TFV_Result add_to_scene(TFV_Scene scene_id, TFV_Int module_id);
+    TV_Result add_to_scene(TV_Scene scene_id, TV_Int module_id);
 
     void exec_all(Node::ModuleExecutor executor, Timestamp timestamp);
-    void exec_scene(TFV_Scene scene_id);
+    void exec_scene(TV_Scene scene_id);
 
 private:
-    TFV_Int _next_node_id(void) const {
-        static TFV_Int node_id{std::numeric_limits<TFV_Id>::max() + 1};
+    TV_Int _next_node_id(void) const {
+        static TV_Int node_id{std::numeric_limits<TV_Id>::max() + 1};
         return node_id++;
     }
 };

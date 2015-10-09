@@ -32,26 +32,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "shared_resource.hh"
 #include "module.hh"
 
-namespace tfv {
-using Modules = tfv::SharedResource<tfv::Module>;
+namespace tv {
+using Modules = tv::SharedResource<tv::Module>;
 
 class SceneTree;  // forward
 class Node {
 
 public:
-    using ModuleExecutor = std::function<void(TFV_Int id)>;
+    using ModuleExecutor = std::function<void(TV_Int id)>;
 
     // default c'tor to be able to store in container types
     Node(void) = default;
 
     // c'tor for a root node
-    Node(TFV_Int node_id, TFV_Scene scene_id, TFV_Int module_id)
+    Node(TV_Int node_id, TV_Scene scene_id, TV_Int module_id)
         : Node(node_id, scene_id, module_id, nullptr) {}
 
     // complete c'tor
-    Node(TFV_Int node_id, TFV_Scene scene_id, TFV_Int module_id, Node* parent);
+    Node(TV_Int node_id, TV_Scene scene_id, TV_Int module_id, Node* parent);
 
-    TFV_Int id(void) const { return id_; }
+    TV_Int id(void) const { return id_; }
 
     /**
      * Execute the module held by this node.
@@ -63,11 +63,11 @@ public:
      */
     void execute(ModuleExecutor executor, Timestamp timestamp);
     void execute_for_scene(ModuleExecutor executor, Timestamp timestamp,
-                           TFV_Scene scene_id);
+                           TV_Scene scene_id);
 
-    TFV_Int module_id(void) const { return module_id_; }
+    TV_Int module_id(void) const { return module_id_; }
 
-    void add_to_scene(TFV_Scene scene_id) { scenes_.push_back(scene_id); }
+    void add_to_scene(TV_Scene scene_id) { scenes_.push_back(scene_id); }
 
     Node* parent(void) const { return parent_; }
 
@@ -84,15 +84,15 @@ public:
     }
     SceneTree* tree(void) const { return tree_; }
 
-    std::vector<TFV_Scene>* scenes(void) { return &scenes_; }
+    std::vector<TV_Scene>* scenes(void) { return &scenes_; }
 
     std::vector<Node*> children(void) const { return children_; }
 
-    Node* get_child_from_module_id(TFV_Int module_id) {
+    Node* get_child_from_module_id(TV_Int module_id) {
         auto node = std::find_if(children_.begin(), children_.end(),
                                  [&module_id](Node const* node) {
-                                     return node->module_id() == module_id;
-                                 });
+            return node->module_id() == module_id;
+        });
 
         if (node == children_.end()) {
             return nullptr;
@@ -103,7 +103,7 @@ public:
 
     bool is_leaf(void) const { return children_.empty(); }
 
-    void remove_scene(TFV_Scene scene_id) {
+    void remove_scene(TV_Scene scene_id) {
         auto it = std::find(scenes_.begin(), scenes_.end(), scene_id);
 
         assert(it != scenes_.end());
@@ -113,7 +113,7 @@ public:
 
     bool is_used_by_any_scene(void) const { return not scenes_.empty(); }
 
-    bool is_used_by_scene(TFV_Scene id) const {
+    bool is_used_by_scene(TV_Scene id) const {
         return std::find(scenes_.cbegin(), scenes_.cend(), id) !=
                scenes_.cend();
     }
@@ -134,8 +134,8 @@ public:
 
 private:
     Timestamp timestamp_;
-    TFV_Int id_{TFV_UNUSED_ID};
-    TFV_Int module_id_{TFV_UNUSED_ID};
+    TV_Int id_{TV_UNUSED_ID};
+    TV_Int module_id_{TV_UNUSED_ID};
 
     // Tree
     Node* parent_ = nullptr;
@@ -143,7 +143,7 @@ private:
     SceneTree* tree_ = nullptr;  ///< Link to the tree containing this node
 
     // This node is part of these scenes
-    std::vector<TFV_Scene> scenes_;
+    std::vector<TV_Scene> scenes_;
 };
 }
 

@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision/tv_module.hh"
 
-namespace tfv {
+namespace tv {
 
 struct Motiondetect : public Analyzer {
 private:
@@ -45,8 +45,7 @@ public:
     Motiondetect(void) : Analyzer{"Motiondetect"} {}
 
     ~Motiondetect(void) override = default;
-    void execute(tfv::ImageHeader const& header,
-                 ImageData const* data) override;
+    void execute(tv::ImageHeader const& header, ImageData const* data) override;
 
     ColorSpace expected_format(void) const override {
         return ColorSpace::BGR888;

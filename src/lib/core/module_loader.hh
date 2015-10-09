@@ -30,7 +30,7 @@
 
 #include "module.hh"
 
-namespace tfv {
+namespace tv {
 
 /// Load external modules, manage and release their so-handles.
 /// This class provides a wrapper around the shared object loading
@@ -73,7 +73,7 @@ public:
     ///
     /// \see Module, describing the structure of the modules that can be loaded.
     bool load_module_from_library(Module** target, std::string const& libname,
-                                  TFV_Int id);
+                                  TV_Int id);
 
     /// Destruct the module and dlclose the associated library (once).
     /// \param[in] module The module to be free'd.
@@ -87,9 +87,9 @@ public:
     /// Return the last error produced by one of the api methods, if
     /// any. This should be called whenever one of destroy_module or
     /// load_module_from_library return false.
-    /// Calling this will also reset the internal error to TFV_OK.
-    /// \return The last error produced, one of TFV*. TFV_OK if none.
-    TFV_Result last_error(void);
+    /// Calling this will also reset the internal error to TV_OK.
+    /// \return The last error produced, one of TV*. TV_OK if none.
+    TV_Result last_error(void);
 
 private:
     using LibraryHandle = void*;
@@ -102,7 +102,7 @@ private:
     Handles handles_;                     ///< keeps track of loaded modules
     std::string const system_load_path_;  ///< default shared object files
     std::string const user_load_path_;    ///< additional shared object files
-    TFV_Result error_{TFV_OK};  ///< If an error occurs, it's stored here
+    TV_Result error_{TV_OK};  ///< If an error occurs, it's stored here
 
     std::vector<std::string> required_functions_ = {
         "create",
@@ -112,6 +112,6 @@ private:
     bool _free_lib(LibraryHandle handle);
     bool _load_module_from_library(Module** target,
                                    std::string const& library_root,
-                                   std::string const& libname, TFV_Int id);
+                                   std::string const& libname, TV_Int id);
 };
 }

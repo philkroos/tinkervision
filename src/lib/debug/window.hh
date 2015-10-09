@@ -29,14 +29,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision_defines.h"
 
-namespace tfv {
+namespace tv {
 class Window {
 private:
-    std::map<TFV_Id, std::string> windows_;
+    std::map<TV_Id, std::string> windows_;
     std::string prefix = "Camera ";
 
 public:
-    void update(TFV_Id id, TFV_ImageData const* data, int rows, int columns,
+    void update(TV_Id id, TV_ImageData const* data, int rows, int columns,
                 int format = CV_8UC3) {
         assert(rows > 0 and columns > 0 and data);
 
@@ -49,7 +49,7 @@ public:
         cv::waitKey(100);  // skip time to give window-update thread a chance
     }
 
-    void update(TFV_Id id, cv::Mat const& image) {
+    void update(TV_Id id, cv::Mat const& image) {
         assert(image.rows > 0 and image.cols > 0 and image.data);
 
         if (windows_.find(id) == windows_.end()) {

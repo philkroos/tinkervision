@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #if !defined(WITH_LOGGER)
 #include <string>
-namespace tfv {
+namespace tv {
 
 template <typename... Args>
 void Log(std::string const& prefix, Args const&... args) {}
@@ -45,7 +45,7 @@ void LogWarning(std::string const& prefix, Args const&... args) {}
 
 #include "image.hh"
 
-namespace tfv {
+namespace tv {
 
 // forward, for ostream declarations
 class Module;
@@ -58,7 +58,7 @@ private:
 
     std::chrono::time_point<std::chrono::steady_clock> zero_{
         std::chrono::steady_clock::now()};
-    std::string logfilename_ = "/tmp/tfv.log";
+    std::string logfilename_ = "/tmp/tv.log";
     std::ofstream logfile_;
 
     Logger(void) {
@@ -131,7 +131,7 @@ std::ostream& operator<<(std::ostream& os, SceneTree const& tree);
 std::ostream& operator<<(std::ostream& os, ColorSpace const& format);
 std::ostream& operator<<(std::ostream& os, ImageHeader const& header);
 std::ostream& operator<<(std::ostream& os, Timestamp ts);
-std::ostream& operator<<(std::ostream& os, TFV_Id id);
+std::ostream& operator<<(std::ostream& os, TV_Id id);
 
 #endif
 }

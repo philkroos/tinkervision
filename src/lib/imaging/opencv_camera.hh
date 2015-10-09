@@ -27,12 +27,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "camera.hh"
 #include "image.hh"
 
-namespace tfv {
+namespace tv {
 
 class OpenCvUSBCamera : public Camera {
 
 public:
-    explicit OpenCvUSBCamera(TFV_Id camera_id);
+    explicit OpenCvUSBCamera(TV_Id camera_id);
     ~OpenCvUSBCamera(void) override final { close(); }
 
     bool open_device(void) override final;
@@ -42,14 +42,14 @@ public:
     }
 
 protected:
-    bool retrieve_frame(tfv::ImageData** data) override final;
+    bool retrieve_frame(tv::ImageData** data) override final;
     void retrieve_properties(uint16_t& width, uint16_t& height,
                              size_t& frame_bytesize) override final;
     void close(void) override final;
 
 private:
     cv::VideoCapture* camera_ = nullptr;
-    static const TFV_Int flag_ = CV_8UC3;  // default: color
+    static const TV_Int flag_ = CV_8UC3;  // default: color
     cv::Mat container_;
 
     size_t frame_width_ = 0;     ///< resolution width

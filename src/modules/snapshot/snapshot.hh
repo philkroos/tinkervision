@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision/tv_module.hh"
 
-namespace tfv {
+namespace tv {
 class Snapshot : public Publisher {
 
 public:
@@ -32,15 +32,15 @@ public:
     void execute(ImageHeader const& header,
                  ImageData const* data) override final;
 
-    tfv::ColorSpace expected_format(void) const override {
-        return tfv::ColorSpace::YV12;
+    tv::ColorSpace expected_format(void) const override {
+        return tv::ColorSpace::YV12;
     }
 
-    tfv::Result const* get_result(void) const;
+    tv::Result const* get_result(void) const;
 
 private:
-    tfv::Result filename_;
-    tfv::Image image_{};
+    tv::Result filename_;
+    tv::Image image_{};
 };
 }
 DECLARE_VISION_MODULE(Snapshot)

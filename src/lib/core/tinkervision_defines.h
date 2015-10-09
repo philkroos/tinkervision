@@ -26,40 +26,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdint.h>
 
 /* \todo: Use these types everywhere, e.g. see cameracontrol. */
-typedef int8_t TFV_Bool;
-typedef int8_t TFV_Short;
-typedef int16_t TFV_Word;
-typedef int32_t TFV_Long;
-typedef uint16_t TFV_UWord;
-typedef uint32_t TFV_UInt;
-typedef uint8_t TFV_Byte;
-typedef const char* TFV_String;
-#define TFV_CHAR_ARRAY_SIZE 20
-typedef char TFV_CharArray[TFV_CHAR_ARRAY_SIZE];
+typedef int8_t TV_Bool;
+typedef int8_t TV_Short;
+typedef int16_t TV_Word;
+typedef int32_t TV_Long;
+typedef uint16_t TV_UWord;
+typedef uint32_t TV_UInt;
+typedef uint8_t TV_Byte;
+typedef const char* TV_String;
+#define TV_CHAR_ARRAY_SIZE 20
+typedef char TV_CharArray[TV_CHAR_ARRAY_SIZE];
 
-typedef TFV_Word TFV_Int;
+typedef TV_Word TV_Int;
 
-typedef TFV_Byte TFV_ImageData;
-typedef TFV_Short TFV_Id;
-typedef TFV_UWord TFV_Size;
-typedef TFV_Int TFV_Scene;
-typedef TFV_Int TFV_Result;
-typedef void* TFV_Context;
+typedef TV_Byte TV_ImageData;
+typedef TV_Short TV_Id;
+typedef TV_UWord TV_Size;
+typedef TV_Int TV_Scene;
+typedef TV_Int TV_Result;
+typedef void* TV_Context;
 
-typedef struct TFV_ModuleResult {
-    TFV_UWord x;
-    TFV_UWord y;
-    TFV_UWord width;
-    TFV_UWord height;
-    TFV_CharArray string;
-} TFV_ModuleResult;
+typedef struct TV_ModuleResult {
+    TV_UWord x;
+    TV_UWord y;
+    TV_UWord width;
+    TV_UWord height;
+    TV_CharArray string;
+} TV_ModuleResult;
 
 /// General callback applicable for every module that produces a result.
-typedef void (*TFV_Callback)(TFV_Id, TFV_ModuleResult result, TFV_Context);
-typedef void (*TFV_StringCallback)(TFV_Id, TFV_String string,
-                                   TFV_Context context);
+typedef void (*TV_Callback)(TV_Id, TV_ModuleResult result, TV_Context);
+typedef void (*TV_StringCallback)(TV_Id, TV_String string, TV_Context context);
 
-#define TFV_UNUSED_ID -1
+#define TV_UNUSED_ID -1
 
 /// Systemwide vision module load path.
 #define SYS_MODULE_LOAD_PATH "/usr/lib/tinkervision/"
@@ -69,40 +68,40 @@ typedef void (*TFV_StringCallback)(TFV_Id, TFV_String string,
 
 /** Default 'no-error' result
  */
-#define TFV_OK 0
+#define TV_OK 0
 
 /* General errors: 500... */
-#define TFV_NOT_IMPLEMENTED 500
-#define TFV_INTERNAL_ERROR 501
+#define TV_NOT_IMPLEMENTED 500
+#define TV_INTERNAL_ERROR 501
 /** Could not allocate a node in a SceneTree */
-#define TFV_NODE_ALLOCATION_FAILED 504
-#define TFV_NO_ACTIVE_MODULES 505
+#define TV_NODE_ALLOCATION_FAILED 504
+#define TV_NO_ACTIVE_MODULES 505
 
 /* Camera errors: 550... */
-#define TFV_CAMERA_NOT_AVAILABLE 551
-#define TFV_CAMERA_SETTINGS_FAILED 552
+#define TV_CAMERA_NOT_AVAILABLE 551
+#define TV_CAMERA_SETTINGS_FAILED 552
 
 /** An id passed to Api is not registered as Module */
-#define TFV_INVALID_ID 600
-#define TFV_MODULE_INITIALIZATION_FAILED 601
-#define TFV_MODULE_NO_SUCH_PARAMETER 602
-#define TFV_MODULE_ERROR_SETTING_PARAMETER 603
+#define TV_INVALID_ID 600
+#define TV_MODULE_INITIALIZATION_FAILED 601
+#define TV_MODULE_NO_SUCH_PARAMETER 602
+#define TV_MODULE_ERROR_SETTING_PARAMETER 603
 
 /* System thread errors: 650... */
-#define TFV_EXEC_THREAD_FAILURE 650
-#define TFV_THREAD_RUNNING 651
+#define TV_EXEC_THREAD_FAILURE 650
+#define TV_THREAD_RUNNING 651
 
 /* External library errors: 700... */
-#define TFV_MODULE_DLOPEN_FAILED 700
-#define TFV_MODULE_DLSYM_FAILED 701
-#define TFV_MODULE_DLCLOSE_FAILED 702
+#define TV_MODULE_DLOPEN_FAILED 700
+#define TV_MODULE_DLSYM_FAILED 701
+#define TV_MODULE_DLCLOSE_FAILED 702
 
 /* Callback/Result request errors: 750... */
-#define TFV_RESULT_NOT_AVAILABLE 750
-#define TFV_GLOBAL_CALLBACK_ACTIVE 751
+#define TV_RESULT_NOT_AVAILABLE 750
+#define TV_GLOBAL_CALLBACK_ACTIVE 751
 
 /* Internally used where a return value has only temporary means. Never returned
  * outside: 1000... */
-#define TFV_INTERNAL_NODE_UNCONFIGURED 1000
+#define TV_INTERNAL_NODE_UNCONFIGURED 1000
 
 #endif /* TINKERVISION_DEFINES_H */

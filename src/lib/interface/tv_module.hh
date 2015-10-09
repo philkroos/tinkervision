@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tinkervision_defines.h"
 #include "logger.hh"
 
-namespace tfv {
+namespace tv {
 
 struct Result {
     uint16_t x = 0;
@@ -58,7 +58,7 @@ public:
     std::string const& name(void) const { return name_; }
     ModuleType const& type(void) const { return type_; }
 
-    virtual void execute(tfv::Image const& image) = 0;
+    virtual void execute(tv::Image const& image) = 0;
 
     virtual Result const* get_result(void) const { return nullptr; }
     virtual ColorSpace expected_format(void) const { return ColorSpace::NONE; }
@@ -71,11 +71,11 @@ public:
         return;
     }
 
-    virtual bool set(std::string const& parameter, TFV_Word value) {
+    virtual bool set(std::string const& parameter, TV_Word value) {
         return false;
     }
 
-    virtual TFV_Word get(std::string const& parameter) { return 0; }
+    virtual TV_Word get(std::string const& parameter) { return 0; }
 
     /**
      * If this module is running constantly or only on request.
@@ -144,12 +144,12 @@ public:
 };
 }
 
-#define DECLARE_VISION_MODULE(name)         \
-    extern "C" tfv::TVModule* create(void); \
-    extern "C" void destroy(tfv::name* module);
+#define DECLARE_VISION_MODULE(name)        \
+    extern "C" tv::TVModule* create(void); \
+    extern "C" void destroy(tv::name* module);
 
-#define DEFINE_VISION_MODULE(name)                                     \
-    extern "C" tfv::TVModule* create(void) { return new tfv::name(); } \
-    extern "C" void destroy(tfv::name* module) { delete module; }
+#define DEFINE_VISION_MODULE(name)                                   \
+    extern "C" tv::TVModule* create(void) { return new tv::name(); } \
+    extern "C" void destroy(tv::name* module) { delete module; }
 
 #endif

@@ -21,8 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 DEFINE_VISION_MODULE(Grayfilter)
 
-void tfv::Grayfilter::execute(tfv::ImageHeader const& header,
-                              tfv::ImageData const* data, tfv::Image& output) {
+void tv::Grayfilter::execute(tv::ImageHeader const& header,
+                             tv::ImageData const* data, tv::Image& output) {
 
     cv::Mat cv_image(header.height, header.width, CV_8UC3, (void*)data);
     cv::cvtColor(cv_image, cv_image, CV_BGR2GRAY);
@@ -41,6 +41,6 @@ void tfv::Grayfilter::execute(tfv::ImageHeader const& header,
 #endif
 }
 
-void tfv::Grayfilter::get_header(ImageHeader const& ref, ImageHeader& output) {
+void tv::Grayfilter::get_header(ImageHeader const& ref, ImageHeader& output) {
     output = ref;
 }

@@ -21,9 +21,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "opencv_camera.hh"
 
-tfv::OpenCvUSBCamera::OpenCvUSBCamera(TFV_Id camera_id) : Camera(camera_id) {}
+tv::OpenCvUSBCamera::OpenCvUSBCamera(TV_Id camera_id) : Camera(camera_id) {}
 
-bool tfv::OpenCvUSBCamera::open_device(void) {
+bool tv::OpenCvUSBCamera::open_device(void) {
 
     camera_ = new cv::VideoCapture(camera_id_);
 
@@ -39,11 +39,11 @@ bool tfv::OpenCvUSBCamera::open_device(void) {
     return result;
 }
 
-bool tfv::OpenCvUSBCamera::is_open(void) const {
+bool tv::OpenCvUSBCamera::is_open(void) const {
     return camera_ and camera_->isOpened();
 }
 
-void tfv::OpenCvUSBCamera::close(void) {
+void tv::OpenCvUSBCamera::close(void) {
     if (camera_) {
         camera_->release();
         delete camera_;
@@ -52,9 +52,8 @@ void tfv::OpenCvUSBCamera::close(void) {
     camera_ = nullptr;
 }
 
-void tfv::OpenCvUSBCamera::retrieve_properties(uint16_t& width,
-                                               uint16_t& height,
-                                               size_t& frame_bytesize) {
+void tv::OpenCvUSBCamera::retrieve_properties(uint16_t& width, uint16_t& height,
+                                              size_t& frame_bytesize) {
 
     _retrieve_properties();
     height = frame_height_;
@@ -62,7 +61,7 @@ void tfv::OpenCvUSBCamera::retrieve_properties(uint16_t& width,
     frame_bytesize = frame_bytesize_;
 }
 
-bool tfv::OpenCvUSBCamera::retrieve_frame(tfv::ImageData** data) {
+bool tv::OpenCvUSBCamera::retrieve_frame(tv::ImageData** data) {
 
     auto result = is_open();
     if (result) {
@@ -81,7 +80,7 @@ bool tfv::OpenCvUSBCamera::retrieve_frame(tfv::ImageData** data) {
     return result;
 }
 
-void tfv::OpenCvUSBCamera::_retrieve_properties(void) {
+void tv::OpenCvUSBCamera::_retrieve_properties(void) {
 
     if (not frame_width_ and is_open()) {
         frame_width_ = static_cast<int>(camera_->get(CV_CAP_PROP_FRAME_WIDTH));

@@ -33,7 +33,7 @@
 #include "filesystem.hh"
 #include "logger.hh"
 
-void tfv::ModuleLoader::list_available_modules(
+void tv::ModuleLoader::list_available_modules(
     std::vector<std::string>& modules) const {
 
     auto filter = [](std::string const&, std::string ext,
@@ -45,9 +45,9 @@ void tfv::ModuleLoader::list_available_modules(
     list_directory_content(user_load_path_, modules, filter);
 }
 
-bool tfv::ModuleLoader::load_module_from_library(Module** target,
-                                                 std::string const& libname,
-                                                 TFV_Int id) {
+bool tv::ModuleLoader::load_module_from_library(Module** target,
+                                                std::string const& libname,
+                                                TV_Int id) {
     // prefer user modules
     if (not(_load_module_from_library(target, user_load_path_, libname, id) or
 
@@ -61,10 +61,10 @@ bool tfv::ModuleLoader::load_module_from_library(Module** target,
     return true;
 }
 
-bool tfv::ModuleLoader::destroy_module(Module* module) {
+bool tv::ModuleLoader::destroy_module(Module* module) {
     auto entry = handles_.find(module);
     if (entry == handles_.cend()) {  // bug if this happens
-        error_ = TFV_INTERNAL_ERROR;
+        error_ = TV_INTERNAL_ERROR;
         return false;
     }
 
@@ -76,7 +76,7 @@ bool tfv::ModuleLoader::destroy_module(Module* module) {
     return _free_lib(handle);
 }
 
-void tfv::ModuleLoader::destroy_all(void) {
+void tv::ModuleLoader::destroy_all(void) {
     for (auto lib : handles_) {
         auto handle = lib.second.handle;
         auto name = lib.second.libname;
@@ -90,32 +90,32 @@ void tfv::ModuleLoader::destroy_all(void) {
     handles_.clear();
 }
 
-TFV_Result tfv::ModuleLoader::last_error(void) {
+TV_Result tv::ModuleLoader::last_error(void) {
     auto last = error_;
-    error_ = TFV_OK;
+    error_ = TV_OK;
     return last;
 }
 
-bool tfv::ModuleLoader::_free_lib(LibraryHandle handle) {
+bool tv::ModuleLoader::_free_lib(LibraryHandle handle) {
     (void)dlerror();
     auto result = dlclose(handle);
 
     if (result != 0) {
         Log("MODULE_LOADER", "dlclose(..): (", result, ") ", dlerror());
-        error_ = TFV_MODULE_DLCLOSE_FAILED;
+        error_ = TV_MODULE_DLCLOSE_FAILED;
         return false;
     }
     return true;
 }
 
-bool tfv::ModuleLoader::_load_module_from_library(
+bool tv::ModuleLoader::_load_module_from_library(
     Module** target, std::string const& library_root,
-    std::string const& libname, TFV_Int id) {
+    std::string const& libname, TV_Int id) {
 
     auto handle = dlopen((library_root + libname + ".so").c_str(), RTLD_LAZY);
     if (not handle) {
         LogWarning("MODULE_LOADER", "dlopen(", libname, "): ", dlerror());
-        error_ = TFV_MODULE_DLOPEN_FAILED;
+        error_ = TV_MODULE_DLOPEN_FAILED;
         return false;
     }
 
@@ -126,7 +126,7 @@ bool tfv::ModuleLoader::_load_module_from_library(
         auto error = dlerror();
         if (error) {
             LogWarning("API", "dlsym(.., ", func, "): ", error);
-            error_ = TFV_MODULE_DLSYM_FAILED;
+            error_ = TV_MODULE_DLSYM_FAILED;
             _free_lib(handle);
             return false;
         }

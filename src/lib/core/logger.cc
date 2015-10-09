@@ -24,10 +24,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tv_module.hh"
 #include "scenetrees.hh"
 
-std::string tfv::Logger::PREFIX_WARNING = "WARNING";
-std::string tfv::Logger::PREFIX_ERROR = "ERROR";
+std::string tv::Logger::PREFIX_WARNING = "WARNING";
+std::string tv::Logger::PREFIX_ERROR = "ERROR";
 
-std::ostream& tfv::operator<<(std::ostream& os, tfv::Module* module) {
+std::ostream& tv::operator<<(std::ostream& os, tv::Module* module) {
 
     auto tags_bits = std::bitset<16>(
         static_cast<std::underlying_type<Module::Tag>::type>(module->tags()));
@@ -37,7 +37,7 @@ std::ostream& tfv::operator<<(std::ostream& os, tfv::Module* module) {
     return os;
 }
 
-std::ostream& tfv::operator<<(std::ostream& os, tfv::SceneTree const& tree) {
+std::ostream& tv::operator<<(std::ostream& os, tv::SceneTree const& tree) {
 
     std::function<void(Node const&, size_t)> node_recursion =
         [&](Node const& node, size_t siblings) {
@@ -65,21 +65,21 @@ std::ostream& tfv::operator<<(std::ostream& os, tfv::SceneTree const& tree) {
     return os;
 }
 
-std::ostream& tfv::operator<<(std::ostream& os, tfv::ColorSpace const& format) {
+std::ostream& tv::operator<<(std::ostream& os, tv::ColorSpace const& format) {
     switch (format) {
-        case tfv::ColorSpace::INVALID:
+        case tv::ColorSpace::INVALID:
             os << "INVALID";
             break;
-        case tfv::ColorSpace::YUYV:
+        case tv::ColorSpace::YUYV:
             os << "YUYV";
             break;
-        case tfv::ColorSpace::YV12:
+        case tv::ColorSpace::YV12:
             os << "YV12";
             break;
-        case tfv::ColorSpace::BGR888:
+        case tv::ColorSpace::BGR888:
             os << "BGR";
             break;
-        case tfv::ColorSpace::RGB888:
+        case tv::ColorSpace::RGB888:
             os << "RGB";
             break;
         default:
@@ -89,21 +89,20 @@ std::ostream& tfv::operator<<(std::ostream& os, tfv::ColorSpace const& format) {
     return os;
 }
 
-std::ostream& tfv::operator<<(std::ostream& os,
-                              tfv::ImageHeader const& header) {
+std::ostream& tv::operator<<(std::ostream& os, tv::ImageHeader const& header) {
     // Header:WxH,Bytesize,Format
     os << header.width << "x" << header.height << "," << header.bytesize << ","
        << header.format;
     return os;
 }
 
-std::ostream& tfv::operator<<(std::ostream& os, tfv::Timestamp ts) {
+std::ostream& tv::operator<<(std::ostream& os, tv::Timestamp ts) {
     os << ts.time_since_epoch().count();
 
     return os;
 }
 
-std::ostream& tfv::operator<<(std::ostream& os, TFV_Id id) {
+std::ostream& tv::operator<<(std::ostream& os, TV_Id id) {
     os << static_cast<int>(id);
     return os;
 }

@@ -25,19 +25,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "logger.hh"
 
-bool tfv::operator==(tfv::ImageHeader const& lhs, tfv::ImageHeader const& rhs) {
+bool tv::operator==(tv::ImageHeader const& lhs, tv::ImageHeader const& rhs) {
     return lhs.width == rhs.width and lhs.height == rhs.height and
            lhs.bytesize == rhs.bytesize and lhs.format == rhs.format;
 }
-bool tfv::operator!=(tfv::ImageHeader const& lhs, tfv::ImageHeader const& rhs) {
+bool tv::operator!=(tv::ImageHeader const& lhs, tv::ImageHeader const& rhs) {
     return not(lhs == rhs);
 }
 
-tfv::ImageAllocator::~ImageAllocator(void) { _free_image(); }
+tv::ImageAllocator::~ImageAllocator(void) { _free_image(); }
 
-bool tfv::ImageAllocator::allocate(uint16_t width, uint16_t height,
-                                   size_t bytesize, ColorSpace format,
-                                   bool foreign_data) {
+bool tv::ImageAllocator::allocate(uint16_t width, uint16_t height,
+                                  size_t bytesize, ColorSpace format,
+                                  bool foreign_data) {
 
     if (max_size_ > 0 and bytesize > max_size_) {
         LogError("ImageAllocator", bytesize, " bytes requested. Allowed: ",
@@ -53,7 +53,7 @@ bool tfv::ImageAllocator::allocate(uint16_t width, uint16_t height,
     if (not image_.data) {
         image_init_bytesize_ = bytesize;
         if (not foreign_data) {
-            image_.data = new TFV_ImageData[bytesize];
+            image_.data = new TV_ImageData[bytesize];
         }
     }
 
@@ -67,14 +67,14 @@ bool tfv::ImageAllocator::allocate(uint16_t width, uint16_t height,
     return true;
 }
 
-void tfv::ImageAllocator::set_from_image(Image const& image) {
+void tv::ImageAllocator::set_from_image(Image const& image) {
     _free_image();
 
     image_ = image;
     using_foreign_data_ = true;
 }
 
-void tfv::ImageAllocator::copy_data(ImageData const* data, size_t size) {
+void tv::ImageAllocator::copy_data(ImageData const* data, size_t size) {
     assert(not using_foreign_data_);
     assert(image_.data);
     assert(image_.header.bytesize == size);
@@ -83,7 +83,7 @@ void tfv::ImageAllocator::copy_data(ImageData const* data, size_t size) {
     std::copy_n(data, image_.header.bytesize, image_.data);
 }
 
-void tfv::ImageAllocator::_free_image(void) {
+void tv::ImageAllocator::_free_image(void) {
     if (image_.data and not using_foreign_data_) {
         delete[] image_.data;
     }

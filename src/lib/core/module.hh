@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "logger.hh"
 #include "tv_module.hh"
 
-namespace tfv {
+namespace tv {
 
 struct Result;
 class TVModule;
@@ -52,14 +52,14 @@ public:
 private:
     bool active_;
     Module::Tag tags_ = Module::Tag::None;
-    TFV_Int module_id_;
+    TV_Int module_id_;
 
     TVModule* tv_module_;
 
-    TFV_Callback cb_ = nullptr;
+    TV_Callback cb_ = nullptr;
 
 public:
-    Module(TVModule* executable, TFV_Int module_id)
+    Module(TVModule* executable, TV_Int module_id)
         : active_(false), module_id_(module_id), tv_module_(executable) {}
 
     ~Module(void) { Log("MODULE::Destructor", name()); }
@@ -70,7 +70,7 @@ public:
     Module& operator=(Module const& rhs) = delete;
     Module& operator=(Module&& rhs) = delete;
 
-    bool register_callback(TFV_Callback callback) {
+    bool register_callback(TV_Callback callback) {
         if (not result() or cb_) {
             return false;
         }
@@ -80,10 +80,10 @@ public:
         return true;
     }
 
-    void execute(tfv::Image const& image);
-    void execute_modifying(tfv::Image& image);
+    void execute(tv::Image const& image);
+    void execute_modifying(tv::Image& image);
 
-    TFV_Int id(void) const { return module_id_; }
+    TV_Int id(void) const { return module_id_; }
     std::string name(void) const;
     ModuleType const& type(void) const;
 
@@ -106,9 +106,9 @@ public:
         return not(was_active == active_);
     }
 
-    void exec(tfv::Image& image) { execute(image); }
+    void exec(tv::Image& image) { execute(image); }
 
-    TFV_Callback callback(void) const { return cb_; }
+    TV_Callback callback(void) const { return cb_; }
 
     ColorSpace expected_format(void) const;
 
@@ -116,15 +116,15 @@ public:
 
     bool has_parameter(std::string const& parameter) const;
 
-    bool set(std::string const& parameter, TFV_Word value);
+    bool set(std::string const& parameter, TV_Word value);
 
-    TFV_Word get(std::string const& parameter);
+    TV_Word get(std::string const& parameter);
 
-    bool set_parameter(std::string const& parameter, TFV_Word value) {
+    bool set_parameter(std::string const& parameter, TV_Word value) {
         return set(parameter, value);
     }
 
-    void get_parameter(std::string const& parameter, TFV_Word& value) {
+    void get_parameter(std::string const& parameter, TV_Word& value) {
         value = get(parameter);
     }
 

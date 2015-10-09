@@ -33,15 +33,15 @@ static auto RC_CRF = X264_RC_CRF;
 static auto WRITE_STARTCODE = 1;
 }
 
-tfv::H264Encoder::~H264Encoder(void) {
+tv::H264Encoder::~H264Encoder(void) {
     if (initialized_) {
         x264_encoder_close(encoder_);
         x264_picture_clean(&picture_);
     }
 }
 
-void tfv::H264Encoder::initialize(std::size_t framewidth,
-                                  std::size_t frameheight, std::size_t fps) {
+void tv::H264Encoder::initialize(std::size_t framewidth,
+                                 std::size_t frameheight, std::size_t fps) {
 
     framesize_ = framewidth * frameheight;
     x264_param_default_preset(&parameter_, "ultrafast", "zerolatency");
@@ -84,7 +84,7 @@ void tfv::H264Encoder::initialize(std::size_t framewidth,
     initialized_ = true;
 }
 
-void tfv::H264Encoder::add_frame(TFV_ImageData const* image_data) {
+void tv::H264Encoder::add_frame(TV_ImageData const* image_data) {
     x264::Nal* nals{};
     auto nal_count = int{0};
 
@@ -105,7 +105,7 @@ void tfv::H264Encoder::add_frame(TFV_ImageData const* image_data) {
     }
 }
 
-void tfv::H264Encoder::get_nals(std::queue<x264::Nal>& output) {
+void tv::H264Encoder::get_nals(std::queue<x264::Nal>& output) {
     std::lock_guard<std::mutex> lock(io_lock_);
     for (auto const& nal : nals_) {
         output.push(nal);
@@ -113,12 +113,12 @@ void tfv::H264Encoder::get_nals(std::queue<x264::Nal>& output) {
     nals_.clear();
 }
 
-void tfv::H264Encoder::discard_all(void) {
+void tv::H264Encoder::discard_all(void) {
     std::lock_guard<std::mutex> lock(io_lock_);
     nals_.clear();
 }
 
-size_t tfv::H264Encoder::nals_encoded(void) const {
+size_t tv::H264Encoder::nals_encoded(void) const {
     std::lock_guard<std::mutex> lock(io_lock_);
     return nals_.size();
 }

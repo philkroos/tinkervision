@@ -21,9 +21,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 DEFINE_VISION_MODULE(Downscale)
 
-using namespace tfv;
+using namespace tv;
 
-void tfv::Downscale::get_header(ImageHeader const& ref, ImageHeader& output) {
+void tv::Downscale::get_header(ImageHeader const& ref, ImageHeader& output) {
     if (factor_ == 0) {
         output = ref;
     }
@@ -34,8 +34,8 @@ void tfv::Downscale::get_header(ImageHeader const& ref, ImageHeader& output) {
     output.format = expected_format();
 }
 
-void tfv::Downscale::execute(tfv::ImageHeader const& header,
-                             tfv::ImageData const* data, tfv::Image& output) {
+void tv::Downscale::execute(tv::ImageHeader const& header,
+                            tv::ImageData const* data, tv::Image& output) {
     if (factor_ == 0) {
         std::copy_n(data, header.bytesize, output.data);
         return;

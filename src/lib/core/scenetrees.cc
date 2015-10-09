@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "scenetrees.hh"
 
-TFV_Result tfv::SceneTrees::scene_start(TFV_Scene scene_id, TFV_Int module_id) {
+TV_Result tv::SceneTrees::scene_start(TV_Scene scene_id, TV_Int module_id) {
 
     // same root existing already?
     auto it = std::find_if(scene_trees_.begin(), scene_trees_.end(),
@@ -45,9 +45,9 @@ TFV_Result tfv::SceneTrees::scene_start(TFV_Scene scene_id, TFV_Int module_id) {
                              node.tree()->add_node_to_scene(scene_id, &node);
                          },
                 scene_id, module_id)) {
-            return TFV_NODE_ALLOCATION_FAILED;
+            return TV_NODE_ALLOCATION_FAILED;
         }
-        return TFV_OK;
+        return TV_OK;
 
     } else {  // can reuse an existing root
         auto tree = *it;
@@ -56,13 +56,12 @@ TFV_Result tfv::SceneTrees::scene_start(TFV_Scene scene_id, TFV_Int module_id) {
             node.add_to_scene(scene_id);
             tree->add_node_to_scene(scene_id, &node);
             tree->log_scenes();
-            return TFV_OK;
+            return TV_OK;
         });
     }
 }
 
-TFV_Result tfv::SceneTrees::add_to_scene(TFV_Scene scene_id,
-                                         TFV_Int module_id) {
+TV_Result tv::SceneTrees::add_to_scene(TV_Scene scene_id, TV_Int module_id) {
     Log("SCENETREES::AddToScene", module_id, " -> ", scene_id);
 
     auto it = std::find_if(
@@ -70,7 +69,7 @@ TFV_Result tfv::SceneTrees::add_to_scene(TFV_Scene scene_id,
         [&](SceneTree* tree) { return tree->contains_scene(scene_id); });
 
     if (scene_trees_.end() == it) {  // no such scene (or a bug:))
-        return TFV_INVALID_ID;
+        return TV_INVALID_ID;
     }
 
     auto tree = *it;
@@ -95,14 +94,14 @@ TFV_Result tfv::SceneTrees::add_to_scene(TFV_Scene scene_id,
             req_node->add_to_scene(scene_id);
             tree->add_node_to_scene(scene_id, req_node);
             tree->log_scenes();
-            return TFV_OK;
+            return TV_OK;
         }
 
-        return TFV_INTERNAL_NODE_UNCONFIGURED;
+        return TV_INTERNAL_NODE_UNCONFIGURED;
     });
 
     // No new node created, other scene reused
-    if (result != TFV_INTERNAL_NODE_UNCONFIGURED) {
+    if (result != TV_INTERNAL_NODE_UNCONFIGURED) {
         return result;
     }
 
@@ -118,14 +117,14 @@ TFV_Result tfv::SceneTrees::add_to_scene(TFV_Scene scene_id,
                          node.tree()->add_node_to_scene(scene_id, &node);
                      },
             scene_id, module_id, leaf_of_scene)) {
-        return TFV_NODE_ALLOCATION_FAILED;
+        return TV_NODE_ALLOCATION_FAILED;
     }
 
-    return TFV_OK;
+    return TV_OK;
 }
 
-void tfv::SceneTrees::exec_all(Node::ModuleExecutor executor,
-                               Timestamp timestamp) {
+void tv::SceneTrees::exec_all(Node::ModuleExecutor executor,
+                              Timestamp timestamp) {
     for (auto& tree : scene_trees_) {
         tree->log_scenes();
         Log("SCENETREES::exec_all", "Moduletree: ", *tree);
@@ -133,4 +132,4 @@ void tfv::SceneTrees::exec_all(Node::ModuleExecutor executor,
     }
 }
 
-void tfv::SceneTrees::exec_scene(TFV_Scene scene_id) {}
+void tv::SceneTrees::exec_scene(TV_Scene scene_id) {}

@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 static IplImage* image = NULL;
 
-void callback(TFV_Id id, TFV_ModuleResult result, TFV_Context context) {
+void callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
     CvPoint center;
 
     center.x = result.x;
@@ -41,23 +41,23 @@ void callback(TFV_Id id, TFV_ModuleResult result, TFV_Context context) {
     cvWaitKey(10);
 }
 
-void set(TFV_Word* min, TFV_Word* max, TFV_Byte value, TFV_Byte range) {
+void set(TV_Word* min, TV_Word* max, TV_Byte value, TV_Byte range) {
     *min = value >= range ? value - range : *max - range + value;
     *max = value < (*max - range) ? value + range : range - value;
 }
 
 int main(int argc, char* argv[]) {
-    TFV_Id id = 0;
-    TFV_Byte hue, saturation, value; /* commandline */
-    TFV_Word min_hue;
-    TFV_Word max_hue = 180;
-    TFV_Word min_value;
-    TFV_Word max_value = 255;
-    TFV_Word min_saturation;
-    TFV_Word max_saturation = 255;
-    TFV_Byte range;
-    TFV_Size width, height; /* framesize */
-    TFV_Result result = TFV_INTERNAL_ERROR;
+    TV_Id id = 0;
+    TV_Byte hue, saturation, value; /* commandline */
+    TV_Word min_hue;
+    TV_Word max_hue = 180;
+    TV_Word min_value;
+    TV_Word max_value = 255;
+    TV_Word min_saturation;
+    TV_Word max_saturation = 255;
+    TV_Byte range;
+    TV_Size width, height; /* framesize */
+    TV_Result result = TV_INTERNAL_ERROR;
 
     if (argc < 5) {
         printf(
@@ -68,10 +68,10 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    hue = (TFV_Byte)atoi(argv[1]);
-    saturation = (TFV_Byte)atoi(argv[2]);
-    value = (TFV_Byte)atoi(argv[3]);
-    range = (TFV_Byte)atoi(argv[4]);
+    hue = (TV_Byte)atoi(argv[1]);
+    saturation = (TV_Byte)atoi(argv[2]);
+    value = (TV_Byte)atoi(argv[3]);
+    range = (TV_Byte)atoi(argv[4]);
 
     set(&min_hue, &max_hue, hue, range);
     set(&min_value, &max_value, value, range);

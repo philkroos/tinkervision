@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <exception>
 
-namespace tfv {
+namespace tv {
 
 class Exception : public std::exception {
 private:
@@ -30,7 +30,7 @@ private:
 
 protected:
     Exception(std::string classname, std::string error)
-        : message_{"tfv::Exception in class " + classname + ": " + error} {}
+        : message_{"tv::Exception in class " + classname + ": " + error} {}
 
 public:
     virtual ~Exception(void) = default;

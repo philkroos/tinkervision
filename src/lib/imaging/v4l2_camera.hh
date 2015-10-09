@@ -103,7 +103,7 @@ public:
 };
 }
 
-namespace tfv {
+namespace tv {
 
 using frame_resolution = struct frame_resolution {
     const char* format;
@@ -113,25 +113,25 @@ using frame_resolution = struct frame_resolution {
 
 using ColorSpaceMapping = struct ColorSpaceMapping {
     const unsigned v4l2_id;
-    const tfv::ColorSpace tfv_id;
+    const tv::ColorSpace tv_id;
 };
 
 class V4L2USBCamera : public Camera {
 public:
-    explicit V4L2USBCamera(TFV_Id camera_id);
-    V4L2USBCamera(TFV_Id camera_id, size_t framewidth, size_t frameheight);
+    explicit V4L2USBCamera(TV_Id camera_id);
+    V4L2USBCamera(TV_Id camera_id, size_t framewidth, size_t frameheight);
     ~V4L2USBCamera(void) override final;
 
     bool open_device(void) override final;
     bool is_open(void) const override final;
     ColorSpace image_format(void) const override final {
-        return supported_codings_[coding_].tfv_id;
+        return supported_codings_[coding_].tv_id;
     }
 
     bool select_best_available_settings(void);
 
 protected:
-    bool retrieve_frame(tfv::ImageData** data) override final;
+    bool retrieve_frame(tv::ImageData** data) override final;
     void retrieve_properties(uint16_t& width, uint16_t& height,
                              size_t& frame_bytesize) override final;
     void close(void) override final;

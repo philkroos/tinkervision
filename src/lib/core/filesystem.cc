@@ -65,17 +65,17 @@ static std::string strip_extension(std::string const& filename,
     return std::string(filename.cbegin(), rev_it.base() - 1);
 }
 
-bool tfv::is_file(std::string const& fullname) {
+bool tv::is_file(std::string const& fullname) {
     struct stat buffer;
     return (stat(fullname.c_str(), &buffer) == 0) and S_ISREG(buffer.st_mode);
 }
 
-bool tfv::is_directory(std::string const& fullname) {
+bool tv::is_directory(std::string const& fullname) {
     struct stat buffer;
     return (stat(fullname.c_str(), &buffer) == 0) and S_ISDIR(buffer.st_mode);
 }
 
-void tfv::list_directory_content(
+void tv::list_directory_content(
     std::string const& directory, std::vector<std::string>& contents,
     std::function<bool(std::string const& filename,
                        std::string const& extension, bool is_regular_file)>

@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision/tv_module.hh"
 
-namespace tfv {
+namespace tv {
 class Dummy : public Analyzer {
 public:
     Dummy() : Analyzer("Dummy") {}

@@ -32,149 +32,149 @@ extern "C" {
 // General library functions
 //
 
-TFV_Result camera_available(void) {
-    tfv::Log("Tinkervision::CameraAvailable");
-    return tfv::get_api().is_camera_available();
+TV_Result camera_available(void) {
+    tv::Log("Tinkervision::CameraAvailable");
+    return tv::get_api().is_camera_available();
 }
 
-TFV_Result preselect_framesize(TFV_Size width, TFV_Size height) {
-    tfv::Log("Tinkervision::PreselectFramesize", width, " ", height);
-    return tfv::get_api().preselect_framesize(width, height);
+TV_Result preselect_framesize(TV_Size width, TV_Size height) {
+    tv::Log("Tinkervision::PreselectFramesize", width, " ", height);
+    return tv::get_api().preselect_framesize(width, height);
 }
 
-TFV_Result start_idle(void) {
-    tfv::Log("Tinkervision::StartIdle");
-    return tfv::get_api().start_idle();
+TV_Result start_idle(void) {
+    tv::Log("Tinkervision::StartIdle");
+    return tv::get_api().start_idle();
 }
 
-TFV_Result get_resolution(TFV_Size* width, TFV_Size* height) {
-    tfv::Log("Tinkervision::GetResolution");
+TV_Result get_resolution(TV_Size* width, TV_Size* height) {
+    tv::Log("Tinkervision::GetResolution");
 
-    return tfv::get_api().resolution(*width, *height);
+    return tv::get_api().resolution(*width, *height);
 }
 
-TFV_Result stop(void) {
-    tfv::Log("Tinkervision::Stop");
+TV_Result stop(void) {
+    tv::Log("Tinkervision::Stop");
 
-    return tfv::get_api().stop();
+    return tv::get_api().stop();
 }
 
-TFV_Result start(void) {
-    tfv::Log("Tinkervision::Start");
-    return tfv::get_api().start();
+TV_Result start(void) {
+    tv::Log("Tinkervision::Start");
+    return tv::get_api().start();
 }
 
-TFV_Result scene_from_module(TFV_Id module, TFV_Scene* scene_id) {
-    tfv::Log("Tinkervision::SceneFromModule", module, " ", scene_id);
-    return TFV_NOT_IMPLEMENTED;
-    // return tfv::get_api().scene_start(module, scene_id);
+TV_Result scene_from_module(TV_Id module, TV_Scene* scene_id) {
+    tv::Log("Tinkervision::SceneFromModule", module, " ", scene_id);
+    return TV_NOT_IMPLEMENTED;
+    // return tv::get_api().scene_start(module, scene_id);
 }
 
-TFV_Result scene_add_module(TFV_Scene scene, TFV_Id module) {
-    tfv::Log("Tinkervision::SceneAddModule", scene, " ", module);
-    return TFV_NOT_IMPLEMENTED;
-    // return tfv::get_api().add_to_scene(scene, module);
+TV_Result scene_add_module(TV_Scene scene, TV_Id module) {
+    tv::Log("Tinkervision::SceneAddModule", scene, " ", module);
+    return TV_NOT_IMPLEMENTED;
+    // return tv::get_api().add_to_scene(scene, module);
 }
 
-TFV_Result scene_remove(TFV_Scene scene) {
-    tfv::Log("Tinkervision::SceneRemove", scene);
-    return TFV_NOT_IMPLEMENTED;
-    // return tfv::get_api().scene_remove(scene);
+TV_Result scene_remove(TV_Scene scene) {
+    tv::Log("Tinkervision::SceneRemove", scene);
+    return TV_NOT_IMPLEMENTED;
+    // return tv::get_api().scene_remove(scene);
 }
 
-TFV_Result quit(void) {
-    tfv::Log("Tinkervision::Quit");
-    return tfv::get_api().quit();
+TV_Result quit(void) {
+    tv::Log("Tinkervision::Quit");
+    return tv::get_api().quit();
 }
 
-TFV_Result set_execution_latency(TFV_UInt milliseconds) {
-    tfv::Log("Tinkervision::SetExecutionLatency", milliseconds);
-    return tfv::get_api().set_execution_latency_ms(milliseconds);
+TV_Result set_execution_latency(TV_UInt milliseconds) {
+    tv::Log("Tinkervision::SetExecutionLatency", milliseconds);
+    return tv::get_api().set_execution_latency_ms(milliseconds);
 }
 
-TFV_String result_string(TFV_Result code) {
-    tfv::Log("Tinkervision::ResultString", code);
-    return tfv::get_api().result_string(code);
+TV_String result_string(TV_Result code) {
+    tv::Log("Tinkervision::ResultString", code);
+    return tv::get_api().result_string(code);
 }
 
-TFV_Result set_parameter(TFV_Id module_id, TFV_String const parameter,
-                         TFV_Int value) {
-    tfv::Log("Tinkervision::SetParameter", module_id, " ", parameter, " ",
-             value);
-    return tfv::get_api().set_parameter(module_id, parameter, value);
+TV_Result set_parameter(TV_Id module_id, TV_String const parameter,
+                        TV_Int value) {
+    tv::Log("Tinkervision::SetParameter", module_id, " ", parameter, " ",
+            value);
+    return tv::get_api().set_parameter(module_id, parameter, value);
 }
 
-TFV_Result get_parameter(TFV_Id module_id, TFV_String const parameter,
-                         TFV_Int* value) {
-    tfv::Log("Tinkervision::GetParameter", module_id, " ", parameter);
-    return tfv::get_api().get_parameter(module_id, parameter, value);
+TV_Result get_parameter(TV_Id module_id, TV_String const parameter,
+                        TV_Int* value) {
+    tv::Log("Tinkervision::GetParameter", module_id, " ", parameter);
+    return tv::get_api().get_parameter(module_id, parameter, value);
 }
 
-TFV_Result module_start(TFV_String name, TFV_Id* id) {
-    tfv::Log("Tinkervision::ModuleStart", name);
-    return tfv::get_api().module_load(name, *id);
+TV_Result module_start(TV_String name, TV_Id* id) {
+    tv::Log("Tinkervision::ModuleStart", name);
+    return tv::get_api().module_load(name, *id);
 }
 
-TFV_Result module_restart(TFV_Id id) {
-    tfv::Log("Tinkervision::ModuleRestart", id);
-    return tfv::get_api().module_start(id);
+TV_Result module_restart(TV_Id id) {
+    tv::Log("Tinkervision::ModuleRestart", id);
+    return tv::get_api().module_start(id);
 }
 
-TFV_Result module_stop(TFV_Id id) {
-    tfv::Log("Tinkervision::ModuleStop", id);
-    return tfv::get_api().module_stop(id);
+TV_Result module_stop(TV_Id id) {
+    tv::Log("Tinkervision::ModuleStop", id);
+    return tv::get_api().module_stop(id);
 }
 
-TFV_Result module_remove(TFV_Id id) {
-    tfv::Log("Tinkervision::ModuleRemove", id);
-    return tfv::get_api().module_destroy(id);
+TV_Result module_remove(TV_Id id) {
+    tv::Log("Tinkervision::ModuleRemove", id);
+    return tv::get_api().module_destroy(id);
 }
 
-TFV_Result module_get_name(TFV_Id module_id, TFV_CharArray name) {
-    tfv::Log("Tinkervision::ModuleGetName", module_id);
+TV_Result module_get_name(TV_Id module_id, TV_CharArray name) {
+    tv::Log("Tinkervision::ModuleGetName", module_id);
     std::string module_name;
-    auto err = tfv::get_api().module_get_name(module_id, module_name);
-    if (err == TFV_OK) {
-        std::strncpy(name, module_name.c_str(), TFV_CHAR_ARRAY_SIZE - 1);
-        name[TFV_CHAR_ARRAY_SIZE - 1] = '\0';
+    auto err = tv::get_api().module_get_name(module_id, module_name);
+    if (err == TV_OK) {
+        std::strncpy(name, module_name.c_str(), TV_CHAR_ARRAY_SIZE - 1);
+        name[TV_CHAR_ARRAY_SIZE - 1] = '\0';
     }
     return err;
 }
 
-TFV_Result module_enumerate_parameters(TFV_Id module_id,
-                                       TFV_StringCallback callback,
-                                       TFV_Context context) {
-    tfv::Log("Tinkervision::ModuleEnumerateParameters", module_id);
-    return tfv::get_api().module_enumerate_parameters(module_id, callback,
-                                                      context);
+TV_Result module_enumerate_parameters(TV_Id module_id,
+                                      TV_StringCallback callback,
+                                      TV_Context context) {
+    tv::Log("Tinkervision::ModuleEnumerateParameters", module_id);
+    return tv::get_api().module_enumerate_parameters(module_id, callback,
+                                                     context);
 }
 
-TFV_Result enumerate_available_modules(TFV_StringCallback callback,
-                                       TFV_Context context) {
-    tfv::Log("Tinkervision::EnumerateAvailableModules");
-    return tfv::get_api().enumerate_available_modules(callback, context);
+TV_Result enumerate_available_modules(TV_StringCallback callback,
+                                      TV_Context context) {
+    tv::Log("Tinkervision::EnumerateAvailableModules");
+    return tv::get_api().enumerate_available_modules(callback, context);
 }
 
 //
 // Callbacks
 //
 
-TFV_Result set_callback(TFV_Id module, TFV_Callback callback) {
-    tfv::Log("Tinkervision::SetCallback", module);
-    return tfv::get_api().callback_set(module, callback);
+TV_Result set_callback(TV_Id module, TV_Callback callback) {
+    tv::Log("Tinkervision::SetCallback", module);
+    return tv::get_api().callback_set(module, callback);
 }
 
-TFV_Result enable_default_callback(TFV_Callback callback) {
-    tfv::Log("Tinkervision::EnableDefaultCallback");
-    return tfv::get_api().callback_default(callback);
+TV_Result enable_default_callback(TV_Callback callback) {
+    tv::Log("Tinkervision::EnableDefaultCallback");
+    return tv::get_api().callback_default(callback);
 }
 
 //
 // Accessors for the same data provided by the callbacks
 //
 
-TFV_Result get_result(TFV_Id module, TFV_ModuleResult* result) {
-    tfv::Log("Tinkervision::GetResult", module);
-    return tfv::get_api().get_result(module, *result);
+TV_Result get_result(TV_Id module, TV_ModuleResult* result) {
+    tv::Log("Tinkervision::GetResult", module);
+    return tv::get_api().get_result(module, *result);
 }
 }

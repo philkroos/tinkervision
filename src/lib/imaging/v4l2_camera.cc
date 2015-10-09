@@ -62,19 +62,19 @@ static auto open = v4l2_open;
 static auto close = v4l2_close;
 }
 
-tfv::V4L2USBCamera::V4L2USBCamera(TFV_Id camera_id) : Camera(camera_id) {
+tv::V4L2USBCamera::V4L2USBCamera(TV_Id camera_id) : Camera(camera_id) {
     // zero-initialize buffers for the frames to be grabbed
     frames_ = new v4l2::Frame[request_buffer_count_ * sizeof(v4l2::Frame)]();
 }
 
-tfv::V4L2USBCamera::V4L2USBCamera(TFV_Id camera_id, size_t framewidth,
-                                  size_t frameheight)
+tv::V4L2USBCamera::V4L2USBCamera(TV_Id camera_id, size_t framewidth,
+                                 size_t frameheight)
     : Camera(camera_id, framewidth, frameheight) {
     // zero-initialize buffers for the frames to be grabbed
     frames_ = new v4l2::Frame[request_buffer_count_ * sizeof(v4l2::Frame)]();
 }
 
-tfv::V4L2USBCamera::~V4L2USBCamera(void) {
+tv::V4L2USBCamera::~V4L2USBCamera(void) {
 
     close();
 
@@ -89,9 +89,9 @@ tfv::V4L2USBCamera::~V4L2USBCamera(void) {
     delete[] frames_;
 }
 
-bool tfv::V4L2USBCamera::is_open(void) const { return device_ != 0; }
+bool tv::V4L2USBCamera::is_open(void) const { return device_ != 0; }
 
-bool tfv::V4L2USBCamera::open_device(void) {
+bool tv::V4L2USBCamera::open_device(void) {
     if (is_open()) {
         return true;
     }
@@ -119,9 +119,9 @@ bool tfv::V4L2USBCamera::open_device(void) {
     return is_open();
 }
 
-void tfv::V4L2USBCamera::retrieve_properties(uint16_t& framewidth,
-                                             uint16_t& frameheight,
-                                             size_t& frame_bytesize) {
+void tv::V4L2USBCamera::retrieve_properties(uint16_t& framewidth,
+                                            uint16_t& frameheight,
+                                            size_t& frame_bytesize) {
 
     if (not frame_width_ and is_open()) {
         _retrieve_properties();
@@ -132,7 +132,7 @@ void tfv::V4L2USBCamera::retrieve_properties(uint16_t& framewidth,
     frame_bytesize = frame_bytesize_;
 }
 
-void tfv::V4L2USBCamera::_retrieve_properties(void) {
+void tv::V4L2USBCamera::_retrieve_properties(void) {
 
     if (not frame_width_ and is_open()) {
         v4l2::Format format;
@@ -149,7 +149,7 @@ void tfv::V4L2USBCamera::_retrieve_properties(void) {
     }
 }
 
-bool tfv::V4L2USBCamera::_select_requested_settings(void) {
+bool tv::V4L2USBCamera::_select_requested_settings(void) {
     auto ok = false;
 
     if (is_open()) {  // Todo: errornumber?
@@ -177,7 +177,7 @@ bool tfv::V4L2USBCamera::_select_requested_settings(void) {
     // return ok or select_best_available_settings(); ?
 }
 
-bool tfv::V4L2USBCamera::select_best_available_settings(void) {
+bool tv::V4L2USBCamera::select_best_available_settings(void) {
     auto result = false;
 
     if (is_open()) {  // Todo: errornumber?
@@ -202,9 +202,9 @@ bool tfv::V4L2USBCamera::select_best_available_settings(void) {
     return result;
 }
 
-bool tfv::V4L2USBCamera::_set_format_and_resolution(v4l2::Format& format,
-                                                    size_t format_index,
-                                                    size_t resolution_index) {
+bool tv::V4L2USBCamera::_set_format_and_resolution(v4l2::Format& format,
+                                                   size_t format_index,
+                                                   size_t resolution_index) {
     auto& px_format = format.fmt.pix;
     px_format.width = supported_resolutions_[resolution_index].width;
     px_format.height = supported_resolutions_[resolution_index].height;
@@ -222,7 +222,7 @@ bool tfv::V4L2USBCamera::_set_format_and_resolution(v4l2::Format& format,
            (resolution_ == static_cast<int>(resolution_index));
 }
 
-bool tfv::V4L2USBCamera::_set_best_format_and_resolution(v4l2::Format& format) {
+bool tv::V4L2USBCamera::_set_best_format_and_resolution(v4l2::Format& format) {
 
     auto& px_format = format.fmt.pix;
 
@@ -261,7 +261,7 @@ bool tfv::V4L2USBCamera::_set_best_format_and_resolution(v4l2::Format& format) {
     return resolution_ != -1 and coding_ != -1;
 }
 
-bool tfv::V4L2USBCamera::_set_highest_framerate(v4l2::PixelFormat& px_format) {
+bool tv::V4L2USBCamera::_set_highest_framerate(v4l2::PixelFormat& px_format) {
     // Assumes already selected framesize
 
     // if not supported by device, just use current setting
@@ -328,7 +328,7 @@ bool tfv::V4L2USBCamera::_set_highest_framerate(v4l2::PixelFormat& px_format) {
     return result;
 }
 
-void tfv::V4L2USBCamera::close(void) {
+void tv::V4L2USBCamera::close(void) {
     if (is_open()) {
         if (device_) {
             (void)io_operation(device_, v4l2::stream_off, &buffer_type_);
@@ -342,7 +342,7 @@ void tfv::V4L2USBCamera::close(void) {
     running_ = false;
 }
 
-bool tfv::V4L2USBCamera::retrieve_frame(tfv::ImageData** data) {
+bool tv::V4L2USBCamera::retrieve_frame(tv::ImageData** data) {
     auto result = false;
 
     fd_set fds;
@@ -370,13 +370,13 @@ bool tfv::V4L2USBCamera::retrieve_frame(tfv::ImageData** data) {
     }
 
     if (result) {
-        *data = static_cast<TFV_ImageData*>(frames_[buffer_.index].start);
+        *data = static_cast<TV_ImageData*>(frames_[buffer_.index].start);
     }
 
     return result;
 }
 
-bool tfv::V4L2USBCamera::_start_capturing(void) {
+bool tv::V4L2USBCamera::_start_capturing(void) {
     auto result = false;
 
     if (is_open() and _init_request_buffers()) {
@@ -429,7 +429,7 @@ bool tfv::V4L2USBCamera::_start_capturing(void) {
     return result;
 }
 
-bool tfv::V4L2USBCamera::_init_request_buffers(void) {
+bool tv::V4L2USBCamera::_init_request_buffers(void) {
     std::memset(&request_buffers_, 0, sizeof(request_buffers_));
     request_buffers_.count = request_buffer_count_;
     request_buffers_.type = buffer_type_;
@@ -437,14 +437,14 @@ bool tfv::V4L2USBCamera::_init_request_buffers(void) {
     return io_operation(device_, v4l2::request_buffers, &request_buffers_);
 }
 
-inline void tfv::V4L2USBCamera::_init_info_buffer(int index) {
+inline void tv::V4L2USBCamera::_init_info_buffer(int index) {
     std::memset(&buffer_, 0, sizeof(v4l2::Buffer));
     buffer_.type = buffer_type_;
     buffer_.memory = buffer_memory_;
     buffer_.index = index;
 }
 
-int tfv::V4L2USBCamera::_capture_frame_byte_size(void) {
+int tv::V4L2USBCamera::_capture_frame_byte_size(void) {
     v4l2::Format format;
 
     format.type = buffer_type_;

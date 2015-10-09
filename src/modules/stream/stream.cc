@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 DEFINE_VISION_MODULE(Stream)
 
-tfv::Stream::~Stream(void) {
+tv::Stream::~Stream(void) {
     killswitch_ = 1;
     context_.quit = true;
 
@@ -35,7 +35,7 @@ tfv::Stream::~Stream(void) {
     streamer_.get();
 }
 
-tfv::Stream::Stream() : Publisher("Stream"), context_(ExecutionContext::get()) {
+tv::Stream::Stream() : Publisher("Stream"), context_(ExecutionContext::get()) {
 
     task_scheduler_ = BasicTaskScheduler::createNew();
 
@@ -52,13 +52,13 @@ tfv::Stream::Stream() : Publisher("Stream"), context_(ExecutionContext::get()) {
                                              streamname_, streamtypename_);
 }
 
-void tfv::Stream::execute(tfv::ImageHeader const& header, ImageData const* data) {
+void tv::Stream::execute(tv::ImageHeader const& header, ImageData const* data) {
     if (not subsession_) {
 
         context_.encoder.initialize(image.width, image.height, 10);  // FPS!
 
         subsession_ =
-            tfv::H264MediaSession::createNew(*usage_environment_, context_);
+            tv::H264MediaSession::createNew(*usage_environment_, context_);
 
         session_->addSubsession(subsession_);
         rtsp_server_->addServerMediaSession(session_);

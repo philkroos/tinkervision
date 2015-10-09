@@ -24,9 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tinkervision/tinkervision.h"
 
 int main(int argc, char* argv[]) {
-    TFV_Id id = 0;
-    TFV_Result result = TFV_INTERNAL_ERROR;
-    TFV_Word factor = 1;
+    TV_Id id = 0;
+    TV_Result result = TV_INTERNAL_ERROR;
+    TV_Word factor = 1;
 
     result = camera_available();
     if (result != 0) {

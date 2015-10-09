@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 DEFINE_VISION_MODULE(Colormatch)
 
-void tfv::Colormatch::execute(tfv::ImageHeader const& header,
-                              ImageData const* data) {
+void tv::Colormatch::execute(tv::ImageHeader const& header,
+                             ImageData const* data) {
 
     Log("COLORMATCH", "execute");
     cv::Mat cv_image(header.height, header.width, CV_8UC3);

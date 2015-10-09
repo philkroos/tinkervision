@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision/tv_module.hh"
 
-namespace tfv {
+namespace tv {
 
 struct Downscale : public Modifier {
 private:
@@ -41,8 +41,8 @@ public:
 
     void get_header(ImageHeader const& ref, ImageHeader& output) override final;
 
-    void execute(tfv::ImageHeader const& header, tfv::ImageData const* data,
-                 tfv::Image& output) override final;
+    void execute(tv::ImageHeader const& header, tv::ImageData const* data,
+                 tv::Image& output) override final;
 
     ColorSpace expected_format(void) const override final {
         return ColorSpace::BGR888;
@@ -57,7 +57,7 @@ public:
         return parameter == "factor";
     }
 
-    bool set(std::string const& parameter, TFV_Word value) override final {
+    bool set(std::string const& parameter, TV_Word value) override final {
         if ((parameter != "factor") or (value < 0) or (value > max_factor_)) {
             return false;
         }
@@ -66,9 +66,9 @@ public:
         return true;
     }
 
-    TFV_Word get(std::string const& parameter) override final {
+    TV_Word get(std::string const& parameter) override final {
         if (parameter == "factor") {
-            return static_cast<TFV_Word>(factor_);
+            return static_cast<TV_Word>(factor_);
         }
         return 0;
     }

@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 static IplImage* image = NULL;
 
-void tfv_callback(TFV_Id id, TFV_ModuleResult result, TFV_Context context) {
+void tv_callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
 
     int thickness = 2;
     int linetype = CV_AA;
@@ -52,15 +52,15 @@ void tfv_callback(TFV_Id id, TFV_ModuleResult result, TFV_Context context) {
 int main(int argc, char* argv[]) {
 
     /* Framedimensions */
-    TFV_Size width, height;
+    TV_Size width, height;
 
     /* Runtime of program */
     int runtime = 20;
 
-    TFV_Id module_id = 0;
+    TV_Id module_id = 0;
 
     /* Start an idle process in the api to get access to the frame parameters */
-    TFV_Result result = start_idle();
+    TV_Result result = start_idle();
 
     if (result) {
         printf("Starting the idle process failed with %d: %s\n", result,
@@ -81,12 +81,12 @@ int main(int argc, char* argv[]) {
 
     result = module_start("motiondetect", &module_id);
 
-    if (result != TFV_OK) {
+    if (result != TV_OK) {
         printf("Error - could not start the motiondetector: %d (%s)\n", result,
                result_string(result));
     }
 
-    result = set_callback(module_id, tfv_callback);
+    result = set_callback(module_id, tv_callback);
 
     if (!result) {
         printf(

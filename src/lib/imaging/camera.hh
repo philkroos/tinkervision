@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tinkervision_defines.h"
 #include "image.hh"
 
-namespace tfv {
+namespace tv {
 
 class Camera {
 public:
@@ -43,9 +43,9 @@ public:
     virtual ColorSpace image_format(void) const = 0;
 
 protected:
-    explicit Camera(TFV_Id camera_id);
-    Camera(TFV_Id camera_id, uint16_t framewidth, uint16_t frameheight);
-    TFV_Id camera_id_;
+    explicit Camera(TV_Id camera_id);
+    Camera(TV_Id camera_id, uint16_t framewidth, uint16_t frameheight);
+    TV_Id camera_id_;
 
     bool requested_settings(void) const { return requested_width_ != 0; }
 
@@ -56,7 +56,7 @@ protected:
     // These are Template Methods, see implementation
     // of the corresponding get_ methods.
     virtual bool open_device(void) = 0;
-    virtual bool retrieve_frame(tfv::ImageData** data) = 0;
+    virtual bool retrieve_frame(tv::ImageData** data) = 0;
     virtual void retrieve_properties(uint16_t& width, uint16_t& height,
                                      size_t& framebytesize) = 0;
     virtual void close(void) = 0;

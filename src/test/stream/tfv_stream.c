@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tinkervision/tinkervision.h"
 
 int main(int argc, char* argv[]) {
-    TFV_Id id;
-    TFV_Result result = module_start("stream", &id);
+    TV_Id id;
+    TV_Result result = module_start("stream", &id);
     printf("Started streamer with result %d: %s\n", result,
            result_string(result));
 

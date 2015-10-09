@@ -8,7 +8,7 @@
 #include "convert.hh"
 #include "testwindow.hh"
 
-void print_max_and_min_yuv(TFV_ImageData* data, size_t width, size_t height) {
+void print_max_and_min_yuv(TV_ImageData* data, size_t width, size_t height) {
 
     auto y = data;
     auto u = y + 1;
@@ -75,15 +75,14 @@ int main() {
     auto width = 1280;
     auto height = 720;
 
-    tfv::ImageAllocator original;
+    tv::ImageAllocator original;
 
     auto bytesize = size_t(width * height * 2);
 
     if (yuyv.is_open() and size_t(yuyv.tellg()) == bytesize) {
 
         // data managed by image
-        original.allocate(width, height, bytesize, tfv::ColorSpace::YUYV,
-                          false);
+        original.allocate(width, height, bytesize, tv::ColorSpace::YUYV, false);
         yuyv.seekg(0, std::ios::beg);
         yuyv.read((char*)original.image().data, bytesize);
         yuyv.close();
@@ -98,31 +97,31 @@ int main() {
     auto& image = original.image();
     print_max_and_min_yuv(image.data, header.width, header.height);
 
-    tfv::Window window;
-    TFV_Id win_id = 1;
+    tv::Window window;
+    TV_Id win_id = 1;
 
     auto yuyvToYv12_converter =
-        tfv::Converter(tfv::ColorSpace::YUYV, tfv::ColorSpace::YV12);
+        tv::Converter(tv::ColorSpace::YUYV, tv::ColorSpace::YV12);
     auto yuyvToRgb_converter =
-        tfv::Converter(tfv::ColorSpace::YUYV, tfv::ColorSpace::RGB888);
+        tv::Converter(tv::ColorSpace::YUYV, tv::ColorSpace::RGB888);
     auto yv12ToRgb_converter =
-        tfv::Converter(tfv::ColorSpace::YV12, tfv::ColorSpace::RGB888);
+        tv::Converter(tv::ColorSpace::YV12, tv::ColorSpace::RGB888);
     auto bgrToRgb_converter =
-        tfv::Converter(tfv::ColorSpace::BGR888, tfv::ColorSpace::RGB888);
+        tv::Converter(tv::ColorSpace::BGR888, tv::ColorSpace::RGB888);
     auto yuyvToBgr_converter =
-        tfv::Converter(tfv::ColorSpace::YUYV, tfv::ColorSpace::BGR888);
+        tv::Converter(tv::ColorSpace::YUYV, tv::ColorSpace::BGR888);
     auto yv12ToBgr_converter =
-        tfv::Converter(tfv::ColorSpace::YV12, tfv::ColorSpace::BGR888);
+        tv::Converter(tv::ColorSpace::YV12, tv::ColorSpace::BGR888);
     auto rgbToBgr_converter =
-        tfv::Converter(tfv::ColorSpace::RGB888, tfv::ColorSpace::BGR888);
+        tv::Converter(tv::ColorSpace::RGB888, tv::ColorSpace::BGR888);
     auto bgrToYv12_converter =
-        tfv::Converter(tfv::ColorSpace::BGR888, tfv::ColorSpace::YV12);
+        tv::Converter(tv::ColorSpace::BGR888, tv::ColorSpace::YV12);
     auto bgrToGray_converter =
-        tfv::Converter(tfv::ColorSpace::BGR888, tfv::ColorSpace::GRAY);
+        tv::Converter(tv::ColorSpace::BGR888, tv::ColorSpace::GRAY);
     auto grayToBgr_converter =
-        tfv::Converter(tfv::ColorSpace::GRAY, tfv::ColorSpace::BGR888);
+        tv::Converter(tv::ColorSpace::GRAY, tv::ColorSpace::BGR888);
 
-    // operator() returns tfv::Image
+    // operator() returns tv::Image
     auto& yuyvToYv12_result = yuyvToYv12_converter(original);
     auto& yuyvToRgb_result = yuyvToRgb_converter(original);
     auto& yv12ToRgb_result = yv12ToRgb_converter(yuyvToYv12_result);

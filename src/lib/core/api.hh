@@ -47,14 +47,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "window.hh"
 #include "logger.hh"
 
-namespace tfv {
+namespace tv {
 
 /** Defines the public api of the Tinkervision library.
  */
 class Api {
 private:
     Api(void);
-    friend tfv::Api& get_api(void);
+    friend tv::Api& get_api(void);
     bool active(void) const { return active_; }
     bool active_modules(void) const { return modules_.size(); }
 
@@ -69,9 +69,9 @@ public:
      * necessary if the Api had been stopped.  The method is
      * automatically called during construction of the Api.
      * \sa stop()
-     * \return #TFV_OK if execution started successfully.
+     * \return #TV_OK if execution started successfully.
      */
-    TFV_Result start(void);
+    TV_Result start(void);
 
     /**
      * Halts (pauses) execution of the main-loop.  This will not do
@@ -84,10 +84,10 @@ public:
      * registered. They will start execution once start() is called.
      * \sa quit() If the whole thing shall be stopped.
      * \return A result code:
-     *     - #TFV_OK when execution halted successfully.
-     *     - #TFV_EXEC_THREAD_FAILURE when the thread is still running.
+     *     - #TV_OK when execution halted successfully.
+     *     - #TV_EXEC_THREAD_FAILURE when the thread is still running.
      */
-    TFV_Result stop(void);
+    TV_Result stop(void);
 
     /**
      * Stops and removes all running modules.  This is not necessary
@@ -101,23 +101,23 @@ public:
      *
      * \sa  start()
      * \return A result code:
-     *     - #TFV_OK when execution halted successfully.
-     *     - #TFV_EXEC_THREAD_FAILURE when the thread is still running.
+     *     - #TV_OK when execution halted successfully.
+     *     - #TV_EXEC_THREAD_FAILURE when the thread is still running.
      */
-    TFV_Result quit(void);
+    TV_Result quit(void);
 
     /**
      * Preselect the framesize. This can only be successfull if the camera is
      * not active currently, i.e. if the API is in a stopped state and no module
      * is active.
      * \return
-     * - #TFV_CAMERA_SETTINGS_FAILED if there are active modules already
-     * - #TFV_OK else
+     * - #TV_CAMERA_SETTINGS_FAILED if there are active modules already
+     * - #TV_OK else
      */
-    TFV_Result preselect_framesize(TFV_Size width, TFV_Size height) {
+    TV_Result preselect_framesize(TV_Size width, TV_Size height) {
         return camera_control_.preselect_framesize(width, height)
-                   ? TFV_OK
-                   : TFV_CAMERA_SETTINGS_FAILED;
+                   ? TV_OK
+                   : TV_CAMERA_SETTINGS_FAILED;
     }
 
     /**
@@ -131,52 +131,51 @@ public:
      * called.  Also, the process will only be started once,
      * no matter how often this method gets called.
      *
-     * \return #TFV_OK if the process is running afterwards
+     * \return #TV_OK if the process is running afterwards
      */
-    TFV_Result start_idle(void) {
-        auto result = TFV_OK;  // optimistic because startable only once
+    TV_Result start_idle(void) {
+        auto result = TV_OK;  // optimistic because startable only once
 
         if (not idle_process_running_) {
             result = _module_load("dummy", _next_internal_id());
         }
-        idle_process_running_ = (result == TFV_OK);
+        idle_process_running_ = (result == TV_OK);
         return result;
     }
 
     /// Load a module by its basename under the given id.
-    TFV_Result module_load(std::string const& name, TFV_Id& id) {
+    TV_Result module_load(std::string const& name, TV_Id& id) {
         auto module_id = _next_public_id();
 
-        assert(module_id < std::numeric_limits<TFV_Id>::max() and
-               module_id > 0);
+        assert(module_id < std::numeric_limits<TV_Id>::max() and module_id > 0);
 
-        auto result = _module_load(name, static_cast<TFV_Int>(module_id));
+        auto result = _module_load(name, static_cast<TV_Int>(module_id));
 
-        if (TFV_INVALID_ID == result) {
+        if (TV_INVALID_ID == result) {
             // this is an unhandled id clash, see _next_public_id
-            result = TFV_INTERNAL_ERROR;
+            result = TV_INTERNAL_ERROR;
         }
 
-        if (TFV_OK == result) {
-            id = static_cast<TFV_Id>(module_id);
+        if (TV_OK == result) {
+            id = static_cast<TV_Id>(module_id);
         }
         return result;
     }
 
     /** Deactivate and remove a module.
      * \return
-     *   - #TFV_NOT_IMPLEMENTED if scenes are active
-     *   - #TFV_INVALID_ID if the module does not exist
-     *   - #TFV_OK if removal succeeded.
+     *   - #TV_NOT_IMPLEMENTED if scenes are active
+     *   - #TV_INVALID_ID if the module does not exist
+     *   - #TV_OK if removal succeeded.
      *
      * The method will succeed if:
      */
-    TFV_Result module_destroy(TFV_Id id) {
+    TV_Result module_destroy(TV_Id id) {
         Log("API", "Destroying module ", id);
 
         /// - no scenes are active (currently). Then,
         if (_scenes_active()) {
-            return TFV_NOT_IMPLEMENTED;
+            return TV_NOT_IMPLEMENTED;
         }
 
         /// the module will be disabled and registered for removal which will
@@ -184,39 +183,39 @@ public:
         /// \todo Is a two-stage-removal process still necessary now that
         /// the allocation stage was removed from SharedResource? Not sure,
         /// probably not.
-        return modules_.exec_one(id, [this](tfv::Module& module) {
+        return modules_.exec_one(id, [this](tv::Module& module) {
             module.disable();
             module.tag(Module::Tag::Removable);
             camera_control_.release();
-            return TFV_OK;
+            return TV_OK;
         });
     }
 
-    TFV_Result set_parameter(TFV_Id module_id, std::string parameter,
-                             TFV_Word value) {
+    TV_Result set_parameter(TV_Id module_id, std::string parameter,
+                            TV_Word value) {
 
         return modules_.exec_one(module_id, [&](Module& module) {
             if (not module.has_parameter(parameter)) {
-                return TFV_MODULE_NO_SUCH_PARAMETER;
+                return TV_MODULE_NO_SUCH_PARAMETER;
             }
             if (not module.set_parameter(parameter, value)) {
-                return TFV_MODULE_ERROR_SETTING_PARAMETER;
+                return TV_MODULE_ERROR_SETTING_PARAMETER;
             }
-            return TFV_OK;
+            return TV_OK;
         });
     }
 
-    TFV_Result get_parameter(TFV_Id module_id, std::string parameter,
-                             TFV_Word* value) {
+    TV_Result get_parameter(TV_Id module_id, std::string parameter,
+                            TV_Word* value) {
 
         return modules_.exec_one(module_id, [&](Module& module) {
             if (not module.has_parameter(parameter)) {
-                return TFV_MODULE_NO_SUCH_PARAMETER;
+                return TV_MODULE_NO_SUCH_PARAMETER;
             }
 
             module.get_parameter(parameter, *value);
 
-            return TFV_OK;
+            return TV_OK;
         });
     }
 
@@ -228,17 +227,17 @@ public:
      * \param[in] id The id of the module to start.
      *
      * \return
-     * - #TFV_INVALID_ID if no module is registered with
+     * - #TV_INVALID_ID if no module is registered with
      *   the given id.
-     * - #TFV_CAMERA_ACQUISATION_FAILED if the
+     * - #TV_CAMERA_ACQUISATION_FAILED if the
      *   camera is not available
-     * - #TFV_OK iff the module is running after returning.
+     * - #TV_OK iff the module is running after returning.
      */
-    TFV_Result module_start(TFV_Id module_id) {
-        auto id = static_cast<TFV_Int>(module_id);
+    TV_Result module_start(TV_Id module_id) {
+        auto id = static_cast<TV_Int>(module_id);
 
         if (not modules_.managed(id)) {
-            return TFV_INVALID_ID;
+            return TV_INVALID_ID;
         }
 
         return _enable_module(module_id);
@@ -259,16 +258,16 @@ public:
      *associated
      * module has to match Module.
      * \return
-     *  - #TFV_OK if the module was stopped and marked for removal
-     *  - #TFV_INVALID_ID if the id is not registered
+     *  - #TV_OK if the module was stopped and marked for removal
+     *  - #TV_INVALID_ID if the id is not registered
      */
-    TFV_Result module_stop(TFV_Id module_id) {
+    TV_Result module_stop(TV_Id module_id) {
         Log("API", "Stopping module ", module_id);
 
-        auto id = static_cast<TFV_Int>(module_id);
+        auto id = static_cast<TV_Int>(module_id);
 
         if (not modules_.managed(id)) {
-            return TFV_INVALID_ID;
+            return TV_INVALID_ID;
         }
 
         return _disable_module(module_id);
@@ -279,19 +278,18 @@ public:
      * \param[in] code The return code to be represented as string.
      * \return The string representing code
      */
-    TFV_String result_string(TFV_Result code) const {
+    TV_String result_string(TV_Result code) const {
         return result_string_map_[code];
     }
 
     /**
      * Check if a camera is available in the system.
      * \return
-     *  - #TFV_CAMERA_NOT_AVAILABLE if the camera is not available,
-     *  - #TFV_OK else
+     *  - #TV_CAMERA_NOT_AVAILABLE if the camera is not available,
+     *  - #TV_OK else
      */
-    TFV_Result is_camera_available(void) {
-        return camera_control_.is_available() ? TFV_OK
-                                              : TFV_CAMERA_NOT_AVAILABLE;
+    TV_Result is_camera_available(void) {
+        return camera_control_.is_available() ? TV_OK : TV_CAMERA_NOT_AVAILABLE;
     }
 
     /**
@@ -302,13 +300,13 @@ public:
      * \param[out] width The framewidth in pixels
      * \param[out] width The frameheight in pixels
      * \return
-     *  - #TFV_CAMERA_NOT_AVAILABLE if the camera is not open
-     *  - #TFV_OK else.
+     *  - #TV_CAMERA_NOT_AVAILABLE if the camera is not open
+     *  - #TV_OK else.
      */
-    TFV_Result resolution(TFV_Size& width, TFV_Size& height) {
+    TV_Result resolution(TV_Size& width, TV_Size& height) {
         return camera_control_.get_resolution(width, height)
-                   ? TFV_OK
-                   : TFV_CAMERA_NOT_AVAILABLE;
+                   ? TV_OK
+                   : TV_CAMERA_NOT_AVAILABLE;
     }
 
     /**
@@ -323,71 +321,71 @@ public:
      * hardcoded (with the value set here being used if larger).
      * \param ms The duration of the pauses in milliseconds.
      */
-    TFV_Result set_execution_latency_ms(TFV_UInt ms) {
-        execution_latency_ms_ = std::min(TFV_UInt(20), ms);
-        return TFV_OK;
+    TV_Result set_execution_latency_ms(TV_UInt ms) {
+        execution_latency_ms_ = std::min(TV_UInt(20), ms);
+        return TV_OK;
     }
 
     /**
      * Start a scene which is a directed chain of modules.
      */
-    TFV_Result scene_start(TFV_Id module_id, TFV_Scene* scene_id) {
+    TV_Result scene_start(TV_Id module_id, TV_Scene* scene_id) {
         Log("API", "Starting scene");
 
         if (not modules_.managed(module_id)) {
-            return TFV_INVALID_ID;
+            return TV_INVALID_ID;
         }
 
         if (modules_[module_id]->tags() & Module::Tag::ExecAndRemove or
             modules_[module_id]->tags() & Module::Tag::Removable) {
-            return TFV_NOT_IMPLEMENTED;
+            return TV_NOT_IMPLEMENTED;
         }
 
         *scene_id = _next_scene_id();
         return scene_trees_.scene_start(*scene_id, module_id);
     }
 
-    TFV_Result scene_remove(TFV_Scene scene_id) {
+    TV_Result scene_remove(TV_Scene scene_id) {
         Log("API", "Removing scene");
-        return TFV_NOT_IMPLEMENTED;
+        return TV_NOT_IMPLEMENTED;
     }
 
-    TFV_Result add_to_scene(TFV_Scene scene_id, TFV_Int module_id) {
+    TV_Result add_to_scene(TV_Scene scene_id, TV_Int module_id) {
         Log("API", "Add to scene: ", module_id, " -> ", scene_id);
 
         if (modules_[module_id]->tags() & Module::Tag::ExecAndRemove or
             modules_[module_id]->tags() & Module::Tag::Removable) {
-            return TFV_NOT_IMPLEMENTED;
+            return TV_NOT_IMPLEMENTED;
         }
 
         // \todo If adding the scene fails the module has to be in the
         // same state as before.
         auto result = _enable_module(module_id);
-        if (result != TFV_OK) {
+        if (result != TV_OK) {
             return result;
         }
 
         return scene_trees_.add_to_scene(scene_id, module_id);
     }
 
-    TFV_Result scene_disable(TFV_Scene scene_id) { return TFV_NOT_IMPLEMENTED; }
+    TV_Result scene_disable(TV_Scene scene_id) { return TV_NOT_IMPLEMENTED; }
 
-    TFV_Result scene_enable(TFV_Scene scene_id) { return TFV_NOT_IMPLEMENTED; }
+    TV_Result scene_enable(TV_Scene scene_id) { return TV_NOT_IMPLEMENTED; }
 
-    TFV_Result module_get_name(TFV_Id module_id, std::string& name) const {
+    TV_Result module_get_name(TV_Id module_id, std::string& name) const {
         if (not modules_.managed(module_id)) {
-            return TFV_INVALID_ID;
+            return TV_INVALID_ID;
         }
 
         name = modules_[module_id].name();
-        return TFV_OK;
+        return TV_OK;
     }
 
-    TFV_Result module_enumerate_parameters(TFV_Id module_id,
-                                           TFV_StringCallback callback,
-                                           TFV_Context context) const {
+    TV_Result module_enumerate_parameters(TV_Id module_id,
+                                          TV_StringCallback callback,
+                                          TV_Context context) const {
         if (not modules_.managed(module_id)) {
-            return TFV_INVALID_ID;
+            return TV_INVALID_ID;
         }
 
         std::vector<std::string> parameters;
@@ -402,11 +400,11 @@ public:
                         }).detach();
         }
 
-        return TFV_OK;
+        return TV_OK;
     }
 
-    TFV_Result enumerate_available_modules(TFV_StringCallback callback,
-                                           TFV_Context context) {
+    TV_Result enumerate_available_modules(TV_StringCallback callback,
+                                          TV_Context context) {
         std::thread([&, callback, context](void) {
                         std::vector<std::string> modules;
                         module_loader_.list_available_modules(modules);
@@ -416,16 +414,16 @@ public:
                         callback(0, "", context);
                     }).detach();
 
-        return TFV_OK;
+        return TV_OK;
     }
 
-    TFV_Result callback_set(TFV_Id module_id, TFV_Callback callback) {
+    TV_Result callback_set(TV_Id module_id, TV_Callback callback) {
         if (default_callback_ != nullptr) {
-            return TFV_GLOBAL_CALLBACK_ACTIVE;
+            return TV_GLOBAL_CALLBACK_ACTIVE;
         }
 
         if (not modules_[module_id]) {
-            return TFV_INVALID_ID;
+            return TV_INVALID_ID;
         }
 
         auto& module = *modules_[module_id];
@@ -433,42 +431,42 @@ public:
         if (not module.register_callback(callback)) {
             LogError("API", "Could not set callback for module ",
                      module.name());
-            return TFV_INTERNAL_ERROR;
+            return TV_INTERNAL_ERROR;
         }
 
-        return TFV_OK;
+        return TV_OK;
     }
 
-    TFV_Result callback_default(TFV_Callback callback) {
+    TV_Result callback_default(TV_Callback callback) {
         default_callback_ = callback;
-        return TFV_OK;
+        return TV_OK;
     }
 
-    TFV_Result get_result(TFV_Id module_id, TFV_ModuleResult& result) {
+    TV_Result get_result(TV_Id module_id, TV_ModuleResult& result) {
         Log("API", "Getting result from module ", module_id);
 
         return modules_.exec_one(module_id, [&](Module& module) {
             auto res = module.result();
             if (res == nullptr) {
-                return TFV_RESULT_NOT_AVAILABLE;
+                return TV_RESULT_NOT_AVAILABLE;
             }
             result.x = res->x;
             result.y = res->y;
             result.width = res->width;
             result.height = res->height;
             std::strncpy(result.string, res->result.c_str(),
-                         TFV_CHAR_ARRAY_SIZE - 1);
+                         TV_CHAR_ARRAY_SIZE - 1);
             std::fill(result.string + res->result.size(),
-                      result.string + TFV_CHAR_ARRAY_SIZE - 1, '\0');
-            result.string[TFV_CHAR_ARRAY_SIZE - 1] = '\0';
-            return TFV_OK;
+                      result.string + TV_CHAR_ARRAY_SIZE - 1, '\0');
+            result.string[TV_CHAR_ARRAY_SIZE - 1] = '\0';
+            return TV_OK;
         });
     }
 
 private:
     CameraControl camera_control_;  ///< Camera access abstraction
     FrameConversions conversions_;
-    TFVStringMap result_string_map_;    ///< String mapping of Api-return values
+    TVStringMap result_string_map_;     ///< String mapping of Api-return values
     bool idle_process_running_{false};  ///< Dummy module activated?
 
     ModuleLoader module_loader_{SYS_MODULE_LOAD_PATH, ADD_MODULE_LOAD_PATH};
@@ -477,7 +475,7 @@ private:
      * Instantiation of the resource manager using the abstract base
      * class of a vision-algorithm.
      */
-    using Modules = tfv::SharedResource<tfv::Module>;
+    using Modules = tv::SharedResource<tv::Module>;
     Modules modules_;  ///< RAII-style managed vision algorithms.
 
     std::thread executor_;  ///< Mainloop-Context executing the modules.
@@ -486,7 +484,7 @@ private:
 
     SceneTrees scene_trees_;
 
-    TFV_Callback default_callback_ = nullptr;
+    TV_Callback default_callback_ = nullptr;
 
     /**
      * Threaded execution context of vision algorithms (modules).
@@ -497,11 +495,11 @@ private:
      */
     void execute(void);
 
-    TFV_Result _module_load(std::string const& name, TFV_Int id) {
+    TV_Result _module_load(std::string const& name, TV_Int id) {
         Log("API", "ModuleLoad ", name, " ", id);
 
         if (modules_[id]) {
-            return TFV_INVALID_ID;
+            return TV_INVALID_ID;
         }
 
         auto module = (Module*)(nullptr);
@@ -511,7 +509,7 @@ private:
         }
 
         if (not camera_control_.acquire()) {
-            return TFV_CAMERA_NOT_AVAILABLE;
+            return TV_CAMERA_NOT_AVAILABLE;
         }
 
         if (not modules_.insert(id, module, [this](Module& module) {
@@ -520,24 +518,24 @@ private:
             })) {
 
             camera_control_.release();
-            return TFV_MODULE_INITIALIZATION_FAILED;
+            return TV_MODULE_INITIALIZATION_FAILED;
         }
 
         module->switch_active(true);
-        return TFV_OK;
+        return TV_OK;
     }
 
     void _disable_all_modules(void) {
-        modules_.exec_all([this](TFV_Int id, tfv::Module& module) {
+        modules_.exec_all([this](TV_Int id, tv::Module& module) {
             module.disable();
             camera_control_.release();
         });
     }
 
     void _disable_module_if(
-        std::function<bool(tfv::Module const& module)> predicate) {
+        std::function<bool(tv::Module const& module)> predicate) {
 
-        modules_.exec_all([this, &predicate](TFV_Int id, tfv::Module& module) {
+        modules_.exec_all([this, &predicate](TV_Int id, tv::Module& module) {
             if (predicate(module)) {
                 module.disable();
                 camera_control_.release();
@@ -546,7 +544,7 @@ private:
     }
 
     void _enable_all_modules(void) {
-        modules_.exec_all([this](TFV_Int id, tfv::Module& module) {
+        modules_.exec_all([this](TV_Int id, tv::Module& module) {
             if (not module.enabled()) {
                 if (camera_control_.acquire()) {
                     module.enable();
@@ -555,22 +553,22 @@ private:
         });
     }
 
-    TFV_Result _enable_module(TFV_Int id) {
-        return modules_.exec_one(id, [this](tfv::Module& module) {
+    TV_Result _enable_module(TV_Int id) {
+        return modules_.exec_one(id, [this](tv::Module& module) {
             if (module.enabled() or camera_control_.acquire()) {
                 module.enable();  // possibly redundant
-                return TFV_OK;
+                return TV_OK;
             } else {
-                return TFV_CAMERA_NOT_AVAILABLE;
+                return TV_CAMERA_NOT_AVAILABLE;
             }
         });
     }
 
-    TFV_Result _disable_module(TFV_Int id) {
-        return modules_.exec_one(id, [this](tfv::Module& module) {
+    TV_Result _disable_module(TV_Int id) {
+        return modules_.exec_one(id, [this](tv::Module& module) {
             module.disable();
             camera_control_.release();
-            return TFV_OK;
+            return TV_OK;
         });
     }
 
@@ -580,22 +578,22 @@ private:
     /// \todo There is currently no code that would prevent regeneration of an
     /// id that is currently in use in case of an overflow and a long running
     /// module.
-    TFV_Int _next_public_id(void) const {
-        static TFV_Id public_id{0};
+    TV_Int _next_public_id(void) const {
+        static TV_Id public_id{0};
         if (++public_id == 0) {
             public_id = 1;
             LogWarning("API", "Overflow of public ids");
         }
-        return static_cast<TFV_Int>(public_id);
+        return static_cast<TV_Int>(public_id);
     }
 
-    TFV_Int _next_internal_id(void) const {
-        static TFV_Int internal_id{std::numeric_limits<TFV_Id>::max() + 1};
+    TV_Int _next_internal_id(void) const {
+        static TV_Int internal_id{std::numeric_limits<TV_Id>::max() + 1};
         return internal_id++;
     }
 
-    TFV_Scene _next_scene_id(void) const {
-        static TFV_Scene scene_id{std::numeric_limits<TFV_Id>::max() + 1};
+    TV_Scene _next_scene_id(void) const {
+        static TV_Scene scene_id{std::numeric_limits<TV_Id>::max() + 1};
         return scene_id++;
     }
 };

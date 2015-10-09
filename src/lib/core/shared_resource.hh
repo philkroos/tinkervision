@@ -30,18 +30,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "exceptions.hh"
 #include "logger.hh"
 
-namespace tfv {
+namespace tv {
 
 template <typename Resource>
 class SharedResource {
 
 public:
     using value_type = Resource;
-    using ResourceMap = std::unordered_map<TFV_Int, value_type*>;
-    using IdList = std::forward_list<TFV_Int>;
+    using ResourceMap = std::unordered_map<TV_Int, value_type*>;
+    using IdList = std::forward_list<TV_Int>;
 
-    using ExecAll = std::function<void(TFV_Int, Resource&)>;
-    using ExecOne = std::function<TFV_Result(Resource&)>;
+    using ExecAll = std::function<void(TV_Int, Resource&)>;
+    using ExecOne = std::function<TV_Result(Resource&)>;
 
     using AfterPersistedHook = std::function<void(Resource&)>;
     using AfterAllocatedHook = std::function<void(Resource&)>;
@@ -59,7 +59,7 @@ private:
             : resource(resource), deallocator(deallocator) {}
     };
 
-    using ResourceContainerMap = std::unordered_map<TFV_Int, ResourceContainer>;
+    using ResourceContainerMap = std::unordered_map<TV_Int, ResourceContainer>;
     using Iterator = typename ResourceContainerMap::iterator;
     using ConstIterator = typename ResourceContainerMap::const_iterator;
 
@@ -99,9 +99,9 @@ public:
      * \param[in] executor The function to be executed on the resource
      * identified by id.
      */
-    TFV_Result exec_one(TFV_Int id, ExecOne executor) {
+    TV_Result exec_one(TV_Int id, ExecOne executor) {
         if (not managed_.size()) {
-            return TFV_INVALID_ID;
+            return TV_INVALID_ID;
         }
 
         std::lock_guard<std::mutex> lock(managed_mutex_);
@@ -109,7 +109,7 @@ public:
         if (it != managed_.end()) {
             return executor(resource(it));
         } else {
-            return TFV_INVALID_ID;
+            return TV_INVALID_ID;
         }
     }
 
@@ -130,7 +130,7 @@ public:
         return count;
     }
 
-    bool insert(TFV_Int id, Resource* module, Deallocator deallocator) {
+    bool insert(TV_Int id, Resource* module, Deallocator deallocator) {
 
         std::lock_guard<std::mutex> lock(managed_mutex_);
         if (exists(managed_, id)) {
@@ -144,7 +144,7 @@ public:
         return true;
     }
 
-    bool remove(TFV_Int id) {
+    bool remove(TV_Int id) {
         std::lock_guard<std::mutex> lock(managed_mutex_);
         if (not exists(managed_, id)) {
             LogWarning("SHARED_RESOURCE::remove", "Non existing");
@@ -173,7 +173,7 @@ public:
      * \return false if the id was already allocated.
      */
     template <typename T, typename... Args>
-    bool allocate(TFV_Int id, AfterAllocatedHook callback, Args... args) {
+    bool allocate(TV_Int id, AfterAllocatedHook callback, Args... args) {
         static_assert(std::is_convertible<T*, Resource*>::value,
                       "Wrong type passed to allocate");
 
@@ -190,7 +190,7 @@ public:
             // new, was in persist:
             ids_managed_.push_front(id);
 
-        } catch (tfv::ConstructionException const& ce) {
+        } catch (tv::ConstructionException const& ce) {
             LogError("SHARED_RESOURCE::allocate", ce.what());
 
             return false;
@@ -207,7 +207,7 @@ public:
      * Marks the resource associated with id as removable.
      * The resource is still active, i.e. managed() would return t.
      */
-    void free(TFV_Int id) {
+    void free(TV_Int id) {
         // Resource* resource = nullptr;
         {
             std::lock_guard<std::mutex> lock(managed_mutex_);
@@ -265,7 +265,7 @@ public:
      * Check whether a resource is active.
      * \return True If the resource id is active.
      */
-    bool managed(TFV_Int id) const {
+    bool managed(TV_Int id) const {
         std::lock_guard<std::mutex> lock(managed_mutex_);
         return exists(managed_, id);
     }
@@ -280,7 +280,7 @@ public:
      * \todo Mutex acquisition is not fair and so this method takes
      * too long sometimes.
      */
-    Resource const& operator[](TFV_Int id) const {
+    Resource const& operator[](TV_Int id) const {
         ConstIterator it;
         {
             std::lock_guard<std::mutex> lock(managed_mutex_);
@@ -300,7 +300,7 @@ public:
      * \todo Mutex acquisition is not fair and so this method takes
      * too long sometimes.
      */
-    Resource* operator[](TFV_Int id) {
+    Resource* operator[](TV_Int id) {
         Resource* resource = nullptr;
         {
             std::lock_guard<std::mutex> lock(managed_mutex_);
@@ -320,7 +320,7 @@ public:
             std::lock_guard<std::mutex> lock(managed_mutex_);
             auto it = std::find_if(
                 managed_.begin(), managed_.end(),
-                [&unaryp](std::pair<TFV_Int, Resource*> const& thing) {
+                [&unaryp](std::pair<TV_Int, Resource*> const& thing) {
                     return unaryp(*thing.second.resource);
                 });
             resource = (it == managed_.end()) ? nullptr : it->second.resource;
@@ -336,7 +336,7 @@ public:
      * \return True if both id's are managed, in which case first
      * will be executed first afterwards.
      */
-    bool sort(TFV_Id first, TFV_Id second) {
+    bool sort(TV_Id first, TV_Id second) {
         if (not managed(first) or not managed(second)) {
             return false;
         }
@@ -368,7 +368,7 @@ public:
 
     // attention: The following not locked.
 
-    Resource* access_unlocked(TFV_Int id) {
+    Resource* access_unlocked(TV_Int id) {
         auto it = managed_.find(id);
         return (it == managed_.end()) ? nullptr : it->second.resource;
     }
@@ -379,7 +379,7 @@ private:
     /**
      * Verbose access to the id of a resource-map.
      */
-    TFV_Int id(ConstIterator it) const { return it->first; }
+    TV_Int id(ConstIterator it) const { return it->first; }
 
     /**
      * Verbose access to the resource of a resource-map.
@@ -389,7 +389,7 @@ private:
     /**
      * Verbose check if a  resource exists in a map.
      */
-    bool exists(ResourceContainerMap const& map, TFV_Int id) const {
+    bool exists(ResourceContainerMap const& map, TV_Int id) const {
         return map.find(id) != map.end();
     }
 

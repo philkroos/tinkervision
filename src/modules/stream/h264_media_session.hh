@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "h264_byte_source.hh"
 #include "h264_encoder.hh"
 
-namespace tfv {
+namespace tv {
 class H264MediaSession : public OnDemandServerMediaSubsession {
 public:
     static H264MediaSession* createNew(UsageEnvironment& env,
@@ -41,7 +41,7 @@ public:
     void setDone(void) { done_flag_ = 1; }
 
 protected:
-    H264MediaSession(UsageEnvironment& env, tfv::ExecutionContext& context);
+    H264MediaSession(UsageEnvironment& env, tv::ExecutionContext& context);
     virtual ~H264MediaSession(void);
     void setDoneFlag() { done_flag_ = ~0; }
 

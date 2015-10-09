@@ -23,10 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "logger.hh"
 
-tfv::Camera::Camera(TFV_Id camera_id) : camera_id_(camera_id) {}
+tv::Camera::Camera(TV_Id camera_id) : camera_id_(camera_id) {}
 
-tfv::Camera::Camera(TFV_Id camera_id, uint16_t requested_width,
-                    uint16_t requested_height)
+tv::Camera::Camera(TV_Id camera_id, uint16_t requested_width,
+                   uint16_t requested_height)
     : camera_id_{camera_id},
       requested_width_{requested_width},
       requested_height_{requested_height} {
@@ -36,7 +36,7 @@ tfv::Camera::Camera(TFV_Id camera_id, uint16_t requested_width,
     }
 }
 
-bool tfv::Camera::get_frame(tfv::Image& image) {
+bool tv::Camera::get_frame(tv::Image& image) {
     if (not is_open()) {
         stop();
         return false;
@@ -50,8 +50,8 @@ bool tfv::Camera::get_frame(tfv::Image& image) {
     return true;
 }
 
-bool tfv::Camera::get_properties(uint16_t& width, uint16_t& height,
-                                 size_t& framebytesize) {
+bool tv::Camera::get_properties(uint16_t& width, uint16_t& height,
+                                size_t& framebytesize) {
     if (is_open()) {
         retrieve_properties(width, height, framebytesize);
         return true;
@@ -59,7 +59,7 @@ bool tfv::Camera::get_properties(uint16_t& width, uint16_t& height,
     return false;
 }
 
-bool tfv::Camera::open(void) {
+bool tv::Camera::open(void) {
     auto success = open_device();
     if (success) {
         active_ = true;
@@ -71,7 +71,7 @@ bool tfv::Camera::open(void) {
     return success;
 }
 
-void tfv::Camera::stop(void) {
+void tv::Camera::stop(void) {
     active_ = false;
     close();
 }

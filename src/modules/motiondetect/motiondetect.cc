@@ -21,8 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 DEFINE_VISION_MODULE(Motiondetect)
 
-void tfv::Motiondetect::execute(tfv::ImageHeader const& header,
-                                ImageData const* data) {
+void tv::Motiondetect::execute(tv::ImageHeader const& header,
+                               ImageData const* data) {
 
     // Not modifying the image data in this method, so a cast is fine.
     // Thereby the original data can be used to initialize

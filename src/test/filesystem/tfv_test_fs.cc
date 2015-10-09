@@ -19,7 +19,7 @@ int main() {
     std::vector<std::string> contents;
 
     std::cout << "Get list of all .conf files in etc" << std::endl;
-    tfv::list_directory_content("/etc/", contents, ExtensionFilter("conf"));
+    tv::list_directory_content("/etc/", contents, ExtensionFilter("conf"));
 
     for (auto const& file : contents) {
         std::cout << file << std::endl;
@@ -27,7 +27,7 @@ int main() {
     contents.clear();
 
     std::cout << std::endl << "Get list of all entries in tmp" << std::endl;
-    tfv::list_directory_content("/tmp/", contents, nullptr);
+    tv::list_directory_content("/tmp/", contents, nullptr);
 
     for (auto const& file : contents) {
         std::cout << file << std::endl;
@@ -35,9 +35,9 @@ int main() {
     contents.clear();
 
     std::cout << std::endl << "Get list of all FILES in tmp" << std::endl;
-    tfv::list_directory_content("/tmp/", contents,
-                                [](std::string const&, std::string const&,
-                                   bool is_file) { return is_file; });
+    tv::list_directory_content("/tmp/", contents,
+                               [](std::string const&, std::string const&,
+                                  bool is_file) { return is_file; });
 
     for (auto const& file : contents) {
         std::cout << file << std::endl;

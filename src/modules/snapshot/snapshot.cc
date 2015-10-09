@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 DEFINE_VISION_MODULE(Snapshot)
 
-using namespace tfv;
+using namespace tv;
 
 Snapshot::~Snapshot(void) {
     if (image_.data) {
@@ -45,7 +45,7 @@ void Snapshot::execute(ImageHeader const& header, ImageData const* data) {
             image_.header.width = header.width;
             image_.header.height = header.height;
             image_.header.bytesize = header.bytesize;
-            image_.data = new TFV_ImageData[header.bytesize];
+            image_.data = new TV_ImageData[header.bytesize];
         }
         std::copy_n(data, header.bytesize, image_.data);
 
@@ -54,7 +54,7 @@ void Snapshot::execute(ImageHeader const& header, ImageData const* data) {
     }
 }
 
-tfv::Result const* Snapshot::get_result(void) const {
+tv::Result const* Snapshot::get_result(void) const {
 
     if (not image_.data) {
         return nullptr;

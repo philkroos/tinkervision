@@ -23,46 +23,46 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision/tinkervision.h"
 
-void callback(TFV_Id id, TFV_ModuleResult result, TFV_Context context) {
+void callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
     printf("Callback for module %d\n", id);
 }
 
-void str_callback(TFV_Id id, TFV_String string, TFV_Context context) {
+void str_callback(TV_Id id, TV_String string, TV_Context context) {
     int ctx = *(int*)(context);
     printf("String-callback: %d, %s, %d\n", id, string, ctx);
 }
 
-void colormatch_start(TFV_Id id, int min_hue, int max_hue) {
-    TFV_Result result = module_start("colormatch", &id);
+void colormatch_start(TV_Id id, int min_hue, int max_hue) {
+    TV_Result result = module_start("colormatch", &id);
     printf("Colormatch Id %d Start: %d (%s)\n", id, result,
            result_string(result));
-    if (result != TFV_OK) {
+    if (result != TV_OK) {
         return;
     }
     result = set_parameter(id, "min-hue", min_hue);
     printf("Set min-hue: %d (%s)\n", result, result_string(result));
-    if (result != TFV_OK) {
+    if (result != TV_OK) {
         return;
     }
     result = set_parameter(id, "max-hue", max_hue);
     printf("Set max-hue: %d (%s)\n", result, result_string(result));
-    if (result != TFV_OK) {
+    if (result != TV_OK) {
         return;
     }
     result = set_callback(id, callback);
-    if (result != TFV_OK) {
+    if (result != TV_OK) {
         printf("Setting the callback failed: %d (%s)\n", result,
                result_string(result));
     }
 }
 
 int main(int argc, char* argv[]) {
-    TFV_Size width = 640;
-    TFV_Size height = 480;
+    TV_Size width = 640;
+    TV_Size height = 480;
     int enum_modules = 1;
     int enum_pars = 2;
 
-    TFV_Result result = preselect_framesize(width, height);
+    TV_Result result = preselect_framesize(width, height);
 
     printf("PreselectFramesize: %d (%s)\n", result, result_string(result));
     sleep(1);

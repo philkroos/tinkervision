@@ -31,12 +31,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "module.hh"
 #include "node.hh"
 
-namespace tfv {
+namespace tv {
 
 class Scene {
 
 public:
-    Scene(TFV_Scene id, Node& root_node) : id_(id) {
+    Scene(TV_Scene id, Node& root_node) : id_(id) {
         nodes_.push_back(&root_node);
     }
 
@@ -45,12 +45,12 @@ public:
     /**
      * Depth-first execution of this scene.
      */
-    void execute(std::function<void(TFV_Int module_id)> executor,
-                 tfv::Timestamp timestamp) {
+    void execute(std::function<void(TV_Int module_id)> executor,
+                 tv::Timestamp timestamp) {
         tree().execute_for_scene(executor, timestamp, id_);
     }
 
-    TFV_Scene id(void) const { return id_; }
+    TV_Scene id(void) const { return id_; }
 
     Node& leaf(void) const {
         assert(not nodes_.empty());
@@ -80,7 +80,7 @@ public:
     bool enabled(void) { return not disabled_; }
 
 private:
-    TFV_Scene id_;
+    TV_Scene id_;
     std::list<Node*> nodes_;
 
     bool disabled_ = false;

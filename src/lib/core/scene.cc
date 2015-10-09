@@ -22,6 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "scene.hh"
 
-bool tfv::operator==(tfv::Scene const& lhs, tfv::Scene const& rhs) {
+bool tv::operator==(tv::Scene const& lhs, tv::Scene const& rhs) {
     return lhs.id() == rhs.id();
 }

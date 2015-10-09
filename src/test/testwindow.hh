@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision/tinkervision_defines.h"
 
-namespace tfv {
+namespace tv {
 class Window {
 private:
     using Image = struct Image {
@@ -34,7 +34,7 @@ private:
         std::string name;
     };
 
-    std::map<TFV_Id, Image> windows_;
+    std::map<TV_Id, Image> windows_;
     std::string prefix = "Camera ";
 
 public:
@@ -46,7 +46,7 @@ public:
         }
     }
 
-    void update(TFV_Id id, TFV_ImageData* data, char const* text = "") {
+    void update(TV_Id id, TV_ImageData* data, char const* text = "") {
         auto win = windows_.find(id);
 
         if (win == windows_.end() or not win->second.frame) {
@@ -61,7 +61,7 @@ public:
         cv::waitKey(100);  // skip time to give window-update thread a chance
     }
 
-    void update(TFV_Id id, TFV_ImageData* data, int rows, int columns,
+    void update(TV_Id id, TV_ImageData* data, int rows, int columns,
                 char const* text = "", int format = CV_8UC3) {
 
         auto win = windows_.find(id);
@@ -91,7 +91,7 @@ public:
         cv::waitKey(100);  // skip time to give window-update thread a chance
     }
 
-    void update(TFV_Id id, cv::Mat const& image, int rows, int columns) {
+    void update(TV_Id id, cv::Mat const& image, int rows, int columns) {
         auto win = windows_.find(id);
         if (windows_.find(id) == windows_.end()) {
             windows_[id].name = prefix + std::to_string(id) + " ";
@@ -103,7 +103,7 @@ public:
         cv::waitKey(100);  // skip time to give window-update thread a chance
     }
 
-    void put_text(TFV_Id id, const char* text) {
+    void put_text(TV_Id id, const char* text) {
         auto win = windows_.find(id);
         if (win == windows_.end() or not win->second.frame) {
             return;

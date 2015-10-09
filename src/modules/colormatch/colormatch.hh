@@ -22,30 +22,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision/tv_module.hh"
 
-namespace tfv {
+namespace tv {
 
 class Colormatch : public Analyzer {
 private:
-    TFV_Byte const min_saturation{0};
-    TFV_Byte const max_saturation{255};
-    TFV_Byte const min_value{0};
-    TFV_Byte const max_value{255};
+    TV_Byte const min_saturation{0};
+    TV_Byte const max_saturation{255};
+    TV_Byte const min_value{0};
+    TV_Byte const max_value{255};
 
-    TFV_Byte const min_hue{0};
-    TFV_Byte const max_hue{180};
+    TV_Byte const min_hue{0};
+    TV_Byte const max_hue{180};
 
     // configurable values
-    TFV_Byte user_min_hue;         ///< The used minimum hue
-    TFV_Byte user_max_hue;         ///< The used maximum hue
-    TFV_Byte user_min_value;       ///< The used minimum value
-    TFV_Byte user_max_value;       ///< The used maximum value
-    TFV_Byte user_min_saturation;  ///< The used minimum saturation
-    TFV_Byte user_max_saturation;  ///< The used maximum saturation
+    TV_Byte user_min_hue;         ///< The used minimum hue
+    TV_Byte user_max_hue;         ///< The used maximum hue
+    TV_Byte user_min_value;       ///< The used minimum value
+    TV_Byte user_max_value;       ///< The used maximum value
+    TV_Byte user_min_saturation;  ///< The used minimum saturation
+    TV_Byte user_max_saturation;  ///< The used maximum saturation
 
     Result result_;
 
-    TFV_Context context;
-    bool in_range(TFV_Word value, TFV_Word low, TFV_Word high) {
+    TV_Context context;
+    bool in_range(TV_Word value, TV_Word low, TV_Word high) {
         return value >= low and value <= high;
     }
 
@@ -61,8 +61,7 @@ public:
 
     ~Colormatch(void) override = default;
 
-    void execute(tfv::ImageHeader const& header,
-                 ImageData const* data) override;
+    void execute(tv::ImageHeader const& header, ImageData const* data) override;
     ColorSpace expected_format(void) const override {
         return ColorSpace::BGR888;
     }
@@ -82,36 +81,36 @@ public:
                parameter == "max-value" or parameter == "max-saturation";
     }
 
-    bool set(std::string const& parameter, TFV_Word value) override {
+    bool set(std::string const& parameter, TV_Word value) override {
         if (parameter == "min-hue" and in_range(value, min_hue, max_hue)) {
-            user_min_hue = static_cast<TFV_Byte>(value);
+            user_min_hue = static_cast<TV_Byte>(value);
             return true;
         } else if (parameter == "max-hue" and
                    in_range(value, min_hue, max_hue)) {
-            user_max_hue = static_cast<TFV_Byte>(value);
+            user_max_hue = static_cast<TV_Byte>(value);
             return true;
         } else if (parameter == "min-saturation" and
                    in_range(value, min_saturation, max_saturation)) {
-            user_min_saturation = static_cast<TFV_Byte>(value);
+            user_min_saturation = static_cast<TV_Byte>(value);
             return true;
         } else if (parameter == "max-saturation" and
                    in_range(value, min_saturation, max_saturation)) {
-            user_max_saturation = static_cast<TFV_Byte>(value);
+            user_max_saturation = static_cast<TV_Byte>(value);
             return true;
         } else if (parameter == "min-value" and
                    in_range(value, min_value, max_value)) {
-            user_min_value = static_cast<TFV_Byte>(value);
+            user_min_value = static_cast<TV_Byte>(value);
             return true;
         } else if (parameter == "max-value" and
                    in_range(value, min_value, max_value)) {
-            user_max_value = static_cast<TFV_Byte>(value);
+            user_max_value = static_cast<TV_Byte>(value);
             return true;
         }
 
         return false;
     }
 
-    TFV_Word get(std::string const& parameter) override {
+    TV_Word get(std::string const& parameter) override {
         if (parameter == "min-hue") {
             return user_min_hue;
         } else if (parameter == "max-hue") {

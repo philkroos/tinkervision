@@ -29,14 +29,14 @@
 #include "v4l2_camera.hh"
 #endif
 
-tfv::CameraControl::~CameraControl(void) { release_all(); }
+tv::CameraControl::~CameraControl(void) { release_all(); }
 
-tfv::CameraControl::CameraControl(void) {
+tv::CameraControl::CameraControl(void) {
     fallback_.allocate(640, 480, 640 * 480 * 3, ColorSpace::BGR888, false);
     std::fill_n(fallback_().data, fallback_().header.bytesize, 255);
 }
 
-bool tfv::CameraControl::is_available(void) {
+bool tv::CameraControl::is_available(void) {
 
     auto result = false;
     if (camera_ and (camera_->is_open() or camera_->open())) {
@@ -49,8 +49,8 @@ bool tfv::CameraControl::is_available(void) {
     return result;
 }
 
-bool tfv::CameraControl::preselect_framesize(uint16_t framewidth,
-                                             uint16_t frameheight) {
+bool tv::CameraControl::preselect_framesize(uint16_t framewidth,
+                                            uint16_t frameheight) {
     if (not usercount_) {
         // \todo Check if the requested settings are supported by the cam.
         requested_width_ = framewidth;
@@ -59,7 +59,7 @@ bool tfv::CameraControl::preselect_framesize(uint16_t framewidth,
     return not usercount_;
 }
 
-bool tfv::CameraControl::acquire(size_t user) {
+bool tv::CameraControl::acquire(size_t user) {
     auto result = false;
 
     if (user > 0) {
@@ -72,7 +72,7 @@ bool tfv::CameraControl::acquire(size_t user) {
     return result;
 }
 
-bool tfv::CameraControl::acquire(void) {
+bool tv::CameraControl::acquire(void) {
 
     auto open = is_open();
 
@@ -96,7 +96,7 @@ bool tfv::CameraControl::acquire(void) {
     return open;
 }
 
-bool tfv::CameraControl::is_open(void) {
+bool tv::CameraControl::is_open(void) {
 
     if (not camera_ or not camera_->is_open()) {
         if (camera_) {
@@ -107,7 +107,7 @@ bool tfv::CameraControl::is_open(void) {
     return camera_ != nullptr;
 }
 
-void tfv::CameraControl::release(void) {
+void tv::CameraControl::release(void) {
 
     usercount_ = std::max(usercount_ - 1, 0);
 
@@ -118,12 +118,12 @@ void tfv::CameraControl::release(void) {
     }
 }
 
-void tfv::CameraControl::stop_camera(void) {
+void tv::CameraControl::stop_camera(void) {
     std::lock_guard<std::mutex> camera_lock(camera_mutex_);
     _close_device();
 }
 
-void tfv::CameraControl::release_all(void) {
+void tv::CameraControl::release_all(void) {
     Log("CAMERACONTROL::release_all", "Closing with users: ", usercount_);
     while (usercount_) {
         release();
@@ -133,8 +133,8 @@ void tfv::CameraControl::release_all(void) {
     _close_device();
 }
 
-bool tfv::CameraControl::get_properties(uint16_t& height, uint16_t& width,
-                                        size_t& frame_bytesize) {
+bool tv::CameraControl::get_properties(uint16_t& height, uint16_t& width,
+                                       size_t& frame_bytesize) {
     auto result = false;
 
     if (is_open()) {
@@ -144,12 +144,12 @@ bool tfv::CameraControl::get_properties(uint16_t& height, uint16_t& width,
     return result;
 }
 
-bool tfv::CameraControl::get_resolution(uint16_t& width, uint16_t& height) {
+bool tv::CameraControl::get_resolution(uint16_t& width, uint16_t& height) {
     size_t bytesize;  // ignored
     return get_properties(width, height, bytesize);
 }
 
-bool tfv::CameraControl::update_frame(Image& image) {
+bool tv::CameraControl::update_frame(Image& image) {
 
     if (stopped_) {
         if (not _init()) {
@@ -162,7 +162,7 @@ bool tfv::CameraControl::update_frame(Image& image) {
         image_.set_from_image(fallback_.image());
     }
 
-    if (image_().header.format == tfv::ColorSpace::INVALID) {
+    if (image_().header.format == tv::ColorSpace::INVALID) {
         LogWarning("CAMERACONTROL", "INVALID image format");
         return false;
     }
@@ -171,7 +171,7 @@ bool tfv::CameraControl::update_frame(Image& image) {
     return true;
 }
 
-bool tfv::CameraControl::_update_from_camera(void) {
+bool tv::CameraControl::_update_from_camera(void) {
     {
         std::lock_guard<std::mutex> cam_lock(camera_mutex_);
         Image image;
@@ -185,7 +185,7 @@ bool tfv::CameraControl::_update_from_camera(void) {
     return true;
 }
 
-bool tfv::CameraControl::_test_device(void) {
+bool tv::CameraControl::_test_device(void) {
     std::lock_guard<std::mutex> cam_mutex(camera_mutex_);
 
     if (not _open_device()) {
@@ -196,7 +196,7 @@ bool tfv::CameraControl::_test_device(void) {
     return true;
 }
 
-bool tfv::CameraControl::_init(void) {
+bool tv::CameraControl::_init(void) {
     std::lock_guard<std::mutex> cam_mutex(camera_mutex_);
 
     auto success = _open_device();
@@ -207,7 +207,7 @@ bool tfv::CameraControl::_init(void) {
     return success;
 }
 
-bool tfv::CameraControl::_open_device(void) {
+bool tv::CameraControl::_open_device(void) {
     static const auto MAX_DEVICE = 5;
     auto i = int(MAX_DEVICE);
 
@@ -236,7 +236,7 @@ bool tfv::CameraControl::_open_device(void) {
     return i >= 0;
 }
 
-void tfv::CameraControl::_close_device() {
+void tv::CameraControl::_close_device() {
 
     if (camera_) {
 

@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tinkervision_defines.h"
 #include "logger.hh"
 
-namespace tfv {
+namespace tv {
 
 /** Restrict a value of type In to the range of type Out.
  */
@@ -50,10 +50,10 @@ public:
 };
 
 /**
- * Restrict a value to the range of TFV_ImageData.
+ * Restrict a value to the range of TV_ImageData.
  */
 template <typename In>
-struct ClampImageValue : public Clamp<In, TFV_ImageData> {};
+struct ClampImageValue : public Clamp<In, TV_ImageData> {};
 
 // forward declaration of Convert-wrapper (providing public interface to this
 // module)
@@ -116,8 +116,8 @@ protected:
     }
 
     // output is in order y-block, v-block, u-block
-    void convert_any(Image const& source, Image& target, TFV_ImageData* u_ptr,
-                     TFV_ImageData* v_ptr) const;
+    void convert_any(Image const& source, Image& target, TV_ImageData* u_ptr,
+                     TV_ImageData* v_ptr) const;
 };
 
 struct ConvertYUYVToYV12 : public ConvertYUV422ToYUV420 {
@@ -168,7 +168,7 @@ protected:
 public:
     template <size_t r = 0, size_t g = 1, size_t b = 2>
     void convert(int const y, int const u, int const v,
-                 TFV_ImageData* rgb) const;
+                 TV_ImageData* rgb) const;
 };
 
 struct YUYVToRGBType : public YUVToRGB {
@@ -454,12 +454,12 @@ public:
 
     ColorSpace target_format(void) const {
         return converter_ ? converter_->target_format_
-                          : tfv::ColorSpace::INVALID;
+                          : tv::ColorSpace::INVALID;
     }
 
     ColorSpace source_format(void) const {
         return converter_ ? converter_->source_format_
-                          : tfv::ColorSpace::INVALID;
+                          : tv::ColorSpace::INVALID;
     }
 };
 
@@ -470,7 +470,7 @@ private:
     using ProvidedFormats = std::vector<Converter>;
     ProvidedFormats provided_formats_;
 
-    Converter* get_converter(tfv::ColorSpace from, tfv::ColorSpace to) {
+    Converter* get_converter(tv::ColorSpace from, tv::ColorSpace to) {
 
         auto it =
             std::find_if(provided_formats_.begin(), provided_formats_.end(),
@@ -497,7 +497,7 @@ public:
         }
     }
 
-    void get_frame(Image& image, tfv::ColorSpace format) {
+    void get_frame(Image& image, tv::ColorSpace format) {
         assert(frame_ and frame_->header.format != ColorSpace::INVALID);
 
         // If the requested format is the same as provided by the camera,
@@ -518,7 +518,7 @@ public:
         if (converter) {
             image = converter->result();
 
-            if (image.header.format == tfv::ColorSpace::INVALID or
+            if (image.header.format == tv::ColorSpace::INVALID or
                 image.header.timestamp != frame_->header.timestamp) {
 
                 // conversion and flat copy
@@ -528,7 +528,7 @@ public:
         }
     }
 
-    tfv::ImageHeader get_header(tfv::ColorSpace format) {
+    tv::ImageHeader get_header(tv::ColorSpace format) {
 
         if (format == frame_->header.format) {
             return frame_->header;

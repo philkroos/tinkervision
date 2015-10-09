@@ -21,55 +21,54 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision_defines.h"
 
-namespace tfv {
+namespace tv {
 
-class TFVStringMap {
+class TVStringMap {
 private:
-    const std::map<TFV_Result, TFV_String> string_map_{
-        {TFV_OK, "Ok"},
+    const std::map<TV_Result, TV_String> string_map_{
+        {TV_OK, "Ok"},
         // 500...
-        {TFV_NOT_IMPLEMENTED, "Error - Not implemented"},
-        {TFV_INTERNAL_ERROR, "Error - Unknown internal error"},
-        {TFV_NODE_ALLOCATION_FAILED,
+        {TV_NOT_IMPLEMENTED, "Error - Not implemented"},
+        {TV_INTERNAL_ERROR, "Error - Unknown internal error"},
+        {TV_NODE_ALLOCATION_FAILED,
          "Error - Allocation of a scene node failed"},
-        {TFV_NO_ACTIVE_MODULES, "Error - No active modules"},
+        {TV_NO_ACTIVE_MODULES, "Error - No active modules"},
         // 550...
-        {TFV_CAMERA_NOT_AVAILABLE, "Error - Camera not available"},
-        {TFV_CAMERA_SETTINGS_FAILED,
-         "Error - Setting camera properties failed"},
+        {TV_CAMERA_NOT_AVAILABLE, "Error - Camera not available"},
+        {TV_CAMERA_SETTINGS_FAILED, "Error - Setting camera properties failed"},
         // 600...
-        {TFV_INVALID_ID, "Error - ID is invalid"},
-        {TFV_MODULE_INITIALIZATION_FAILED,
+        {TV_INVALID_ID, "Error - ID is invalid"},
+        {TV_MODULE_INITIALIZATION_FAILED,
          "Error - Initialization of module failed"},
-        {TFV_MODULE_ERROR_SETTING_PARAMETER,
+        {TV_MODULE_ERROR_SETTING_PARAMETER,
          "Error - Module parameterization failed"},
-        {TFV_MODULE_NO_SUCH_PARAMETER, "Error - No such parameter"},
+        {TV_MODULE_NO_SUCH_PARAMETER, "Error - No such parameter"},
         // 650...
-        {TFV_EXEC_THREAD_FAILURE, "Error - The main thread did not react"},
-        {TFV_THREAD_RUNNING, "Error - The main thread is already running"},
+        {TV_EXEC_THREAD_FAILURE, "Error - The main thread did not react"},
+        {TV_THREAD_RUNNING, "Error - The main thread is already running"},
         // 700...
-        {TFV_MODULE_DLOPEN_FAILED, "Error - Could not open requested module"},
-        {TFV_MODULE_DLSYM_FAILED,
+        {TV_MODULE_DLOPEN_FAILED, "Error - Could not open requested module"},
+        {TV_MODULE_DLSYM_FAILED,
          "Error - Required function not defined in module"},
         // 750...
-        {TFV_RESULT_NOT_AVAILABLE,
+        {TV_RESULT_NOT_AVAILABLE,
          "Error - Result requested where none is provided"},
-        {TFV_GLOBAL_CALLBACK_ACTIVE,
+        {TV_GLOBAL_CALLBACK_ACTIVE,
          "Error - Result of incompatible type requested"}};
 
 public:
-    static constexpr TFV_String UNKNOWN_CODE{"Unknown result code"};
-    static constexpr TFV_String INTERNAL_ERROR{"libtfcv: Internal error"};
+    static constexpr TV_String UNKNOWN_CODE{"Unknown result code"};
+    static constexpr TV_String INTERNAL_ERROR{"libtfcv: Internal error"};
 
-    TFV_String operator[](TFV_Result code) const {
-        auto result = TFVStringMap::UNKNOWN_CODE;
+    TV_String operator[](TV_Result code) const {
+        auto result = TVStringMap::UNKNOWN_CODE;
         try {
             auto it = string_map_.find(code);
             if (it != string_map_.end()) {
                 result = it->second;
             }
         } catch (...) {
-            result = TFVStringMap::INTERNAL_ERROR;
+            result = TVStringMap::INTERNAL_ERROR;
         }
         return result;
     }

@@ -23,45 +23,45 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdlib.h>
 #include "tinkervision/tinkervision.h"
 
-void tfcv_callback(TFV_Id id, TFV_ModuleResult result, TFV_Context context) {
+void tfcv_callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
     printf("Executing id %d\n", id);
 }
 
-TFV_Result result;
+TV_Result result;
 
-void scene_start(TFV_Id module, TFV_Scene* scene) {
+void scene_start(TV_Id module, TV_Scene* scene) {
     result = scene_from_module(module, scene);
     printf("Scene from %d as %d: %s (%d)\n", module, *scene,
            result_string(result), result);
     sleep(1);
 }
 
-void scene_add(TFV_Scene scene, TFV_Id module) {
+void scene_add(TV_Scene scene, TV_Id module) {
     result = scene_add_module(scene, module);
     printf("Add %d to scene %d: %s (%d)\n", module, scene,
            result_string(result), result);
     sleep(1);
 }
 
-void colormatch_start(TFV_Id id, int min_hue, int max_hue) {
-    TFV_Result result = module_start("colormatch", &id);
+void colormatch_start(TV_Id id, int min_hue, int max_hue) {
+    TV_Result result = module_start("colormatch", &id);
     printf("Colormatch Id %d Start: %d (%s)\n", id, result,
            result_string(result));
-    if (result != TFV_OK) {
+    if (result != TV_OK) {
         return;
     }
     result = set_parameter(id, "min-hue", min_hue);
     printf("Set min-hue: %d (%s)\n", result, result_string(result));
-    if (result != TFV_OK) {
+    if (result != TV_OK) {
         return;
     }
     result = set_parameter(id, "max-hue", max_hue);
     printf("Set max-hue: %d (%s)\n", result, result_string(result));
-    if (result != TFV_OK) {
+    if (result != TV_OK) {
         return;
     }
     result = set_callback(id, tfcv_callback);
-    if (result != TFV_OK) {
+    if (result != TV_OK) {
         printf("Setting the callback failed: %d (%s)\n", result,
                result_string(result));
     }
@@ -89,20 +89,20 @@ void colormatch_start(TFV_Id id, int min_hue, int max_hue) {
   it will only be executed once per image.
 
   The resulting trees are (currently) printed from
-  SceneTrees::exec_all() to the logfile (/tmp/tfv.log).
+  SceneTrees::exec_all() to the logfile (/tmp/tv.log).
 */
 int main(int argc, char* argv[]) {
 
     int i;
 
-    TFV_Scene scene_1, scene_2, scene_3, scene_4, scene_5, scene_6, scene_7,
+    TV_Scene scene_1, scene_2, scene_3, scene_4, scene_5, scene_6, scene_7,
         scene_8;
 
     size_t ids_count = 10;
 
     /* don't matter */
-    TFV_Byte min_hue = 0;
-    TFV_Byte max_hue = 10;
+    TV_Byte min_hue = 0;
+    TV_Byte max_hue = 10;
 
     /* start ids_count colormatch modules to be used in scenes. */
     for (i = 0; i < ids_count; i++) {

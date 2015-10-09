@@ -1,36 +1,34 @@
 #include "module.hh"
 
-void tfv::Module::execute(tfv::Image const& image) {
-    tv_module_->execute(image);
-}
+void tv::Module::execute(tv::Image const& image) { tv_module_->execute(image); }
 
-tfv::ColorSpace tfv::Module::expected_format(void) const {
+tv::ColorSpace tv::Module::expected_format(void) const {
     return tv_module_->expected_format();
 }
 
-std::string tfv::Module::name(void) const { return tv_module_->name(); }
-tfv::ModuleType const& tfv::Module::type(void) const {
+std::string tv::Module::name(void) const { return tv_module_->name(); }
+tv::ModuleType const& tv::Module::type(void) const {
     return tv_module_->type();
 }
 
-void tfv::Module::get_parameters_list(
+void tv::Module::get_parameters_list(
     std::vector<std::string>& parameters) const {
     tv_module_->parameter_list(parameters);
 }
 
-bool tfv::Module::has_parameter(std::string const& parameter) const {
+bool tv::Module::has_parameter(std::string const& parameter) const {
     return tv_module_->has_parameter(parameter);
 }
 
-bool tfv::Module::set(std::string const& parameter, TFV_Word value) {
+bool tv::Module::set(std::string const& parameter, TV_Word value) {
     return tv_module_->set(parameter, value);
 }
-TFV_Word tfv::Module::get(std::string const& parameter) {
+TV_Word tv::Module::get(std::string const& parameter) {
     return tv_module_->get(parameter);
 }
 
-tfv::Result const* tfv::Module::result(void) const {
+tv::Result const* tv::Module::result(void) const {
     return tv_module_->get_result();
 }
 
-bool tfv::Module::running(void) const noexcept { return tv_module_->running(); }
+bool tv::Module::running(void) const noexcept { return tv_module_->running(); }

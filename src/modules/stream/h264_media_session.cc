@@ -19,38 +19,38 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "h264_media_session.hh"
 
-tfv::H264MediaSession* tfv::H264MediaSession::createNew(
-    UsageEnvironment& env, tfv::ExecutionContext& context) {
+tv::H264MediaSession* tv::H264MediaSession::createNew(
+    UsageEnvironment& env, tv::ExecutionContext& context) {
 
-    return new tfv::H264MediaSession(env, context);
+    return new tv::H264MediaSession(env, context);
 }
 
-tfv::H264MediaSession::H264MediaSession(UsageEnvironment& env,
-                                        tfv::ExecutionContext& context)
+tv::H264MediaSession::H264MediaSession(UsageEnvironment& env,
+                                       tv::ExecutionContext& context)
     : OnDemandServerMediaSubsession(env, REUSE_FIRST_SOURCE),
       aux_SDP_line_(NULL),
       done_flag_(0),
       dummy_sink_(NULL),
       context_(context) {}
 
-tfv::H264MediaSession::~H264MediaSession(void) { delete[] aux_SDP_line_; }
+tv::H264MediaSession::~H264MediaSession(void) { delete[] aux_SDP_line_; }
 
 static void afterPlayingDummy(void* clientData) {
-    tfv::H264MediaSession* session = (tfv::H264MediaSession*)clientData;
+    tv::H264MediaSession* session = (tv::H264MediaSession*)clientData;
     session->after_playing_dummy();
 }
 
-void tfv::H264MediaSession::after_playing_dummy() {
+void tv::H264MediaSession::after_playing_dummy() {
     envir().taskScheduler().unscheduleDelayedTask(nextTask());
     setDoneFlag();
 }
 
 static void checkForAuxSDPLine(void* clientData) {
-    tfv::H264MediaSession* session = (tfv::H264MediaSession*)clientData;
+    tv::H264MediaSession* session = (tv::H264MediaSession*)clientData;
     session->check_for_aux_sdp_line();
 }
 
-void tfv::H264MediaSession::check_for_aux_sdp_line() {
+void tv::H264MediaSession::check_for_aux_sdp_line() {
     char const* dasl;
     if (aux_SDP_line_ != NULL) {
         setDoneFlag();
@@ -69,8 +69,8 @@ void tfv::H264MediaSession::check_for_aux_sdp_line() {
     }
 }
 
-char const* tfv::H264MediaSession::getAuxSDPLine(RTPSink* rtpSink,
-                                                 FramedSource* inputSource) {
+char const* tv::H264MediaSession::getAuxSDPLine(RTPSink* rtpSink,
+                                                FramedSource* inputSource) {
     if (aux_SDP_line_ == NULL) {
         if (dummy_sink_ == NULL) {
             dummy_sink_ = rtpSink;
@@ -83,7 +83,7 @@ char const* tfv::H264MediaSession::getAuxSDPLine(RTPSink* rtpSink,
     return aux_SDP_line_;
 }
 
-FramedSource* tfv::H264MediaSession::createNewStreamSource(
+FramedSource* tv::H264MediaSession::createNewStreamSource(
     unsigned clientSessionID, unsigned& estBitRate) {
 
     /// \todo Adjust this with encoder settings
@@ -91,13 +91,13 @@ FramedSource* tfv::H264MediaSession::createNewStreamSource(
 
     OutPacketBuffer::maxSize = 200000;
 
-    tfv::H264ByteSource* source =
-        tfv::H264ByteSource::createNew(envir(), context_);
+    tv::H264ByteSource* source =
+        tv::H264ByteSource::createNew(envir(), context_);
 
     return H264VideoStreamDiscreteFramer::createNew(envir(), source);
 }
 
-RTPSink* tfv::H264MediaSession::createNewRTPSink(
+RTPSink* tv::H264MediaSession::createNewRTPSink(
     Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic,
     FramedSource* inputSource) {
     return H264VideoRTPSink::createNew(envir(), rtpGroupsock,
