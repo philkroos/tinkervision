@@ -228,17 +228,17 @@ public:
      * \param[in] id The id of the module to start.
      *
      * \return
-     * - #TFV_UNCONFIGURED_ID if no module is registered with
+     * - #TFV_INVALID_ID if no module is registered with
      *   the given id.
      * - #TFV_CAMERA_ACQUISATION_FAILED if the
-     *   camera specified for the module is not available
+     *   camera is not available
      * - #TFV_OK iff the module is running after returning.
      */
     TFV_Result module_start(TFV_Id module_id) {
         auto id = static_cast<TFV_Int>(module_id);
 
         if (not modules_.managed(id)) {
-            return TFV_UNCONFIGURED_ID;
+            return TFV_INVALID_ID;
         }
 
         return _enable_module(module_id);
@@ -260,7 +260,7 @@ public:
      * module has to match Module.
      * \return
      *  - #TFV_OK if the module was stopped and marked for removal
-     *  - #TFV_UNCONFIGURED_ID if the id is not registered
+     *  - #TFV_INVALID_ID if the id is not registered
      */
     TFV_Result module_stop(TFV_Id module_id) {
         Log("API", "Stopping module ", module_id);
@@ -268,7 +268,7 @@ public:
         auto id = static_cast<TFV_Int>(module_id);
 
         if (not modules_.managed(id)) {
-            return TFV_UNCONFIGURED_ID;
+            return TFV_INVALID_ID;
         }
 
         return _disable_module(module_id);
@@ -286,12 +286,12 @@ public:
     /**
      * Check if a camera is available in the system.
      * \return
-     *  - #TFV_CAMERA_ACQUISITION_FAILED if the camera is not available,
+     *  - #TFV_CAMERA_NOT_AVAILABLE if the camera is not available,
      *  - #TFV_OK else
      */
     TFV_Result is_camera_available(void) {
         return camera_control_.is_available() ? TFV_OK
-                                              : TFV_CAMERA_ACQUISITION_FAILED;
+                                              : TFV_CAMERA_NOT_AVAILABLE;
     }
 
     /**
@@ -387,7 +387,7 @@ public:
                                            TFV_StringCallback callback,
                                            TFV_Context context) const {
         if (not modules_.managed(module_id)) {
-            return TFV_UNCONFIGURED_ID;
+            return TFV_INVALID_ID;
         }
 
         std::vector<std::string> parameters;
@@ -425,7 +425,7 @@ public:
         }
 
         if (not modules_[module_id]) {
-            return TFV_UNCONFIGURED_ID;
+            return TFV_INVALID_ID;
         }
 
         auto& module = *modules_[module_id];
@@ -511,7 +511,7 @@ private:
         }
 
         if (not camera_control_.acquire()) {
-            return TFV_CAMERA_ACQUISITION_FAILED;
+            return TFV_CAMERA_NOT_AVAILABLE;
         }
 
         if (not modules_.insert(id, module, [this](Module& module) {
@@ -561,7 +561,7 @@ private:
                 module.enable();  // possibly redundant
                 return TFV_OK;
             } else {
-                return TFV_CAMERA_ACQUISITION_FAILED;
+                return TFV_CAMERA_NOT_AVAILABLE;
             }
         });
     }

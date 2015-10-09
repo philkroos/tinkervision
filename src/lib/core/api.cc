@@ -51,7 +51,7 @@ TFV_Result tfv::Api::start(void) {
     }
 
     if (not camera_control_.acquire(active_count)) {
-        return TFV_CAMERA_ACQUISITION_FAILED;
+        return TFV_CAMERA_NOT_AVAILABLE;
     }
 
     Log("API", "Restarting with ", active_count, " modules");

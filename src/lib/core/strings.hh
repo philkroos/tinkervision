@@ -27,25 +27,17 @@ class TFVStringMap {
 private:
     const std::map<TFV_Result, TFV_String> string_map_{
         {TFV_OK, "Ok"},
-        {TFV_NEW_FEATURE_CONFIGURED, "New feature configured"},
-        {TFV_FEATURE_RECONFIGURED, "Feature reconfigured"},
         // 500...
         {TFV_NOT_IMPLEMENTED, "Error - Not implemented"},
-        {TFV_UNKNOWN_ERROR, "Error - Unknown error"},
         {TFV_INTERNAL_ERROR, "Error - Unknown internal error"},
-        {TFV_INVALID_CONFIGURATION, "Error - Invalid feature configuration"},
         {TFV_NODE_ALLOCATION_FAILED,
          "Error - Allocation of a scene node failed"},
         {TFV_NO_ACTIVE_MODULES, "Error - No active modules"},
         // 550...
-        {TFV_CAMERA_ACQUISITION_FAILED, "Error - Device could not be opened"},
         {TFV_CAMERA_NOT_AVAILABLE, "Error - Camera not available"},
         {TFV_CAMERA_SETTINGS_FAILED,
          "Error - Setting camera properties failed"},
         // 600...
-        {TFV_UNCONFIGURED_ID, "Error - Feature-Id not configured"},
-        {TFV_FEATURE_CONFIGURATION_FAILED,
-         "Error - Configuration of feature failed"},
         {TFV_INVALID_ID, "Error - ID is invalid"},
         {TFV_MODULE_INITIALIZATION_FAILED,
          "Error - Initialization of module failed"},

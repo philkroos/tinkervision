@@ -140,7 +140,7 @@ TFV_Result get_parameter(TFV_Id module_id, TFV_String const parameter,
 /// \return
 ///    - #TFV_INTERNAL_ERROR if an id clash occured. This is an open but
 ///      unlikely bug.
-///    - #TFV_CAMERA_ACQUISITION_FAILED if the camera could not be opened.
+///    - #TFV_CAMERA_NOT_AVAILABLE if the camera could not be opened.
 ///    - #TFV_MODULE_INITIALIZATION_FAILED The module could not be loaded. Maybe
 ///      an invalid name passed.
 ///    - #TFV_OK fine, module loaded and active.
@@ -160,7 +160,7 @@ TFV_Result module_stop(TFV_Id id);
 /// Restart a module that has been stopped with module_stop().
 /// \param[in] id Id of the module to be restarted.
 /// \return
-///    - #TFV_UNCONFIGURED_ID if no module is registered with
+///    - #TFV_INVALID_ID if no module is registered with
 ///      the given id.
 ///    - #TFV_CAMERA_ACQUISATION_FAILED if the camera is not available
 ///    - #TFV_OK iff the module is running.
