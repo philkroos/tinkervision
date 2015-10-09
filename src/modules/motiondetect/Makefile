@@ -1,6 +1,6 @@
 CC		:= g++
 
-INC		:= -I/usr/local/include `pkg-config --cflags opencv`
+INC		:= `pkg-config --cflags opencv`
 LDFLAGS	:= `pkg-config --libs opencv`
 
 ifeq ($(DEBUG),yes)
@@ -27,7 +27,7 @@ clean:
 	rm -f *.o *.so
 
 # installation to system path
-prefix	:= /usr/local
+prefix	:= /usr
 
 install: $(SO)
 	mkdir -p $(prefix)/lib/tinkervision/

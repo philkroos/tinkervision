@@ -1,6 +1,6 @@
 CC		:= g++
 
-INC		:= -I/usr/local/include `pkg-config --cflags opencv`
+INC		:= `pkg-config --cflags opencv`
 LDFLAGS	:= `pkg-config --libs opencv`
 
 ifeq ($(DEBUG),yes)

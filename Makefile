@@ -68,7 +68,7 @@ doc:
 	doxygen
 
 # installation
-prefix		:= /usr/local
+prefix		:= /usr
 header		:= $(src_prefix)/core/tinkervision.h \
 		   $(src_prefix)/core/tinkervision_defines.h \
                    $(src_prefix)/interface/tv_module.hh \

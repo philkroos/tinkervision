@@ -2,11 +2,8 @@ CC		:= g++
 
 ifeq ($(DEBUG),yes)
 	CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
-	INC		:= -I/usr/local/include `pkg-config --cflags opencv`
-	LDFLAGS	:= `pkg-config --libs opencv`
 else
 	CCFLAGS	:= -Wall -Werror -O3 -std=c++11 -shared -fPIC
-	INC		:= -I/usr/local/include
 endif
 
 SO		:= dummy.so
@@ -27,7 +24,7 @@ clean:
 	rm -f *.o *.so
 
 # installation to system path
-prefix	:= /usr/local
+prefix	:= /usr
 
 install: $(SO)
 	mkdir -p $(prefix)/lib/tinkervision

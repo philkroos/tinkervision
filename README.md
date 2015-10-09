@@ -7,7 +7,7 @@ http://www.tinkerforge.com/de/doc/Hardware/Bricks/RED_Brick.html
 Tinkervision consists of
 - a core component that manages camera input, conversion of
   frames between several supported formats, execution of external computer vision
-  algorithms, and provides access to their results.
+  algorithms, and gives access to their results.
 - Some basic example cv-algorithms provided as modules that are loadable by the core
   component.
 
@@ -28,15 +28,15 @@ Makefiles to build the core component, the modules and tests.
 1. Executing `python install_required.py` should install the missing libraries of the
    core component.
 2. `make` or `DEBUG=1 make` builds the library.
-3. `make install` installs it, by default under `/usr/local/`.
-4. `sudo ld_config /usr/local/lib` updates the linker cache, in case the library is
-   not found after installation.
+3. `make install` installs necessary headers and the lib under `/usr/include`
+   and `/usr/lib`.
 
 ## Building the modules
 There is a top-level makefile in `src/modules` which builds all modules, with the
 exception of the `streamer` module.  This requires additional external libraries,
-which can be installed with a provided script.  Each module can also be build
-and installed individually with the corresponding makefile. To build and install all:
+which can be installed with a script found in this repository.
+Each module can also be build and installed individually with the
+corresponding makefile. To build and install all:
 
 1. `cd src/modules`
 2. `make` && `sudo make install`
@@ -46,7 +46,7 @@ and installed individually with the corresponding makefile. To build and install
 
 # Usage
 The library provides a C-interface, which can be used directly, as demonstrated in
-the test files provided in `src/test/`. However, it is intended to be run as part
+the test files in `src/test/`. However, it is intended to be run as part
 of the Tinkerforge `red-brick-apid` on the Tinkerforge `Red-Brick`.  Currently, the
 supported image is 1.7.
 
@@ -90,9 +90,9 @@ Red-Brick, which can be found e.g. with the Tinkerforge `brickv`. `main.py` and
 - `./main.py <uid> colormotion`
 
 # Note
-The library searches for loadable modules in two paths:
-1. `/usr/local/lib/tinkervision`
-2. A custom path, which is currently fixed to `/tmp/lib/tinkervision` for testing.
+The library searches for loadable modules in two (currently fixed) paths:
+1. `/usr/lib/tinkervision`
+2. A custom path, which is currently set to `/tmp/lib/tinkervision` for testing.
 
 This means that modules that are installed to the second path won't be available
 after reboot and have to be reinstalled.

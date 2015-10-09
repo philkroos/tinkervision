@@ -138,7 +138,7 @@ void tfv::Api::execute(void) {
             auto callback =
                 default_callback_ ? default_callback_ : module.callback();
             if (result and callback) {
-                Log("API", "Callback for id ", id);
+                // Log("API", "Callback for id ", id);
                 TFV_ModuleResult res = {result->x, result->y, result->width,
                                         result->height};
 
@@ -185,7 +185,7 @@ void tfv::Api::execute(void) {
     auto loops = 0;
     while (active_) {
         last_loop_time_point = Clock::now();
-        Log("API", "Execution at ", last_loop_time_point);
+        // Log("API", "Execution at ", last_loop_time_point);
 
         Image frame;
         if (active_modules()) {  // This does not account for modules

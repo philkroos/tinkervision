@@ -34,7 +34,7 @@ clean:
 	rm -f *.o *.so
 
 # installation to system path
-prefix	:= /usr/local
+prefix	:= /usr/
 
 install: $(SO)
 	mkdir -p $(prefix)/lib/tinkervision/
