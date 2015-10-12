@@ -43,7 +43,6 @@ public:
     using ExecAll = std::function<void(TV_Int, Resource&)>;
     using ExecOne = std::function<TV_Result(Resource&)>;
 
-    using AfterPersistedHook = std::function<void(Resource&)>;
     using AfterAllocatedHook = std::function<void(Resource&)>;
 
     using Allocator = std::function<void(void)>;

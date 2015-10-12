@@ -81,7 +81,6 @@ public:
     }
 
     void execute(tv::Image const& image);
-    void execute_modifying(tv::Image& image);
 
     TV_Int id(void) const { return module_id_; }
     std::string name(void) const;
