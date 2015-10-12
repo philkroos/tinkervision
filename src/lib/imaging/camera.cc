@@ -25,17 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 tv::Camera::Camera(TV_Id camera_id) : camera_id_(camera_id) {}
 
-tv::Camera::Camera(TV_Id camera_id, uint16_t requested_width,
-                   uint16_t requested_height)
-    : camera_id_{camera_id},
-      requested_width_{requested_width},
-      requested_height_{requested_height} {
-
-    if (not requested_height) {
-        requested_width_ = 0;
-    }
-}
-
 bool tv::Camera::get_frame(tv::Image& image) {
     if (not is_open()) {
         stop();
@@ -59,8 +48,11 @@ bool tv::Camera::get_properties(uint16_t& width, uint16_t& height,
     return false;
 }
 
-bool tv::Camera::open(void) {
-    auto success = open_device();
+bool tv::Camera::open(void) { return open(0, 0); }
+
+bool tv::Camera::open(uint16_t width, uint16_t height) {
+    auto success = (width ? open_device(width, height) : open_device());
+
     if (success) {
         active_ = true;
         auto& header = image_.header;

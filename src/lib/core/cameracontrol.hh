@@ -49,12 +49,10 @@ public:
      */
     bool is_available(void);
 
-    /**
-     * Request a framesize to be set when initializing the camera.
-     * This will only work if no camera is running already.
-     * \param[in] framewidth Width requested
-     * \param[in] framheight Height requested
-     */
+    /// Request a framesize to be set when initializing the camera.
+    /// This will only work the camera is not active.
+    /// \param[in] framewidth Width requested
+    /// \param[in] framheight Height requested
     bool preselect_framesize(uint16_t framewidth, uint16_t frameheight);
 
     /**

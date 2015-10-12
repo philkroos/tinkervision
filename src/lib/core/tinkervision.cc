@@ -45,9 +45,9 @@ TV_Result tv_camera_available(void) {
     return tv::get_api().is_camera_available();
 }
 
-TV_Result tv_preselect_framesize(TV_Size width, TV_Size height) {
-    tv::Log("Tinkervision::PreselectFramesize", width, " ", height);
-    return tv::get_api().preselect_framesize(width, height);
+TV_Result tv_set_framesize(TV_Size width, TV_Size height) {
+    tv::Log("Tinkervision::SetFramesize", width, " ", height);
+    return tv::get_api().set_framesize(width, height);
 }
 
 TV_Result tv_start_idle(void) {

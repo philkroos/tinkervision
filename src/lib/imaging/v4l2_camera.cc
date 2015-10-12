@@ -67,13 +67,6 @@ tv::V4L2USBCamera::V4L2USBCamera(TV_Id camera_id) : Camera(camera_id) {
     frames_ = new v4l2::Frame[request_buffer_count_ * sizeof(v4l2::Frame)]();
 }
 
-tv::V4L2USBCamera::V4L2USBCamera(TV_Id camera_id, size_t framewidth,
-                                 size_t frameheight)
-    : Camera(camera_id, framewidth, frameheight) {
-    // zero-initialize buffers for the frames to be grabbed
-    frames_ = new v4l2::Frame[request_buffer_count_ * sizeof(v4l2::Frame)]();
-}
-
 tv::V4L2USBCamera::~V4L2USBCamera(void) {
 
     close();
@@ -92,8 +85,13 @@ tv::V4L2USBCamera::~V4L2USBCamera(void) {
 bool tv::V4L2USBCamera::is_open(void) const { return device_ != 0; }
 
 bool tv::V4L2USBCamera::open_device(void) {
+    return is_open() or open_device(0, 0);
+}
+
+bool tv::V4L2USBCamera::open_device(uint16_t width, uint16_t height) {
+
     if (is_open()) {
-        return true;
+        return false;
     }
 
     const char* device =
@@ -106,12 +104,15 @@ bool tv::V4L2USBCamera::open_device(void) {
     }
 
     if (device_) {
-        if (requested_settings()) {
-            if (not _select_requested_settings() or (not _start_capturing())) {
-                close();
-            }
-        } else if (not select_best_available_settings() or
-                   (not _start_capturing())) {
+        auto open = false;
+        if (width != 0) {
+            open = _select_requested_settings(width, height) and
+                   _start_capturing();
+
+        } else {
+            open = select_best_available_settings() and _start_capturing();
+        }
+        if (not open) {
             close();
         }
     }
@@ -149,16 +150,14 @@ void tv::V4L2USBCamera::_retrieve_properties(void) {
     }
 }
 
-bool tv::V4L2USBCamera::_select_requested_settings(void) {
+bool tv::V4L2USBCamera::_select_requested_settings(uint16_t width,
+                                                   uint16_t height) {
     auto ok = false;
 
     if (is_open()) {  // Todo: errornumber?
 
         v4l2::Format format;
         format.type = buffer_type_;
-
-        auto width = requested_framewidth();
-        auto height = requested_frameheight();
 
         for (size_t i = 0; i < supported_resolutions_.size(); ++i) {
             if ((supported_resolutions_[i].width == width) and
@@ -174,7 +173,6 @@ bool tv::V4L2USBCamera::_select_requested_settings(void) {
     }
 
     return ok;
-    // return ok or select_best_available_settings(); ?
 }
 
 bool tv::V4L2USBCamera::select_best_available_settings(void) {

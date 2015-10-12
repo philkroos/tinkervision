@@ -119,10 +119,11 @@ using ColorSpaceMapping = struct ColorSpaceMapping {
 class V4L2USBCamera : public Camera {
 public:
     explicit V4L2USBCamera(TV_Id camera_id);
-    V4L2USBCamera(TV_Id camera_id, size_t framewidth, size_t frameheight);
     ~V4L2USBCamera(void) override final;
 
     bool open_device(void) override final;
+    bool open_device(uint16_t, uint16_t) override final;
+
     bool is_open(void) const override final;
     ColorSpace image_format(void) const override final {
         return supported_codings_[coding_].tv_id;
@@ -190,7 +191,7 @@ private:
     inline void _init_info_buffer(int index);
     bool _set_format_and_resolution(v4l2::Format& format, size_t format_index,
                                     size_t resolution_index);
-    bool _select_requested_settings(void);
+    bool _select_requested_settings(uint16_t width, uint16_t height);
     bool _set_best_format_and_resolution(v4l2::Format& format);
     bool _set_highest_framerate(v4l2::PixelFormat& px_format);
     void _retrieve_properties(void);

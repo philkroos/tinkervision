@@ -70,6 +70,11 @@ TV_Result tv::Api::start(void) {
 
 TV_Result tv::Api::stop(void) {
 
+    auto active_count = modules_.count(
+        [](tv::Module const& module) { return module.enabled(); });
+
+    Log("API", "Stopping with ", active_count, " modules");
+
     if (executor_.joinable()) {
 
         // Notify the threaded execution-context to stop and wait for it

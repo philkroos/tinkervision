@@ -106,18 +106,48 @@ public:
      */
     TV_Result quit(void);
 
-    /**
-     * Preselect the framesize. This can only be successfull if the camera is
-     * not active currently, i.e. if the API is in a stopped state and no module
-     * is active.
-     * \return
-     * - #TV_CAMERA_SETTINGS_FAILED if there are active modules already
-     * - #TV_OK else
-     */
-    TV_Result preselect_framesize(TV_Size width, TV_Size height) {
-        return camera_control_.preselect_framesize(width, height)
-                   ? TV_OK
-                   : TV_CAMERA_SETTINGS_FAILED;
+    /// Set the framesize.
+    /// \return
+    /// - #TV_CAMERA_SETTINGS_FAILED if the selected size is not valid.
+    /// - #TV_OK else
+    TV_Result set_framesize(TV_Size width, TV_Size height) {
+
+        auto result = TV_CAMERA_SETTINGS_FAILED;
+
+        /// \todo Count the active modules continuously and remove code dup.
+        auto active_count = modules_.count(
+            [](tv::Module const& module) { return module.enabled(); });
+
+        if (active_count) {
+            uint16_t w, h;
+            camera_control_.get_resolution(w, h);
+
+            if (w != width or h != height) {  // different settings?
+                auto code = stop();
+                if (code != TV_OK) {
+                    LogError("API", "SetFramesize ", "Stop returned ", code);
+                }
+
+                /// If the settings can't be applied, any previous ones will
+                /// be restored.
+                if (camera_control_.preselect_framesize(width, height)) {
+                    result = TV_OK;
+                }
+
+                code = start();
+                if (code != TV_OK) {
+                    LogError("API", "SetFramesize ", "Start returned ", code);
+                }
+            } else {
+                result = TV_OK;
+            }
+        } else {  // camera not running
+            if (camera_control_.preselect_framesize(width, height)) {
+                result = TV_OK;
+            }
+        }
+
+        return result;
     }
 
     /**

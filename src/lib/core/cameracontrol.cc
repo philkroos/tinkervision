@@ -48,12 +48,25 @@ bool tv::CameraControl::is_available(void) {
 
 bool tv::CameraControl::preselect_framesize(uint16_t framewidth,
                                             uint16_t frameheight) {
-    if (not is_open()) {
-        // \todo Check if the requested settings are supported by the cam.
-        requested_width_ = framewidth;
-        requested_height_ = frameheight;
+    if (is_open()) {
+        return false;
     }
-    return not usercount_;
+
+    auto old_width = requested_width_;
+    auto old_height = requested_height_;
+
+    requested_width_ = framewidth;
+    requested_height_ = frameheight;
+
+    if (not _init()) {
+        requested_width_ = old_width;
+        requested_height_ = old_height;
+        return false;
+    }
+
+    stop_camera();
+
+    return true;
 }
 
 bool tv::CameraControl::acquire(size_t user) {
@@ -211,10 +224,10 @@ bool tv::CameraControl::_open_device(void) {
             camera_ = new OpenCvUSBCamera(i);
 #else
             Log("CAMERACONTROL", "Opening V4L2 camera device ", i);
-            camera_ = new V4L2USBCamera(i, requested_width_, requested_height_);
+            camera_ = new V4L2USBCamera(i);
 #endif
 
-            if (camera_->open()) {
+            if (camera_->open(requested_width_, requested_height_)) {
                 stopped_ = false;
                 break;
             } else {
@@ -233,6 +246,7 @@ void tv::CameraControl::_close_device() {
 
         camera_->stop();
 
+        /// \todo It is not necessary to always delete the cam.
         delete camera_;
         camera_ = nullptr;
     }

@@ -38,17 +38,16 @@ extern "C" {
 TV_Result tv_camera_available(void);
 
 /// Selects a framesize WxH.
-/// This can only be done while no modules are active.
-/// This does not guarantee that the requested framesize will be used. It is
-/// only
-/// checked once the camera device is opened if the settings are supported, e.g.
-/// during module_start().
+/// This will temporarily stop and restart all active modules.
+/// If the requested framesize is not available, the settings will be restored
+/// to the last valid settings, if any.  If no module is running, the camera
+/// will just be tested.
 /// \param[in] width
 /// \param[in] height
 /// \return
-///   - #TV_OK if no module was running.
+///   - #TV_OK if the settings are ok.
 ///   - #TV_CAMERA_SETTINGS_FAILED if the settings are ignored.
-TV_Result tv_preselect_framesize(TV_Size width, TV_Size height);
+TV_Result tv_set_framesize(TV_Size width, TV_Size height);
 
 /// Starts a dummy module keeping the Api up and running even if no 'real'
 /// module

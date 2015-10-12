@@ -57,14 +57,14 @@ void colormatch_start(TV_Id id, int min_hue, int max_hue) {
 }
 
 int main(int argc, char* argv[]) {
-    TV_Size width = 640;
-    TV_Size height = 480;
+    TV_Size width = 1280;
+    TV_Size height = 720;
     int enum_modules = 1;
     int enum_pars = 2;
 
-    TV_Result result = tv_preselect_framesize(width, height);
+    TV_Result result = tv_set_framesize(width, height);
 
-    printf("PreselectFramesize: %d (%s)\n", result, tv_result_string(result));
+    printf("SetFramesize: %d (%s)\n", result, tv_result_string(result));
     sleep(1);
 
     result = tv_camera_available();
@@ -78,6 +78,21 @@ int main(int argc, char* argv[]) {
     result = tv_start_idle();
     printf("StartIdle: %d (%s)\n", result, tv_result_string(result));
     sleep(2);
+
+    width = height = 0;
+    result = tv_get_resolution(&width, &height);
+    printf("GetResolution: %d (%s)\n", result, tv_result_string(result));
+    printf("WxH: %lux%lu\n", (long unsigned)width, (long unsigned)height);
+    sleep(1);
+
+    /* new 10-12-2015: change framesize 'while' running */
+    width = 640;
+    height = 480;
+
+    result = tv_set_framesize(width, height);
+
+    printf("SetFramesize: %d (%s)\n", result, tv_result_string(result));
+    sleep(1);
 
     width = height = 0;
     result = tv_get_resolution(&width, &height);
@@ -119,8 +134,25 @@ int main(int argc, char* argv[]) {
     printf("Stop: %d (%s)\n", result, tv_result_string(result));
     sleep(2);
 
+    /* \todo: Can't get resolution if inactive... ok? */
+    result = tv_get_resolution(&width, &height);
+    printf("GetResolution: %d (%s)\n", result, tv_result_string(result));
+    sleep(1);
+
     result = tv_start();
     printf("Api restarted: %d (%s)\n", result, tv_result_string(result));
+    sleep(1);
+
+    width = 1280;
+    height = 720;
+
+    result = tv_set_framesize(width, height);
+    result = tv_get_resolution(&width, &height);
+    printf("GetResolution: %d (%s)\n", result, tv_result_string(result));
+    printf("SetFramesize: %d (%s)\n", result, tv_result_string(result));
+    sleep(1);
+
+    printf("WxH: %lux%lu\n", (long unsigned)width, (long unsigned)height);
     sleep(2);
 
     return 0;

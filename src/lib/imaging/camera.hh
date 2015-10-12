@@ -35,7 +35,18 @@ public:
     bool get_frame(Image& frame);
     bool get_properties(uint16_t& height, uint16_t& width,
                         size_t& framebytesize);
+
+    /// This is a shortcut for open(0, 0).
     bool open(void);
+
+    /// Open the camera with the specified framesize.
+    /// If the framesize does not matter, pass 0,0.
+    /// \param[in] width The requested framewidth. Pass 0 if the framesize
+    /// should be selected automatically.
+    /// \param[in] height The requested height. Ignored if width is 0.
+    /// \return True if the camera is open. If width was specified as 0,
+    /// retrieve the actual framesize with get_properties().
+    bool open(uint16_t width, uint16_t height);
 
     ImageHeader frame_header(void) const { return image_.header; }
 
@@ -44,18 +55,12 @@ public:
 
 protected:
     explicit Camera(TV_Id camera_id);
-    Camera(TV_Id camera_id, uint16_t framewidth, uint16_t frameheight);
     TV_Id camera_id_;
-
-    bool requested_settings(void) const { return requested_width_ != 0; }
-
-    uint16_t requested_framewidth(void) const { return requested_width_; }
-
-    uint16_t requested_frameheight(void) const { return requested_height_; }
 
     // These are Template Methods, see implementation
     // of the corresponding get_ methods.
     virtual bool open_device(void) = 0;
+    virtual bool open_device(uint16_t width, uint16_t height) = 0;
     virtual bool retrieve_frame(tv::ImageData** data) = 0;
     virtual void retrieve_properties(uint16_t& width, uint16_t& height,
                                      size_t& framebytesize) = 0;
@@ -63,8 +68,6 @@ protected:
 
 private:
     bool active_{true};
-    uint16_t requested_width_{0};
-    uint16_t requested_height_{0};
 
     Image image_{};  ///< Image container, data filled by subclass
 };

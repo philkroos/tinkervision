@@ -32,10 +32,14 @@ namespace tv {
 class OpenCvUSBCamera : public Camera {
 
 public:
-    explicit OpenCvUSBCamera(TV_Id camera_id);
+    explicit OpenCvUSBCamera(TV_Id camera_idi);
     ~OpenCvUSBCamera(void) override final { close(); }
 
     bool open_device(void) override final;
+    bool open_device(uint16_t, uint16_t) override final {
+        return false;  // can't specify the framesize for the cam in use with
+                       // ocv
+    }
     bool is_open(void) const override final;
     ColorSpace image_format(void) const override final {
         return ColorSpace::BGR888;
