@@ -38,20 +38,17 @@ tv::CameraControl::CameraControl(void) {
 
 bool tv::CameraControl::is_available(void) {
 
-    auto result = false;
-    if (camera_ and (camera_->is_open() or camera_->open())) {
+    if (camera_ and camera_->is_open()) {
 
-        result = true;  // already open
-
-    } else {
-        return _test_device();
+        return true;
     }
-    return result;
+
+    return _test_device();
 }
 
 bool tv::CameraControl::preselect_framesize(uint16_t framewidth,
                                             uint16_t frameheight) {
-    if (not usercount_) {
+    if (not is_open()) {
         // \todo Check if the requested settings are supported by the cam.
         requested_width_ = framewidth;
         requested_height_ = frameheight;
@@ -135,13 +132,7 @@ void tv::CameraControl::release_all(void) {
 
 bool tv::CameraControl::get_properties(uint16_t& height, uint16_t& width,
                                        size_t& frame_bytesize) {
-    auto result = false;
-
-    if (is_open()) {
-        result = camera_->get_properties(height, width, frame_bytesize);
-    }
-
-    return result;
+    return is_open() and camera_->get_properties(height, width, frame_bytesize);
 }
 
 bool tv::CameraControl::get_resolution(uint16_t& width, uint16_t& height) {
