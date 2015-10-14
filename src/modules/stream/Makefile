@@ -3,7 +3,7 @@ CCFLAGS	:= -Wall -Werror -O3 -std=c++11 -shared -fPIC
 
 # Includes for LIVE555 streamer and opencv
 LIVE_MODULES	:= BasicUsageEnvironment UsageEnvironment groupsock liveMedia
-INC		:= $(addprefix -I/usr/local/include/,$(LIVE_MODULES))
+INC		:= $(addprefix -I/usr/include/,$(LIVE_MODULES))
 
 # Libraries for live555 streamer, video compression and opencv
 LIBS_LIVE       := $(addprefix -l,$(LIVE_MODULES))

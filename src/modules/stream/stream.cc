@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <chrono>
 
-#include "exceptions.hh"
+#include "tinkervision/exceptions.hh"
 
 DEFINE_VISION_MODULE(Stream)
 
@@ -55,7 +55,7 @@ tv::Stream::Stream() : Publisher("Stream"), context_(ExecutionContext::get()) {
 void tv::Stream::execute(tv::ImageHeader const& header, ImageData const* data) {
     if (not subsession_) {
 
-        context_.encoder.initialize(image.width, image.height, 10);  // FPS!
+        context_.encoder.initialize(header.width, header.height, 10);  // FPS!
 
         subsession_ =
             tv::H264MediaSession::createNew(*usage_environment_, context_);

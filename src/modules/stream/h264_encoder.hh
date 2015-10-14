@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <vector>  // encoder io
 #include <mutex>
 
-#include "tinkervision_defines.h"
+#include "tinkervision/tinkervision_defines.h"
 
 extern "C" {
 #include <x264.h>

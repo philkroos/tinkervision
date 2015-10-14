@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef STREAM_H
 #define STREAM_H
 
-#include "tv_module.hh"
+#include "tinkervision/tv_module.hh"
 
 #include <future>  // async
 

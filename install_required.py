@@ -86,7 +86,7 @@ if __name__ == '__main__':
     requirements = {
         'libv4l-dev' : apt_get,
         'libopencv-dev' : apt_get,
-        # These live now in shared/stream:
+        # These live now in modules/stream:
 #        'libx264-dev' : apt_get,
 #        'https://github.com/hackeron/live555.git' : live
     }
