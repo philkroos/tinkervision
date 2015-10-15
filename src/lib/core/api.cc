@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 tv::Api::Api(void) {
     active_ = true;
-    executor_ = std::thread(&tv::Api::execute, this);
+    executor_ = std::thread(&Api::execute, this);
 
     if (not executor_.joinable()) {
         active_ = false;
@@ -58,7 +58,7 @@ TV_Result tv::Api::start(void) {
 
     // Start threaded execution of mainloop
     active_ = true;
-    executor_ = std::thread(&tv::Api::execute, this);
+    executor_ = std::thread(&Api::execute, this);
 
     if (not executor_.joinable()) {
         active_ = false;
