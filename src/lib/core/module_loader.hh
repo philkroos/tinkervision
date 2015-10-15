@@ -29,6 +29,7 @@
 #include <dlfcn.h>
 
 #include "module_wrapper.hh"
+#include "filesystem.hh"
 
 namespace tv {
 
@@ -54,7 +55,11 @@ public:
     explicit ModuleLoader(std::string const& system_lib_load_path,
                           std::string const& user_lib_load_path)
         : system_load_path_(system_lib_load_path),
-          user_load_path_(user_lib_load_path) {}
+          user_load_path_(user_lib_load_path),
+          dirwatch_(&ModuleLoader::_watched_directory_changed_callback, this) {
+
+        dirwatch_.add_watched_extension("so");
+    }
 
     /// List all available modules. Both system_load_path_ and
     /// user_lib_load_path_ are searched for loadable modules, which are
@@ -91,6 +96,15 @@ public:
     /// \return The last error produced, one of TV*. TV_OK if none.
     TV_Result last_error(void);
 
+    void update_on_changes(std::function<void(std::string const& directory,
+                                              std::string const& filename,
+                                              bool true_if_created)> callback) {
+        Log("MODULE_LOADER", "Registering callback for directory changes");
+        dirwatch_.watch(system_load_path_);
+        dirwatch_.watch(user_load_path_);
+        on_change_callback = callback;
+    }
+
 private:
     using LibraryHandle = void*;
     struct ModuleHandle {
@@ -108,10 +122,25 @@ private:
         "create",
         "destroy"};  ///< Each library has to provide these methods globally
 
+    Dirwatch dirwatch_;
+
     // internally used helper methods
     bool _free_lib(LibraryHandle handle);
     bool _load_module_from_library(ModuleWrapper** target,
                                    std::string const& library_root,
                                    std::string const& libname, TV_Int id);
+
+    void _watched_directory_changed_callback(Dirwatch::Event event,
+                                             std::string const& dir,
+                                             std::string const& file) {
+        Log("MODULE_LOADER", "Received change for ", file, " in ", dir);
+        if (on_change_callback) {
+            on_change_callback(dir, file,
+                               event == Dirwatch::Event::FILE_CREATED);
+        }
+    }
+
+    std::function<void(std::string const&, std::string const&,
+                       bool true_if_created)> on_change_callback = nullptr;
 };
 }

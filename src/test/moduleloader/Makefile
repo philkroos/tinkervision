@@ -1,8 +1,8 @@
 CC	:= g++
-CCFLAGS := -Wall -Werror -g -std=c++11 -O0 -pedantic
+CCFLAGS := -Wall -Werror -g -std=c++11 -O0 -pedantic -DDEBUG
 
 INC	:= -I../../lib/core -I../../lib/imaging -I../../lib/interface
-LDFLAGS := -g -Wall -lstdc++ -ldl
+LDFLAGS := -g -Wall -lstdc++ -ldl -pthread
 
 TFV_UNITS := ../../lib/core/module_loader.cc \
              ../../lib/core/module_wrapper.cc \
