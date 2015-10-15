@@ -433,17 +433,29 @@ public:
         return TV_OK;
     }
 
+    /// Attach a callback that will be notified about newly or no longer
+    /// available, loadable modules.
+    /// Initially, all currently available modules will be listed.
+    /// \note It does not make sense to add more then one callback since only
+    /// the latest will ever be updated.
+    /// \param callback A #TV_StringCallback where the first parameter denotes
+    /// whether the corresponding file has been deleted (0) or is available (1).
+    /// \param context Additional context to be passed to each callback.
     TV_Result enumerate_available_modules(TV_StringCallback callback,
                                           TV_Context context) {
         std::thread([&, callback, context](void) {
-                        std::vector<std::string> modules;
-                        module_loader_.list_available_modules(modules);
-                        for (auto const& module : modules) {
-                            callback(1, module.c_str(), context);
+                        std::vector<std::string> paths, modules;
+                        module_loader_.list_available_modules(paths, modules);
+                        for (size_t i = 0; i < modules.size(); ++i) {
+                            callback(static_cast<int>(true),
+                                     (paths[i] + modules[i]).c_str(), context);
                         }
-                        callback(0, "", context);
                     }).detach();
 
+        module_loader_.update_on_changes([callback, context](
+            std::string const& dir, std::string const& file, bool created) {
+            callback(static_cast<int>(created), (dir + file).c_str(), context);
+        });
         return TV_OK;
     }
 

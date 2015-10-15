@@ -61,10 +61,35 @@ public:
         dirwatch_.add_watched_extension("so");
     }
 
+    /// Modify the user accessible module load path.
+    /// \param[in] load_path full path name
+    /// \return true if the path was added. In this case, the previous user load
+    /// path has been removed.
+    bool set_user_load_path(std::string const& load_path) {
+        if (not is_directory(load_path)) {
+            LogError("MODULE_LOADER", "Load path is not a directory: ",
+                     load_path);
+            return false;
+        }
+
+        if (on_change_callback and not dirwatch_.watch(load_path)) {
+            LogError("MODULE_LOADER", "Unknown error for load path ",
+                     load_path);
+            return false;
+        }
+
+        dirwatch_.unwatch(user_load_path_);
+        user_load_path_ = load_path;
+        return true;
+    }
+
     /// List all available modules. Both system_load_path_ and
     /// user_lib_load_path_ are searched for loadable modules, which are
     /// identified by their basename.
-    void list_available_modules(std::vector<std::string>& modules) const;
+    /// \param[inout] paths The paths to the modules.
+    /// \param[inout] modules The filenames of the modules.
+    void list_available_modules(std::vector<std::string>& paths,
+                                std::vector<std::string>& modules) const;
 
     /// \param[inout] modules List of all modules found.
     /// Load a vision-module from library libname.
@@ -96,6 +121,15 @@ public:
     /// \return The last error produced, one of TV*. TV_OK if none.
     TV_Result last_error(void);
 
+    /// Set a callback that will be notified for each change to the available
+    /// load paths.
+    /// \note Only one callback is allowed. If a callback is already registered,
+    /// it will be replaced by this function.
+    /// \param[in] callback A function accepting a string for the directory, a
+    /// string for the filename, and a flag denoting whether the specified file
+    /// has been created (true) or deleted (false). The flag is also false if a
+    /// watched directory has been deleted. In this case, filename is the empty
+    /// string.
     void update_on_changes(std::function<void(std::string const& directory,
                                               std::string const& filename,
                                               bool true_if_created)> callback) {
@@ -115,7 +149,7 @@ private:
 
     Handles handles_;                     ///< keeps track of loaded modules
     std::string const system_load_path_;  ///< default shared object files
-    std::string const user_load_path_;    ///< additional shared object files
+    std::string user_load_path_;          ///< additional shared object files
     TV_Result error_{TV_OK};  ///< If an error occurs, it's stored here
 
     std::vector<std::string> required_functions_ = {
@@ -135,6 +169,8 @@ private:
                                              std::string const& file) {
         Log("MODULE_LOADER", "Received change for ", file, " in ", dir);
         if (on_change_callback) {
+            /// \todo Check here if the found library actually contains a valid
+            /// vision-module.
             on_change_callback(dir, file,
                                event == Dirwatch::Event::FILE_CREATED);
         }

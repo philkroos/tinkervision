@@ -34,7 +34,7 @@
 #include "logger.hh"
 
 void tv::ModuleLoader::list_available_modules(
-    std::vector<std::string>& modules) const {
+    std::vector<std::string>& paths, std::vector<std::string>& modules) const {
 
     auto filter = [](std::string const&, std::string ext,
                      bool is_file) { return is_file and ext == "so"; };
@@ -42,7 +42,13 @@ void tv::ModuleLoader::list_available_modules(
     /// \todo Check here if the found libraries actually contain valid
     /// vision-modules.
     list_directory_content(system_load_path_, modules, filter);
+    for (size_t i = 0; i < modules.size(); ++i) {
+        paths.push_back(system_load_path_);
+    }
     list_directory_content(user_load_path_, modules, filter);
+    for (size_t i = 0; i < (modules.size() - paths.size()); ++i) {
+        paths.push_back(user_load_path_);
+    }
 }
 
 bool tv::ModuleLoader::load_module_from_library(ModuleWrapper** target,
