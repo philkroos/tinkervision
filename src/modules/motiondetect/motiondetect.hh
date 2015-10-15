@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <opencv2/opencv.hpp>
 
-#include "tinkervision/tv_module.hh"
+#include "tinkervision/module.hh"
 
 namespace tv {
 

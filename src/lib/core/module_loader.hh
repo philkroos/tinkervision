@@ -28,7 +28,7 @@
 #include <vector>
 #include <dlfcn.h>
 
-#include "module.hh"
+#include "module_wrapper.hh"
 
 namespace tv {
 
@@ -45,8 +45,8 @@ namespace tv {
 /// is passed into SharedResource.
 class ModuleLoader {
 public:
-    using ConstructorFunction = TVModule* (*)();
-    using DestructorFunction = void (*)(TVModule*);
+    using ConstructorFunction = Module* (*)();
+    using DestructorFunction = void (*)(Module*);
 
     /// c'tor.
     /// Initialize this class with a path where libraries are to be
@@ -72,12 +72,12 @@ public:
     ///            the library.
     ///
     /// \see Module, describing the structure of the modules that can be loaded.
-    bool load_module_from_library(Module** target, std::string const& libname,
-                                  TV_Int id);
+    bool load_module_from_library(ModuleWrapper** target,
+                                  std::string const& libname, TV_Int id);
 
     /// Destruct the module and dlclose the associated library (once).
     /// \param[in] module The module to be free'd.
-    bool destroy_module(Module* module);
+    bool destroy_module(ModuleWrapper* module);
 
     /// Destroy all modules and dlclose the associated libraries.
     /// Since dlopen/dlclose use an internal refcounting mechanism, the
@@ -97,7 +97,7 @@ private:
         std::string libname;
         LibraryHandle handle;
     };
-    using Handles = std::unordered_map<Module*, ModuleHandle>;
+    using Handles = std::unordered_map<ModuleWrapper*, ModuleHandle>;
 
     Handles handles_;                     ///< keeps track of loaded modules
     std::string const system_load_path_;  ///< default shared object files
@@ -110,7 +110,7 @@ private:
 
     // internally used helper methods
     bool _free_lib(LibraryHandle handle);
-    bool _load_module_from_library(Module** target,
+    bool _load_module_from_library(ModuleWrapper** target,
                                    std::string const& library_root,
                                    std::string const& libname, TV_Int id);
 };

@@ -27,13 +27,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <vector>
 #include <algorithm>
 
-#include "module.hh"
+#include "module_wrapper.hh"
 #include "image.hh"
 #include "shared_resource.hh"
-#include "module.hh"
 
 namespace tv {
-using Modules = tv::SharedResource<tv::Module>;
+using Modules = tv::SharedResource<tv::ModuleWrapper>;
 
 class SceneTree;  // forward
 class Node {

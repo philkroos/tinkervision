@@ -5,7 +5,7 @@ INC	:= -I../../lib/core -I../../lib/imaging -I../../lib/interface
 LDFLAGS := -g -Wall -lstdc++ -ldl
 
 TFV_UNITS := ../../lib/core/module_loader.cc \
-             ../../lib/core/module.cc \
+             ../../lib/core/module_wrapper.cc \
 	     ../../lib/core/logger.cc \
 	     ../../lib/core/filesystem.cc
 OBJ	:= tfv_test_loader.o

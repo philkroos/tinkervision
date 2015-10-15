@@ -17,8 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef MODULE_H
-#define MODULE_H
+#ifndef MODULE_WRAPPER_H
+#define MODULE_WRAPPER_H
 
 #include <typeinfo>
 #include <type_traits>
@@ -29,15 +29,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "image.hh"
 #include "bitflag.hh"
 #include "logger.hh"
-#include "tv_module.hh"
+#include "module.hh"
 
 namespace tv {
 
 struct Result;
-class TVModule;
 enum class ModuleType : uint8_t;
 
-class Module {
+class ModuleWrapper {
 public:
     // runtime tags describing some sort of status this module is in, as
     // relevant for the execution of the Api
@@ -51,24 +50,24 @@ public:
 
 private:
     bool active_;
-    Module::Tag tags_ = Module::Tag::None;
+    ModuleWrapper::Tag tags_ = ModuleWrapper::Tag::None;
     TV_Int module_id_;
 
-    TVModule* tv_module_;
+    Module* tv_module_;
 
     TV_Callback cb_ = nullptr;
 
 public:
-    Module(TVModule* executable, TV_Int module_id)
+    ModuleWrapper(Module* executable, TV_Int module_id)
         : active_(false), module_id_(module_id), tv_module_(executable) {}
 
-    ~Module(void) { Log("MODULE::Destructor", name()); }
+    ~ModuleWrapper(void) { Log("MODULE::Destructor", name()); }
 
     // No copy allowed
-    Module(Module const& other) = delete;
-    Module(Module&& other) = delete;
-    Module& operator=(Module const& rhs) = delete;
-    Module& operator=(Module&& rhs) = delete;
+    ModuleWrapper(ModuleWrapper const& other) = delete;
+    ModuleWrapper(ModuleWrapper&& other) = delete;
+    ModuleWrapper& operator=(ModuleWrapper const& rhs) = delete;
+    ModuleWrapper& operator=(ModuleWrapper&& rhs) = delete;
 
     bool register_callback(TV_Callback callback) {
         if (not result() or cb_) {
@@ -132,7 +131,7 @@ public:
     Tag const& tags(void) const { return tags_; }
     void tag(Tag tags) { tags_ |= tags; }
 
-    TVModule* executable(void) { return tv_module_; }
+    Module* executable(void) { return tv_module_; }
 };
 }
 #endif

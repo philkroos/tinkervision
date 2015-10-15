@@ -17,8 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef TV_MODULE_H
-#define TV_MODULE_H
+#ifndef MODULE_H
+#define MODULE_H
 
 #include <vector>
 
@@ -42,18 +42,18 @@ enum class ModuleType : uint8_t {
     Publisher,
 };
 
-class TVModule {
+class Module {
 private:
     std::string const name_;
     ModuleType const type_;
 
 protected:
-    TVModule(const char* name, ModuleType type) : name_{name}, type_(type) {
+    Module(const char* name, ModuleType type) : name_{name}, type_(type) {
         Log("EXECUTABLE", "Constructor for ", name);
     }
 
 public:
-    virtual ~TVModule(void) { Log("EXECUTABLE", "Destructor for ", name_); }
+    virtual ~Module(void) { Log("EXECUTABLE", "Destructor for ", name_); }
 
     std::string const& name(void) const { return name_; }
     ModuleType const& type(void) const { return type_; }
@@ -87,21 +87,21 @@ public:
 // Choose what you are:
 //
 
-class Analyzer : public TVModule {
-    using TVModule::TVModule;
+class Analyzer : public Module {
+    using Module::Module;
 
     void execute(Image const& image) override final {
         execute(image.header, image.data);
     }
 
 public:
-    Analyzer(char const* name) : TVModule(name, ModuleType::Analyzer) {}
+    Analyzer(char const* name) : Module(name, ModuleType::Analyzer) {}
 
     virtual void execute(ImageHeader const& header, ImageData const* data) = 0;
 };
 
-class Modifier : public TVModule {
-    using TVModule::TVModule;
+class Modifier : public Module {
+    using Module::Module;
 
     ImageAllocator image_;
     ImageHeader output_header_;
@@ -115,7 +115,7 @@ class Modifier : public TVModule {
     }
 
 public:
-    Modifier(char const* name) : TVModule(name, ModuleType::Modifier) {}
+    Modifier(char const* name) : Module(name, ModuleType::Modifier) {}
     virtual ~Modifier(void) = default;
 
     virtual void execute(ImageHeader const& header, ImageData const* data,
@@ -130,26 +130,26 @@ public:
     Image const& modified_image(void) { return image_.image(); }
 };
 
-class Publisher : public TVModule {
-    using TVModule::TVModule;
+class Publisher : public Module {
+    using Module::Module;
 
     void execute(Image const& image) override final {
         execute(image.header, image.data);
     }
 
 public:
-    Publisher(char const* name) : TVModule(name, ModuleType::Publisher) {}
+    Publisher(char const* name) : Module(name, ModuleType::Publisher) {}
 
     virtual void execute(ImageHeader const& header, ImageData const* data) = 0;
 };
 }
 
-#define DECLARE_VISION_MODULE(name)        \
-    extern "C" tv::TVModule* create(void); \
+#define DECLARE_VISION_MODULE(name)      \
+    extern "C" tv::Module* create(void); \
     extern "C" void destroy(tv::name* module);
 
-#define DEFINE_VISION_MODULE(name)                                   \
-    extern "C" tv::TVModule* create(void) { return new tv::name(); } \
+#define DEFINE_VISION_MODULE(name)                                 \
+    extern "C" tv::Module* create(void) { return new tv::name(); } \
     extern "C" void destroy(tv::name* module) { delete module; }
 
 #endif

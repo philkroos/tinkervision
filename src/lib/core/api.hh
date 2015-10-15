@@ -116,7 +116,7 @@ public:
 
         /// \todo Count the active modules continuously and remove code dup.
         auto active_count = modules_.count(
-            [](tv::Module const& module) { return module.enabled(); });
+            [](tv::ModuleWrapper const& module) { return module.enabled(); });
 
         if (active_count) {
             uint16_t w, h;
@@ -213,9 +213,9 @@ public:
         /// \todo Is a two-stage-removal process still necessary now that
         /// the allocation stage was removed from SharedResource? Not sure,
         /// probably not.
-        return modules_.exec_one(id, [this](tv::Module& module) {
+        return modules_.exec_one(id, [this](tv::ModuleWrapper& module) {
             module.disable();
-            module.tag(Module::Tag::Removable);
+            module.tag(ModuleWrapper::Tag::Removable);
             camera_control_.release();
             return TV_OK;
         });
@@ -224,7 +224,7 @@ public:
     TV_Result set_parameter(TV_Id module_id, std::string parameter,
                             TV_Word value) {
 
-        return modules_.exec_one(module_id, [&](Module& module) {
+        return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
             if (not module.has_parameter(parameter)) {
                 return TV_MODULE_NO_SUCH_PARAMETER;
             }
@@ -238,7 +238,7 @@ public:
     TV_Result get_parameter(TV_Id module_id, std::string parameter,
                             TV_Word* value) {
 
-        return modules_.exec_one(module_id, [&](Module& module) {
+        return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
             if (not module.has_parameter(parameter)) {
                 return TV_MODULE_NO_SUCH_PARAMETER;
             }
@@ -366,8 +366,8 @@ public:
             return TV_INVALID_ID;
         }
 
-        if (modules_[module_id]->tags() & Module::Tag::ExecAndRemove or
-            modules_[module_id]->tags() & Module::Tag::Removable) {
+        if (modules_[module_id]->tags() & ModuleWrapper::Tag::ExecAndRemove or
+            modules_[module_id]->tags() & ModuleWrapper::Tag::Removable) {
             return TV_NOT_IMPLEMENTED;
         }
 
@@ -383,8 +383,8 @@ public:
     TV_Result add_to_scene(TV_Scene scene_id, TV_Int module_id) {
         Log("API", "Add to scene: ", module_id, " -> ", scene_id);
 
-        if (modules_[module_id]->tags() & Module::Tag::ExecAndRemove or
-            modules_[module_id]->tags() & Module::Tag::Removable) {
+        if (modules_[module_id]->tags() & ModuleWrapper::Tag::ExecAndRemove or
+            modules_[module_id]->tags() & ModuleWrapper::Tag::Removable) {
             return TV_NOT_IMPLEMENTED;
         }
 
@@ -475,7 +475,7 @@ public:
     TV_Result get_result(TV_Id module_id, TV_ModuleResult& result) {
         Log("API", "Getting result from module ", module_id);
 
-        return modules_.exec_one(module_id, [&](Module& module) {
+        return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
             auto res = module.result();
             if (res == nullptr) {
                 return TV_RESULT_NOT_AVAILABLE;
@@ -505,7 +505,7 @@ private:
      * Instantiation of the resource manager using the abstract base
      * class of a vision-algorithm.
      */
-    using Modules = tv::SharedResource<tv::Module>;
+    using Modules = tv::SharedResource<tv::ModuleWrapper>;
     Modules modules_;  ///< RAII-style managed vision algorithms.
 
     std::thread executor_;  ///< Mainloop-Context executing the modules.
@@ -532,7 +532,7 @@ private:
             return TV_INVALID_ID;
         }
 
-        auto module = (Module*)(nullptr);
+        auto module = (ModuleWrapper*)(nullptr);
         if (not module_loader_.load_module_from_library(&module, name, id)) {
             Log("API", "Loading library ", name, " failed");
             return module_loader_.last_error();
@@ -542,7 +542,7 @@ private:
             return TV_CAMERA_NOT_AVAILABLE;
         }
 
-        if (not modules_.insert(id, module, [this](Module& module) {
+        if (not modules_.insert(id, module, [this](ModuleWrapper& module) {
 
                 module_loader_.destroy_module(&module);
             })) {
@@ -556,25 +556,26 @@ private:
     }
 
     void _disable_all_modules(void) {
-        modules_.exec_all([this](TV_Int id, tv::Module& module) {
+        modules_.exec_all([this](TV_Int id, tv::ModuleWrapper& module) {
             module.disable();
             camera_control_.release();
         });
     }
 
     void _disable_module_if(
-        std::function<bool(tv::Module const& module)> predicate) {
+        std::function<bool(tv::ModuleWrapper const& module)> predicate) {
 
-        modules_.exec_all([this, &predicate](TV_Int id, tv::Module& module) {
-            if (predicate(module)) {
-                module.disable();
-                camera_control_.release();
-            }
-        });
+        modules_.exec_all(
+            [this, &predicate](TV_Int id, tv::ModuleWrapper& module) {
+                if (predicate(module)) {
+                    module.disable();
+                    camera_control_.release();
+                }
+            });
     }
 
     void _enable_all_modules(void) {
-        modules_.exec_all([this](TV_Int id, tv::Module& module) {
+        modules_.exec_all([this](TV_Int id, tv::ModuleWrapper& module) {
             if (not module.enabled()) {
                 if (camera_control_.acquire()) {
                     module.enable();
@@ -584,7 +585,7 @@ private:
     }
 
     TV_Result _enable_module(TV_Int id) {
-        return modules_.exec_one(id, [this](tv::Module& module) {
+        return modules_.exec_one(id, [this](tv::ModuleWrapper& module) {
             if (module.enabled() or camera_control_.acquire()) {
                 module.enable();  // possibly redundant
                 return TV_OK;
@@ -595,7 +596,7 @@ private:
     }
 
     TV_Result _disable_module(TV_Int id) {
-        return modules_.exec_one(id, [this](tv::Module& module) {
+        return modules_.exec_one(id, [this](tv::ModuleWrapper& module) {
             module.disable();
             camera_control_.release();
             return TV_OK;

@@ -4,8 +4,8 @@
 #include "module_loader.hh"
 
 int main() {
-    auto loader = tv::ModuleLoader("/usr/local/lib/tinkervision",
-                                   "/tmp/lib/tinkervision/");
+    auto loader =
+        tv::ModuleLoader("/usr/lib/tinkervision", "/tmp/lib/tinkervision/");
     auto contents = std::vector<std::string>();
 
     loader.list_available_modules(contents);

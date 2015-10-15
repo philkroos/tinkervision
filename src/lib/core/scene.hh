@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision_defines.h"
 #include "shared_resource.hh"
-#include "module.hh"
+#include "module_wrapper.hh"
 #include "node.hh"
 
 namespace tv {

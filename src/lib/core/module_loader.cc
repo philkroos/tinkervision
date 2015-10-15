@@ -45,7 +45,7 @@ void tv::ModuleLoader::list_available_modules(
     list_directory_content(user_load_path_, modules, filter);
 }
 
-bool tv::ModuleLoader::load_module_from_library(Module** target,
+bool tv::ModuleLoader::load_module_from_library(ModuleWrapper** target,
                                                 std::string const& libname,
                                                 TV_Int id) {
     // prefer user modules
@@ -61,7 +61,7 @@ bool tv::ModuleLoader::load_module_from_library(Module** target,
     return true;
 }
 
-bool tv::ModuleLoader::destroy_module(Module* module) {
+bool tv::ModuleLoader::destroy_module(ModuleWrapper* module) {
     auto entry = handles_.find(module);
     if (entry == handles_.cend()) {  // bug if this happens
         error_ = TV_INTERNAL_ERROR;
@@ -109,7 +109,7 @@ bool tv::ModuleLoader::_free_lib(LibraryHandle handle) {
 }
 
 bool tv::ModuleLoader::_load_module_from_library(
-    Module** target, std::string const& library_root,
+    ModuleWrapper** target, std::string const& library_root,
     std::string const& libname, TV_Int id) {
 
     auto handle = dlopen((library_root + libname + ".so").c_str(), RTLD_LAZY);
@@ -134,7 +134,7 @@ bool tv::ModuleLoader::_load_module_from_library(
 
     try {
         auto shared_object = ConstructorFunction(dlsym(handle, "create"))();
-        *target = new Module(shared_object, id);
+        *target = new ModuleWrapper(shared_object, id);
 
     } catch (Exception& ce) {
         LogError("MODULE_LOADER", ce.what());

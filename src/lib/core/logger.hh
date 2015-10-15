@@ -48,7 +48,7 @@ void LogWarning(std::string const& prefix, Args const&... args) {}
 namespace tv {
 
 // forward, for ostream declarations
-class Module;
+class ModuleWrapper;
 class SceneTree;
 
 class Logger {
@@ -126,7 +126,7 @@ void LogWarning(std::string const& prefix, Args const&... args) {
     Logger::instance().log_warning(prefix, args...);
 }
 
-std::ostream& operator<<(std::ostream& os, Module* module);
+std::ostream& operator<<(std::ostream& os, ModuleWrapper* module);
 std::ostream& operator<<(std::ostream& os, SceneTree const& tree);
 std::ostream& operator<<(std::ostream& os, ColorSpace const& format);
 std::ostream& operator<<(std::ostream& os, ImageHeader const& header);

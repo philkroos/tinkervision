@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef COLORMATCH_H
 #define COLORMATCH_H
 
-#include "tinkervision/tv_module.hh"
+#include "tinkervision/module.hh"
 
 namespace tv {
 

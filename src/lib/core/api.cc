@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <iterator>
 
 #include "api.hh"
-#include "module.hh"
+#include "module_wrapper.hh"
 
 tv::Api::Api(void) {
     active_ = true;
@@ -44,7 +44,7 @@ TV_Result tv::Api::start(void) {
     }
 
     auto active_count = modules_.count(
-        [](tv::Module const& module) { return module.enabled(); });
+        [](ModuleWrapper const& module) { return module.enabled(); });
 
     if (active_count == 0) {
         return TV_NO_ACTIVE_MODULES;
@@ -71,7 +71,7 @@ TV_Result tv::Api::start(void) {
 TV_Result tv::Api::stop(void) {
 
     auto active_count = modules_.count(
-        [](tv::Module const& module) { return module.enabled(); });
+        [](ModuleWrapper const& module) { return module.enabled(); });
 
     Log("API", "Stopping with ", active_count, " modules");
 
@@ -96,7 +96,7 @@ TV_Result tv::Api::quit(void) {
 
     // disable all ...
     modules_.exec_all(
-        [this](TV_Int id, tv::Module& module) { module.disable(); });
+        [this](TV_Int id, ModuleWrapper& module) { module.disable(); });
 
     // ... remove all modules from the shared context ...
     modules_.free_all();
@@ -122,7 +122,7 @@ void tv::Api::execute(void) {
     auto image = Image();
 
     // Execute active module. This is the ONLY place where modules are executed.
-    auto module_exec = [&](TV_Int id, tv::Module& module) {
+    auto module_exec = [&](TV_Int id, ModuleWrapper& module) {
         Log("API", "Executing module ", id);
 
         if (not module.enabled() or
@@ -163,11 +163,11 @@ void tv::Api::execute(void) {
         }
 
         auto& tags = module.tags();
-        if (tags & Module::Tag::ExecAndRemove) {
-            module.tag(Module::Tag::Removable);
+        if (tags & ModuleWrapper::Tag::ExecAndRemove) {
+            module.tag(ModuleWrapper::Tag::Removable);
             camera_control_.release();
 
-        } else if (tags & Module::Tag::ExecAndDisable) {
+        } else if (tags & ModuleWrapper::Tag::ExecAndDisable) {
             Log("API", "Disabling ExecAndDisable-tagged id ", module.id());
             if (module.disable()) {
                 camera_control_.release();
@@ -176,11 +176,11 @@ void tv::Api::execute(void) {
     };
 
     auto node_exec = [&](TV_Int module_id) {
-        (void)modules_.exec_one(module_id,
-                                [&module_id, &module_exec](Module& module) {
-            module_exec(module_id, module);
-            return TV_OK;
-        });
+        (void)modules_.exec_one(
+            module_id, [&module_id, &module_exec](ModuleWrapper& module) {
+                module_exec(module_id, module);
+                return TV_OK;
+            });
     };
 
     // mainloop
@@ -215,8 +215,8 @@ void tv::Api::execute(void) {
         }
 
         // Propagate deletion of modules marked for removal
-        modules_.free_if([](tv::Module const& module) {
-            return module.tags() & Module::Tag::Removable;
+        modules_.free_if([](ModuleWrapper const& module) {
+            return module.tags() & ModuleWrapper::Tag::Removable;
         });
 
         loops++;

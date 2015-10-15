@@ -20,17 +20,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #if defined(WITH_LOGGER)
 
 #include "logger.hh"
+#include "module_wrapper.hh"
 #include "module.hh"
-#include "tv_module.hh"
 #include "scenetrees.hh"
 
 std::string tv::Logger::PREFIX_WARNING = "WARNING";
 std::string tv::Logger::PREFIX_ERROR = "ERROR";
 
-std::ostream& tv::operator<<(std::ostream& os, tv::Module* module) {
+std::ostream& tv::operator<<(std::ostream& os, tv::ModuleWrapper* module) {
 
     auto tags_bits = std::bitset<16>(
-        static_cast<std::underlying_type<Module::Tag>::type>(module->tags()));
+        static_cast<std::underlying_type<ModuleWrapper::Tag>::type>(
+            module->tags()));
 
     os << "Id: " << module->id() << " Tags: " << tags_bits;
 
