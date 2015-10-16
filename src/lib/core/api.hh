@@ -459,6 +459,17 @@ public:
         return TV_OK;
     }
 
+    /// Set the path to the loadable modules.  The system path is
+    /// fixed to #SYS_MODULE_LOAD_PATH, but the path set here
+    /// (defaulting to #ADD_MODULE_LOAD_PATH) is prioritized during module
+    /// loading.
+    /// \param path A valid, accessible full pathname.
+    /// \return #TV_INVALID_ARGUMENT if the path could not be set; #TV_OK else.
+    TV_Result set_user_module_load_path(std::string const& path) {
+        return module_loader_.set_user_load_path(path) ? TV_OK
+                                                       : TV_INVALID_ARGUMENT;
+    }
+
     TV_Result callback_set(TV_Id module_id, TV_Callback callback) {
         if (default_callback_ != nullptr) {
             return TV_GLOBAL_CALLBACK_ACTIVE;

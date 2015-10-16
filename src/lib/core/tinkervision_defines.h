@@ -73,9 +73,11 @@ typedef void (*TV_StringCallback)(TV_Id, TV_String string, TV_Context context);
 /* General errors: 500... */
 #define TV_NOT_IMPLEMENTED 500
 #define TV_INTERNAL_ERROR 501
+#define TV_INVALID_ARGUMENT 502
+
 /** Could not allocate a node in a SceneTree */
-#define TV_NODE_ALLOCATION_FAILED 504
-#define TV_NO_ACTIVE_MODULES 505
+#define TV_NODE_ALLOCATION_FAILED 503
+#define TV_NO_ACTIVE_MODULES 504
 
 /* Camera errors: 550... */
 #define TV_CAMERA_NOT_AVAILABLE 551
