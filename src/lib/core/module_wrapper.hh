@@ -1,21 +1,28 @@
-/*
-Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
+/// \file module_wrapper.hh
+/// \author philipp.kroos@fh-bielefeld.de
+/// \date 2015
+///
+/// \brief Declaration of the class \c ModuleWrapper.
+///
+/// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
+/// \sa https://github.com/Tinkerforge/red-brick
+///
+/// \copyright
+///
+/// This program is free software; you can redistribute it and/or
+/// modify it under the terms of the GNU General Public License
+/// as published by the Free Software Foundation; either version 2
+/// of the License, or (at your option) any later version.
+///
+/// This program is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+///
+/// You should have received a copy of the GNU General Public License
+/// along with this program; if not, write to the Free Software
+/// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+/// USA.
 
 #ifndef MODULE_WRAPPER_H
 #define MODULE_WRAPPER_H
@@ -57,6 +64,10 @@ private:
 
     TV_Callback cb_ = nullptr;
 
+    uint8_t period_{1};  ///< An execution frequency for the wrapped module.
+                         /// Defaults to 1, which means 'execute every cycle'.
+                         /// Set to zero, the module would not execute at all.
+
 public:
     ModuleWrapper(Module* executable, TV_Int module_id)
         : active_(false), module_id_(module_id), tv_module_(executable) {}
@@ -79,6 +90,8 @@ public:
         return true;
     }
 
+    /// Execute the wrapped module with the given image.
+    /// \param[in] image The current frame
     void execute(tv::Image const& image);
 
     TV_Int id(void) const { return module_id_; }
@@ -110,21 +123,30 @@ public:
 
     ColorSpace expected_format(void) const;
 
+    /// Get the list of parameters valid for this module.
+    /// \todo This should return the allowed min/max value per parameter as
+    /// well.
+    /// \param[inout] parameter The list of parameters.
     void get_parameters_list(std::vector<std::string>& parameter) const;
 
+    /// Check if a module supports a parameter.
+    /// \param[in] parameter Name of the parameter.
+    /// \return true if the parameter is supported.
     bool has_parameter(std::string const& parameter) const;
 
-    bool set(std::string const& parameter, TV_Word value);
+    /// Get the current value of a parameter. It is expected that the parameter
+    /// exists. The value returned if it doesn't is module specific. So a caller
+    /// should have called has_parameter() in advance.
+    /// \param[in] parameter The name of the parameter.
+    /// \return The value of the parameter.
+    TV_Word get_parameter(std::string const& parameter);
 
-    TV_Word get(std::string const& parameter);
-
-    bool set_parameter(std::string const& parameter, TV_Word value) {
-        return set(parameter, value);
-    }
-
-    void get_parameter(std::string const& parameter, TV_Word& value) {
-        value = get(parameter);
-    }
+    /// Set the value of a parameter.
+    /// \param[in] parameter The name of the parameter.
+    /// \param[in] value The value.
+    /// \return true, if the parameter has value \c value now. This might fail
+    /// if the range of the parameter is limited.
+    bool set_parameter(std::string const& parameter, TV_Word value);
 
     Result const* result(void) const;
 

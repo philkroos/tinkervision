@@ -243,7 +243,7 @@ public:
                 return TV_MODULE_NO_SUCH_PARAMETER;
             }
 
-            module.get_parameter(parameter, *value);
+            *value = module.get_parameter(parameter);
 
             return TV_OK;
         });
