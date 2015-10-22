@@ -1,3 +1,6 @@
+#include <unistd.h>
+#include <sys/types.h>
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -37,13 +40,26 @@ static void modify_dir(void) {
 }
 
 int main() {
-    tv::ModuleLoader loader("/usr/lib/tinkervision", "/tmp/lib/tinkervision/");
-    auto contents = std::vector<std::string>();
 
-    loader.list_available_modules(contents);
-    for (auto const& file : contents) {
-        std::cout << file << std::endl;
+    if (getuid() != 0) {
+        std::cout << "This test might have to be run as root. It checks for "
+                     "updates in and manipulates the user-module-path. Most "
+                     "likely the path has been created as root, so a regular "
+                     "user can't create or delete files there, which this test "
+                     "relies on." << std::endl;
     }
+
+    tv::ModuleLoader loader("/usr/lib/tinkervision", "/tmp/lib/tinkervision/");
+    auto modules = std::vector<std::string>();
+    auto paths = std::vector<std::string>();
+
+    loader.list_available_modules(paths, modules);
+    std::cout << "Found " << modules.size() << " modules." << std::endl;
+    for (size_t i = 0; i < modules.size(); ++i) {
+        std::cout << modules[i] << " from " << paths[i] << std::endl;
+    }
+
+    std::cout << "Registering module-change listener" << std::endl;
 
     loader.update_on_changes(directory_changes);
 
