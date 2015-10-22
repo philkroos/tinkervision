@@ -140,7 +140,7 @@ bool tv::ModuleLoader::_load_module_from_library(
 
     try {
         auto shared_object = ConstructorFunction(dlsym(handle, "create"))();
-        *target = new ModuleWrapper(shared_object, id);
+        *target = new ModuleWrapper(shared_object, id, library_root);
 
     } catch (Exception& ce) {
         LogError("MODULE_LOADER", ce.what());

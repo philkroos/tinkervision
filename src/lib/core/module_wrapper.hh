@@ -56,21 +56,29 @@ public:
     };
 
 private:
-    bool active_;
-    ModuleWrapper::Tag tags_ = ModuleWrapper::Tag::None;
-    TV_Int module_id_;
+    std::string const load_path_;  ///< Path the wrapped module was loaded from
 
-    Module* tv_module_;
+    TV_Int module_id_;  ///< Some id
 
-    TV_Callback cb_ = nullptr;
+    bool active_{false};  ///< True if the module is to be executed
+
+    ModuleWrapper::Tag tags_{ModuleWrapper::Tag::None};  ///< Runtime tags used
+                                                         /// by the mainloop
+
+    Module* tv_module_;  ///< Wrapped module
+
+    TV_Callback cb_ = nullptr;  ///< Callback for results of the wrapped module
 
     uint8_t period_{1};  ///< An execution frequency for the wrapped module.
                          /// Defaults to 1, which means 'execute every cycle'.
                          /// Set to zero, the module would not execute at all.
 
 public:
-    ModuleWrapper(Module* executable, TV_Int module_id)
-        : active_(false), module_id_(module_id), tv_module_(executable) {}
+    ModuleWrapper(Module* executable, TV_Int module_id,
+                  std::string const& load_path)
+        : load_path_(load_path),
+          module_id_(module_id),
+          tv_module_(executable) {}
 
     ~ModuleWrapper(void) { Log("MODULE::Destructor", name()); }
 
