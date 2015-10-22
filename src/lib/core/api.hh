@@ -1,29 +1,31 @@
-/*
-Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
-
-/** \file api.hh
-
-    The internal interface of the Vision library is declared (and
-    partly defined) here.
-
-    The interface is provided by the class Api.
-*/
+/// \file api.hh
+/// \author philipp.kroos@fh-bielefeld.de
+/// \date 2014-2015
+///
+/// \brief The internal interface of the Vision library is declared (and
+///        partly defined) here.
+///
+/// The interface is provided by the class Api.
+///
+/// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
+/// \sa https://github.com/Tinkerforge/red-brick
+///
+/// \copyright
+///
+/// This program is free software; you can redistribute it and/or
+/// modify it under the terms of the GNU General Public License
+/// as published by the Free Software Foundation; either version 2
+/// of the License, or (at your option) any later version.
+///
+/// This program is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+///
+/// You should have received a copy of the GNU General Public License
+/// along with this program; if not, write to the Free Software
+/// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+/// USA.
 
 #include <chrono>
 #include <thread>
@@ -49,8 +51,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tv {
 
-/** Defines the public api of the Tinkervision library.
- */
+/// Defines the public api of the Tinkervision library.
 class Api {
 private:
     Api(void);
@@ -64,46 +65,40 @@ public:
 
     ~Api(void);
 
-    /**
-     * Starts execution of all active modules.  This is only
-     * necessary if the Api had been stopped.  The method is
-     * automatically called during construction of the Api.
-     * \sa stop()
-     * \return #TV_OK if execution started successfully.
-     */
+    /// Starts execution of all active modules.  This is only
+    /// necessary if the Api had been stopped.  The method is
+    /// automatically called during construction of the Api.
+    /// \sa stop()
+    /// \return #TV_OK if execution started successfully.
     TV_Result start(void);
 
-    /**
-     * Halts (pauses) execution of the main-loop.  This will not do
-     * any change to the registered modules, only they will stop
-     * being executed.  If calling start(), the Api will resume
-     * execution with the same configuration.
-     * This will also stop a running dummy module.
-     * \sa start_idle()
-     * \note Even while the api is paused there can still be new modules
-     * registered. They will start execution once start() is called.
-     * \sa quit() If the whole thing shall be stopped.
-     * \return A result code:
-     *     - #TV_OK when execution halted successfully.
-     *     - #TV_EXEC_THREAD_FAILURE when the thread is still running.
-     */
+    /// Halts (pauses) execution of the main-loop.  This will not do
+    /// any change to the registered modules, only they will stop
+    /// being executed.  If calling start(), the Api will resume
+    /// execution with the same configuration.
+    /// This will also stop a running dummy module.
+    /// \sa start_idle()
+    /// \note Even while the api is paused there can still be new modules
+    /// registered. They will start execution once start() is called.
+    /// \sa quit() If the whole thing shall be stopped.
+    /// \return A result code:
+    ///     - #TV_OK when execution halted successfully.
+    ///     - #TV_EXEC_THREAD_FAILURE when the thread is still running.
     TV_Result stop(void);
 
-    /**
-     * Stops and removes all running modules.  This is not necessary
-     * in general if the Api is being deconstructed in a controlled
-     * way. If, however, the client application should crash or exit
-     * without stopping all instantiated modules, or a complete
-     * restart including reset of the camera is desired, this can be
-     * used.  This will also stop and remove a running dummy module.
-     *
-     * \sa start_idle()
-     *
-     * \sa  start()
-     * \return A result code:
-     *     - #TV_OK when execution halted successfully.
-     *     - #TV_EXEC_THREAD_FAILURE when the thread is still running.
-     */
+    /// Stops and removes all running modules.  This is not necessary
+    /// in general if the Api is being deconstructed in a controlled
+    /// way. If, however, the client application should crash or exit
+    /// without stopping all instantiated modules, or a complete
+    /// restart including reset of the camera is desired, this can be
+    /// used.  This will also stop and remove a running dummy module.
+    ///
+    /// \sa start_idle()
+    ///
+    /// \sa  start()
+    /// \return A result code:
+    ///     - #TV_OK when execution halted successfully.
+    ///     - #TV_EXEC_THREAD_FAILURE when the thread is still running.
     TV_Result quit(void);
 
     /// Set the framesize.
@@ -150,19 +145,17 @@ public:
         return result;
     }
 
-    /**
-     * Start an idle process, i.e. a module which will never be
-     * executed.  This is a lightweight module which will not trigger
-     * frame grabbing.  However, once started, it will keep the camera
-     * device blocked so it may be used to hold on the camera handle
-     * even if no 'real' module is running.  This dummy process can
-     * not be referred to since the assigned id is not retreivable by
-     * the user, and it is (currently) not deactivatable unless quit() is
-     * called.  Also, the process will only be started once,
-     * no matter how often this method gets called.
-     *
-     * \return #TV_OK if the process is running afterwards
-     */
+    /// Start an idle process, i.e. a module which will never be
+    /// executed.  This is a lightweight module which will not trigger
+    /// frame grabbing.  However, once started, it will keep the camera
+    /// device blocked so it may be used to hold on the camera handle
+    /// even if no 'real' module is running.  This dummy process can
+    /// not be referred to since the assigned id is not retreivable by
+    /// the user, and it is (currently) not deactivatable unless quit() is
+    /// called.  Also, the process will only be started once,
+    /// no matter how often this method gets called.
+    ///
+    /// \return #TV_OK if the process is running afterwards
     TV_Result start_idle(void) {
         auto result = TV_OK;  // optimistic because startable only once
 
@@ -192,14 +185,13 @@ public:
         return result;
     }
 
-    /** Deactivate and remove a module.
-     * \return
-     *   - #TV_NOT_IMPLEMENTED if scenes are active
-     *   - #TV_INVALID_ID if the module does not exist
-     *   - #TV_OK if removal succeeded.
-     *
-     * The method will succeed if:
-     */
+    /// Deactivate and remove a module.
+    /// \return
+    ///   - #TV_NOT_IMPLEMENTED if scenes are active
+    ///   - #TV_INVALID_ID if the module does not exist
+    ///   - #TV_OK if removal succeeded.
+    ///
+    /// The method will succeed if:
     TV_Result module_destroy(TV_Id id) {
         Log("API", "Destroying module ", id);
 
@@ -208,7 +200,8 @@ public:
             return TV_NOT_IMPLEMENTED;
         }
 
-        /// the module will be disabled and registered for removal which will
+        /// the module will be disabled and registered for removal which
+        /// will
         /// happen in the main execution loop.
         /// \todo Is a two-stage-removal process still necessary now that
         /// the allocation stage was removed from SharedResource? Not sure,
@@ -236,33 +229,29 @@ public:
     }
 
     TV_Result get_parameter(TV_Id module_id, std::string parameter,
-                            TV_Word* value) {
+                            parameter_t* value) {
 
         return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
-            if (not module.has_parameter(parameter)) {
+            if (not module.get_parameter(parameter, *value)) {
                 return TV_MODULE_NO_SUCH_PARAMETER;
             }
-
-            *value = module.get_parameter(parameter);
 
             return TV_OK;
         });
     }
 
-    /**
-     * Start a module which was already initialized by
-     * module_load().  This method succeeds if the module was
-     * already started or can be started.
-     *
-     * \param[in] id The id of the module to start.
-     *
-     * \return
-     * - #TV_INVALID_ID if no module is registered with
-     *   the given id.
-     * - #TV_CAMERA_ACQUISATION_FAILED if the
-     *   camera is not available
-     * - #TV_OK iff the module is running after returning.
-     */
+    /// Start a module which was already initialized by
+    /// module_load().  This method succeeds if the module was
+    /// already started or can be started.
+    ///
+    /// \param[in] id The id of the module to start.
+    ///
+    /// \return
+    /// - #TV_INVALID_ID if no module is registered with
+    ///   the given id.
+    /// - #TV_CAMERA_ACQUISATION_FAILED if the
+    ///   camera is not available
+    /// - #TV_OK iff the module is running after returning.
     TV_Result module_start(TV_Id module_id) {
         auto id = static_cast<TV_Int>(module_id);
 
@@ -273,24 +262,20 @@ public:
         return _enable_module(module_id);
     }
 
-    /**
-     * Pause a module. This will not remove the module but rather
-     * prevent it from being executed. The id is still reserved and it's
-     * a matter of calling start_id() to resume execution.  To actually
-     * remove the module, call remove_id().
-     * \note The associated resources (namely the camera handle)
-     * will be released (once) to be usable in other contexts, so
-     * this might prohibit restart of the module. If however the camera
-     *is
-     * used by other modules as well, it will stay open.
-     *
-     * \param id The id of the module to stop. The type of the
-     *associated
-     * module has to match Module.
-     * \return
-     *  - #TV_OK if the module was stopped and marked for removal
-     *  - #TV_INVALID_ID if the id is not registered
-     */
+    /// Pause a module. This will not remove the module but rather
+    /// prevent it from being executed. The id is still reserved and it's
+    /// a matter of calling start_id() to resume execution.  To actually
+    /// remove the module, call remove_id().
+    /// \note The associated resources (namely the camera handle)
+    /// will be released (once) to be usable in other contexts, so
+    /// this might prohibit restart of the module. If however the camera
+    /// is used by other modules as well, it will stay open.
+    ///
+    /// \param id The id of the module to stop. The type of the
+    ///           associated module has to match Module.
+    /// \return
+    ///  - #TV_OK if the module was stopped and marked for removal
+    ///  - #TV_INVALID_ID if the id is not registered
     TV_Result module_stop(TV_Id module_id) {
         Log("API", "Stopping module ", module_id);
 
@@ -303,62 +288,52 @@ public:
         return _disable_module(module_id);
     }
 
-    /**
-     * Convert Api return code to string.
-     * \param[in] code The return code to be represented as string.
-     * \return The string representing code
-     */
+    /// Convert Api return code to string.
+    /// \param[in] code The return code to be represented as string.
+    /// \return The string representing code
     TV_String result_string(TV_Result code) const {
         return result_string_map_[code];
     }
 
-    /**
-     * Check if a camera is available in the system.
-     * \return
-     *  - #TV_CAMERA_NOT_AVAILABLE if the camera is not available,
-     *  - #TV_OK else
-     */
+    /// Check if a camera is available in the system.
+    /// \return
+    ///  - #TV_CAMERA_NOT_AVAILABLE if the camera is not available,
+    ///  - #TV_OK else
     TV_Result is_camera_available(void) {
         return camera_control_.is_available() ? TV_OK : TV_CAMERA_NOT_AVAILABLE;
     }
 
-    /**
-     * Retrieve the frame settings from the camera. This can only work
-     * if
-     * the
-     * camera was opened already
-     * \param[out] width The framewidth in pixels
-     * \param[out] width The frameheight in pixels
-     * \return
-     *  - #TV_CAMERA_NOT_AVAILABLE if the camera is not open
-     *  - #TV_OK else.
-     */
+    /// Retrieve the frame settings from the camera. This can only work
+    /// if
+    /// the
+    /// camera was opened already
+    /// \param[out] width The framewidth in pixels
+    /// \param[out] width The frameheight in pixels
+    /// \return
+    ///  - #TV_CAMERA_NOT_AVAILABLE if the camera is not open
+    ///  - #TV_OK else.
     TV_Result resolution(TV_Size& width, TV_Size& height) {
         return camera_control_.get_resolution(width, height)
                    ? TV_OK
                    : TV_CAMERA_NOT_AVAILABLE;
     }
 
-    /**
-     * Set the time between the execution of active modules.
-     * This is set to a default of 100ms, meaning that the mainloop
-     * pauses for half a second between two executions of the active
-     * modules. It is recommended to keep it at a decent value
-     * because the CPU-load can be quite high with a too low value.
-     * However, with a lot of active modules, this will reduce
-     * respondability.
-     * \note If no module is active, a minimum latency of 200ms is
-     * hardcoded (with the value set here being used if larger).
-     * \param ms The duration of the pauses in milliseconds.
-     */
+    /// Set the time between the execution of active modules.
+    /// This is set to a default of 100ms, meaning that the mainloop
+    /// pauses for half a second between two executions of the active
+    /// modules. It is recommended to keep it at a decent value
+    /// because the CPU-load can be quite high with a too low value.
+    /// However, with a lot of active modules, this will reduce
+    /// respondability.
+    /// \note If no module is active, a minimum latency of 200ms is
+    /// hardcoded (with the value set here being used if larger).
+    /// \param ms The duration of the pauses in milliseconds.
     TV_Result set_execution_latency_ms(TV_UInt ms) {
         execution_latency_ms_ = std::min(TV_UInt(20), ms);
         return TV_OK;
     }
 
-    /**
-     * Start a scene which is a directed chain of modules.
-     */
+    /// Start a scene which is a directed chain of modules.
     TV_Result scene_start(TV_Id module_id, TV_Scene* scene_id) {
         Log("API", "Starting scene");
 
@@ -436,10 +411,13 @@ public:
     /// Attach a callback that will be notified about newly or no longer
     /// available, loadable modules.
     /// Initially, all currently available modules will be listed.
-    /// \note It does not make sense to add more then one callback since only
+    /// \note It does not make sense to add more then one callback since
+    /// only
     /// the latest will ever be updated.
-    /// \param callback A #TV_StringCallback where the first parameter denotes
-    /// whether the corresponding file has been deleted (0) or is available (1).
+    /// \param callback A #TV_StringCallback where the first parameter
+    /// denotes
+    /// whether the corresponding file has been deleted (0) or is available
+    /// (1).
     /// \param context Additional context to be passed to each callback.
     TV_Result enumerate_available_modules(TV_StringCallback callback,
                                           TV_Context context) {
@@ -464,7 +442,8 @@ public:
     /// (defaulting to #ADD_MODULE_LOAD_PATH) is prioritized during module
     /// loading.
     /// \param path A valid, accessible full pathname.
-    /// \return #TV_INVALID_ARGUMENT if the path could not be set; #TV_OK else.
+    /// \return #TV_INVALID_ARGUMENT if the path could not be set; #TV_OK
+    /// else.
     TV_Result set_user_module_load_path(std::string const& path) {
         return module_loader_.set_user_load_path(path) ? TV_OK
                                                        : TV_INVALID_ARGUMENT;
@@ -524,11 +503,10 @@ private:
 
     ModuleLoader module_loader_{SYS_MODULE_LOAD_PATH, ADD_MODULE_LOAD_PATH};
 
-    /**
-     * Instantiation of the resource manager using the abstract base
-     * class of a vision-algorithm.
-     */
-    using Modules = tv::SharedResource<tv::ModuleWrapper>;
+    using Modules = tv::SharedResource<tv::ModuleWrapper>;  ///< Instantiation
+    /// of the resource manager using the abstract base class of a vision
+    /// algorithm.
+
     Modules modules_;  ///< RAII-style managed vision algorithms.
 
     std::thread executor_;  ///< Mainloop-Context executing the modules.
@@ -539,13 +517,11 @@ private:
 
     TV_Callback default_callback_ = nullptr;
 
-    /**
-     * Threaded execution context of vision algorithms (modules).
-     * This method is started asynchronously during construction of
-     * the Api and is running until deconstruction.  It is constantly
-     * grabbing frames from the active camera, executing all active
-     * modules and activating newly registered modules.
-     */
+    /// Threaded execution context of vision algorithms (modules).
+    /// This method is started asynchronously during construction of
+    /// the Api and is running until deconstruction.  It is constantly
+    /// grabbing frames from the active camera, executing all active
+    /// modules and activating newly registered modules.
     void execute(void);
 
     TV_Result _module_load(std::string const& name, TV_Int id) {
@@ -629,8 +605,10 @@ private:
     bool _scenes_active(void) const { return not scene_trees_.empty(); }
 
     /// Generate a new module id.
-    /// \todo There is currently no code that would prevent regeneration of an
-    /// id that is currently in use in case of an overflow and a long running
+    /// \todo There is currently no code that would prevent regeneration of
+    /// an
+    /// id that is currently in use in case of an overflow and a long
+    /// running
     /// module.
     TV_Int _next_public_id(void) const {
         static TV_Id public_id{0};

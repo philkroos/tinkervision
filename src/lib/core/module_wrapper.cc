@@ -24,35 +24,27 @@ tv::ModuleType const& tv::ModuleWrapper::type(void) const {
 void tv::ModuleWrapper::get_parameters_list(
     std::vector<std::string>& parameters) const {
     tv_module_->parameter_list(parameters);
-
-    /// Also appended are the parameters valid for all modules:
-    ///   - \c "period": Sets the period_ value.
-    parameters.push_back("period");
 }
 
 bool tv::ModuleWrapper::has_parameter(std::string const& parameter) const {
     /// Some parameters are supported by all modules.
-    /// \see get_parameters_list().
-    return parameter == "period" or tv_module_->has_parameter(parameter);
+    return tv_module_->has_parameter(parameter);
 }
 
 bool tv::ModuleWrapper::set_parameter(std::string const& parameter,
-                                      TV_Word value) {
-    if (parameter == "period") {
-        if (value >= 0 and value <= std::numeric_limits<uint8_t>::max()) {
-            period_ = static_cast<decltype(period_)>(value);
-            return true;
-        }
-        return false;
+                                      parameter_t value) {
+    auto result = tv_module_->set(parameter, value);
+
+    if (result and parameter == "period") {  // save this for faster access
+        period_ = value;
     }
-    return tv_module_->set(parameter, value);
+
+    return result;
 }
 
-TV_Word tv::ModuleWrapper::get_parameter(std::string const& parameter) {
-    if (parameter == "period") {
-        return static_cast<TV_Word>(period_);
-    }
-    return tv_module_->get(parameter);
+bool tv::ModuleWrapper::get_parameter(std::string const& parameter,
+                                      parameter_t& value) {
+    return tv_module_->get(parameter, value);
 }
 
 tv::Result const* tv::ModuleWrapper::result(void) const {

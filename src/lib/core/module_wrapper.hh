@@ -76,9 +76,10 @@ private:
 public:
     ModuleWrapper(Module* executable, TV_Int module_id,
                   std::string const& load_path)
-        : load_path_(load_path),
-          module_id_(module_id),
-          tv_module_(executable) {}
+        : load_path_(load_path), module_id_(module_id), tv_module_(executable) {
+
+        tv_module_->register_parameter("period", 0, 500, 1);
+    }
 
     ~ModuleWrapper(void) { Log("MODULE::Destructor", name()); }
 
@@ -142,19 +143,18 @@ public:
     /// \return true if the parameter is supported.
     bool has_parameter(std::string const& parameter) const;
 
-    /// Get the current value of a parameter. It is expected that the parameter
-    /// exists. The value returned if it doesn't is module specific. So a caller
-    /// should have called has_parameter() in advance.
+    /// Get the current value of a parameter.
     /// \param[in] parameter The name of the parameter.
-    /// \return The value of the parameter.
-    TV_Word get_parameter(std::string const& parameter);
+    /// \param[out] value Will be set accordingly on success.
+    /// \return True if such a parameter exists (value is valid).
+    bool get_parameter(std::string const& parameter, parameter_t& value);
 
     /// Set the value of a parameter.
     /// \param[in] parameter The name of the parameter.
     /// \param[in] value The value.
     /// \return true, if the parameter has value \c value now. This might fail
     /// if the range of the parameter is limited.
-    bool set_parameter(std::string const& parameter, TV_Word value);
+    bool set_parameter(std::string const& parameter, parameter_t value);
 
     Result const* result(void) const;
 

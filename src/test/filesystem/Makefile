@@ -2,7 +2,7 @@ CC	:= g++
 CCFLAGS := -Wall -Werror -g -std=c++11 -O0 -pedantic
 
 INC	:= -I../../lib/core
-LDFLAGS := -g -Wall -lstdc++
+LDFLAGS := -g -Wall -lstdc++ -lpthread
 
 OBJ	:= tfv_test_fs.o
 OUT	:= tfv-test-fs

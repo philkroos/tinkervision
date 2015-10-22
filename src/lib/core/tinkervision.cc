@@ -113,7 +113,7 @@ TV_Result tv_set_parameter(TV_Id module_id, TV_String const parameter,
 }
 
 TV_Result tv_get_parameter(TV_Id module_id, TV_String const parameter,
-                           TV_Int* value) {
+                           TV_Long* value) {
     tv::Log("Tinkervision::GetParameter", module_id, " ", parameter);
     return tv::get_api().get_parameter(module_id, parameter, value);
 }

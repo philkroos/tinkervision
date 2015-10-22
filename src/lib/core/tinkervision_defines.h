@@ -46,6 +46,8 @@ typedef TV_Int TV_Scene;
 typedef TV_Int TV_Result;
 typedef void* TV_Context;
 
+typedef int32_t parameter_t;
+
 typedef struct TV_ModuleResult {
     TV_UWord x;
     TV_UWord y;

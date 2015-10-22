@@ -41,7 +41,7 @@ void callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
     cvWaitKey(10);
 }
 
-void set(TV_Word* min, TV_Word* max, TV_Byte value, TV_Byte range) {
+void set(TV_Long* min, TV_Long* max, TV_Byte value, TV_Byte range) {
     *min = value >= range ? value - range : *max - range + value;
     *max = value < (*max - range) ? value + range : range - value;
 }
@@ -49,12 +49,12 @@ void set(TV_Word* min, TV_Word* max, TV_Byte value, TV_Byte range) {
 int main(int argc, char* argv[]) {
     TV_Id id = 0;
     TV_Byte hue, saturation, value; /* commandline */
-    TV_Word min_hue;
-    TV_Word max_hue = 180;
-    TV_Word min_value;
-    TV_Word max_value = 255;
-    TV_Word min_saturation;
-    TV_Word max_saturation = 255;
+    TV_Long min_hue;
+    TV_Long max_hue = 180;
+    TV_Long min_value;
+    TV_Long max_value = 255;
+    TV_Long min_saturation;
+    TV_Long max_saturation = 255;
     TV_Byte range;
     TV_Size width, height; /* framesize */
     TV_Result result = TV_INTERNAL_ERROR;

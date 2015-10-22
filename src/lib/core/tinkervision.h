@@ -126,7 +126,7 @@ TV_Result tv_set_parameter(TV_Id module_id, TV_String const parameter,
 ///   - #TV_MODULE_NO_SUCH_PARAMETER if the module does not support parameter.
 ///   - #TV_OK else.
 TV_Result tv_get_parameter(TV_Id module_id, TV_String const parameter,
-                           TV_Int* value);
+                           TV_Long* value);
 
 /// Start a vision module identified by its library name.
 /// The requested module will be loaded and started if it is found in one of the
