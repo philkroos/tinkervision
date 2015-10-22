@@ -46,7 +46,7 @@ void tv::ModuleLoader::list_available_modules(
         paths.push_back(system_load_path_);
     }
     list_directory_content(user_load_path_, modules, filter);
-    for (size_t i = 0; i < (modules.size() - paths.size()); ++i) {
+    for (size_t i = paths.size(); i < modules.size(); ++i) {
         paths.push_back(user_load_path_);
     }
 }
