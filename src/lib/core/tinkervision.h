@@ -96,10 +96,7 @@ TV_Result tv_stop(void);
 TV_Result tv_start(void);
 
 /// Stop all modules and shutdown the api.  This is generally not necessary if
-/// the client application terminates in controlled ways.  However, the
-/// application should implement a kill-signal handler which calls quit.  Else
-/// there is no way to shutdown the Api correctly in case of the client being
-/// killed.
+/// the client application terminates in controlled ways.
 /// \return TV_OK
 TV_Result tv_quit(void);
 

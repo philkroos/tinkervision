@@ -33,6 +33,22 @@
 #include "filesystem.hh"
 #include "logger.hh"
 
+bool tv::ModuleLoader::set_user_load_path(std::string const& load_path) {
+    if (not is_directory(load_path)) {
+        LogError("MODULE_LOADER", "Load path is not a directory: ", load_path);
+        return false;
+    }
+
+    if (on_change_callback and not dirwatch_.watch(load_path)) {
+        LogError("MODULE_LOADER", "Unknown error for load path ", load_path);
+        return false;
+    }
+
+    dirwatch_.unwatch(user_load_path_);
+    user_load_path_ = load_path;
+    return true;
+}
+
 void tv::ModuleLoader::list_available_modules(
     std::vector<std::string>& paths, std::vector<std::string>& modules) const {
 
@@ -102,6 +118,16 @@ TV_Result tv::ModuleLoader::last_error(void) {
     return last;
 }
 
+void tv::ModuleLoader::update_on_changes(std::function<
+    void(std::string const& directory, std::string const& filename,
+         bool true_if_created)> callback) {
+
+    Log("MODULE_LOADER", "Registering callback for directory changes");
+    dirwatch_.watch(system_load_path_);
+    dirwatch_.watch(user_load_path_);
+    on_change_callback = callback;
+}
+
 bool tv::ModuleLoader::_free_lib(LibraryHandle handle) {
     (void)dlerror();
     auto result = dlclose(handle);
@@ -150,4 +176,14 @@ bool tv::ModuleLoader::_load_module_from_library(
     Log("MODULE_LOADER", "Loaded ", libname, " from ", library_root);
     handles_[*target] = {libname, handle};
     return true;
+}
+
+void tv::ModuleLoader::_watched_directory_changed_callback(
+    Dirwatch::Event event, std::string const& dir, std::string const& file) {
+    Log("MODULE_LOADER", "Received change for ", file, " in ", dir);
+    if (on_change_callback) {
+        /// \todo Check here if the found library actually contains a valid
+        /// vision-module.
+        on_change_callback(dir, file, event == Dirwatch::Event::FILE_CREATED);
+    }
 }

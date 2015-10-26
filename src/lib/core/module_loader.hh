@@ -65,23 +65,7 @@ public:
     /// \param[in] load_path full path name
     /// \return true if the path was added. In this case, the previous user load
     /// path has been removed.
-    bool set_user_load_path(std::string const& load_path) {
-        if (not is_directory(load_path)) {
-            LogError("MODULE_LOADER", "Load path is not a directory: ",
-                     load_path);
-            return false;
-        }
-
-        if (on_change_callback and not dirwatch_.watch(load_path)) {
-            LogError("MODULE_LOADER", "Unknown error for load path ",
-                     load_path);
-            return false;
-        }
-
-        dirwatch_.unwatch(user_load_path_);
-        user_load_path_ = load_path;
-        return true;
-    }
+    bool set_user_load_path(std::string const& load_path);
 
     /// List all available modules. Both system_load_path_ and
     /// user_lib_load_path_ are searched for loadable modules, which are
@@ -132,12 +116,7 @@ public:
     /// string.
     void update_on_changes(std::function<void(std::string const& directory,
                                               std::string const& filename,
-                                              bool true_if_created)> callback) {
-        Log("MODULE_LOADER", "Registering callback for directory changes");
-        dirwatch_.watch(system_load_path_);
-        dirwatch_.watch(user_load_path_);
-        on_change_callback = callback;
-    }
+                                              bool true_if_created)> callback);
 
 private:
     using LibraryHandle = void*;
@@ -147,16 +126,21 @@ private:
     };
     using Handles = std::unordered_map<ModuleWrapper*, ModuleHandle>;
 
-    Handles handles_;                     ///< keeps track of loaded modules
-    std::string const system_load_path_;  ///< default shared object files
-    std::string user_load_path_;          ///< additional shared object files
+    Handles handles_;                     ///< Keeps track of loaded modules
+    std::string const system_load_path_;  ///< Default shared object files
+    std::string user_load_path_;          ///< Additional shared object files
     TV_Result error_{TV_OK};  ///< If an error occurs, it's stored here
 
     std::vector<std::string> required_functions_ = {
         "create",
         "destroy"};  ///< Each library has to provide these methods globally
 
-    Dirwatch dirwatch_;
+    std::function<void(std::string const&, std::string const&,
+                       bool true_if_created)> on_change_callback =
+        nullptr;  ///< Signature of callback for changes in the module load
+                  /// directories.
+
+    Dirwatch dirwatch_;  ///< Watch load paths for new or deleted modules.
 
     // internally used helper methods
     bool _free_lib(LibraryHandle handle);
@@ -166,17 +150,6 @@ private:
 
     void _watched_directory_changed_callback(Dirwatch::Event event,
                                              std::string const& dir,
-                                             std::string const& file) {
-        Log("MODULE_LOADER", "Received change for ", file, " in ", dir);
-        if (on_change_callback) {
-            /// \todo Check here if the found library actually contains a valid
-            /// vision-module.
-            on_change_callback(dir, file,
-                               event == Dirwatch::Event::FILE_CREATED);
-        }
-    }
-
-    std::function<void(std::string const&, std::string const&,
-                       bool true_if_created)> on_change_callback = nullptr;
+                                             std::string const& file);
 };
 }
