@@ -35,6 +35,18 @@
 
 namespace tv {
 
+/// Split the extension from a filename.
+/// \param[in] filename name of a file with or without directory part.
+/// \param[inout] extension The extension, if any, else empty string.
+/// \return the basename of the file.
+std::string strip_extension(std::string const& filename,
+                            std::string& extension);
+
+/// Return the filename without extension.
+/// \param[in] filename name of a file with or without directory part.
+/// \return the basename of the file.
+std::string strip_extension(std::string const& filename);
+
 /// Return the extension part of a  filename
 /// \param[in] filename name of a file with or without directory part
 /// \return the extension of the file. Empty string if none.

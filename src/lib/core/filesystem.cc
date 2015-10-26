@@ -32,6 +32,7 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/inotify.h>
+#include <string.h>
 
 #include <cassert>
 #include <string>
@@ -47,8 +48,8 @@ static std::string basename(std::string const& fullname) {
         fullname.end());
 }
 */
-static std::string strip_extension(std::string const& filename,
-                                   std::string& extension) {
+std::string tv::strip_extension(std::string const& filename,
+                                std::string& extension) {
     auto rev_it = std::find(filename.rbegin(), filename.rend(), '.');
 
     if (rev_it == filename.rend() or
@@ -58,6 +59,17 @@ static std::string strip_extension(std::string const& filename,
     }
 
     extension = std::string(rev_it.base(), filename.cend());
+    return std::string(filename.cbegin(), rev_it.base() - 1);
+}
+
+std::string tv::strip_extension(std::string const& filename) {
+    auto rev_it = std::find(filename.rbegin(), filename.rend(), '.');
+
+    if (rev_it == filename.rend() or
+        rev_it == filename.rend() - 1) {  // no extension or dotfile
+        return filename;
+    }
+
     return std::string(filename.cbegin(), rev_it.base() - 1);
 }
 
@@ -181,10 +193,13 @@ bool tv::Dirwatch::start(void) {
     }
 
     for (auto const& directory : watches_) {
-        auto watch = inotify_add_watch(inotify_, directory.first.c_str(),
-                                       IN_CREATE | IN_DELETE | IN_DELETE_SELF);
+        auto watch = inotify_add_watch(
+            inotify_, directory.first.c_str(),
+            IN_CREATE | IN_DELETE | IN_MOVE | IN_ONLYDIR | IN_DELETE_SELF);
+
         if (watch <= 0) {
             LogError("DIRWATCH", "Could not add watch for ", directory.first);
+            return false;
         }
 
         watches_[directory.first] = watch;
@@ -204,25 +219,30 @@ void tv::Dirwatch::add_watched_extension(std::string const& ext) {
 void tv::Dirwatch::monitor(void) const {
 
     auto const event_size = sizeof(struct inotify_event);
-    auto const event_buffer_size = (1024 * (event_size + 16));
+    // buffer space for 10 events, see man inotify
+    auto const event_buffer_size = (10 * (event_size + NAME_MAX + 1));
     char buffer[event_buffer_size];
 
     // waiting & polling for next event
     while (not stopped_) {
+        errno = 0;
         auto length = read(inotify_, buffer, event_buffer_size);
 
-        if (EAGAIN == length) {  // no data
+        // reading non-blocking, eagain is fine.
+        if (length < 0 and errno == EAGAIN) {
+
             std::this_thread::sleep_for(
                 std::chrono::milliseconds(check_intervall_));
             continue;
         }
 
-        if (length < 0) {
-            LogError("DIRWATCH", "Reading from inotify: ", length);
+        else if (length < 0) {  // should eval the error here.
+            LogError("DIRWATCH", "Reading from inotify: ", errno, " (",
+                     strerror(errno), ")");
         }
 
         // process each change event
-        for (auto i = 0; i < length;) {
+        for (int i = 0; i < length;) {
             auto event = reinterpret_cast<inotify_event*>(&buffer[i]);
             i += event_size + event->len;
 
@@ -240,13 +260,14 @@ void tv::Dirwatch::monitor(void) const {
             assert(it != watches_.cend());
 
             if (event->mask & IN_IGNORED) {
-                if (event->name == it->first) {  // a directory removed
+                if (event->name == it->first) {  // a watched directory removed
 
                     on_change_(Event::DIR_DELETED, it->first, "");
                 }
 
-                // a file created or deleted
-            } else if (event->mask & IN_CREATE or event->mask & IN_DELETE) {
+                // a file created/deleted/moved
+            } else if (event->mask &
+                       (IN_CREATE | IN_DELETE | IN_MOVED_FROM | IN_MOVED_TO)) {
 
                 // with extension that is being watched
                 auto const ext = extension(event->name);
@@ -254,9 +275,9 @@ void tv::Dirwatch::monitor(void) const {
                     std::find(extensions_.cbegin(), extensions_.cend(), ext) !=
                         extensions_.cend()) {
 
-                    auto change =
-                        (event->mask & IN_CREATE ? Event::FILE_CREATED
-                                                 : Event::FILE_DELETED);
+                    auto change = (event->mask & (IN_CREATE | IN_MOVED_TO)
+                                       ? Event::FILE_CREATED
+                                       : Event::FILE_DELETED);
 
                     on_change_(change, it->first, event->name);
                 }
