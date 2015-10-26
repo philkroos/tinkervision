@@ -33,6 +33,34 @@
 #include "filesystem.hh"
 #include "logger.hh"
 
+tv::ModuleLoader::ModuleLoader(std::string const& system_lib_load_path,
+                               std::string const& user_lib_load_path)
+    : system_load_path_(system_lib_load_path),
+      user_load_path_(user_lib_load_path),
+      dirwatch_(&ModuleLoader::_watched_directory_changed_callback, this) {
+
+    auto modules = std::vector<std::string>{};
+    auto paths = std::vector<std::string>{};
+
+    list_available_modules(paths, modules);
+
+    Log("MODULE_LOADER", "Starting with ", paths.size(), " available modules");
+
+    for (size_t i = 0; i < modules.size(); ++i) {
+        assert(_add_available_module(paths[i], strip_extension(modules[i])));
+        auto const a = availables_.back();
+        Log("MODULE_LOADER", a.loadpath, ": ", a.libname);
+        for (auto const& p : a.parameter) {
+            Log("MODULE_LOADER", p);
+        }
+    }
+
+    // monitor changes
+    dirwatch_.add_watched_extension("so");
+    dirwatch_.watch(system_load_path_);
+    dirwatch_.watch(user_load_path_);
+}
+
 bool tv::ModuleLoader::set_user_load_path(std::string const& load_path) {
     if (not is_directory(load_path)) {
         LogError("MODULE_LOADER", "Load path is not a directory: ", load_path);
@@ -70,16 +98,22 @@ void tv::ModuleLoader::list_available_modules(
 bool tv::ModuleLoader::load_module_from_library(ModuleWrapper** target,
                                                 std::string const& libname,
                                                 TV_Int id) {
+    auto lib = (LibraryHandle) nullptr;
+
     // prefer user modules
-    if (not(_load_module_from_library(target, user_load_path_, libname, id) or
-
-            _load_module_from_library(target, system_load_path_, libname,
-                                      id))) {
-
-        LogError("MODULE_LOADER", "Loading of library ", libname, " failed.");
-        return false;
+    lib = _load_module_from_library(target, user_load_path_, libname, id);
+    if (lib != nullptr) {
+        handles_[*target] = {libname, user_load_path_, lib};
+    } else {
+        lib = _load_module_from_library(target, system_load_path_, libname, id);
+        if (lib != nullptr) {
+            handles_[*target] = {libname, system_load_path_, lib};
+        } else {
+            return false;
+        }
     }
 
+    Log("MODULE_LOADER", handles_[*target].loadpath, " -> ", libname);
     return true;
 }
 
@@ -90,26 +124,30 @@ bool tv::ModuleLoader::destroy_module(ModuleWrapper* module) {
         return false;
     }
 
+    // remove the library from the list of open handles
     auto handle = entry->second.handle;
     handles_.erase(module);
-    DestructorFunction(dlsym(handle, "destroy"))(module->executable());
 
+    // Destroy the object
     delete module;
+
+    // Close the library
     return _free_lib(handle);
 }
 
 void tv::ModuleLoader::destroy_all(void) {
+    auto libs = std::vector<LibraryHandle>{};
     for (auto lib : handles_) {
-        auto handle = lib.second.handle;
-        auto name = lib.second.libname;
-
-        Log("MODULE_LOADER", "Close library ", name);
-        if (0 != dlclose(handle)) {
-            LogError("API::quit", "dlclose(", name, "): ", dlerror());
-            // Can't do nothing about that.
-        }
+        libs.push_back(lib.second.handle);
     }
+
+    /// First, destroy all internally wrapped modules.
     handles_.clear();
+
+    /// Only then release all libraries.
+    for (auto lib : libs) {
+        (void)_free_lib(lib);
+    }
 }
 
 TV_Result tv::ModuleLoader::last_error(void) {
@@ -123,8 +161,6 @@ void tv::ModuleLoader::update_on_changes(std::function<
          bool true_if_created)> callback) {
 
     Log("MODULE_LOADER", "Registering callback for directory changes");
-    dirwatch_.watch(system_load_path_);
-    dirwatch_.watch(user_load_path_);
     on_change_callback = callback;
 }
 
@@ -140,7 +176,7 @@ bool tv::ModuleLoader::_free_lib(LibraryHandle handle) {
     return true;
 }
 
-bool tv::ModuleLoader::_load_module_from_library(
+tv::ModuleLoader::LibraryHandle tv::ModuleLoader::_load_module_from_library(
     ModuleWrapper** target, std::string const& library_root,
     std::string const& libname, TV_Int id) {
 
@@ -148,7 +184,7 @@ bool tv::ModuleLoader::_load_module_from_library(
     if (not handle) {
         LogWarning("MODULE_LOADER", "dlopen(", libname, "): ", dlerror());
         error_ = TV_MODULE_DLOPEN_FAILED;
-        return false;
+        return nullptr;
     }
 
     // check for required functions
@@ -160,30 +196,71 @@ bool tv::ModuleLoader::_load_module_from_library(
             LogWarning("API", "dlsym(.., ", func, "): ", error);
             error_ = TV_MODULE_DLSYM_FAILED;
             _free_lib(handle);
-            return false;
+            return nullptr;
         }
     }
 
     try {
-        auto shared_object = ConstructorFunction(dlsym(handle, "create"))();
-        *target = new ModuleWrapper(shared_object, id, library_root);
+        // auto shared_object = ConstructorFunction(dlsym(handle, "create"))();
+        *target = new ModuleWrapper(
+            ModuleWrapper::Constructor(dlsym(handle, "create")),
+            ModuleWrapper::Destructor(dlsym(handle, "destroy")), id,
+            library_root);
 
     } catch (Exception& ce) {
         LogError("MODULE_LOADER", ce.what());
-        return false;
+        return nullptr;
     }
 
-    Log("MODULE_LOADER", "Loaded ", libname, " from ", library_root);
-    handles_[*target] = {libname, handle};
-    return true;
+    return handle;
 }
 
 void tv::ModuleLoader::_watched_directory_changed_callback(
     Dirwatch::Event event, std::string const& dir, std::string const& file) {
     Log("MODULE_LOADER", "Received change for ", file, " in ", dir);
+
+    // Modify list of available events accordingly
+    if (event == Dirwatch::Event::FILE_CREATED) {
+        assert(_add_available_module(dir, strip_extension(file)));
+
+    } else if (event == Dirwatch::Event::FILE_DELETED) {
+        auto it = std::find_if(availables_.cbegin(), availables_.cend(),
+                               [&](AvailableModule const& a) {
+            return a.libname == strip_extension(file) and a.loadpath == dir;
+        });
+
+        if (it != availables_.cend()) {
+            availables_.erase(it);
+        }
+    }
+
+    // Notify user
     if (on_change_callback) {
         /// \todo Check here if the found library actually contains a valid
         /// vision-module.
         on_change_callback(dir, file, event == Dirwatch::Event::FILE_CREATED);
     }
+}
+
+bool tv::ModuleLoader::_add_available_module(std::string const& path,
+                                             std::string const& name) {
+    auto tmp = (ModuleWrapper*)(nullptr);
+    auto const id = 100;  // doesn't matter
+
+    auto lib = _load_module_from_library(&tmp, path, name, id);
+
+    if (not lib) {  // should not happen
+        LogError("MODULE_LOADER", "Construction error");
+        return false;
+    }
+
+    availables_.push_back({name, path, {}});
+    tmp->get_parameters_list(availables_.back().parameter);
+
+    // Destroy the temporary
+    delete tmp;
+
+    // Close the library
+    _free_lib(lib);
+    return true;
 }

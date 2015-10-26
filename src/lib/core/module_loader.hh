@@ -46,20 +46,13 @@ namespace tv {
 /// is passed into SharedResource.
 class ModuleLoader {
 public:
-    using ConstructorFunction = Module* (*)();
-    using DestructorFunction = void (*)(Module*);
-
     /// c'tor.
     /// Initialize this class with a path where libraries are to be
     /// found.
-    explicit ModuleLoader(std::string const& system_lib_load_path,
-                          std::string const& user_lib_load_path)
-        : system_load_path_(system_lib_load_path),
-          user_load_path_(user_lib_load_path),
-          dirwatch_(&ModuleLoader::_watched_directory_changed_callback, this) {
+    ModuleLoader(std::string const& system_lib_load_path,
+                 std::string const& user_lib_load_path);
 
-        dirwatch_.add_watched_extension("so");
-    }
+    ~ModuleLoader(void) { destroy_all(); }
 
     /// Modify the user accessible module load path.
     /// \param[in] load_path full path name
@@ -119,13 +112,22 @@ public:
                                               bool true_if_created)> callback);
 
 private:
+    struct AvailableModule {
+        std::string libname;
+        std::string loadpath;
+        std::vector<Parameter> parameter;
+    };
+    using AvailableModules = std::vector<AvailableModule>;
+
     using LibraryHandle = void*;
     struct ModuleHandle {
         std::string libname;
+        std::string loadpath;
         LibraryHandle handle;
     };
     using Handles = std::unordered_map<ModuleWrapper*, ModuleHandle>;
 
+    AvailableModules availables_;         ///< Keeps track of loadable modules
     Handles handles_;                     ///< Keeps track of loaded modules
     std::string const system_load_path_;  ///< Default shared object files
     std::string user_load_path_;          ///< Additional shared object files
@@ -144,12 +146,16 @@ private:
 
     // internally used helper methods
     bool _free_lib(LibraryHandle handle);
-    bool _load_module_from_library(ModuleWrapper** target,
-                                   std::string const& library_root,
-                                   std::string const& libname, TV_Int id);
+    LibraryHandle _load_module_from_library(ModuleWrapper** target,
+                                            std::string const& library_root,
+                                            std::string const& libname,
+                                            TV_Int id);
 
     void _watched_directory_changed_callback(Dirwatch::Event event,
                                              std::string const& dir,
                                              std::string const& file);
+
+    bool _add_available_module(std::string const& path,
+                               std::string const& name);
 };
 }

@@ -45,6 +45,9 @@ enum class ModuleType : uint8_t;
 
 class ModuleWrapper {
 public:
+    using Constructor = Module* (*)();
+    using Destructor = void (*)(Module*);
+
     // runtime tags describing some sort of status this module is in, as
     // relevant for the execution of the Api
     enum class Tag : unsigned {
@@ -73,15 +76,23 @@ private:
                          /// Defaults to 1, which means 'execute every cycle'.
                          /// Set to zero, the module would not execute at all.
 
+    Destructor dtor_;
+
 public:
-    ModuleWrapper(Module* executable, TV_Int module_id,
+    ModuleWrapper(Constructor ctor, Destructor dtor, TV_Int module_id,
                   std::string const& load_path)
-        : load_path_(load_path), module_id_(module_id), tv_module_(executable) {
+        : load_path_(load_path),
+          module_id_(module_id),
+          tv_module_(ctor()),
+          dtor_(dtor) {
 
         tv_module_->register_parameter("period", 0, 500, 1);
     }
 
-    ~ModuleWrapper(void) { Log("MODULE::Destructor", name()); }
+    ~ModuleWrapper(void) {
+        Log("MODULE::Destructor", name());
+        dtor_(tv_module_);
+    }
 
     // No copy allowed
     ModuleWrapper(ModuleWrapper const& other) = delete;

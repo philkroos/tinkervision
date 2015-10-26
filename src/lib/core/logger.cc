@@ -107,4 +107,11 @@ std::ostream& tv::operator<<(std::ostream& os, TV_Id id) {
     os << static_cast<int>(id);
     return os;
 }
+
+std::ostream& tv::operator<<(std::ostream& os, Parameter p) {
+    os << p.name() << ": " << p.get() << " [" << p.min() << "," << p.max()
+       << "]";
+    return os;
+}
+
 #endif

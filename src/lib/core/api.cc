@@ -106,8 +106,8 @@ TV_Result tv::Api::quit(void) {
     // (This included the dummy module)
     idle_process_running_ = false;
 
-    // ... free all loaded libraries ...
-    module_loader_.destroy_all();
+    // ... free all loaded libraries ... (done in ~ModuleLoader now)
+    // module_loader_.destroy_all();
 
     // ... release the camera and join the execution thread
     (void)stop();
