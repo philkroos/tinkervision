@@ -136,7 +136,7 @@ public:
     /// \todo This should return the allowed min/max value per parameter as
     /// well.
     /// \param[inout] parameter The list of parameters.
-    void get_parameters_list(std::vector<std::string>& parameter) const;
+    void get_parameters_list(std::vector<Parameter>& parameter) const;
 
     /// Check if a module supports a parameter.
     /// \param[in] parameter Name of the parameter.

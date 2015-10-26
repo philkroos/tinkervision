@@ -22,7 +22,7 @@ tv::ModuleType const& tv::ModuleWrapper::type(void) const {
 }
 
 void tv::ModuleWrapper::get_parameters_list(
-    std::vector<std::string>& parameters) const {
+    std::vector<Parameter>& parameters) const {
     tv_module_->parameter_list(parameters);
 }
 

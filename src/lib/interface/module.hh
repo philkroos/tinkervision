@@ -97,8 +97,8 @@ private:
     /// \param[in] min Minimum value allowed for this parameter.
     /// \param[in] max Maximum value allowed for this parameter.
     /// \param[in] init Initialization value for this parameter.
-    explicit Parameter(std::string const& name, parameter_t min,
-                       parameter_t max, parameter_t init)
+    Parameter(std::string const& name, parameter_t min, parameter_t max,
+              parameter_t init)
         : name_(name), min_(min), max_(max), value_(init) {
 
         if (min_ > max_) {
@@ -160,9 +160,10 @@ public:
         return parameter_.find(parameter) != parameter_.cend();
     }
 
-    void parameter_list(std::vector<std::string>& parameters) {
+    void parameter_list(std::vector<Parameter>& parameters) {
         for (auto const& parameter : parameter_) {
-            parameters.push_back(parameter.first);
+            auto p = parameter.second;
+            parameters.push_back({p->name_, p->min_, p->max_, p->value_});
         }
     }
 

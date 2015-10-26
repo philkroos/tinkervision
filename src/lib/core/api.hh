@@ -393,13 +393,14 @@ public:
             return TV_INVALID_ID;
         }
 
-        std::vector<std::string> parameters;
+        std::vector<Parameter> parameters;
         modules_[module_id].get_parameters_list(parameters);
 
         if (parameters.size()) {
             std::thread([module_id, parameters, callback, context](void) {
                             for (auto const& par : parameters) {
-                                callback(module_id, par.c_str(), context);
+                                callback(module_id, par.name().c_str(),
+                                         context);
                             }
                             callback(0, "", context);  // done
                         }).detach();
