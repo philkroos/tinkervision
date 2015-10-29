@@ -28,8 +28,24 @@ void callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
 }
 
 void str_callback(TV_Id id, TV_String string, TV_Context context) {
-    int ctx = *(int*)(context);
+    int ctx = *(int*)(context), i;
+    TV_Size parameter;
+    TV_CharArray name;
+    TV_Long min, max, def;
+
     printf("String-callback: %d, %s, %d\n", id, string, ctx);
+    if (tv_library_parameter_count(string, &parameter) != TV_OK) {
+        printf("Error during parameter_count\n");
+        return;
+    }
+    for (i = 0; i < parameter; ++i) {
+        if (tv_library_describe_parameter(string, i, name, &min, &max, &def) !=
+            TV_OK) {
+            printf("Error during describe_parameter %d\n", i);
+            continue;
+        }
+        printf("%s/%s: %d [%d, %d]\n", string, name, def, min, max);
+    }
 }
 
 void colormatch_start(TV_Id id, int min_hue, int max_hue) {
@@ -60,7 +76,7 @@ int main(int argc, char* argv[]) {
     TV_Size width = 1280;
     TV_Size height = 720;
     int enum_modules = 1;
-    int enum_pars = 2;
+    /*int enum_pars = 2;*/
 
     TV_Result result = tv_set_framesize(width, height);
 
@@ -105,8 +121,11 @@ int main(int argc, char* argv[]) {
       Starting a module, quitting the api, starting same id again failed.
     */
     colormatch_start(1, 20, 25);
+    /*
+       10-29-2015: Deprecated enumeration
     result = tv_module_enumerate_parameters(1, str_callback, &enum_pars);
     printf("Enumerate Parameters registered: %d\n", result);
+    */
 
     sleep(3);
 

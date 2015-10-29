@@ -144,8 +144,6 @@ public:
     ColorSpace expected_format(void) const;
 
     /// Get the list of parameters valid for this module.
-    /// \todo This should return the allowed min/max value per parameter as
-    /// well.
     /// \param[inout] parameter The list of parameters.
     void get_parameters_list(std::vector<Parameter>& parameter) const;
 
@@ -166,6 +164,21 @@ public:
     /// \return true, if the parameter has value \c value now. This might fail
     /// if the range of the parameter is limited.
     bool set_parameter(std::string const& parameter, parameter_t value);
+
+    /// Get the number of parameters the wrapped module provides.
+    /// \return Count of available parameters.
+    size_t get_parameter_count(void) const {
+        return tv_module_->parameter_count();
+    }
+
+    /// Get a specific parameter from the wrapped module.
+    /// \param[in] number A value < get_parameter_count().
+    /// \return The parameter that has been assigned the number specified
+    /// internally. If number exceeds get_parameter_count(), the one with the
+    /// largest number.
+    Parameter const& describe_parameter_by_id(size_t number) const {
+        return tv_module_->get_parameter_by_id(number);
+    }
 
     Result const* result(void) const;
 

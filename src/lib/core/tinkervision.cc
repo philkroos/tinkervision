@@ -157,6 +157,32 @@ TV_Result tv_module_enumerate_parameters(TV_Id module_id,
                                                      context);
 }
 
+TV_Result tv_library_parameter_count(TV_String libname, TV_Size* count) {
+    tv::Log("Tinkervision::LibraryParameterCount", libname);
+    /// \todo Fix types: size_t vs TV_Size
+    *count = 0;
+    return tv::get_api().library_get_parameter_count(libname,
+                                                     *(size_t*)(count));
+}
+
+TV_Result tv_library_describe_parameter(TV_String libname, TV_Size parameter,
+                                        TV_CharArray name, TV_Long* min,
+                                        TV_Long* max, TV_Long* def) {
+    tv::Log("Tinkervision::LibraryDescribeParameter", libname, " ", parameter);
+    std::string _name;
+    TV_Result err = tv::get_api().library_describe_parameter(
+        libname, parameter, _name, *min, *max, *def);
+    if (err == TV_OK) {
+        std::strncpy(name, _name.c_str(), TV_CHAR_ARRAY_SIZE - 1);
+        name[TV_CHAR_ARRAY_SIZE - 1] = '\0';
+    } else {
+        std::fill_n(name, TV_CHAR_ARRAY_SIZE - 1, '\0');
+        *min = *max = *def = 0;
+    }
+
+    return err;
+}
+
 TV_Result tv_enumerate_available_modules(TV_StringCallback callback,
                                          TV_Context context) {
     tv::Log("Tinkervision::EnumerateAvailableModules");

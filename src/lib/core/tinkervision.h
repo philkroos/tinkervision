@@ -192,9 +192,37 @@ TV_Result tv_module_get_name(TV_Id id, TV_CharArray name);
 ///      parameter name per time, and \c context. After all parameter names have
 ///      been passed, the callback receives an id of \c 0 and no further
 ///      callbacks will be received.
+/// \deprecated Use tv_library_parameter_count() and
+/// tv_library_describe_parameter().
 TV_Result tv_module_enumerate_parameters(TV_Id module_id,
                                          TV_StringCallback callback,
                                          TV_Context context);
+
+/// Get the number of parameters a library supports.
+/// \param[in] libname Name of the module, i.e. filename w/o extension.
+/// \param[out] count Number of supported parameters.
+/// \note count is beeing set to 0 if libname is not available
+/// \return
+///    - #TV_INVALID_ARGUMENT: The library is not available.
+///    - #TV_OK else
+TV_Result tv_library_parameter_count(TV_String libname, TV_Size* count);
+
+/// Get the properties of a parameter from a library.
+/// \param[in] libname Name of the module, i.e. filename w/o extension.
+/// \param[in] parameter A number < tv_library_parameter_count()
+/// \param[out] name Parameter identifier
+/// \param[out] min Parameter minimum value
+/// \param[out] max Parameter maximum value
+/// \param[out] def Parameter default value
+/// \return False if the library is not available or number is out of range.
+///    - #TV_INVALID_ARGUMENT: The library is not available or parameter exceeds
+///    the available number of parameters.
+///    - #TV_OK else
+/// \note All outgoing parameters are beeing set to 0 if the result is not
+/// TV_OK.
+TV_Result tv_library_describe_parameter(TV_String libname, TV_Size parameter,
+                                        TV_CharArray name, TV_Long* min,
+                                        TV_Long* max, TV_Long* def);
 
 /// Get the names of all available modules.
 /// \param[in] callback The given method will be called for each loadable

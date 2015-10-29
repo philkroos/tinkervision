@@ -27,6 +27,7 @@
 
 #include <dlfcn.h>
 #include <cassert>
+#include <algorithm>
 
 #include "module_loader.hh"
 #include "exceptions.hh"
@@ -72,6 +73,7 @@ bool tv::ModuleLoader::set_user_load_path(std::string const& load_path) {
         return false;
     }
 
+    /// \todo Notify the listener about modules that are no longer available.
     dirwatch_.unwatch(user_load_path_);
     user_load_path_ = load_path;
     return true;
@@ -93,6 +95,12 @@ void tv::ModuleLoader::list_available_modules(
     for (size_t i = paths.size(); i < modules.size(); ++i) {
         paths.push_back(user_load_path_);
     }
+
+    /// All available modules are listed by name, i.e. the same as the filename
+    /// but without extension .so.
+    std::transform(modules.begin(), modules.end(), modules.begin(),
+                   // ? Can't resolve strip_extension if used directly??
+                   [&](std::string const& s) { return strip_extension(s); });
 }
 
 bool tv::ModuleLoader::load_module_from_library(ModuleWrapper** target,
@@ -162,6 +170,46 @@ void tv::ModuleLoader::update_on_changes(std::function<
 
     Log("MODULE_LOADER", "Registering callback for directory changes");
     on_change_callback = callback;
+}
+
+bool tv::ModuleLoader::library_available(std::string const& libname) const {
+    return availables_.cend() !=
+           std::find_if(availables_.cbegin(), availables_.cend(),
+                        [&](AvailableModule const& module) {
+               return module.libname == libname;
+           });
+}
+
+bool tv::ModuleLoader::library_parameter_count(std::string const& libname,
+                                               size_t& count) const {
+    return availables_.cend() !=
+           std::find_if(availables_.cbegin(), availables_.cend(),
+                        [&](AvailableModule const& module) {
+               if (module.libname == libname) {
+                   count = module.parameter.size();
+                   return true;
+               }
+               return false;
+           });
+}
+
+bool tv::ModuleLoader::library_describe_parameter(
+    std::string const& libname, size_t number, std::string& name,
+    parameter_t& min, parameter_t& max, parameter_t& def) const {
+
+    auto it = std::find_if(
+        availables_.cbegin(), availables_.cend(),
+        [&libname](AvailableModule const& m) { return m.libname == libname; });
+
+    if (it == availables_.cend() or it->parameter.size() <= number) {
+        return false;
+    }
+
+    name = it->parameter[number].name();
+    min = it->parameter[number].min();
+    max = it->parameter[number].max();
+    def = it->parameter[number].get();
+    return true;
 }
 
 bool tv::ModuleLoader::_free_lib(LibraryHandle handle) {

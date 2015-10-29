@@ -124,6 +124,7 @@ private:
     ModuleType const type_;
 
     std::unordered_map<std::string, Parameter*> parameter_;
+    std::vector<std::string> parameter_names_;  ///< Provides counted access
 
 protected:
     Module(const char* name, ModuleType type) : name_{name}, type_(type) {
@@ -171,6 +172,7 @@ public:
                             parameter_t max, parameter_t init) {
 
         parameter_.insert({name, new Parameter(name, min, max, init)});
+        parameter_names_.push_back(name);
     }
 
     bool set(std::string const& parameter, parameter_t value) {
@@ -184,6 +186,14 @@ public:
 
         value = parameter_[parameter]->get();
         return true;
+    }
+
+    size_t parameter_count(void) const { return parameter_.size(); }
+
+    Parameter const& get_parameter_by_id(size_t number) const {
+        // return last if out-of-range
+        auto name = parameter_names_[std::min(number, parameter_count())];
+        return *parameter_.find(name)->second;
     }
 
     virtual void execute(tv::Image const& image) = 0;

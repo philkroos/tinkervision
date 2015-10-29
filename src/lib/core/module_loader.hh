@@ -111,6 +111,31 @@ public:
                                               std::string const& filename,
                                               bool true_if_created)> callback);
 
+    /// Check whether a library is available for loading
+    /// \param[in] libname Name of the module, i.e. filename w/o extension.
+    /// \return True if available.
+    bool library_available(std::string const& libname) const;
+
+    /// Get the number of parameters a library supports.
+    /// \param[in] libname Name of the module, i.e. filename w/o extension.
+    /// \param[out] count Number of supported parameters, unset if libname is
+    /// not available!
+    /// \return True if the library is available. Only then count is valid.
+    bool library_parameter_count(std::string const& libname,
+                                 size_t& count) const;
+
+    /// Get the properties of a parameter from a library.
+    /// \param[in] libname Name of the module, i.e. filename w/o extension.
+    /// \param[in] number A number < library_parameter_count()
+    /// \param[out] name Parameter identifier
+    /// \param[out] min Parameter minimum value
+    /// \param[out] max Parameter maximum value
+    /// \param[out] def Parameter default value
+    /// \return False if the library is not available or number is out of range.
+    bool library_describe_parameter(std::string const& libname, size_t number,
+                                    std::string& name, parameter_t& min,
+                                    parameter_t& max, parameter_t& def) const;
+
 private:
     struct AvailableModule {
         std::string libname;

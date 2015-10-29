@@ -386,6 +386,26 @@ public:
         return TV_OK;
     }
 
+    TV_Result library_get_parameter_count(std::string const& libname,
+                                          size_t& count) const {
+        if (module_loader_.library_parameter_count(libname, count)) {
+            return TV_OK;
+        }
+        return TV_INVALID_ARGUMENT;
+    }
+
+    TV_Result library_describe_parameter(std::string const& libname,
+                                         size_t parameter, std::string& name,
+                                         parameter_t& min, parameter_t& max,
+                                         parameter_t& def) {
+
+        if (not module_loader_.library_describe_parameter(
+                libname, parameter, name, min, max, def)) {
+            return TV_INVALID_ARGUMENT;
+        }
+        return TV_OK;
+    }
+
     TV_Result module_enumerate_parameters(TV_Id module_id,
                                           TV_StringCallback callback,
                                           TV_Context context) const {
@@ -427,7 +447,7 @@ public:
                         module_loader_.list_available_modules(paths, modules);
                         for (size_t i = 0; i < modules.size(); ++i) {
                             callback(static_cast<int>(true),
-                                     (paths[i] + modules[i]).c_str(), context);
+                                     (modules[i]).c_str(), context);
                         }
                     }).detach();
 
