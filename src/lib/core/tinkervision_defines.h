@@ -34,7 +34,7 @@ typedef uint16_t TV_UWord;
 typedef uint32_t TV_UInt;
 typedef uint8_t TV_Byte;
 typedef const char* TV_String;
-#define TV_CHAR_ARRAY_SIZE 20
+#define TV_CHAR_ARRAY_SIZE 40
 typedef char TV_CharArray[TV_CHAR_ARRAY_SIZE];
 
 typedef TV_Word TV_Int;

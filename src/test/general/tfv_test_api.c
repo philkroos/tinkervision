@@ -75,6 +75,7 @@ void colormatch_start(TV_Id id, int min_hue, int max_hue) {
 int main(int argc, char* argv[]) {
     TV_Size width = 1280;
     TV_Size height = 720;
+    TV_CharArray string;
     int enum_modules = 1;
     /*int enum_pars = 2;*/
 
@@ -82,6 +83,12 @@ int main(int argc, char* argv[]) {
 
     printf("SetFramesize: %d (%s)\n", result, tv_result_string(result));
     sleep(1);
+
+    tv_user_module_load_path(string);
+    printf("User module path: %s\n", string);
+
+    tv_system_module_load_path(string);
+    printf("System module path: %s\n", string);
 
     result = tv_camera_available();
     printf("CameraAvailable: %d (%s)\n", result, tv_result_string(result));

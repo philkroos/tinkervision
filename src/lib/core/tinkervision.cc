@@ -55,9 +55,9 @@ TV_Result tv_start_idle(void) {
     return tv::get_api().start_idle();
 }
 
-TV_Result tv_effective_inv_framerate(double& framerate) {
+TV_Result tv_effective_inv_framerate(double* framerate) {
     tv::Log("Tinkervision::EffectiveInvFramerate");
-    framerate = tv::get_api().effective_framerate();
+    *framerate = tv::get_api().effective_framerate();
     return TV_OK;
 }
 
@@ -193,6 +193,22 @@ TV_Result tv_enumerate_available_modules(TV_StringCallback callback,
                                          TV_Context context) {
     tv::Log("Tinkervision::EnumerateAvailableModules");
     return tv::get_api().enumerate_available_modules(callback, context);
+}
+
+TV_Result tv_user_module_load_path(TV_CharArray path) {
+    tv::Log("Tinkervision::UserModuleLoadPath");
+    auto _path = tv::get_api().user_module_path();
+    std::fill_n(path, TV_CHAR_ARRAY_SIZE, '\0');
+    std::strncpy(path, _path.c_str(), TV_CHAR_ARRAY_SIZE - 1);
+    return TV_OK;
+}
+
+TV_Result tv_system_module_load_path(TV_CharArray path) {
+    tv::Log("Tinkervision::SystemModuleLoadPath");
+    auto _path = tv::get_api().system_module_path();
+    std::fill_n(path, TV_CHAR_ARRAY_SIZE, '\0');
+    std::strncpy(path, _path.c_str(), TV_CHAR_ARRAY_SIZE - 1);
+    return TV_OK;
 }
 
 //

@@ -518,6 +518,14 @@ public:
 
     double effective_framerate(void) const { return effective_framerate_; }
 
+    std::string const& user_module_path(void) const {
+        return module_loader_.user_load_path();
+    }
+
+    std::string const& system_module_path(void) const {
+        return module_loader_.system_load_path();
+    }
+
 private:
     CameraControl camera_control_;  ///< Camera access abstraction
     FrameConversions conversions_;

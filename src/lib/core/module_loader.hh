@@ -136,6 +136,16 @@ public:
                                     std::string& name, parameter_t& min,
                                     parameter_t& max, parameter_t& def) const;
 
+    /// Access the currently set user module load path.
+    /// \return user_load_path_
+    std::string const& user_load_path(void) const { return user_load_path_; }
+
+    /// Access the static system module load path.
+    /// \return system_load_path_
+    std::string const& system_load_path(void) const {
+        return system_load_path_;
+    }
+
 private:
     struct AvailableModule {
         std::string libname;

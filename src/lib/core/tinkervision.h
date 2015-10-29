@@ -75,7 +75,7 @@ TV_Result tv_set_execution_latency(TV_UInt milliseconds);
 /// requested.
 /// \param[out] framerate Effective, inverse framerate.
 /// \return TV_OK.
-TV_Result tv_effective_inv_framerate(double& framerate);
+TV_Result tv_effective_inv_framerate(double* framerate);
 
 /// Request the resolution of the camera frames.  This can only be called once
 /// the camera is active, so in particular, if the resolution needs to be known
@@ -243,6 +243,16 @@ TV_Result tv_library_describe_parameter(TV_String libname, TV_Size parameter,
 ///      and an empty string, and no further callbacks will be received.
 TV_Result tv_enumerate_available_modules(TV_StringCallback callback,
                                          TV_Context context);
+
+/// Access the currently set user module load path.
+/// \param[out] path The user defined path searched for modules.
+/// \return TV_OK
+TV_Result tv_user_module_load_path(TV_CharArray path);
+
+/// Access the fixed system module load path.
+/// \param[out] path The fixed system path searched for modules.
+/// \return TV_OK
+TV_Result tv_system_module_load_path(TV_CharArray path);
 
 /// Start a new scene given a loaded module.
 /// \param[in] id Id of a loaded module.
