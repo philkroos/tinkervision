@@ -55,6 +55,12 @@ TV_Result tv_start_idle(void) {
     return tv::get_api().start_idle();
 }
 
+TV_Result tv_effective_inv_framerate(double& framerate) {
+    tv::Log("Tinkervision::EffectiveInvFramerate");
+    framerate = tv::get_api().effective_framerate();
+    return TV_OK;
+}
+
 TV_Result tv_get_resolution(TV_Size* width, TV_Size* height) {
     tv::Log("Tinkervision::GetResolution");
 

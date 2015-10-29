@@ -186,8 +186,9 @@ void tv::Api::execute(void) {
     // mainloop
     auto inv_framerate = std::chrono::milliseconds(execution_latency_ms_);
     auto last_loop_time_point = Clock::now();
-    auto duration = Clock::duration(0);
     auto loops = 0;
+    auto loop_duration = Clock::duration(0);
+
     while (active_) {
         last_loop_time_point = Clock::now();
         // Log("API", "Execution at ", last_loop_time_point);
@@ -220,15 +221,18 @@ void tv::Api::execute(void) {
         });
 
         loops++;
-        duration += (Clock::now() - last_loop_time_point);
+        loop_duration += (Clock::now() - last_loop_time_point);
         if (loops == 10) {
-            Log("API", "Avg. real vs. fixed framerate: ",
-                std::chrono::duration_cast<std::chrono::milliseconds>(duration)
-                        .count() /
-                    10.0,
+            effective_framerate_ =
+                std::chrono::duration_cast<std::chrono::milliseconds>(
+                    loop_duration).count() /
+                10.0;
+
+            Log("API", "Avg. real vs. fixed framerate: ", effective_framerate_,
                 "/", inv_framerate.count());
+
             loops = 0;
-            duration = Clock::duration(0);
+            loop_duration = Clock::duration(0);
         }
         std::this_thread::sleep_until(last_loop_time_point + inv_framerate);
     }

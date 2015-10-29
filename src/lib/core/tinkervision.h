@@ -71,6 +71,12 @@ TV_Result tv_start_idle(void);
 /// currently 20ms which won't be ignored.
 TV_Result tv_set_execution_latency(TV_UInt milliseconds);
 
+/// Get the effective framerate, which can be worse than the framerate
+/// requested.
+/// \param[out] framerate Effective, inverse framerate.
+/// \return TV_OK.
+TV_Result tv_effective_inv_framerate(double& framerate);
+
 /// Request the resolution of the camera frames.  This can only be called once
 /// the camera is active, so in particular, if the resolution needs to be known
 /// before a module can be started, start_idle() must be called.

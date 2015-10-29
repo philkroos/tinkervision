@@ -516,11 +516,14 @@ public:
         });
     }
 
+    double effective_framerate(void) const { return effective_framerate_; }
+
 private:
     CameraControl camera_control_;  ///< Camera access abstraction
     FrameConversions conversions_;
     TVStringMap result_string_map_;     ///< String mapping of Api-return values
     bool idle_process_running_{false};  ///< Dummy module activated?
+    double effective_framerate_{0};     ///< Effective inverse framerate
 
     ModuleLoader module_loader_{SYS_MODULE_LOAD_PATH, ADD_MODULE_LOAD_PATH};
 
