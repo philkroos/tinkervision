@@ -56,7 +56,7 @@ To use the library, an extended version of the `red-brick-apid` is needed. On th
 
 1. `mkdir /home/tf/Software && cd /home/tf/Software`
 2. `git clone https://github.com/philkroos/tinkervision`
-3. `git clone https://github.com/tinkerforge/red-brick-apid`
+3. `git clone https://github.com/philkroos/red-brick-apid`
 
 Build and install `Tinkervision` and the provided modules, as described above. To
 build the custom version of `red-brick-apid`:
@@ -75,13 +75,14 @@ Red-Brick and on a PC which can access the device:
 1. `mkdir /home/tf/TinkervisionTest`
 2. `cd /home/tf/TinkervisionTest`
 3. `git clone https://github.com/philkroos/tinkervision`
-4. `git clone https://github.com/tinkerforge/generators`
-5. `cd generators/python && WITH_TINKERVISION=1 python generate_python_bindings.py`
-6. `WITH_TINKERVISION=1 python generate_python_zip.py`
-7. `mkdir /tmp/unzipped && cp tinkerforge_python_bindings_2_1_5.zip /tmp/unzipped`
-8. `cd /tmp/unzipped && unzip tinkerforge_python_bindings_2_1_5.zip`
-9. `cp source/tinkerforge /home/tf/TinkervisionTest/tinkervision/src/test/red-brick/scripts -r`
-10. `cd /home/tf/TinkervisionTest/tinkervision/src/test/red-brick/scripts`
+4. `git clone https://github.com/philkroos/generators`
+5. `cd generators && git checkout tinkervision`
+6. `cd python && WITH_TINKERVISION=1 python generate_python_bindings.py`
+7. `WITH_TINKERVISION=1 python generate_python_zip.py`
+8. `mkdir /tmp/unzipped && cp tinkerforge_python_bindings_2_1_5.zip /tmp/unzipped`
+9. `cd /tmp/unzipped && unzip tinkerforge_python_bindings_2_1_5.zip`
+10. `cp source/tinkerforge /home/tf/TinkervisionTest/tinkervision/src/test/red-brick/scripts -r`
+11. `cd /home/tf/TinkervisionTest/tinkervision/src/test/red-brick/scripts`
 
 Then you should be able to execute the scripts, but you need the UID of your
 Red-Brick, which can be found e.g. with the Tinkerforge `brickv`. `main.py` and
