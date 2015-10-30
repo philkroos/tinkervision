@@ -33,11 +33,25 @@ bool tv::operator!=(tv::ImageHeader const& lhs, tv::ImageHeader const& rhs) {
     return not(lhs == rhs);
 }
 
-tv::ImageAllocator::~ImageAllocator(void) { _free_image(); }
+tv::ImageAllocator::ImageAllocator(std::string const& id)
+    : ImageAllocator(id, 0) {}
+
+tv::ImageAllocator::ImageAllocator(std::string const& id, size_t known_max_size)
+    : id_(id), max_size_{known_max_size} {
+
+    LogDebug("IMAGE_ALLOCATOR", "C'tor for ", id);
+}
+
+tv::ImageAllocator::~ImageAllocator(void) {
+    LogDebug("IMAGE_ALLOCATOR", "D'tor for ", id_);
+    _free_image();
+}
 
 bool tv::ImageAllocator::allocate(uint16_t width, uint16_t height,
                                   size_t bytesize, ColorSpace format,
                                   bool foreign_data) {
+
+    LogDebug("IMAGE_ALLOCATOR", "Allocate for ", id_);
 
     if (max_size_ > 0 and bytesize > max_size_) {
         LogError("ImageAllocator", bytesize, " bytes requested. Allowed: ",
@@ -46,7 +60,7 @@ bool tv::ImageAllocator::allocate(uint16_t width, uint16_t height,
     }
 
     // only reallocate memory if necessary
-    if (bytesize != image_init_bytesize_) {
+    if (not foreign_data or bytesize != image_init_bytesize_) {
         _free_image();
     }
 
@@ -54,6 +68,8 @@ bool tv::ImageAllocator::allocate(uint16_t width, uint16_t height,
         image_init_bytesize_ = bytesize;
         if (not foreign_data) {
             image_.data = new TV_ImageData[bytesize];
+            LogDebug("IMAGE_ALLOCATOR", "Allocated data at ",
+                     (void*)image_.data, " for ", id_);
         }
     }
 
@@ -68,6 +84,8 @@ bool tv::ImageAllocator::allocate(uint16_t width, uint16_t height,
 }
 
 void tv::ImageAllocator::set_from_image(Image const& image) {
+    LogDebug("IMAGE_ALLOCATOR", "Set for ", id_);
+
     _free_image();
 
     image_ = image;
@@ -75,6 +93,8 @@ void tv::ImageAllocator::set_from_image(Image const& image) {
 }
 
 void tv::ImageAllocator::copy_data(ImageData const* data, size_t size) {
+    LogDebug("IMAGE_ALLOCATOR", "Copy for ", id_);
+
     assert(not using_foreign_data_);
     assert(image_.data);
     assert(image_.header.bytesize == size);
@@ -84,7 +104,11 @@ void tv::ImageAllocator::copy_data(ImageData const* data, size_t size) {
 }
 
 void tv::ImageAllocator::_free_image(void) {
+    LogDebug("IMAGE_ALLOCATOR", "FreeImage for ", id_);
+
     if (image_.data and not using_foreign_data_) {
+        LogDebug("IMAGE_ALLOCATOR", "Deleting data at ", (void*)image_.data,
+                 " for ", id_);
         delete[] image_.data;
     }
     image_.header.bytesize = 0;

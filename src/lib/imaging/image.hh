@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define IMAGING_H
 
 #include <chrono>  // timestamp
+#include <string>
 
 #include "tinkervision_defines.h"
 
@@ -96,14 +97,14 @@ private:
     size_t image_init_bytesize_{0};
     bool using_foreign_data_{false};
 
+    std::string const id_;
     size_t max_size_{0};  ///< Optional size limit if known at initialization.
 
     void _free_image(void);
 
 public:
-    ImageAllocator(void) = default;
-    explicit ImageAllocator(size_t known_max_size)
-        : max_size_{known_max_size} {}
+    explicit ImageAllocator(std::string const& id);
+    ImageAllocator(std::string const& id, size_t known_max_size);
 
     ImageAllocator(ImageAllocator const&) = delete;
     ImageAllocator& operator=(ImageAllocator const&) = delete;

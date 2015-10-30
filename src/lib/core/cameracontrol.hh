@@ -152,8 +152,8 @@ private:
     size_t requested_width_{640};
     size_t requested_height_{480};
 
-    ImageAllocator fallback_{};  ///< Black frame
-    ImageAllocator image_{};     ///< Data exchanged with the Api
+    ImageAllocator fallback_{"CC/Fallback"};  ///< Black frame
+    ImageAllocator image_{"CC/Image"};        ///< Data exchanged with the Api
 
     int usercount_ = 0;
     bool stopped_ = false;

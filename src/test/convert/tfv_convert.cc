@@ -75,7 +75,7 @@ int main() {
     auto width = 1280;
     auto height = 720;
 
-    tv::ImageAllocator original;
+    tv::ImageAllocator original("Default");
 
     auto bytesize = size_t(width * height * 2);
 
