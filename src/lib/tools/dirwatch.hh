@@ -33,6 +33,8 @@
 #include <functional>
 #include <thread>
 
+#include <sys/inotify.h>
+
 namespace tv {
 
 /// Monitor one or more directories for changes.
@@ -57,6 +59,8 @@ private:
     std::map<std::string, int>
         watches_;  ///< Watched directory, inotify watch descriptor
     std::vector<std::string> extensions_;  ///< List of respected extensions
+
+    uint32_t flags_ = IN_CREATE | IN_MOVE | IN_DELETE | IN_DELETE_SELF;
 
     int mutable inotify_{0};  ///< File descriptor for inotify instance
     std::thread mutable inotify_thread_;  ///< Asynchronously polling for

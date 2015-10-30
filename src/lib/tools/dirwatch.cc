@@ -29,7 +29,6 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <unistd.h>
-#include <sys/inotify.h>
 #include <string.h>
 
 #include <cassert>
@@ -57,8 +56,7 @@ bool tv::Dirwatch::watch(std::string const& directory) {
 
     if (watches_.find(directory) == watches_.end()) {
 
-        auto watch = inotify_add_watch(inotify_, directory.c_str(),
-                                       IN_CREATE | IN_DELETE | IN_DELETE_SELF);
+        auto watch = inotify_add_watch(inotify_, directory.c_str(), flags_);
 
         if (watch < 0) {
             LogError("DIRWATCH", "Could not add watch for ", directory);
@@ -98,6 +96,7 @@ void tv::Dirwatch::unwatch(std::string const& directory) {
 }
 
 void tv::Dirwatch::stop(void) {
+    /// Stop and wait for the thread, then close inotify.
     stopped_ = true;
     inotify_thread_.join();
     close(inotify_);
@@ -110,6 +109,8 @@ bool tv::Dirwatch::start(void) {
         return false;
     }
 
+    /// An inotify instance is created in non-blocking mode and polled in
+    /// monitor().
     inotify_ = inotify_init1(IN_NONBLOCK);
 
     /*checking for error*/
@@ -119,10 +120,11 @@ bool tv::Dirwatch::start(void) {
         return false;
     }
 
+    /// If this is a restart, each directory that has been added with watch()
+    /// will be added to the watched directories automatically.
     for (auto const& directory : watches_) {
-        auto watch = inotify_add_watch(
-            inotify_, directory.first.c_str(),
-            IN_CREATE | IN_DELETE | IN_MOVE | IN_ONLYDIR | IN_DELETE_SELF);
+        auto watch =
+            inotify_add_watch(inotify_, directory.first.c_str(), flags_);
 
         if (watch <= 0) {
             LogError("DIRWATCH", "Could not add watch for ", directory.first);
@@ -132,6 +134,7 @@ bool tv::Dirwatch::start(void) {
         watches_[directory.first] = watch;
     }
 
+    /// The actual monitor() is started in a thread.
     stopped_ = false;
     inotify_thread_ = std::thread(&Dirwatch::monitor, this);
     Log("DIRWATCH", "Start");
@@ -173,10 +176,6 @@ void tv::Dirwatch::monitor(void) const {
             auto event = reinterpret_cast<inotify_event*>(&buffer[i]);
             i += event_size + event->len;
 
-            if (not event->len) {
-                continue;
-            }
-
             // the directory-name/watch-descriptor pair
             auto it =
                 std::find_if(watches_.cbegin(), watches_.cend(),
@@ -186,15 +185,16 @@ void tv::Dirwatch::monitor(void) const {
 
             assert(it != watches_.cend());
 
-            if (event->mask & IN_IGNORED) {
-                if (event->name == it->first) {  // a watched directory removed
+            if (event->mask & IN_DELETE_SELF) {  // a watched directory removed
+                on_change_(Event::DIR_DELETED, it->first, "");
+            }
 
-                    on_change_(Event::DIR_DELETED, it->first, "");
-                }
+            else if (not event->len) {  // delete_self has no length
+                continue;
+            }
 
-                // a file created/deleted/moved
-            } else if (event->mask &
-                       (IN_CREATE | IN_DELETE | IN_MOVED_FROM | IN_MOVED_TO)) {
+            // a file created/deleted/moved
+            else if (event->mask & (IN_CREATE | IN_DELETE | IN_MOVE)) {
 
                 // with extension that is being watched
                 auto const ext = extension(event->name);
