@@ -449,6 +449,7 @@ public:
                             callback(static_cast<int>(true),
                                      (modules[i]).c_str(), context);
                         }
+                        LogDebug("API", "Module enumeration finished");
                     }).detach();
 
         module_loader_.update_on_changes([callback, context](

@@ -24,8 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "module.hh"
 #include "scenetrees.hh"
 
-std::string tv::Logger::PREFIX_WARNING = "WARNING";
-std::string tv::Logger::PREFIX_ERROR = "ERROR";
+std::string tv::Logger::PREFIX_DEBUG = "D";
+std::string tv::Logger::PREFIX_WARNING = "W";
+std::string tv::Logger::PREFIX_ERROR = "E";
 
 std::ostream& tv::operator<<(std::ostream& os, tv::ModuleWrapper* module) {
 

@@ -31,6 +31,8 @@ namespace tv {
 template <typename... Args>
 void Log(std::string const& prefix, Args const&... args) {}
 template <typename... Args>
+void LogDebug(std::string const& prefix, Args const&... args) {}
+template <typename... Args>
 void LogError(std::string const& prefix, Args const&... args) {}
 template <typename... Args>
 void LogWarning(std::string const& prefix, Args const&... args) {}
@@ -54,6 +56,7 @@ class Parameter;
 
 class Logger {
 private:
+    static std::string PREFIX_DEBUG;
     static std::string PREFIX_WARNING;
     static std::string PREFIX_ERROR;
 
@@ -97,6 +100,11 @@ public:
     }
 
     template <typename... Args>
+    void log_debug(std::string prefix, Args const&... args) {
+        log_default(Logger::PREFIX_DEBUG + "::" + prefix, args...);
+    }
+
+    template <typename... Args>
     void log_warning(std::string prefix, Args const&... args) {
         log_default(Logger::PREFIX_WARNING + "::" + prefix, args...);
     }
@@ -115,6 +123,11 @@ public:
 template <typename... Args>
 void Log(std::string const& prefix, Args const&... args) {
     Logger::instance().log_default(prefix, args...);
+}
+
+template <typename... Args>
+void LogDebug(std::string const& prefix, Args const&... args) {
+    Logger::instance().log_debug(prefix, args...);
 }
 
 template <typename... Args>
