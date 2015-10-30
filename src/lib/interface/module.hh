@@ -188,6 +188,13 @@ public:
         return true;
     }
 
+    Result const* result(void) const {
+        if (not has_result()) {
+            return nullptr;
+        }
+        return get_result();
+    }
+
     size_t parameter_count(void) const { return parameter_.size(); }
 
     Parameter const& get_parameter_by_id(size_t number) const {
@@ -198,13 +205,17 @@ public:
 
     virtual void execute(tv::Image const& image) = 0;
 
-    virtual Result const* get_result(void) const { return nullptr; }
     virtual ColorSpace expected_format(void) const { return ColorSpace::NONE; }
-
     /**
      * If this module is running constantly or only on request.
      */
     virtual bool running(void) const noexcept { return true; }
+
+    virtual bool can_have_result(void) const { return false; }
+
+protected:
+    virtual bool has_result(void) const { return false; }
+    virtual Result const* get_result(void) const { return nullptr; }
 };
 
 //
@@ -227,7 +238,7 @@ public:
 class Modifier : public Module {
     using Module::Module;
 
-    ImageAllocator image_;
+    ImageAllocator image_{"Module"};
     ImageHeader output_header_;
 
     void execute(Image const& image) override final {

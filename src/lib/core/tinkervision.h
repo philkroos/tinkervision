@@ -254,6 +254,10 @@ TV_Result tv_user_module_load_path(TV_CharArray path);
 /// \return TV_OK
 TV_Result tv_system_module_load_path(TV_CharArray path);
 
+/// Remove all modules.
+/// \return #TV_OK
+TV_Result tv_remove_all_modules(void);
+
 /// Start a new scene given a loaded module.
 /// \param[in] id Id of a loaded module.
 /// \param[out] scene Id of the scene if it was created successfully.

@@ -527,6 +527,15 @@ public:
         return module_loader_.system_load_path();
     }
 
+    /// Disable and remove all modules.
+    void remove_all_modules(void) {
+        _disable_all_modules();
+
+        modules_.free_all();
+        idle_process_running_ = false;
+        Log("Api", "All modules released");
+    }
+
 private:
     CameraControl camera_control_;  ///< Camera access abstraction
     FrameConversions conversions_;

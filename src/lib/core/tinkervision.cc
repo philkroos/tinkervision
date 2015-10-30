@@ -211,6 +211,12 @@ TV_Result tv_system_module_load_path(TV_CharArray path) {
     return TV_OK;
 }
 
+TV_Result tv_remove_all_modules(void) {
+    tv::Log("Tinkervision::RemoveAllModules");
+    tv::get_api().remove_all_modules();
+    return TV_OK;
+}
+
 //
 // Callbacks
 //

@@ -94,10 +94,7 @@ int main(int argc, char* argv[]) {
     printf("Configured module id %d: Code %d (%s)\n", id, result,
            tv_result_string(result));
 
-    result = tv_set_callback(id, callback);
-    printf("Set callback: Code %d (%s)\n", result, tv_result_string(result));
-
-    result = tv_set_callback(id, callback);
+    result = tv_enable_default_callback(callback);
     printf("Set callback: Code %d (%s)\n", result, tv_result_string(result));
 
     result = tv_set_parameter(id, "min-hue", min_hue);

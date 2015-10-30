@@ -101,7 +101,7 @@ public:
     ModuleWrapper& operator=(ModuleWrapper&& rhs) = delete;
 
     bool register_callback(TV_Callback callback) {
-        if (not result() or cb_) {
+        if (not tv_module_->can_have_result() or cb_) {
             return false;
         }
 

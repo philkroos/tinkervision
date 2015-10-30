@@ -89,4 +89,6 @@ void tv::Colormatch::execute(tv::ImageHeader const& header,
         result_.x = rect.x + (rect.width / 2);
         result_.y = rect.y + (rect.height / 2);
     }
+
+    has_result_ = (contours.size() > 0);
 }

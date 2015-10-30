@@ -136,6 +136,10 @@ int main(int argc, char* argv[]) {
 
     sleep(3);
 
+    result = tv_remove_all_modules();
+    printf("RemoveAll: %d (%s)\n", result, tv_result_string(result));
+    sleep(2);
+
     result = tv_quit();
     printf("Quit: %d (%s)\n", result, tv_result_string(result));
     sleep(2);

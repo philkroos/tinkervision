@@ -50,6 +50,7 @@ private:
     TV_Byte user_min_saturation;  ///< The used minimum saturation
     TV_Byte user_max_saturation;  ///< The used maximum saturation
 
+    bool has_result_{false};
     Result result_;
 
     TV_Context context;
@@ -81,6 +82,8 @@ public:
         return ColorSpace::BGR888;
     }
 
+    bool can_have_result(void) const override final { return true; }
+
 protected:
     /// Store the value of changed parameters internally to have faster access.
     /// \param[in] parameter The name of the changed parameter.
@@ -102,6 +105,7 @@ protected:
         }
     }
 
+    bool has_result(void) const override final { return has_result_; }
     Result const* get_result(void) const override { return &result_; }
 };
 }

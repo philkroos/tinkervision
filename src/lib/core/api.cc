@@ -94,23 +94,11 @@ TV_Result tv::Api::stop(void) {
 TV_Result tv::Api::quit(void) {
     Log("Api::quit");
 
-    // disable all ...
-    modules_.exec_all(
-        [this](TV_Int id, ModuleWrapper& module) { module.disable(); });
-
-    // ... remove all modules from the shared context ...
-    modules_.free_all();
-
-    Log("Api", "All modules released");
-
-    // (This included the dummy module)
-    idle_process_running_ = false;
-
-    // ... free all loaded libraries ... (done in ~ModuleLoader now)
-    // module_loader_.destroy_all();
-
     // ... release the camera and join the execution thread
     (void)stop();
+
+    // ... remove all modules from the shared context ...
+    remove_all_modules();
 
     // \todo assert that everything has been stopped.
     return TV_OK;

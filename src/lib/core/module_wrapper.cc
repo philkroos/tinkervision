@@ -50,7 +50,7 @@ bool tv::ModuleWrapper::get_parameter(std::string const& parameter,
 }
 
 tv::Result const* tv::ModuleWrapper::result(void) const {
-    return tv_module_->get_result();
+    return tv_module_->result();
 }
 
 bool tv::ModuleWrapper::running(void) const noexcept {
