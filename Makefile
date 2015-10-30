@@ -8,7 +8,7 @@ else
 endif
 
 # structure
-parts		:= core imaging debug interface
+parts		:= core tools imaging debug interface
 build_prefix	:= build
 build_dir	:= $(addprefix $(build_prefix)/,$(parts))
 src_prefix	:= src/lib

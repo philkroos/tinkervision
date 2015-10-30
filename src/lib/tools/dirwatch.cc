@@ -1,12 +1,11 @@
-/// \file filesystem.cc
+/// \file dirwatch.cc
 /// \author philipp.kroos@fh-bielefeld.de
 /// \date 2015
 ///
-/// \brief Contains functions to interact with the filesystem.
+/// \brief Definition of class Dirwatch.
 ///
 /// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
 /// \sa https://github.com/Tinkerforge/red-brick
-/// \sa filesystem.hh
 ///
 /// \copyright
 ///
@@ -25,9 +24,8 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#include "filesystem.hh"
+#include "dirwatch.hh"
 
-#include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <unistd.h>
@@ -39,79 +37,8 @@
 #include <algorithm>
 #include <chrono>
 
+#include "filesystem.hh"
 #include "logger.hh"
-
-/*
-static std::string basename(std::string const& fullname) {
-    return std::string(
-        std::find(fullname.rbegin(), fullname.rend(), '/').base(),
-        fullname.end());
-}
-*/
-std::string tv::strip_extension(std::string const& filename,
-                                std::string& extension) {
-    auto rev_it = std::find(filename.rbegin(), filename.rend(), '.');
-
-    if (rev_it == filename.rend() or
-        rev_it == filename.rend() - 1) {  // no extension or dotfile
-        extension = "";
-        return filename;
-    }
-
-    extension = std::string(rev_it.base(), filename.cend());
-    return std::string(filename.cbegin(), rev_it.base() - 1);
-}
-
-std::string tv::strip_extension(std::string const& filename) {
-    auto rev_it = std::find(filename.rbegin(), filename.rend(), '.');
-
-    if (rev_it == filename.rend() or
-        rev_it == filename.rend() - 1) {  // no extension or dotfile
-        return filename;
-    }
-
-    return std::string(filename.cbegin(), rev_it.base() - 1);
-}
-
-std::string tv::extension(std::string const& filename) {
-    return std::string(
-        std::find(filename.rbegin(), filename.rend(), '.').base(),
-        filename.end());
-}
-
-bool tv::is_file(std::string const& fullname) {
-    struct stat buffer;
-    return (stat(fullname.c_str(), &buffer) == 0) and S_ISREG(buffer.st_mode);
-}
-
-bool tv::is_directory(std::string const& fullname) {
-    struct stat buffer;
-    return (stat(fullname.c_str(), &buffer) == 0) and S_ISDIR(buffer.st_mode);
-}
-
-void tv::list_directory_content(
-    std::string const& directory, std::vector<std::string>& contents,
-    std::function<bool(std::string const& filename,
-                       std::string const& extension, bool is_regular_file)>
-        filter) {
-
-    if (not is_directory(directory)) {
-        return;
-    }
-
-    auto dir = opendir(directory.c_str());
-
-    for (auto entry = readdir(dir); entry != NULL; entry = readdir(dir)) {
-        std::string extension;
-
-        if (not filter or
-            filter(strip_extension(entry->d_name, extension), extension,
-                   is_file(directory + "/" + entry->d_name))) {
-
-            contents.push_back(entry->d_name);
-        }
-    }
-}
 
 tv::Dirwatch::Dirwatch(Callback on_change) : on_change_(on_change) {}
 

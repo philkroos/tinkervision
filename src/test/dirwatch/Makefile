@@ -4,8 +4,9 @@ CCFLAGS := -Wall -Werror -g -std=c++11 -O0 -pedantic
 INC	:= -I../../lib/core -I../../lib/tools
 LDFLAGS := -g -Wall -lstdc++ -lpthread
 
-OBJ	:= tfv_test_fs.o
-OUT	:= tfv-test-fs
+TV_OBJ	:= ../../lib/tools/filesystem.cc ../../lib/tools/dirwatch.cc
+OBJ	:= tfv_test_dirwatch.o
+OUT	:= tfv-test-dirwatch
 
 all: test
 
@@ -18,7 +19,7 @@ test: $(OUT)
 	$(CC) $(CCFLAGS) $(INC) -c $<
 
 $(OUT): $(OBJ)
-	$(CC) $(CCFLAGS) $(INC) ../../lib/tools/filesystem.cc $(OBJ) -o $(OUT) $(LDFLAGS)
+	$(CC) $(CCFLAGS) $(INC) $(TV_OBJ) $(OBJ) -o $(OUT) $(LDFLAGS)
 
 clean:
 	@rm -f $(OBJ) $(OUT)

@@ -30,6 +30,7 @@
 
 #include "module_wrapper.hh"
 #include "filesystem.hh"
+#include "dirwatch.hh"
 
 namespace tv {
 
