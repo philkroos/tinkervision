@@ -151,6 +151,15 @@ public:
     /// \param[in] header Parameters of the frame to be allocated.
     /// \param[in] foreign_data If true, no memory will be allocated.
     bool allocate(ImageHeader const& header, bool foreign_data) {
+        // \todo Allow passing the same header. Possible results if the same
+        // header is passed are not thought through yet.
+        assert(&header != &image_.header);
+
+        /// It is currently not allowed to pass the header used by the wrapped
+        /// image to this method
+        if (&header == &image_.header) {
+            return false;
+        }
         return allocate(header.width, header.height, header.bytesize,
                         header.format, foreign_data);
     }
