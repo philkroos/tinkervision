@@ -75,7 +75,7 @@ TV_Result tv_set_execution_latency(TV_UInt milliseconds);
 /// requested.
 /// \param[out] framerate Effective, inverse framerate.
 /// \return TV_OK.
-TV_Result tv_effective_inv_framerate(double* framerate);
+TV_Result tv_effective_inv_framerate(int32_t* framerate);
 
 /// Request the resolution of the camera frames.  This can only be called once
 /// the camera is active, so in particular, if the resolution needs to be known
@@ -118,7 +118,7 @@ TV_Result tv_quit(void);
 ///   - #TV_INVALID_ID if no module exists with module_id
 ///   - #TV_OK else.
 TV_Result tv_set_parameter(TV_Id module_id, TV_String const parameter,
-                           TV_Int value);
+                           TV_Long value);
 
 /// Return the current value of a modules parameter.
 /// \param[in] module_id The id of the module in question.

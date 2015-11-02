@@ -55,7 +55,7 @@ TV_Result tv_start_idle(void) {
     return tv::get_api().start_idle();
 }
 
-TV_Result tv_effective_inv_framerate(double* framerate) {
+TV_Result tv_effective_inv_framerate(int32_t* framerate) {
     tv::Log("Tinkervision::EffectiveInvFramerate");
     *framerate = tv::get_api().effective_framerate();
     return TV_OK;
@@ -112,7 +112,7 @@ TV_String tv_result_string(TV_Result code) {
 }
 
 TV_Result tv_set_parameter(TV_Id module_id, TV_String const parameter,
-                           TV_Int value) {
+                           TV_Long value) {
     tv::Log("Tinkervision::SetParameter", module_id, " ", parameter, " ",
             value);
     return tv::get_api().set_parameter(module_id, parameter, value);

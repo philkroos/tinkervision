@@ -215,7 +215,7 @@ public:
     }
 
     TV_Result set_parameter(TV_Id module_id, std::string parameter,
-                            TV_Word value) {
+                            parameter_t value) {
 
         return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
             if (not module.has_parameter(parameter)) {
@@ -518,7 +518,10 @@ public:
         });
     }
 
-    double effective_framerate(void) const { return effective_framerate_; }
+    int32_t effective_framerate(void) const {
+        /// \todo Verify that the cast is ok here, or better always use int.
+        return static_cast<int32_t>(effective_framerate_);
+    }
 
     std::string const& user_module_path(void) const {
         return module_loader_.user_load_path();
