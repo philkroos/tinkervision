@@ -174,6 +174,10 @@ public:
     /// \return image_.
     Image& image(void) { return image_; }
 
+    /// Access the header of the managed image.
+    /// \return image_.header.
+    ImageHeader const& header(void) { return image_.header; }
+
     /// Access the managed image in a const context.
     /// \return const image_.
     Image const& operator()(void) const { return image_; }
