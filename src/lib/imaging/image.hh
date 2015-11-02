@@ -63,6 +63,7 @@ namespace tv {
 /// So the size of one image is height * width * 3.
 /// - BGR888: The same as RGB888 but reordered.
 enum class ColorSpace : char {
+    /// \todo Is None still in use?
     NONE,
     INVALID,
     YUYV,
@@ -87,7 +88,8 @@ struct ImageHeader {
 
     operator bool(void) const {
         return width > 0 and height > 0 and bytesize > 0 and
-               format != tv::ColorSpace::INVALID;
+               format != tv::ColorSpace::INVALID and
+               format != tv::ColorSpace::NONE;
     }
 };
 
