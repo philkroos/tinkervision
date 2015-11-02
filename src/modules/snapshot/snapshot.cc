@@ -40,7 +40,8 @@ Snapshot::~Snapshot(void) {
     }
 }
 
-void Snapshot::execute(ImageHeader const& header, ImageData const* data) {
+void Snapshot::execute(tv::ImageHeader const& header, tv::ImageData const* data,
+                       tv::ImageHeader const&, tv::ImageData*) {
     try {
 
         static auto counter = int(0);
@@ -61,22 +62,21 @@ void Snapshot::execute(ImageHeader const& header, ImageData const* data) {
     }
 }
 
-tv::Result const* Snapshot::get_result(void) const {
+tv::Result const& Snapshot::get_result(void) const {
 
-    if (not image_.data) {
-        return nullptr;
+    if (image_.data) {
+
+        std::ofstream ofs{filename_.result, std::ios::out | std::ios::binary};
+
+        if (ofs.is_open()) {
+            char const* data = reinterpret_cast<char const*>(image_.data);
+
+            Log("SNAPSHOT", "Wrote image as: ", filename_);
+            ofs.write(data, image_.header.bytesize);
+        }
+
+        ofs.close();
     }
 
-    std::ofstream ofs{filename_.result, std::ios::out | std::ios::binary};
-
-    if (ofs.is_open()) {
-        char const* data = reinterpret_cast<char const*>(image_.data);
-
-        Log("SNAPSHOT", "Wrote image as: ", filename_);
-        ofs.write(data, image_.header.bytesize);
-    }
-
-    ofs.close();
-
-    return &filename_;
+    return filename_;
 }

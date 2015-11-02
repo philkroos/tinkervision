@@ -84,10 +84,7 @@ public:
         : load_path_(load_path),
           module_id_(module_id),
           tv_module_(ctor()),
-          dtor_(dtor) {
-
-        tv_module_->register_parameter("period", 0, 500, 1);
-    }
+          dtor_(dtor) {}
 
     ~ModuleWrapper(void) {
         Log("MODULE::Destructor", name());
@@ -112,32 +109,38 @@ public:
 
     /// Execute the wrapped module with the given image.
     /// \param[in] image The current frame
-    void execute(tv::Image const& image);
+    /// \return The result of the execution or nullptr;
+    Result const* execute(tv::Image const& image);
+
+    void initialize(void) {
+        tv_module_->initialize();
+        tv_module_->register_parameter("period", 0, 500, 1);
+    }
 
     TV_Int id(void) const { return module_id_; }
     std::string name(void) const;
     ModuleType const& type(void) const;
 
-    bool running(void) const noexcept;
-
     bool enabled(void) const noexcept { return active_; }
 
-    // return false if previous state was the same
-    bool enable(void) noexcept { return switch_active(true); }
-
-    // return false if previous state was the same
-    bool disable(void) noexcept { return switch_active(false); }
-
-    // return false if previous state was the same
-    bool switch_active(bool to_state) {
-        Log("MODULE", to_state ? "Enabling " : "Disabling ", "module ",
-            module_id_, " (was ", active_ ? "active)" : "inactive)");
-        auto was_active = active_;
-        active_ = to_state;
-        return not(was_active == active_);
+    /// Enable the wrapped module.
+    /// \return True if the module could be activated.
+    bool enable(void) noexcept {
+        Log("MODULE", "Enabling ", module_id_, " (", name(), ")");
+        if (tv_module_->activate()) {
+            active_ = true;
+        } else {
+            active_ = false;
+        }
+        return active_;
     }
 
-    void exec(tv::Image& image) { execute(image); }
+    /// Disable this unit. This does not modify the wrapped module, simply stops
+    /// it from being executed.
+    void disable(void) noexcept {
+        Log("MODULE", "Disabling ", module_id_, " (", name(), ")");
+        active_ = false;
+    }
 
     TV_Callback callback(void) const { return cb_; }
 
@@ -180,7 +183,11 @@ public:
         return tv_module_->get_parameter_by_id(number);
     }
 
-    Result const* result(void) const;
+    Result const& result(void) const;
+
+    tv::Image const& modified_image(void) {
+        return tv_module_->modified_image();
+    }
 
     Tag const& tags(void) const { return tags_; }
     void tag(Tag tags) { tags_ |= tags; }

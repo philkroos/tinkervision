@@ -1,17 +1,21 @@
 CC		:= g++
 
+INC	:= -I/usr/include/tinkervision
 ifeq ($(DEBUG),yes)
 	CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
-	INC		:= `pkg-config --cflags opencv`
+	INC		+= `pkg-config --cflags opencv`
 	LDFLAGS	:= `pkg-config --libs opencv`
 else
 	CCFLAGS	:= -Wall -Werror -O3 -std=c++11 -shared -fPIC
 endif
 
 SO		:= grayfilter.so
-OBJ		:= grayfilter.o
+OBJ		:= module.o grayfilter.o
 
 all: so
+
+module.o:
+	$(CC) $(CCFLAGS) -c ../../lib/interface/module.cc -o $@ $(INC)
 
 %.o: %.cc
 	$(CC) $(CCFLAGS) -c $< -o $@ $(INC)

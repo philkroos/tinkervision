@@ -31,7 +31,7 @@
 
 namespace tv {
 
-class Colormatch : public Analyzer {
+class Colormatch : public Module {
 private:
     TV_Byte const min_saturation{0};    ///< Lower limit
     TV_Byte const max_saturation{255};  ///< Upper limit
@@ -57,7 +57,7 @@ private:
 
 public:
     Colormatch(void)
-        : Analyzer("Colormatch"),
+        : Module("Colormatch"),
           user_min_hue(min_hue),
           user_max_hue(max_hue),
           user_min_value(min_value),
@@ -77,19 +77,17 @@ public:
 
     ~Colormatch(void) override = default;
 
-    void execute(tv::ImageHeader const& header, ImageData const* data) override;
-    ColorSpace expected_format(void) const override {
-        return ColorSpace::BGR888;
-    }
-
-    bool can_have_result(void) const override final { return true; }
-
 protected:
+    /// Execute this module. Parameters 3 and 4 are ignored here because this
+    /// module does not manipulate the image.
+    void execute(tv::ImageHeader const& header, ImageData const* data,
+                 tv::ImageHeader const&, ImageData*) override;
+
     /// Store the value of changed parameters internally to have faster access.
     /// \param[in] parameter The name of the changed parameter.
     /// \param[in] value New value
-    virtual void value_changed(std::string const& parameter,
-                               parameter_t value) override final {
+    void value_changed(std::string const& parameter,
+                       parameter_t value) override final {
         if (parameter == "min-hue") {
             user_min_hue = static_cast<TV_Byte>(value);
         } else if (parameter == "max-hue") {
@@ -106,7 +104,22 @@ protected:
     }
 
     bool has_result(void) const override final { return has_result_; }
-    Result const* get_result(void) const override { return &result_; }
+
+    Result const& get_result(void) const override { return result_; }
+
+    /// Declare the expected colorspace.
+    /// \return ColorSpace::BGR888
+    ColorSpace input_format(void) const override { return ColorSpace::BGR888; }
+
+    /// This module does not modify the image.
+    /// \return false.
+    bool outputs_image(void) const override final { return false; }
+
+    /// Declare that this module can generate a result.
+    /// If valid, a result consists of a rectangle around the biggest connected
+    /// area of the specified HSV-value range.
+    /// \return true.
+    bool produces_result(void) const override final { return true; }
 };
 }
 

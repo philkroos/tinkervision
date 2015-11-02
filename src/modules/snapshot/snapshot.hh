@@ -30,24 +30,32 @@
 #include "tinkervision/module.hh"
 
 namespace tv {
-class Snapshot : public Publisher {
+class Snapshot : public Module {
 
 public:
-    Snapshot(void) : Publisher("Snapshot") {}
+    Snapshot(void) : Module("Snapshot") {}
     ~Snapshot(void) override;
 
-    void execute(ImageHeader const& header,
-                 ImageData const* data) override final;
+protected:
+    void execute(tv::ImageHeader const& header, tv::ImageData const* data,
+                 tv::ImageHeader const&, tv::ImageData*) override final;
 
-    tv::ColorSpace expected_format(void) const override {
+    tv::ColorSpace input_format(void) const override {
         return tv::ColorSpace::YV12;
     }
 
-    tv::Result const* get_result(void) const;
+    tv::Result const& get_result(void) const;
+
+    bool has_result(void) const override final { return have_snapped_; }
+
+    bool produces_result(void) const override final { return true; }
+
+    bool outputs_image(void) const override final { return false; }
 
 private:
     tv::Result filename_;
     tv::Image image_{};
+    bool have_snapped_{false};
 };
 }
 DECLARE_VISION_MODULE(Snapshot)

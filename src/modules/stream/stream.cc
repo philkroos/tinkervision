@@ -42,7 +42,7 @@ tv::Stream::~Stream(void) {
     streamer_.get();
 }
 
-tv::Stream::Stream() : Publisher("Stream"), context_(ExecutionContext::get()) {
+tv::Stream::Stream() : Module("Stream"), context_(ExecutionContext::get()) {
 
     task_scheduler_ = BasicTaskScheduler::createNew();
 
@@ -59,7 +59,9 @@ tv::Stream::Stream() : Publisher("Stream"), context_(ExecutionContext::get()) {
                                              streamname_, streamtypename_);
 }
 
-void tv::Stream::execute(tv::ImageHeader const& header, ImageData const* data) {
+void tv::Stream::execute(tv::ImageHeader const& header,
+                         tv::ImageData const* data, tv::ImageHeader const&,
+                         tv::ImageData*) {
     if (not subsession_) {
 
         context_.encoder.initialize(header.width, header.height, 10);  // FPS!

@@ -30,7 +30,9 @@ DEFINE_VISION_MODULE(Downscale)
 
 using namespace tv;
 
-void tv::Downscale::get_header(ImageHeader const& ref, ImageHeader& output) {
+tv::ImageHeader tv::Downscale::get_output_image_header(ImageHeader const& ref) {
+
+    ImageHeader output;
     if (factor_ == 0) {
         output = ref;
     }
@@ -39,27 +41,29 @@ void tv::Downscale::get_header(ImageHeader const& ref, ImageHeader& output) {
     output.height = ref.height / skip;
     output.bytesize = output.height * output.width * 3;
     output.format = expected_format();
+
+    return output;
 }
 
 void tv::Downscale::execute(tv::ImageHeader const& header,
-                            tv::ImageData const* data, tv::Image& output) {
+                            ImageData const* data,
+                            tv::ImageHeader const& out_header,
+                            ImageData* output) {
     if (factor_ == 0) {
-        std::copy_n(data, header.bytesize, output.data);
+        std::copy_n(data, header.bytesize, output);
         return;
     }
 
     auto const channels = 3;        // receiving RGB image
     auto const skip = factor_ * 2;  // downscalable by a factor of 2
     auto source = data;
-    auto target = output.data;
-    auto const out_header = output.header;
 
     for (auto i = 0; i < out_header.height; ++i) {
         for (auto j = 0; j < out_header.width; ++j) {
-            target[0] = source[0];
-            target[1] = source[1];
-            target[2] = source[2];
-            target += channels;
+            output[0] = source[0];
+            output[1] = source[1];
+            output[2] = source[2];
+            output += channels;
             // skip the next skip-1 columns
             source += channels * skip;
         }

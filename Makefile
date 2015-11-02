@@ -1,5 +1,5 @@
 cc		:= g++
-ccflags	:= -Wall -Werror -pedantic -std=c++11 -fpic -DWITH_LOGGER
+ccflags	:= -Wall -Werror -pedantic -shared -std=c++11 -fpic -DWITH_LOGGER
 
 ifdef DEBUG
 	ccflags += -g -O0 -DDEBUG
@@ -72,6 +72,8 @@ prefix		:= /usr
 header		:= $(src_prefix)/core/tinkervision.h \
 		   $(src_prefix)/core/tinkervision_defines.h \
                    $(src_prefix)/interface/module.hh \
+                   $(src_prefix)/interface/parameter.hh \
+                   $(src_prefix)/interface/result.hh \
 		   $(src_prefix)/core/exceptions.hh \
                    $(src_prefix)/imaging/image.hh \
 		   $(src_prefix)/core/logger.hh

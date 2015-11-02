@@ -29,7 +29,8 @@
 DEFINE_VISION_MODULE(Motiondetect)
 
 void tv::Motiondetect::execute(tv::ImageHeader const& header,
-                               ImageData const* data) {
+                               tv::ImageData const* data,
+                               tv::ImageHeader const&, tv::ImageData*) {
 
     // Not modifying the image data in this method, so a cast is fine.
     // Thereby the original data can be used to initialize

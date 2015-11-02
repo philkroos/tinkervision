@@ -31,20 +31,24 @@
 
 namespace tv {
 
-struct Grayfilter : public Modifier {
+struct Grayfilter : public Module {
 public:
-    Grayfilter(void) : Modifier("Grayfilter") {}
+    Grayfilter(void) : Module("Grayfilter") {}
 
     ~Grayfilter(void) override = default;
 
-    void execute(tv::ImageHeader const& header, tv::ImageData const* data,
-                 tv::Image& output) override final;
+protected:
+    void execute(tv::ImageHeader const& image, tv::ImageData const* data,
+                 tv::ImageHeader const& output_header,
+                 tv::ImageData* output_data) override final;
 
-    ColorSpace expected_format(void) const override {
-        return ColorSpace::BGR888;
-    }
+    ColorSpace input_format(void) const override { return ColorSpace::BGR888; }
 
-    void get_header(ImageHeader const& ref, ImageHeader& output) override final;
+    ImageHeader get_output_image_header(ImageHeader const& ref) override final;
+
+    bool outputs_image(void) const override final { return true; }
+
+    bool produces_result(void) const override final { return false; }
 };
 }
 

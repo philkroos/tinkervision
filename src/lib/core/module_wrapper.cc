@@ -1,6 +1,6 @@
 #include "module_wrapper.hh"
 
-void tv::ModuleWrapper::execute(tv::Image const& image) {
+tv::Result const* tv::ModuleWrapper::execute(tv::Image const& image) {
     static decltype(period_) current{0};
 
     /// Execute the module if period_ is not 0 and the module is scheduled to
@@ -8,8 +8,9 @@ void tv::ModuleWrapper::execute(tv::Image const& image) {
     /// internal counter.
     if (period_ and ++current >= period_) {
         current = 0;
-        tv_module_->execute(image);
+        return &tv_module_->execute(image);
     }
+    return nullptr;
 }
 
 tv::ColorSpace tv::ModuleWrapper::expected_format(void) const {
@@ -17,15 +18,16 @@ tv::ColorSpace tv::ModuleWrapper::expected_format(void) const {
 }
 
 std::string tv::ModuleWrapper::name(void) const { return tv_module_->name(); }
-tv::ModuleType const& tv::ModuleWrapper::type(void) const {
-    return tv_module_->type();
-}
 
 void tv::ModuleWrapper::get_parameters_list(
     std::vector<Parameter>& parameters) const {
-
     parameters.clear();
-    tv_module_->parameter_list(parameters);
+
+    auto map = tv_module_->parameter_map();
+    for (auto const& parameter : map) {
+        auto p = parameter.second;
+        parameters.push_back({p->name_, p->min_, p->max_, p->value_});
+    }
 }
 
 bool tv::ModuleWrapper::has_parameter(std::string const& parameter) const {
@@ -49,10 +51,6 @@ bool tv::ModuleWrapper::get_parameter(std::string const& parameter,
     return tv_module_->get(parameter, value);
 }
 
-tv::Result const* tv::ModuleWrapper::result(void) const {
+tv::Result const& tv::ModuleWrapper::result(void) const {
     return tv_module_->result();
-}
-
-bool tv::ModuleWrapper::running(void) const noexcept {
-    return tv_module_->running();
 }

@@ -501,16 +501,17 @@ public:
 
         return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
             auto res = module.result();
-            if (res == nullptr) {
+            if (res) {
                 return TV_RESULT_NOT_AVAILABLE;
             }
-            result.x = res->x;
-            result.y = res->y;
-            result.width = res->width;
-            result.height = res->height;
-            std::strncpy(result.string, res->result.c_str(),
+
+            result.x = res.x;
+            result.y = res.y;
+            result.width = res.width;
+            result.height = res.height;
+            std::strncpy(result.string, res.result.c_str(),
                          TV_CHAR_ARRAY_SIZE - 1);
-            std::fill(result.string + res->result.size(),
+            std::fill(result.string + res.result.size(),
                       result.string + TV_CHAR_ARRAY_SIZE - 1, '\0');
             result.string[TV_CHAR_ARRAY_SIZE - 1] = '\0';
             return TV_OK;
@@ -579,6 +580,9 @@ private:
             return module_loader_.last_error();
         }
 
+        /// \todo Catch the cases in which this fails and remove the module.
+        (void)module->initialize();
+
         if (not camera_control_.acquire()) {
             return TV_CAMERA_NOT_AVAILABLE;
         }
@@ -592,7 +596,8 @@ private:
             return TV_MODULE_INITIALIZATION_FAILED;
         }
 
-        module->switch_active(true);
+        /// \todo Catch the cases in which this fails and remove the module.
+        (void)module->enable();
         return TV_OK;
     }
 

@@ -31,7 +31,8 @@
 DEFINE_VISION_MODULE(Colormatch)
 
 void tv::Colormatch::execute(tv::ImageHeader const& header,
-                             ImageData const* data) {
+                             ImageData const* data, tv::ImageHeader const&,
+                             ImageData*) {
 
     Log("COLORMATCH", "execute");
     cv::Mat cv_image(header.height, header.width, CV_8UC3);

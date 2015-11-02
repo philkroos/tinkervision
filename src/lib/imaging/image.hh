@@ -28,6 +28,8 @@
 #ifndef IMAGING_H
 #define IMAGING_H
 
+#include <cassert>
+
 #include <chrono>  // timestamp
 #include <string>
 

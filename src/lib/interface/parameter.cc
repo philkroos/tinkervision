@@ -1,8 +1,8 @@
-/// \file grayfilter.cc
+/// \file parameter.cc
 /// \author philipp.kroos@fh-bielefeld.de
 /// \date 2015
 ///
-/// \brief Implementation of the module \c Grayfilter.
+/// \brief Definition of the class \c Parameter.
 ///
 /// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
 /// \sa https://github.com/Tinkerforge/red-brick
@@ -24,29 +24,24 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#include "grayfilter.hh"
+#include "parameter.hh"
 
-#include <opencv2/opencv.hpp>
-
-DEFINE_VISION_MODULE(Grayfilter)
-
-void tv::Grayfilter::execute(tv::ImageHeader const& image,
-                             tv::ImageData const* data,
-                             tv::ImageHeader const& output_header,
-                             tv::ImageData* output_data) {
-
-    cv::Mat cv_image(output_header.height, output_header.width, CV_8UC3,
-                     (void*)data);
-    cv::cvtColor(cv_image, cv_image, CV_BGR2GRAY);
-
-    auto gray = output_data;
-    for (auto i = 0; i < output_header.width * output_header.height; ++i) {
-        *gray = *(gray + 1) = *(gray + 2) = cv_image.data[i];
-        gray += 3;
+bool tv::Parameter::set(parameter_t value) {
+    if (value < min_ or value > max_) {
+        return false;
     }
+    value_ = value;
+    return true;
 }
 
-tv::ImageHeader tv::Grayfilter::get_output_image_header(
-    ImageHeader const& ref) {
-    return ref;
+tv::Parameter::Parameter(std::string const& name, parameter_t min,
+                         parameter_t max, parameter_t init)
+    : name_(name), min_(min), max_(max), value_(init) {
+
+    if (min_ > max_) {
+        LogError("PARAMETER", "Min > Max ", min_, " ", max_);
+    }
+    if (value_ > max_ or value_ < min_) {
+        LogError("PARAMETER", "Init: ", value_);
+    }
 }

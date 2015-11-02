@@ -69,6 +69,9 @@ std::ostream& tv::operator<<(std::ostream& os, tv::SceneTree const& tree) {
 
 std::ostream& tv::operator<<(std::ostream& os, tv::ColorSpace const& format) {
     switch (format) {
+        case tv::ColorSpace::NONE:
+            os << "NONE";
+            break;
         case tv::ColorSpace::INVALID:
             os << "INVALID";
             break;

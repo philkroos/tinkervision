@@ -30,12 +30,19 @@
 #include "tinkervision/module.hh"
 
 namespace tv {
-class Dummy : public Analyzer {
+class Dummy : public Module {
 public:
-    Dummy() : Analyzer("Dummy") {}
+    Dummy() : Module("Dummy") {}
 
-    bool running(void) const noexcept override { return false; }
-    void execute(ImageHeader const&, ImageData const*) override final {}
+    /// Returning None prevents this module from being executed.
+    ColorSpace input_format(void) const override { return ColorSpace::NONE; }
+
+    bool outputs_image(void) const override { return false; }
+
+    bool produces_result(void) const override { return false; }
+
+    void execute(tv::ImageHeader const&, tv::ImageData const*,
+                 tv::ImageHeader const&, tv::ImageData*) override final {}
 };
 }
 

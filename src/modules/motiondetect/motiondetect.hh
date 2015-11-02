@@ -33,7 +33,7 @@
 
 namespace tv {
 
-struct Motiondetect : public Analyzer {
+struct Motiondetect : public Module {
 private:
     // see <opencv-source>/modules/video/src/bgfg_gaussmix2.cpp
     int history_{20};      // default constructor: 500
@@ -49,17 +49,25 @@ private:
     Result rect_around_motion_;
 
 public:
-    Motiondetect(void) : Analyzer{"Motiondetect"} {}
+    Motiondetect(void) : Module{"Motiondetect"} {}
 
     ~Motiondetect(void) override = default;
-    void execute(tv::ImageHeader const& header, ImageData const* data) override;
 
-    ColorSpace expected_format(void) const override {
+protected:
+    void execute(tv::ImageHeader const& image, tv::ImageData const* data,
+                 tv::ImageHeader const&, tv::ImageData*) override final;
+
+    virtual bool produces_result(void) const override final { return true; }
+    virtual bool outputs_image(void) const override final { return false; }
+
+    ColorSpace input_format(void) const override final {
         return ColorSpace::BGR888;
     }
 
-    Result const* get_result(void) const override {
-        return &rect_around_motion_;
+    virtual bool has_result(void) const override final { return results_; }
+
+    Result const& get_result(void) const override final {
+        return rect_around_motion_;
     }
 };
 

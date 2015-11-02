@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
     printf("Stopped grayfilter %d: Code %d (%s)\n", id, result,
            tv_result_string(result));
 
-    quit();
+    tv_quit();
 
     return 0;
 }

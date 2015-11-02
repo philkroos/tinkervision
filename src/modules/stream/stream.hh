@@ -41,15 +41,21 @@
 
 namespace tv {
 
-struct Stream : public Publisher {
-
+class Stream : public Module {
+public:
     Stream(void);
 
     ~Stream(void) override;
 
-    void execute(tv::ImageHeader const& header, ImageData const* data) override;
+protected:
+    void execute(tv::ImageHeader const& header, tv::ImageData const* data,
+                 tv::ImageHeader const&, tv::ImageData*) override final;
 
-    ColorSpace expected_format(void) const override { return ColorSpace::YV12; }
+    ColorSpace input_format(void) const override { return ColorSpace::YV12; }
+
+    bool has_result(void) const override final { return false; }
+    bool outputs_image(void) const override final { return false; }
+    bool produces_result(void) const override final { return false; }
 
 private:
     TaskScheduler* task_scheduler_ = nullptr;

@@ -111,11 +111,10 @@ void tv::Api::execute(void) {
 
     // Execute active module. This is the ONLY place where modules are executed.
     auto module_exec = [&](TV_Int id, ModuleWrapper& module) {
+        auto result = (Result const*)(nullptr);
         Log("API", "Executing module ", id);
 
-        if (not module.enabled() or
-            not module.running()) {  // skip paused modules and those that don't
-                                     // want to execute
+        if (not module.enabled()) {  // skip paused modules
             return;
         }
 
@@ -124,13 +123,15 @@ void tv::Api::execute(void) {
                                  // and execute the module
 
             conversions_.get_frame(image, module.expected_format());
+            result = module.execute(image);
+        }
 
-            module.exec(image);
-
-            auto result = module.result();
+        if (result and *result) {  // neither nullptr nor invalid?
             auto callback =
                 default_callback_ ? default_callback_ : module.callback();
-            if (result and callback) {
+
+            if (callback) {
+
                 // Log("API", "Callback for id ", id);
                 TV_ModuleResult res = {result->x, result->y, result->width,
                                        result->height};
@@ -145,9 +146,9 @@ void tv::Api::execute(void) {
             }
         }
 
-        if (module.type() == ModuleType::Modifier) {
-            auto modifier = static_cast<Modifier*>(module.executable());
-            conversions_.set_frame(modifier->modified_image());
+        auto output = module.modified_image();
+        if (output.header.format != ColorSpace::INVALID) {
+            conversions_.set_frame(output);
         }
 
         auto& tags = module.tags();
@@ -157,9 +158,8 @@ void tv::Api::execute(void) {
 
         } else if (tags & ModuleWrapper::Tag::ExecAndDisable) {
             Log("API", "Disabling ExecAndDisable-tagged id ", module.id());
-            if (module.disable()) {
-                camera_control_.release();
-            }
+            module.disable();
+            camera_control_.release();
         }
     };
 

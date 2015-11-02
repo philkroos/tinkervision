@@ -49,10 +49,10 @@ typedef void* TV_Context;
 typedef int32_t parameter_t;
 
 typedef struct TV_ModuleResult {
-    TV_UWord x;
-    TV_UWord y;
-    TV_UWord width;
-    TV_UWord height;
+    TV_Long x;
+    TV_Long y;
+    TV_Long width;
+    TV_Long height;
     TV_CharArray string;
 } TV_ModuleResult;
 

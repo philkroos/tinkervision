@@ -34,34 +34,34 @@
 
 namespace tv {
 
-struct Downscale : public Modifier {
+struct Downscale : public Module {
 private:
     uint8_t factor_{1};  ///< 1 is half size, 2 quarter, ...
     uint8_t max_factor_{10};
 
 public:
-    Downscale(void)
-        : Modifier("Downscale") { /* cv::namedWindow("Downscale"); */
+    Downscale(void) : Module("Downscale") { /* cv::namedWindow("Downscale"); */
 
         register_parameter("factor", 0, max_factor_, 0);
     }
 
     ~Downscale(void) override final = default;
 
-    void get_header(ImageHeader const& ref, ImageHeader& output) override final;
+protected:
+    bool outputs_image(void) const override final { return true; }
 
-    void execute(tv::ImageHeader const& header, tv::ImageData const* data,
-                 tv::Image& output) override final;
+    ImageHeader get_output_image_header(ImageHeader const& ref) override final;
 
-    ColorSpace expected_format(void) const override final {
+    bool produces_result(void) const override final { return false; }
+
+    void execute(tv::ImageHeader const& header, ImageData const* data,
+                 tv::ImageHeader const& header_out,
+                 ImageData* data_out) override;
+
+    ColorSpace input_format(void) const override final {
         return ColorSpace::BGR888;
     }
 
-    /// If factor is zero, no need to be executed.
-    /// \return false if factor <= 0.
-    bool running(void) const noexcept override final { return factor_ > 0; }
-
-protected:
     /// Store the value of changed parameters internally to have faster access.
     /// \param[in] parameter The name of the changed parameter.
     /// \param[in] value New value

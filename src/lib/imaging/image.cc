@@ -109,7 +109,7 @@ void tv::ImageAllocator::set_from_image(Image const& image) {
 }
 
 void tv::ImageAllocator::copy_data(ImageData const* data, size_t size) {
-    LogDebug("IMAGE_ALLOCATOR", "Copy for ", id_);
+    // LogDebug("IMAGE_ALLOCATOR", "Copy for ", id_);
 
     /// This currently assumes that the method is only called for instances that
     /// are already set to be managing their own data.
