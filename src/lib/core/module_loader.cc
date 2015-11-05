@@ -166,7 +166,7 @@ TV_Result tv::ModuleLoader::last_error(void) {
 
 void tv::ModuleLoader::update_on_changes(std::function<
     void(std::string const& directory, std::string const& filename,
-         bool true_if_created)> callback) {
+         Dirwatch::Event event)> callback) {
 
     Log("MODULE_LOADER", "Registering callback for directory changes");
     on_change_callback = callback;
@@ -191,6 +191,20 @@ bool tv::ModuleLoader::library_parameter_count(std::string const& libname,
                }
                return false;
            });
+}
+
+size_t tv::ModuleLoader::libraries_count(void) const {
+    return availables_.size();
+}
+
+bool tv::ModuleLoader::library_name_and_path(size_t count, std::string& name,
+                                             std::string& path) const {
+    if (count >= libraries_count()) {
+        return false;
+    }
+    name = availables_[count].libname;
+    path = availables_[count].loadpath;
+    return true;
 }
 
 bool tv::ModuleLoader::library_describe_parameter(
@@ -286,12 +300,13 @@ void tv::ModuleLoader::_watched_directory_changed_callback(
     if (on_change_callback) {
         /// \todo Check here if the found library actually contains a valid
         /// vision-module.
-        on_change_callback(dir, file, event == Dirwatch::Event::FILE_CREATED);
+        on_change_callback(dir, file, event);
     }
 }
 
 bool tv::ModuleLoader::_add_available_module(std::string const& path,
                                              std::string const& name) {
+    auto ok = false;  // pessimistic
     auto tmp = (ModuleWrapper*)(nullptr);
     auto const id = 100;  // doesn't matter
 
@@ -299,16 +314,25 @@ bool tv::ModuleLoader::_add_available_module(std::string const& path,
 
     if (not lib) {  // should not happen
         LogError("MODULE_LOADER", "Construction error");
-        return false;
+
+    } else if (not tmp->initialize()) {  // must be initializable
+        LogError("MODULE_LOADER", "Module initialization error.");
+
+    } else {
+
+        availables_.push_back({name, path, {}});
+        tmp->get_parameters_list(availables_.back().parameter);
+        ok = true;
     }
 
-    availables_.push_back({name, path, {}});
-    tmp->get_parameters_list(availables_.back().parameter);
+    if (tmp) {
+        // Destroy the temporary
+        delete tmp;
+    }
 
-    // Destroy the temporary
-    delete tmp;
-
-    // Close the library
-    _free_lib(lib);
-    return true;
+    if (lib) {
+        // Close the library
+        _free_lib(lib);
+    }
+    return ok;
 }

@@ -105,7 +105,7 @@ public:
     /// \return
     /// - #TV_CAMERA_SETTINGS_FAILED if the selected size is not valid.
     /// - #TV_OK else
-    TV_Result set_framesize(TV_Size width, TV_Size height) {
+    TV_Result set_framesize(uint16_t width, uint16_t height) {
 
         auto result = TV_CAMERA_SETTINGS_FAILED;
 
@@ -440,21 +440,15 @@ public:
     /// whether the corresponding file has been deleted (0) or is available
     /// (1).
     /// \param context Additional context to be passed to each callback.
-    TV_Result enumerate_available_modules(TV_StringCallback callback,
-                                          TV_Context context) {
-        std::thread([&, callback, context](void) {
-                        std::vector<std::string> paths, modules;
-                        module_loader_.list_available_modules(paths, modules);
-                        for (size_t i = 0; i < modules.size(); ++i) {
-                            callback(static_cast<int>(true),
-                                     (modules[i]).c_str(), context);
-                        }
-                        LogDebug("API", "Module enumeration finished");
-                    }).detach();
+    TV_Result libraries_changed_callback(TV_LibrariesCallback callback,
+                                         TV_Context context) {
 
         module_loader_.update_on_changes([callback, context](
-            std::string const& dir, std::string const& file, bool created) {
-            callback(static_cast<int>(created), (dir + file).c_str(), context);
+            std::string const& dir, std::string const& file,
+            Dirwatch::Event event) {
+            auto const status =
+                (event == Dirwatch::Event::FILE_CREATED ? "create" : "remove");
+            callback(file.c_str(), dir.c_str(), status, context);
         });
         return TV_OK;
     }
@@ -518,9 +512,9 @@ public:
         });
     }
 
-    int32_t effective_framerate(void) const {
-        /// \todo Verify that the cast is ok here, or better always use int.
-        return static_cast<int32_t>(effective_framerate_);
+    uint32_t effective_framerate(void) const {
+        /// \todo Verify that the cast is ok here, or better always use uint.
+        return static_cast<uint32_t>(effective_framerate_);
     }
 
     std::string const& user_module_path(void) const {
@@ -539,6 +533,11 @@ public:
         idle_process_running_ = false;
         Log("Api", "All modules released");
     }
+
+    void get_libraries_count(uint16_t& count) const;
+
+    bool library_get_name_and_path(uint16_t count, std::string& name,
+                                   std::string& path) const;
 
 private:
     CameraControl camera_control_;  ///< Camera access abstraction

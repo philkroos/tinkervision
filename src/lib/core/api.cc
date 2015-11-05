@@ -216,15 +216,21 @@ void tv::Api::execute(void) {
                     loop_duration).count() /
                 10.0;
 
-            Log("API", "Avg. real vs. fixed framerate: ", effective_framerate_,
-                "/", inv_framerate.count());
-
             loops = 0;
             loop_duration = Clock::duration(0);
         }
         std::this_thread::sleep_until(last_loop_time_point + inv_framerate);
     }
     Log("API", "Mainloop stopped");
+}
+
+void tv::Api::get_libraries_count(uint16_t& count) const {
+    count = module_loader_.libraries_count();
+}
+
+bool tv::Api::library_get_name_and_path(uint16_t count, std::string& name,
+                                        std::string& path) const {
+    return module_loader_.library_name_and_path(count, name, path);
 }
 
 /*

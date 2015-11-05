@@ -75,7 +75,7 @@ TV_Result tv_set_execution_latency(TV_UInt milliseconds);
 /// requested.
 /// \param[out] framerate Effective, inverse framerate.
 /// \return TV_OK.
-TV_Result tv_effective_inv_framerate(int32_t* framerate);
+TV_Result tv_effective_inv_framerate(uint32_t* framerate);
 
 /// Request the resolution of the camera frames.  This can only be called once
 /// the camera is active, so in particular, if the resolution needs to be known
@@ -129,7 +129,7 @@ TV_Result tv_set_parameter(TV_Id module_id, TV_String const parameter,
 ///   - #TV_MODULE_NO_SUCH_PARAMETER if the module does not support parameter.
 ///   - #TV_OK else.
 TV_Result tv_get_parameter(TV_Id module_id, TV_String const parameter,
-                           TV_Long* value);
+                           parameter_t* value);
 
 /// Start a vision module identified by its library name.
 /// The requested module will be loaded and started if it is found in one of the
@@ -204,6 +204,25 @@ TV_Result tv_module_enumerate_parameters(TV_Id module_id,
                                          TV_StringCallback callback,
                                          TV_Context context);
 
+/// Get the number of currently available libraries.
+/// This can be used to iterate through all libraries using
+/// tv_library_name_and_path().
+/// \return #TV_OK
+/// \param[out] count Number of libraries found in both system and user paths.
+TV_Result tv_libraries_count(uint16_t* count);
+
+/// Get the name and load path of an available library.
+/// \param[in] count A number smaller then tv_libraries_count().
+/// \param[out]  A number smaller then tv_libraries_count().
+/// \param[out] path Either "system" or "user". Get the actual values with
+/// tv_user_module_load_path() and tv_system_module_load_path(), respectively.
+/// \return
+///    - #TV_OK if name and path are valid.
+///    - #TV_INVALID_ARGUMENT if an error occured, probably count was out of
+///    range.
+TV_Result tv_library_name_and_path(uint16_t count, TV_CharArray name,
+                                   TV_CharArray path);
+
 /// Get the number of parameters a library supports.
 /// \param[in] libname Name of the module, i.e. filename w/o extension.
 /// \param[out] count Number of supported parameters.
@@ -221,7 +240,8 @@ TV_Result tv_library_parameter_count(TV_String libname, TV_Size* count);
 /// \param[out] max Parameter maximum value
 /// \param[out] def Parameter default value
 /// \return False if the library is not available or number is out of range.
-///    - #TV_INVALID_ARGUMENT: The library is not available or parameter exceeds
+///    - #TV_INVALID_ARGUMENT: The library is not available or parameter
+///    exceeds
 ///    the available number of parameters.
 ///    - #TV_OK else
 /// \note All outgoing parameters are beeing set to 0 if the result is not
@@ -230,24 +250,19 @@ TV_Result tv_library_describe_parameter(TV_String libname, TV_Size parameter,
                                         TV_CharArray name, TV_Long* min,
                                         TV_Long* max, TV_Long* def);
 
-/// Get the names of all available modules.
-/// \param[in] callback The given method will be called for each loadable
-/// module.
-/// \param[in] context A pointer to something, which can be used to
-/// differentiate between several instances of #TV_StringCallback.
-/// \return
-///    - #TV_OK always. Callback will be called once for each available module
-///      receiving \c 1, the name of the module which corresponds to the name
-///      that would be returned from module_get_name(), and \c context.
-///      After all modules have been enumerated, the callback receives a \c 0
-///      and an empty string, and no further callbacks will be received.
-TV_Result tv_enumerate_available_modules(TV_StringCallback callback,
-                                         TV_Context context);
-
 /// Access the currently set user module load path.
 /// \param[out] path The user defined path searched for modules.
 /// \return TV_OK
 TV_Result tv_user_module_load_path(TV_CharArray path);
+
+/// Set the user module load path from an existing path.
+/// \param[in] path The user defined path searched for modules. Must not exceed
+/// #TV_CHAR_ARRAY_SIZE characters
+/// \return
+///    - #TV_INVALID_ARGUMENT if the string is too long or the path does not
+///    exist.
+///    - #TV_OK else
+TV_Result tv_set_user_module_load_path(TV_String path);
 
 /// Access the fixed system module load path.
 /// \param[out] path The fixed system path searched for modules.
@@ -262,7 +277,8 @@ TV_Result tv_remove_all_modules(void);
 /// \param[in] id Id of a loaded module.
 /// \param[out] scene Id of the scene if it was created successfully.
 /// \return
-///    - #TV_NOT_IMPLEMENTED Currently. (If the given module will be removed)
+///    - #TV_NOT_IMPLEMENTED Currently. (If the given module will be
+///    removed)
 ///    - #TV_INVALID_ID (If no module with id exists)
 ///    - #TV_OK (if the scene was started successfully)
 ///    - (else, an error during scene creation occured.)
@@ -292,8 +308,10 @@ TV_Result tv_scene_remove(TV_Scene scene);
 ///       previously with enable_default_callback()
 ///    - #TV_INTERNAL_ERROR That's a bug, please report.
 ///    - #TV_OK if the callback has been set successfully.
-/// \deprecated This method is not activated in the Red-Brick interface since it
-/// does not make sense there.  We can't activate callbacks per module with the
+/// \deprecated This method is not activated in the Red-Brick interface
+/// since it
+/// does not make sense there.  We can't activate callbacks per module with
+/// the
 /// generated api.  This method will probably be removed to focus on the
 /// Red-Brick.
 TV_Result tv_set_callback(TV_Id id, TV_Callback callback);
@@ -302,6 +320,17 @@ TV_Result tv_set_callback(TV_Id id, TV_Callback callback);
 /// module.
 /// \param[in] callback The default callback.
 TV_Result tv_enable_default_callback(TV_Callback callback);
+
+/// Notify the user if a library path changes.
+/// \param[in] callback The given method will be called when a loadable module
+/// is being created or deleted in one of the available loadpaths.  The callback
+/// will receive the name and path of the library and the event, which can be
+/// "create" or "remove".
+/// \param[in] context A pointer to something.
+/// \return
+///    - #TV_OK always.
+TV_Result tv_libraries_changed_callback(TV_LibrariesCallback callback,
+                                        TV_Context context);
 
 /// Get the result of the latest execution of a given module.
 /// \param[in] id The module in question.

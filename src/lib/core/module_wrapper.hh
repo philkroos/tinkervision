@@ -112,9 +112,9 @@ public:
     /// \return The result of the execution or nullptr;
     Result const* execute(tv::Image const& image);
 
-    void initialize(void) {
-        tv_module_->initialize();
-        tv_module_->register_parameter("period", 0, 500, 1);
+    bool initialize(void) {
+        return tv_module_->register_parameter("period", 0, 500, 1) and
+               tv_module_->initialize();
     }
 
     TV_Int id(void) const { return module_id_; }

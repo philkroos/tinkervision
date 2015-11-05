@@ -41,6 +41,11 @@ tv::Module::~Module(void) {
 bool tv::Module::initialize(void) {
     Log("MODULE", "Initializing ", name_);
 
+    if (init_error_) {
+        LogError("MODULE", "Initializing failed during construction");
+        return false;
+    }
+
     /// - Define whether this module modifies the input image.
     outputs_image_ = outputs_image();
     /// - Define whether this module might produce a result.
@@ -66,9 +71,23 @@ bool tv::Module::has_parameter(std::string const& parameter) const {
 bool tv::Module::register_parameter(std::string const& name, parameter_t min,
                                     parameter_t max, parameter_t init) {
 
-    if (initialized_ or parameter_map_.find(name) != parameter_map_.cend()) {
+    if (initialized_) {
         return false;
     }
+
+    if (parameter_map_.find(name) != parameter_map_.cend()) {
+        LogError("MODULE", name_, ": Parameter passed twice ", name);
+        init_error_ = true;
+        return false;
+    }
+
+    /// The parameter name must not exceed #TV_CHAR_ARRAY_SIZE characters
+    if (name.size() > TV_CHAR_ARRAY_SIZE - 1) {
+        LogError("MODULE", name_, ": Parameter name too long ", name);
+        init_error_ = true;
+        return false;
+    }
+
     parameter_map_.insert({name, new Parameter(name, min, max, init)});
     parameter_names_.push_back(name);
     return true;

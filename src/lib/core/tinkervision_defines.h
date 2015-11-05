@@ -34,7 +34,7 @@ typedef uint16_t TV_UWord;
 typedef uint32_t TV_UInt;
 typedef uint8_t TV_Byte;
 typedef const char* TV_String;
-#define TV_CHAR_ARRAY_SIZE 40
+#define TV_CHAR_ARRAY_SIZE 24
 typedef char TV_CharArray[TV_CHAR_ARRAY_SIZE];
 
 typedef TV_Word TV_Int;
@@ -59,6 +59,8 @@ typedef struct TV_ModuleResult {
 /// General callback applicable for every module that produces a result.
 typedef void (*TV_Callback)(TV_Id, TV_ModuleResult result, TV_Context);
 typedef void (*TV_StringCallback)(TV_Id, TV_String string, TV_Context context);
+typedef void (*TV_LibrariesCallback)(TV_String name, TV_String path,
+                                     TV_String status, TV_Context context);
 
 #define TV_UNUSED_ID -1
 

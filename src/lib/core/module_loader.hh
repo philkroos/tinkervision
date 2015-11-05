@@ -110,7 +110,19 @@ public:
     /// string.
     void update_on_changes(std::function<void(std::string const& directory,
                                               std::string const& filename,
-                                              bool true_if_created)> callback);
+                                              Dirwatch::Event event)> callback);
+
+    /// Retrieve the number of currently available libraries.
+    /// \return Number of libraries
+    size_t libraries_count(void) const;
+
+    /// Retrieve name and load path of an available library.
+    /// \param[in] count A number [0, libraries_count())
+    /// \param[out] name Library name.
+    /// \param[out] path Library load path.
+    /// \return True if count is smaller than the size of availables_.
+    bool library_name_and_path(size_t count, std::string& name,
+                               std::string& path) const;
 
     /// Check whether a library is available for loading
     /// \param[in] libname Name of the module, i.e. filename w/o extension.
@@ -174,7 +186,7 @@ private:
         "destroy"};  ///< Each library has to provide these methods globally
 
     std::function<void(std::string const&, std::string const&,
-                       bool true_if_created)> on_change_callback =
+                       Dirwatch::Event)> on_change_callback =
         nullptr;  ///< Signature of callback for changes in the module load
                   /// directories.
 

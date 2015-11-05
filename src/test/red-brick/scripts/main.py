@@ -4,10 +4,10 @@ import sys
 # RedBrick resource wrapper
 from rb_setup import RedBrick
 # available testfiles
-import shutdown, availability, stream, common, colormotion, scenes
+import remove_all, availability, stream, common, colormotion, scenes
 
 testfiles = {
-    "shutdown": shutdown,
+    "remove_all": remove_all,
     "stream": stream,
     "availability": availability,
     "common": common,

@@ -245,6 +245,7 @@ private:
     bool outputs_image_{false};    ///< This module modifies the image?
     bool can_have_result_{false};  ///< This module produces a result?
     bool initialized_{false};      ///< This module has been initialized?
+    bool init_error_{false};       ///< An error occured during construction?
 
     Result invalid_result_;  ///< Default result.
 };

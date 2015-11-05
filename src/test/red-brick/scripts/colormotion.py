@@ -1,7 +1,7 @@
 from time import sleep
 
-def visioncallback(id, x, y, width, height):
-    print "visioncallback", id, x, y, width, height
+def visioncallback(id, x, y, width, height, string):
+    print "visioncallback", id, x, y, width, height, string
 
 def run(red):
     print "Starting color- and motionmatch modules"
@@ -35,7 +35,7 @@ def run(red):
 
     print "Got min max:", min_hue, max_hue
 
-    red.register_callback(red.CALLBACK_VISION_LOCATION, visioncallback)
+    red.register_callback(red.CALLBACK_VISION_MODULE, visioncallback)
 
     sleep(5)
     exit(0)
