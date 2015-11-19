@@ -1,21 +1,30 @@
-/*
-Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
+/// \file api.cc
+/// \author philipp.kroos@fh-bielefeld.de
+/// \date 2014-2015
+///
+/// \brief Defines the internal interface of Tinkervision.
+///
+/// The interface is provided by the class Api.
+///
+/// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
+/// \sa https://github.com/Tinkerforge/red-brick
+///
+/// \copyright
+///
+/// This program is free software; you can redistribute it and/or
+/// modify it under the terms of the GNU General Public License
+/// as published by the Free Software Foundation; either version 2
+/// of the License, or (at your option) any later version.
+///
+/// This program is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+///
+/// You should have received a copy of the GNU General Public License
+/// along with this program; if not, write to the Free Software
+/// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+/// USA.
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -172,7 +181,7 @@ void tv::Api::execute(void) {
     };
 
     // mainloop
-    auto inv_framerate = std::chrono::milliseconds(execution_latency_ms_);
+    auto inv_framerate = std::chrono::milliseconds(effective_frameperiod_);
     auto last_loop_time_point = Clock::now();
     auto loops = 0;
     auto loop_duration = Clock::duration(0);
@@ -211,7 +220,7 @@ void tv::Api::execute(void) {
         loops++;
         loop_duration += (Clock::now() - last_loop_time_point);
         if (loops == 10) {
-            effective_framerate_ =
+            effective_frameperiod_ =
                 std::chrono::duration_cast<std::chrono::milliseconds>(
                     loop_duration).count() /
                 10.0;
@@ -376,8 +385,8 @@ TV_Result tv::Api::resolution(TV_Size& width, TV_Size& height) {
                : TV_CAMERA_NOT_AVAILABLE;
 }
 
-TV_Result tv::Api::set_execution_latency_ms(TV_UInt ms) {
-    execution_latency_ms_ = std::min(TV_UInt(20), ms);
+TV_Result tv::Api::request_frameperiod(uint32_t ms) {
+    frameperiod_ms_ = ms;
     return TV_OK;
 }
 
@@ -494,9 +503,8 @@ TV_Result tv::Api::get_result(TV_Id module_id, TV_ModuleResult& result) {
     });
 }
 
-uint32_t tv::Api::effective_framerate(void) const {
-    /// \todo Verify that the cast is ok here, or better always use uint.
-    return static_cast<uint32_t>(effective_framerate_);
+uint32_t tv::Api::effective_frameperiod(void) const {
+    return effective_frameperiod_;
 }
 
 std::string const& tv::Api::user_module_path(void) const {

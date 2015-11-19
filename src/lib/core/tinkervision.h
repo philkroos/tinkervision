@@ -59,23 +59,21 @@ TV_Result tv_set_framesize(TV_Size width, TV_Size height);
 ///   - An error code if the module failed to load.
 TV_Result tv_start_idle(void);
 
-/// Introduce a delay into the execution to save processing power.  All
-/// vision-modules registered and started in the api will be executed
-/// sequentially during one execution loop. The execution latency set here is
-/// the
-/// minimum delay between two loops, i.e. a sort of minimum inverse framerate
+/// Set the minimum inverse frame frequency. Vision modules registered
+/// and started in the api will be executed sequentially during one
+/// execution loop. The execution latency set here is the minimum
+/// delay between two loops, i.e. the minimum inverse framerate
 /// (frames are grabbed once at the beginning of each loop).
-/// \param[in] milliseconds The minimum delay between the beginning of two
-/// execution loops.
-/// \return TV_OK in any case. There is however a minimum internal latency of
-/// currently 20ms which won't be ignored.
-TV_Result tv_set_execution_latency(TV_UInt milliseconds);
+/// \param[in] milliseconds The minimum delay between the beginning of
+/// two execution loops.
+/// \return TV_OK in any case.
+TV_Result tv_request_frameperiod(uint32_t milliseconds);
 
-/// Get the effective framerate, which can be worse than the framerate
+/// Get the effective frameperiod, which can be larger than the frameperiod
 /// requested.
-/// \param[out] framerate Effective, inverse framerate.
+/// \param[out] frameperiod Effective, inverse framerate.
 /// \return TV_OK.
-TV_Result tv_effective_inv_framerate(uint32_t* framerate);
+TV_Result tv_effective_frameperiod(uint32_t* frameperiod);
 
 /// Request the resolution of the camera frames.  This can only be called once
 /// the camera is active, so in particular, if the resolution needs to be known

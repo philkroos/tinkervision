@@ -2,10 +2,7 @@
 /// \author philipp.kroos@fh-bielefeld.de
 /// \date 2014-2015
 ///
-/// \brief The internal interface of the Vision library is declared (and
-///        partly defined) here.
-///
-/// The interface is provided by the class Api.
+/// \brief Declares the internal interface of Tinkervision.
 ///
 /// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
 /// \sa https://github.com/Tinkerforge/red-brick
@@ -60,9 +57,13 @@ private:
     bool active_modules(void) const { return modules_.size(); }
 
 public:
+    /// No copies allowed.
     Api(Api const&) = delete;
+
+    /// No copies allowed.
     Api& operator=(Api const&) = delete;
 
+    /// Standard d'tor, calls quit().
     ~Api(void);
 
     /// Starts execution of all active modules.  This is only
@@ -132,9 +133,23 @@ public:
     /// The method will succeed if:
     TV_Result module_destroy(TV_Id id);
 
+    /// Set a parameter of a module.
+    /// \param[in] module_id Id of a loaded module (may be inactive).
+    /// \param[in] parameter Name of the parameter to set.
+    /// \param[in] value Value to set.
+    /// \return
+    ///    - #TV_NO_SUCH_PARAMETER if the parameter does not exist
+    ///    - #TV_MODULE_ERROR_SETTING_PARAMETER if the value is incompatible
+    ///    - #TV_OK else
     TV_Result set_parameter(TV_Id module_id, std::string parameter,
                             parameter_t value);
 
+    /// Get a parameter's value from a module.
+    /// \param[in] module_id Id of a loaded module (may be inactive).
+    /// \param[in] parameter Name of the parameter to set.
+    /// \param[out] value Value of parameter.
+    ///    - #TV_NO_SUCH_PARAMETER if the parameter does not exist
+    ///    - #TV_OK else
     TV_Result get_parameter(TV_Id module_id, std::string parameter,
                             parameter_t* value);
 
@@ -180,9 +195,7 @@ public:
     TV_Result is_camera_available(void);
 
     /// Retrieve the frame settings from the camera. This can only work
-    /// if
-    /// the
-    /// camera was opened already
+    /// if the camera was opened already
     /// \param[out] width The framewidth in pixels
     /// \param[out] width The frameheight in pixels
     /// \return
@@ -190,28 +203,55 @@ public:
     ///  - #TV_OK else.
     TV_Result resolution(TV_Size& width, TV_Size& height);
 
-    /// Set the time between the execution of active modules.
-    /// This is set to a default of 100ms, meaning that the mainloop
-    /// pauses for half a second between two executions of the active
-    /// modules. It is recommended to keep it at a decent value
-    /// because the CPU-load can be quite high with a too low value.
-    /// However, with a lot of active modules, this will reduce
-    /// respondability.
-    /// \note If no module is active, a minimum latency of 200ms is
-    /// hardcoded (with the value set here being used if larger).
-    /// \param ms The duration of the pauses in milliseconds.
-    TV_Result set_execution_latency_ms(TV_UInt ms);
+    /// Set the time between frame grabbing.  This effectively changes
+    /// the frequency of module execution.  It is recommended to keep
+    /// it at a decent value because the CPU-load can be quite high
+    /// with a too low value.  The value set here is the maximum rate,
+    /// it may well be that the actual execution is slower.  Retrieve
+    /// that value from effective_frameperiod().
 
+    /// \note If  no module is active,  a minimum latency of  200ms is
+    /// hardcoded  (with the  value set  here being  used if  larger).
+    /// \param ms The duration of a frameperiod in milliseconds.
+    /// \return #TV_OK
+    TV_Result request_frameperiod(uint32_t ms);
+
+    /// Get the name of a module.
+    /// \param[in] module_id Id of a loaded module.
+    /// \param[out] name Name of the module, which equals its file(base)name.
+    /// \return
+    ///    - #TV_INVALID_ID if no such module is loaded.
+    ///    - #TV_OK else
     TV_Result module_get_name(TV_Id module_id, std::string& name) const;
 
+    /// Get the number of parameters available for a library module.
+    /// \param[in] libname Name of the library w/o extension.
+    /// \param[out] count Number of parameters, can be used with
+    /// library_describe_parameter()
+    /// \return
+    ///    - #TV_INVALID_ARGUMENT if no such library is loadable.
+    ///    - #TV_OK else
     TV_Result library_get_parameter_count(std::string const& libname,
                                           size_t& count) const;
 
+    /// Get the description of a parameter of a library module.
+    /// \param[in] libname Name of the library w/o extension.
+    /// \param[in] parameter Number of the paramater, in range of
+    /// library_get_parameter_count()
+    /// \param[out] name Name of the parameter, to be used with parameter_set()
+    /// \param[out] min Minimum allowed value of the parameter
+    /// \param[out] max Maximum allowed value of the parameter
+    /// \param[out] def Default, initial value of the parameter
+    /// \return
+    ///    - #TV_INVALID_ARGUMENT if no such library is loadable.
+    ///    - #TV_OK else
     TV_Result library_describe_parameter(std::string const& libname,
                                          size_t parameter, std::string& name,
                                          parameter_t& min, parameter_t& max,
                                          parameter_t& def);
 
+    /// Register a callback to enumerate all parameters of a module.
+    /// \deprecated Not used in Tinkerforge context.
     TV_Result module_enumerate_parameters(TV_Id module_id,
                                           TV_StringCallback callback,
                                           TV_Context context) const;
@@ -239,13 +279,32 @@ public:
     /// else.
     TV_Result set_user_module_load_path(std::string const& path);
 
+    /// Set a callback to the results of a specific module.
+    /// \deprecated This is not usable in the context of Tinkerforge.
     TV_Result callback_set(TV_Id module_id, TV_Callback callback);
 
+    /// Set a callback to the results of each module.
+    /// \param[in] callback Called after each execution of a module provided it
+    /// has a result of type TV_ModuleResult
+    /// \return #TV_OK
+    /// \note If you want to unregister a callback, simply pass a nullptr here.
+    /// \todo Implement method unregister_callback in redbrickapid.
     TV_Result callback_default(TV_Callback callback);
 
+    /// Get the latest result from a module.
+    /// \param[in] module_id Id of an active module.
+    /// \param[out] result Result provided by the module.
+    /// \note You need to check the return value to see if result is valid.
+    /// \return
+    ///    - #TV_INVALID_ID if the module is not loaded or inactive
+    ///    - #TV_RESULT_NOT_AVAILABLE if the module has no result
+    ///    - #TV_OK if result is valid
     TV_Result get_result(TV_Id module_id, TV_ModuleResult& result);
 
-    uint32_t effective_framerate(void) const;
+    /// Retrieve the effective inverse framerate.
+    /// \return effective_frameperiod_.
+    /// \see request_frameperiod()
+    uint32_t effective_frameperiod(void) const;
 
     std::string const& user_module_path(void) const;
 
@@ -312,7 +371,7 @@ private:
     FrameConversions conversions_;
     TVStringMap result_string_map_;     ///< String mapping of Api-return values
     bool idle_process_running_{false};  ///< Dummy module activated?
-    double effective_framerate_{0};     ///< Effective inverse framerate
+    uint32_t effective_frameperiod_{0};  ///< Effective inverse framerate
 
     ModuleLoader module_loader_{SYS_MODULE_LOAD_PATH, ADD_MODULE_LOAD_PATH};
 
@@ -322,9 +381,9 @@ private:
 
     Modules modules_;  ///< RAII-style managed vision algorithms.
 
-    std::thread executor_;  ///< Mainloop-Context executing the modules.
-    bool active_ = true;    ///< While true, the mainloop is running.
-    unsigned execution_latency_ms_ = 100;  ///< Pause during mainloop
+    std::thread executor_;        ///< Mainloop-Context executing the modules.
+    bool active_ = true;          ///< While true, the mainloop is running.
+    uint32_t frameperiod_ms_{0};  ///< Minimum inverse framerate
 
     SceneTrees scene_trees_;
 

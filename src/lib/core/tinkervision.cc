@@ -67,9 +67,9 @@ TV_Result tv_start_idle(void) {
     return tv::get_api().start_idle();
 }
 
-TV_Result tv_effective_inv_framerate(uint32_t* framerate) {
-    tv::Log("Tinkervision::EffectiveInvFramerate");
-    *framerate = tv::get_api().effective_framerate();
+TV_Result tv_effective_frameperiod(uint32_t* frameperiod) {
+    tv::Log("Tinkervision::EffectiveFrameperiod");
+    *frameperiod = tv::get_api().effective_frameperiod();
     return TV_OK;
 }
 
@@ -112,9 +112,9 @@ TV_Result tv_quit(void) {
     return tv::get_api().quit();
 }
 
-TV_Result tv_set_execution_latency(TV_UInt milliseconds) {
-    tv::Log("Tinkervision::SetExecutionLatency", milliseconds);
-    return tv::get_api().set_execution_latency_ms(milliseconds);
+TV_Result tv_request_frameperiod(uint32_t milliseconds) {
+    tv::Log("Tinkervision::RequestFrameperiod", milliseconds);
+    return tv::get_api().request_frameperiod(milliseconds);
 }
 
 TV_String tv_result_string(TV_Result code) {
