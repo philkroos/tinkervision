@@ -61,11 +61,11 @@ public:
     /// path has been removed.
     bool set_user_load_path(std::string const& load_path);
 
-    /// List all available modules. Both system_load_path_ and
+    /// List all loadable modules. Both system_load_path_ and
     /// user_lib_load_path_ are searched for loadable modules, which are
-    /// identified by their basename.
+    /// identified by their basename, which equals the module name.
     /// \param[inout] paths The paths to the modules.
-    /// \param[inout] modules The filenames of the modules.
+    /// \param[inout] modules The filenames of the modules w/o extension.
     void list_available_modules(std::vector<std::string>& paths,
                                 std::vector<std::string>& modules) const;
 
@@ -205,5 +205,13 @@ private:
 
     bool _add_available_module(std::string const& path,
                                std::string const& name);
+
+    /// List all shared objects in user and system path. These might not be
+    /// valid vision modules, which is only checked when adding them to
+    /// availables_.
+    /// \see list_available_modules(), which returns the content of availables_,
+    /// i.e. the actually loadable vision modules.
+    void _possibly_available_modules(std::vector<std::string>& paths,
+                                     std::vector<std::string>& modules) const;
 };
 }

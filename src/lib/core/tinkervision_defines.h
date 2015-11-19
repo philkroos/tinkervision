@@ -58,7 +58,7 @@ typedef void (*TV_LibrariesCallback)(char const* name, char const* path,
 ///< Default 'no-error' result
 #define TV_OK 0
 
-/* General errors: 500... */
+/* General errors: */
 #define TV_NOT_IMPLEMENTED -1
 #define TV_INTERNAL_ERROR -2
 #define TV_INVALID_ARGUMENT -3
@@ -67,7 +67,7 @@ typedef void (*TV_LibrariesCallback)(char const* name, char const* path,
 #define TV_NODE_ALLOCATION_FAILED -11
 #define TV_NO_ACTIVE_MODULES -12
 
-/* Camera errors: 550... */
+/* Camera errors: */
 #define TV_CAMERA_NOT_AVAILABLE -21
 #define TV_CAMERA_SETTINGS_FAILED -22
 
@@ -77,16 +77,18 @@ typedef void (*TV_LibrariesCallback)(char const* name, char const* path,
 #define TV_MODULE_NO_SUCH_PARAMETER -33
 #define TV_MODULE_ERROR_SETTING_PARAMETER -34
 
-/* System thread errors: 650... */
+/* System thread errors: */
 #define TV_EXEC_THREAD_FAILURE -41
 #define TV_THREAD_RUNNING -42
 
-/* External library errors: 700... */
+/* External library errors: */
 #define TV_MODULE_DLOPEN_FAILED -51
 #define TV_MODULE_DLSYM_FAILED -52
 #define TV_MODULE_DLCLOSE_FAILED -53
+#define TV_MODULE_CONSTRUCTION_FAILED -54
+#define TV_MODULE_NOT_AVAILABLE -55
 
-/* Callback/Result request errors: 750... */
+/* Callback/Result request errors: */
 #define TV_RESULT_NOT_AVAILABLE -61
 #define TV_GLOBAL_CALLBACK_ACTIVE -62
 

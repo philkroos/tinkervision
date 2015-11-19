@@ -35,7 +35,7 @@ namespace tv {
 class Snapshot : public Module {
 
 public:
-    Snapshot(void) : Module("Snapshot") {}
+    Snapshot(void) : Module("snapshot") {}
     ~Snapshot(void) override;
 
 protected:

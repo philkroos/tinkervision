@@ -49,7 +49,7 @@ private:
     Result rect_around_motion_;
 
 public:
-    Motiondetect(void) : Module{"Motiondetect"} {}
+    Motiondetect(void) : Module{"motiondetect"} {}
 
     ~Motiondetect(void) override = default;
 

@@ -55,7 +55,7 @@ private:
 
 public:
     Colormatch(void)
-        : Module("Colormatch"),
+        : Module("colormatch"),
           user_min_hue(min_hue),
           user_max_hue(max_hue),
           user_min_value(min_value),

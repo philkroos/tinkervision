@@ -32,7 +32,7 @@
 namespace tv {
 class Dummy : public Module {
 public:
-    Dummy() : Module("Dummy") {}
+    Dummy() : Module("dummy") {}
 
     /// Returning None prevents this module from being executed.
     ColorSpace input_format(void) const override { return ColorSpace::NONE; }

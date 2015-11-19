@@ -42,7 +42,7 @@ tv::Stream::~Stream(void) {
     streamer_.get();
 }
 
-tv::Stream::Stream() : Module("Stream"), context_(ExecutionContext::get()) {
+tv::Stream::Stream() : Module("stream"), context_(ExecutionContext::get()) {
 
     task_scheduler_ = BasicTaskScheduler::createNew();
 

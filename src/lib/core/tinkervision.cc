@@ -137,6 +137,7 @@ int16_t tv_get_parameter(int8_t module_id, char const* const parameter,
 
 int16_t tv_module_start(char const* name, int8_t* id) {
     tv::Log("Tinkervision::ModuleStart", name);
+    //// \todo Let user specify path (system or user)
     return tv::get_api().module_load(name, *id);
 }
 
