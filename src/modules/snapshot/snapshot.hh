@@ -30,6 +30,8 @@
 #include "tinkervision/module.hh"
 
 namespace tv {
+/// Save the current image to disk.
+/// \todo Allow parameterizing this and other modules with strings..?
 class Snapshot : public Module {
 
 public:

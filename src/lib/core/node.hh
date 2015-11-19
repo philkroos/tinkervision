@@ -1,24 +1,28 @@
-/*
-Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2015 philipp.kroos@fh-bielefeld.de
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
-
-/** \file node.hh
-*/
+/// \file node.hh
+/// \author philipp.kroos@fh-bielefeld.de
+/// \date 2014-2015
+///
+/// \brief Declares the class Node.
+///
+/// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
+/// \sa https://github.com/Tinkerforge/red-brick
+///
+/// \copyright
+///
+/// This program is free software; you can redistribute it and/or
+/// modify it under the terms of the GNU General Public License
+/// as published by the Free Software Foundation; either version 2
+/// of the License, or (at your option) any later version.
+///
+/// This program is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+///
+/// You should have received a copy of the GNU General Public License
+/// along with this program; if not, write to the Free Software
+/// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+/// USA.
 
 #ifndef NODE_H
 #define NODE_H
@@ -52,14 +56,12 @@ public:
 
     int16_t id(void) const { return id_; }
 
-    /**
-     * Execute the module held by this node.
-     *
-     * \code module will only be executed if the provided timestamp
-     * is different from \code timestamp_.
-     * \param[in] executor The function to be called on the module.
-     * \param[in] timestamp The image to be processed.
-     */
+    /// Execute the module held by this node.
+    ///
+    /// \code module will only be executed if the provided timestamp
+    /// is different from \code timestamp_.
+    /// \param[in] executor The function to be called on the module.
+    /// \param[in] timestamp The image to be processed.
     void execute(ModuleExecutor executor, Timestamp timestamp);
     void execute_for_scene(ModuleExecutor executor, Timestamp timestamp,
                            int16_t scene_id);

@@ -1,27 +1,28 @@
-/*
-Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
-
-/** \file scene.hh
-
-    A Scene is a tree of modules, held in instances of Node.
-
-*/
+/// \file scene.hh
+/// \author philipp.kroos@fh-bielefeld.de
+/// \date 2014-2015
+///
+/// \brief Declares Scene.
+///
+/// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
+/// \sa https://github.com/Tinkerforge/red-brick
+///
+/// \copyright
+///
+/// This program is free software; you can redistribute it and/or
+/// modify it under the terms of the GNU General Public License
+/// as published by the Free Software Foundation; either version 2
+/// of the License, or (at your option) any later version.
+///
+/// This program is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+///
+/// You should have received a copy of the GNU General Public License
+/// along with this program; if not, write to the Free Software
+/// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+/// USA.
 
 #include <list>
 #include <cassert>
@@ -33,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tv {
 
+/// A Scene is a tree of modules, held in instances of Node.
 class Scene {
 
 public:
@@ -42,9 +44,7 @@ public:
 
     ~Scene(void) = default;
 
-    /**
-     * Depth-first execution of this scene.
-     */
+    /// Depth-first execution of this scene.
     void execute(std::function<void(int16_t module_id)> executor,
                  tv::Timestamp timestamp) {
         tree().execute_for_scene(executor, timestamp, id_);

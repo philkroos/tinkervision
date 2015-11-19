@@ -25,6 +25,7 @@
 /// USA.
 
 #include "module.hh"
+
 tv::Module::Module(const char* name) : name_{name} {
     Log("EXECUTABLE", "Constructor for ", name);
 }

@@ -1,21 +1,28 @@
-/*
-Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
+/// \file strings.hh
+/// \author philipp.kroos@fh-bielefeld.de
+/// \date 2014-2015
+///
+/// \brief Declares and defines Strings.
+///
+/// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
+/// \sa https://github.com/Tinkerforge/red-brick
+///
+/// \copyright
+///
+/// This program is free software; you can redistribute it and/or
+/// modify it under the terms of the GNU General Public License
+/// as published by the Free Software Foundation; either version 2
+/// of the License, or (at your option) any later version.
+///
+/// This program is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+///
+/// You should have received a copy of the GNU General Public License
+/// along with this program; if not, write to the Free Software
+/// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+/// USA.
 
 #include <map>
 
@@ -23,7 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tv {
 
-class TVStringMap {
+/// Container to map result codes of the api to strings.
+class Strings {
 private:
     const std::map<int16_t, char const*> string_map_{
         {TV_OK, "Ok"},
@@ -56,14 +64,14 @@ public:
     static constexpr char const* INTERNAL_ERROR{"tinkervision: Internal error"};
 
     char const* operator[](int16_t code) const {
-        auto result = TVStringMap::UNKNOWN_CODE;
+        auto result = Strings::UNKNOWN_CODE;
         try {
             auto it = string_map_.find(code);
             if (it != string_map_.end()) {
                 result = it->second;
             }
         } catch (...) {
-            result = TVStringMap::INTERNAL_ERROR;
+            result = Strings::INTERNAL_ERROR;
         }
         return result;
     }

@@ -1,21 +1,28 @@
-/*
-Tinkervision - Vision Library for https://github.com/Tinkerforge/red-brick
-Copyright (C) 2014-2015 philipp.kroos@fh-bielefeld.de
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
+/// \file convert.hh
+/// \author philipp.kroos@fh-bielefeld.de
+/// \date 2014-2015
+///
+/// \brief Declaration of the different colorspace converters of Tinkervision.
+///
+/// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
+/// \sa https://github.com/Tinkerforge/red-brick
+///
+/// \copyright
+///
+/// This program is free software; you can redistribute it and/or
+/// modify it under the terms of the GNU General Public License
+/// as published by the Free Software Foundation; either version 2
+/// of the License, or (at your option) any later version.
+///
+/// This program is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+///
+/// You should have received a copy of the GNU General Public License
+/// along with this program; if not, write to the Free Software
+/// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+/// USA.
 
 #ifndef CONVERT_H
 #define CONVERT_H
@@ -34,8 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace tv {
 
-/** Restrict a value of type In to the range of type Out.
- */
+/// Restrict a value of type In to the range of type Out.
 template <typename In, typename Out>
 struct Clamp {
 private:
@@ -49,9 +55,7 @@ public:
     }
 };
 
-/**
- * Restrict a value to the range of uint8_t.
- */
+/// Restrict a value to the range of uint8_t.
 template <typename In>
 struct ClampImageValue : public Clamp<In, uint8_t> {};
 
@@ -59,9 +63,7 @@ struct ClampImageValue : public Clamp<In, uint8_t> {};
 // module)
 class Converter;
 
-/**
- * Baseclass of all converters
- */
+/// Baseclass of all converters
 struct Convert {
     Convert(ColorSpace source, ColorSpace target);
     virtual ~Convert(void);
@@ -94,9 +96,7 @@ private:
 // Following: Converter from YCbCr to ...
 //
 
-/**
- * This converter is compressing the data.
- */
+/// This converter is compressing the data.
 struct ConvertYUV422ToYUV420 : public Convert {
 public:
     ConvertYUV422ToYUV420(void);
@@ -131,24 +131,21 @@ protected:
     }
 };
 
-/**
- * According to [Kaufmann], the conversion goes like this:
- * |R|    1  |298.082  0       458.942|   |Y' - 16 |
- * |G| =  -  |298.082 -54.592 -136.425| * |Cb - 128|
- * |B|   256 |298.082  540.775 0      |   |Cr - 128|
- * (p319) for HDTV (>= 1280x720)
- * and Wikipedia says (http://en.wikipedia.org/wiki/YUV):
- * r = y + 1.28033 * v
- * g = y - 0.21482 * u - 0.38059 * v
- * b = y + 2.21798 * u
- * for HD and for SD:
- * r = y + 1.3983 * v
- * g = y - 0.39465 * u - 0.58060 * v
- * b = y + 2.03211 * u
- * All are citing the same standard (BT.601 for SD, BT.709 for HD).
- * Confusing. All seem to work fine.
- * [Kaufmann] - Digital Video and HDTV Algorithms ... p313ff
- */
+/// According to [Kaufmann], the conversion goes like this:
+/// |R|    1  |298.082  0       458.942|   |Y' - 16 |
+/// |G| =  -  |298.082 -54.592 -136.425| * |Cb - 128|
+/// |B|   256 |298.082  540.775 0      |   |Cr - 128|
+/// (p319) for HDTV (>= 1280x720)
+/// and Wikipedia says (http://en.wikipedia.org/wiki/YUV):
+/// r = y + 1.28033 * v
+/// g = y - 0.21482 * u - 0.38059 * v
+/// b = y + 2.21798 * u
+/// for HD and for SD:
+/// r = y + 1.3983 * v
+/// g = y - 0.39465 * u - 0.58060 * v * b = y + 2.03211 * u
+/// All are citing the same standard (BT.601 for SD, BT.709 for HD).
+/// Confusing. All seem to work fine.
+/// [Kaufmann] - Digital Video and HDTV Algorithms ... p313ff
 struct YUVToRGB {
 public:
     virtual ~YUVToRGB(void) = default;
@@ -167,8 +164,7 @@ protected:
 
 public:
     template <size_t r = 0, size_t g = 1, size_t b = 2>
-    void convert(int const y, int const u, int const v,
-                 uint8_t* rgb) const;
+    void convert(int const y, int const u, int const v, uint8_t* rgb) const;
 };
 
 struct YUYVToRGBType : public YUVToRGB {
@@ -330,10 +326,8 @@ protected:
                        uint16_t& target_height,
                        size_t& target_bytesize) const override final;
 
-    /**
-     * This uses the conversion routine as described by OpenCV:
-     * http://docs.opencv.org/modules/imgproc/doc/miscellaneous_transformations.html#cvtcolor
-     */
+    /// This uses the conversion routine as described by OpenCV:
+    /// http://docs.opencv.org/modules/imgproc/doc/miscellaneous_transformations.html#cvtcolor
     void convert(Image const& source, Image& target) const override final;
 };
 
@@ -356,9 +350,7 @@ protected:
     void convert(Image const& source, Image& target) const override final;
 };
 
-/**
- * Public interface to this module
- */
+/// Public interface to this module.
 class Converter {
 private:
     Convert* converter_;
@@ -408,19 +400,15 @@ private:
 public:
     Converter(ColorSpace source, ColorSpace target);
 
-    /**
-     * Providing move constructor to let this class be stored in
-     * STL-containers.
-     */
+    /// Providing move constructor to let this class be stored in
+    /// STL-containers.
     Converter(Converter&& other) {
         this->converter_ = other.converter_;
         other.converter_ = nullptr;
     }
 
-    /**
-     * Providing copy constructor to let this class be stored in
-     * STL-containers.
-     */
+    /// Providing copy constructor to let this class be stored in
+    /// STL-containers.
     Converter(Converter& other) {
         this->converter_ = other.converter_;
         other.converter_ = nullptr;
@@ -545,4 +533,4 @@ public:
     }
 };
 }
-#endif /* CONVERT_H */
+#endif

@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <time.h>   /* nanosleep (posix) */
 
 #include "tinkervision/tinkervision.h"
-#define TV_STRING_SIZE 30
 
 void callback(int8_t id, TV_ModuleResult result, void* context) {
     printf("Callback for module %d\n", id);
@@ -77,8 +76,6 @@ int main(int argc, char* argv[]) {
     uint16_t width = 1280;
     uint16_t height = 720;
     char string[TV_STRING_SIZE];
-    int enum_modules = 1;
-    /*int enum_pars = 2;*/
 
     int16_t result = tv_set_framesize(width, height);
 
@@ -94,10 +91,6 @@ int main(int argc, char* argv[]) {
     result = tv_camera_available();
     printf("CameraAvailable: %d (%s)\n", result, tv_result_string(result));
     sleep(1);
-
-    result = tv_enumerate_available_modules(str_callback, &enum_modules);
-    printf("Enumerate Modules registered: %d\n", result);
-    sleep(4);
 
     result = tv_start_idle();
     printf("StartIdle: %d (%s)\n", result, tv_result_string(result));

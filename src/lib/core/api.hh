@@ -371,7 +371,7 @@ public:
 private:
     CameraControl camera_control_;  ///< Camera access abstraction
     FrameConversions conversions_;
-    TVStringMap result_string_map_;     ///< String mapping of Api-return values
+    Strings result_string_map_;         ///< String mapping of Api-return values
     bool idle_process_running_{false};  ///< Dummy module activated?
     uint32_t effective_frameperiod_{0};  ///< Effective inverse framerate
 
