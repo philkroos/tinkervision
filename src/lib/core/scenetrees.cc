@@ -97,11 +97,11 @@ int16_t tv::SceneTrees::add_to_scene(int16_t scene_id, int16_t module_id) {
             return TV_OK;
         }
 
-        return TV_INTERNAL_NODE_UNCONFIGURED;
+        return TV_OK + 1;  // all TV_* values are <= 0
     });
 
     // No new node created, other scene reused
-    if (result != TV_INTERNAL_NODE_UNCONFIGURED) {
+    if (result <= TV_OK) {
         return result;
     }
 
