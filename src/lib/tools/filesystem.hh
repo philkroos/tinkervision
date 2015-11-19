@@ -33,8 +33,6 @@
 #include <functional>
 #include <thread>
 
-namespace tv {
-
 /// Split the extension from a filename.
 /// \param[in] filename name of a file with or without directory part.
 /// \param[inout] extension The extension, if any, else empty string.
@@ -81,5 +79,4 @@ void list_directory_content(std::string const& directory,
                                                std::string const& extension,
                                                bool is_regular_file)> filter);
 
-}
 #endif

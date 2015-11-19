@@ -4,9 +4,12 @@ CCFLAGS := -Wall -Werror -g -std=c++11 -O0 -pedantic -DDEBUG
 INC	:= -I../../lib/core -I../../lib/imaging -I../../lib/interface  -I../../lib/tools
 LDFLAGS := -g -Wall -lstdc++ -ldl -pthread
 
-TFV_UNITS := ../../lib/core/module_loader.cc \
+TFV_UNITS := ../../lib/interface/module.cc \
+	     ../../lib/interface/parameter.cc \
+	     ../../lib/core/module_loader.cc \
              ../../lib/core/module_wrapper.cc \
 	     ../../lib/core/logger.cc \
+             ../../lib/imaging/image.cc \
 	     ../../lib/tools/filesystem.cc \
 	     ../../lib/tools/dirwatch.cc
 OBJ	:= tfv_test_loader.o

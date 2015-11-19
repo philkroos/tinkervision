@@ -25,6 +25,7 @@
 /// USA.
 
 #include "logger.hh"
+#include "tinkervision_defines.h"
 
 namespace tv {
 

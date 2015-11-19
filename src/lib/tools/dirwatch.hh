@@ -35,8 +35,6 @@
 
 #include <sys/inotify.h>
 
-namespace tv {
-
 /// Monitor one or more directories for changes.
 /// The list of events registered is enumerated in Event.
 /// To use this class, first instantiate it with a callback which will be called
@@ -132,6 +130,5 @@ public:
     /// every file in the registered directories.
     void reset_extension_filter(void) { extensions_.clear(); }
 };
-}
 
 #endif

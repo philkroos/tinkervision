@@ -39,11 +39,11 @@
 #include "filesystem.hh"
 #include "logger.hh"
 
-tv::Dirwatch::Dirwatch(Callback on_change) : on_change_(on_change) {}
+Dirwatch::Dirwatch(Callback on_change) : on_change_(on_change) {}
 
-tv::Dirwatch::~Dirwatch(void) { stop(); }
+Dirwatch::~Dirwatch(void) { stop(); }
 
-bool tv::Dirwatch::watch(std::string const& directory) {
+bool Dirwatch::watch(std::string const& directory) {
     if (not is_directory(directory)) {
         return false;
     }
@@ -59,21 +59,21 @@ bool tv::Dirwatch::watch(std::string const& directory) {
         auto watch = inotify_add_watch(inotify_, directory.c_str(), flags_);
 
         if (watch < 0) {
-            LogError("DIRWATCH", "Could not add watch for ", directory);
+            tv::LogError("DIRWATCH", "Could not add watch for ", directory);
             return false;
         }
 
         watches_[directory] = watch;
     }
 
-    Log("DIRWATCH", "Watching ", directory);
+    tv::Log("DIRWATCH", "Watching ", directory);
 
     return true;
 }
 
-void tv::Dirwatch::unwatch(std::string const& directory) {
+void Dirwatch::unwatch(std::string const& directory) {
     if (inotify_ <= 0) {  // must be running
-        LogError("DIRWATCH", "Unwatch: inotify_ invalid: ", inotify_);
+        tv::LogError("DIRWATCH", "Unwatch: inotify_ invalid: ", inotify_);
         return;
     }
 
@@ -82,12 +82,12 @@ void tv::Dirwatch::unwatch(std::string const& directory) {
     if (it != std::end(watches_)) {
 
         if (inotify_rm_watch(inotify_, watches_[directory]) < 0) {
-            LogError("DIRWATCH", "Could not remove watch for ", directory);
+            tv::LogError("DIRWATCH", "Could not remove watch for ", directory);
             return;
         }
 
         watches_.erase(it);
-        Log("DIRWATCH", "Unwatching ", directory);
+        tv::Log("DIRWATCH", "Unwatching ", directory);
 
         if (watches_.empty()) {  // no watches - don't waste runtime
             stop();
@@ -95,16 +95,16 @@ void tv::Dirwatch::unwatch(std::string const& directory) {
     }
 }
 
-void tv::Dirwatch::stop(void) {
+void Dirwatch::stop(void) {
     /// Stop and wait for the thread, then close inotify.
     stopped_ = true;
     inotify_thread_.join();
     close(inotify_);
     inotify_ = 0;
-    Log("DIRWATCH", "Stopped");
+    tv::Log("DIRWATCH", "Stopped");
 }
 
-bool tv::Dirwatch::start(void) {
+bool Dirwatch::start(void) {
     if (inotify_ != 0) {
         return false;
     }
@@ -115,7 +115,7 @@ bool tv::Dirwatch::start(void) {
 
     /*checking for error*/
     if (inotify_ < 0) {
-        LogError("DIRWATCH", "Inotify did not start");
+        tv::LogError("DIRWATCH", "Inotify did not start");
         inotify_ = 0;
         return false;
     }
@@ -127,7 +127,7 @@ bool tv::Dirwatch::start(void) {
             inotify_add_watch(inotify_, directory.first.c_str(), flags_);
 
         if (watch <= 0) {
-            LogError("DIRWATCH", "Could not add watch for ", directory.first);
+            tv::LogError("DIRWATCH", "Could not add watch for ", directory.first);
             return false;
         }
 
@@ -137,16 +137,16 @@ bool tv::Dirwatch::start(void) {
     /// The actual monitor() is started in a thread.
     stopped_ = false;
     inotify_thread_ = std::thread(&Dirwatch::monitor, this);
-    Log("DIRWATCH", "Start");
+    tv::Log("DIRWATCH", "Start");
 
     return true;
 }
 
-void tv::Dirwatch::add_watched_extension(std::string const& ext) {
+void Dirwatch::add_watched_extension(std::string const& ext) {
     extensions_.push_back(ext);
 }
 
-void tv::Dirwatch::monitor(void) const {
+void Dirwatch::monitor(void) const {
 
     auto const event_size = sizeof(struct inotify_event);
     // buffer space for 10 events, see man inotify
@@ -167,7 +167,7 @@ void tv::Dirwatch::monitor(void) const {
         }
 
         else if (length < 0) {  // should eval the error here.
-            LogError("DIRWATCH", "Reading from inotify: ", errno, " (",
+            tv::LogError("DIRWATCH", "Reading from inotify: ", errno, " (",
                      strerror(errno), ")");
         }
 

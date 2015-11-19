@@ -41,7 +41,7 @@ static std::string basename(std::string const& fullname) {
         fullname.end());
 }
 */
-std::string tv::strip_extension(std::string const& filename,
+std::string strip_extension(std::string const& filename,
                                 std::string& extension) {
     auto rev_it = std::find(filename.rbegin(), filename.rend(), '.');
 
@@ -55,7 +55,7 @@ std::string tv::strip_extension(std::string const& filename,
     return std::string(filename.cbegin(), rev_it.base() - 1);
 }
 
-std::string tv::strip_extension(std::string const& filename) {
+std::string strip_extension(std::string const& filename) {
     auto rev_it = std::find(filename.rbegin(), filename.rend(), '.');
 
     if (rev_it == filename.rend() or
@@ -66,23 +66,23 @@ std::string tv::strip_extension(std::string const& filename) {
     return std::string(filename.cbegin(), rev_it.base() - 1);
 }
 
-std::string tv::extension(std::string const& filename) {
+std::string extension(std::string const& filename) {
     return std::string(
         std::find(filename.rbegin(), filename.rend(), '.').base(),
         filename.end());
 }
 
-bool tv::is_file(std::string const& fullname) {
+bool is_file(std::string const& fullname) {
     struct stat buffer;
     return (stat(fullname.c_str(), &buffer) == 0) and S_ISREG(buffer.st_mode);
 }
 
-bool tv::is_directory(std::string const& fullname) {
+bool is_directory(std::string const& fullname) {
     struct stat buffer;
     return (stat(fullname.c_str(), &buffer) == 0) and S_ISDIR(buffer.st_mode);
 }
 
-void tv::list_directory_content(
+void list_directory_content(
     std::string const& directory, std::vector<std::string>& contents,
     std::function<bool(std::string const& filename,
                        std::string const& extension, bool is_regular_file)>

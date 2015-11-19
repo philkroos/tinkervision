@@ -10,9 +10,15 @@
 #include "module_loader.hh"
 
 static void directory_changes(std::string const& dir, std::string const& file,
-                              bool created) {
-    std::cout << "In " << dir << ": " << file << " was "
-              << (created ? "created" : "deleted") << std::endl;
+                              Dirwatch::Event event) {
+    std::cout << "In " << dir << ": " << file << " was ";
+    if (event == Dirwatch::Event::FILE_CREATED) {
+        std::cout << "created";
+    }
+    else {
+        std::cout << "deleted";
+    }
+    std::cout << std::endl;
 }
 
 static void modify_dir(void) {
