@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <time.h>   /* nanosleep (posix) */
 
 #include "tinkervision/tinkervision.h"
+#define TV_STRING_SIZE 30
 
 void callback(int8_t id, TV_ModuleResult result, void* context) {
     printf("Callback for module %d\n", id);

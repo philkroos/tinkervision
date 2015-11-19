@@ -43,7 +43,7 @@ void scene_add(int16_t scene, int8_t module) {
     sleep(1);
 }
 
-void colormatch_start(int8_t < id, int min_hue, int max_hue) {
+void colormatch_start(int8_t id, int min_hue, int max_hue) {
     int16_t result = tv_module_start("colormatch", &id);
     printf("Colormatch Id %d Start: %d (%s)\n", id, result,
            tv_result_string(result));
