@@ -38,19 +38,19 @@ class SceneTree;  // forward
 class Node {
 
 public:
-    using ModuleExecutor = std::function<void(TV_Int id)>;
+    using ModuleExecutor = std::function<void(int16_t id)>;
 
     // default c'tor to be able to store in container types
     Node(void) = default;
 
     // c'tor for a root node
-    Node(TV_Int node_id, TV_Scene scene_id, TV_Int module_id)
+    Node(int16_t node_id, int16_t scene_id, int16_t module_id)
         : Node(node_id, scene_id, module_id, nullptr) {}
 
     // complete c'tor
-    Node(TV_Int node_id, TV_Scene scene_id, TV_Int module_id, Node* parent);
+    Node(int16_t node_id, int16_t scene_id, int16_t module_id, Node* parent);
 
-    TV_Int id(void) const { return id_; }
+    int16_t id(void) const { return id_; }
 
     /**
      * Execute the module held by this node.
@@ -62,11 +62,11 @@ public:
      */
     void execute(ModuleExecutor executor, Timestamp timestamp);
     void execute_for_scene(ModuleExecutor executor, Timestamp timestamp,
-                           TV_Scene scene_id);
+                           int16_t scene_id);
 
-    TV_Int module_id(void) const { return module_id_; }
+    int16_t module_id(void) const { return module_id_; }
 
-    void add_to_scene(TV_Scene scene_id) { scenes_.push_back(scene_id); }
+    void add_to_scene(int16_t scene_id) { scenes_.push_back(scene_id); }
 
     Node* parent(void) const { return parent_; }
 
@@ -83,11 +83,11 @@ public:
     }
     SceneTree* tree(void) const { return tree_; }
 
-    std::vector<TV_Scene>* scenes(void) { return &scenes_; }
+    std::vector<int16_t>* scenes(void) { return &scenes_; }
 
     std::vector<Node*> children(void) const { return children_; }
 
-    Node* get_child_from_module_id(TV_Int module_id) {
+    Node* get_child_from_module_id(int16_t module_id) {
         auto node = std::find_if(children_.begin(), children_.end(),
                                  [&module_id](Node const* node) {
             return node->module_id() == module_id;
@@ -102,7 +102,7 @@ public:
 
     bool is_leaf(void) const { return children_.empty(); }
 
-    void remove_scene(TV_Scene scene_id) {
+    void remove_scene(int16_t scene_id) {
         auto it = std::find(scenes_.begin(), scenes_.end(), scene_id);
 
         assert(it != scenes_.end());
@@ -112,7 +112,7 @@ public:
 
     bool is_used_by_any_scene(void) const { return not scenes_.empty(); }
 
-    bool is_used_by_scene(TV_Scene id) const {
+    bool is_used_by_scene(int16_t id) const {
         return std::find(scenes_.cbegin(), scenes_.cend(), id) !=
                scenes_.cend();
     }
@@ -133,8 +133,8 @@ public:
 
 private:
     Timestamp timestamp_;
-    TV_Int id_{TV_UNUSED_ID};
-    TV_Int module_id_{TV_UNUSED_ID};
+    int16_t id_{TV_UNUSED_ID};
+    int16_t module_id_{TV_UNUSED_ID};
 
     // Tree
     Node* parent_ = nullptr;
@@ -142,7 +142,7 @@ private:
     SceneTree* tree_ = nullptr;  ///< Link to the tree containing this node
 
     // This node is part of these scenes
-    std::vector<TV_Scene> scenes_;
+    std::vector<int16_t> scenes_;
 };
 }
 

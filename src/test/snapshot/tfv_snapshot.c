@@ -24,11 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tinkervision/tinkervision.h"
 
 int main(int argc, char* argv[]) {
-    TV_Id id = 0;
-    TV_Size width, height;
+    int8_t id = 0;
+    uint16_t width, height;
     TV_ModuleResult m_result;
 
-    TV_Result result = tv_module_start("snapshot", &id);
+    int16_t result = tv_module_start("snapshot", &id);
     printf("Load module snapshot: result %d: %s\n", result,
            tv_result_string(result));
 

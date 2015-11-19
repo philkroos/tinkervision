@@ -46,7 +46,7 @@ void tv::Convert::operator()(tv::Image const& source, tv::Image& target) {
         target.header.width = width;
         target.header.height = height;
         target.header.bytesize = bytesize;
-        target.data = new TV_ImageData[bytesize];
+        target.data = new uint8_t[bytesize];
     }
 
     convert(source, target);
@@ -107,8 +107,8 @@ void tv::ConvertYUV422ToYUV420::target_format(tv::ImageHeader const& source,
 // output is in order y-block, v-block, u-block
 void tv::ConvertYUV422ToYUV420::convert_any(tv::Image const& source,
                                             tv::Image& target,
-                                            TV_ImageData* u_ptr,
-                                            TV_ImageData* v_ptr) const {
+                                            uint8_t* u_ptr,
+                                            uint8_t* v_ptr) const {
     auto to = target.data;  // moving pointer
 
     // Y: every second byte
@@ -119,7 +119,7 @@ void tv::ConvertYUV422ToYUV420::convert_any(tv::Image const& source,
     const size_t width = source.header.width * 2;  // in byte
     const size_t height = source.header.height;
 
-    auto copy_u_or_v = [&width, &height, &to](TV_ImageData const* u_or_v_ptr) {
+    auto copy_u_or_v = [&width, &height, &to](uint8_t const* u_or_v_ptr) {
 
         auto next_row = u_or_v_ptr + width;
 
@@ -151,7 +151,7 @@ int constexpr tv::YUVToRGB::coeff_g[];
 int constexpr tv::YUVToRGB::coeff_b[];
 
 template <size_t r, size_t g, size_t b>
-void tv::YUVToRGB::convert(int y, int u, int v, TV_ImageData* rgb) const {
+void tv::YUVToRGB::convert(int y, int u, int v, uint8_t* rgb) const {
 
     // need indices 0,1,2
     static_assert(((r + g + b) == 3) and (r < 3) and (g < 3) and (b < 3) and
@@ -431,7 +431,7 @@ void tv::ConvertBGRToGray::convert(Image const& source, Image& target) const {
     auto bgr = source.data;
     auto gray = target.data;
     for (size_t i = 0; i < target.header.bytesize; ++i) {
-        *gray = static_cast<TV_ImageData>(
+        *gray = static_cast<uint8_t>(
             std::round(0.114 * bgr[2] + 0.587 * bgr[1] + 0.299 * bgr[0]));
         // above formula yields 255 for b=g=r=255, no clamping needed
         bgr += 3;

@@ -81,7 +81,7 @@ public:
     ///
     /// \see Module, describing the structure of the modules that can be loaded.
     bool load_module_from_library(ModuleWrapper** target,
-                                  std::string const& libname, TV_Int id);
+                                  std::string const& libname, int16_t id);
 
     /// Destruct the module and dlclose the associated library (once).
     /// \param[in] module The module to be free'd.
@@ -97,7 +97,7 @@ public:
     /// load_module_from_library return false.
     /// Calling this will also reset the internal error to TV_OK.
     /// \return The last error produced, one of TV*. TV_OK if none.
-    TV_Result last_error(void);
+    int16_t last_error(void);
 
     /// Set a callback that will be notified for each change to the available
     /// load paths.
@@ -146,8 +146,8 @@ public:
     /// \param[out] def Parameter default value
     /// \return False if the library is not available or number is out of range.
     bool library_describe_parameter(std::string const& libname, size_t number,
-                                    std::string& name, parameter_t& min,
-                                    parameter_t& max, parameter_t& def) const;
+                                    std::string& name, int32_t& min,
+                                    int32_t& max, int32_t& def) const;
 
     /// Access the currently set user module load path.
     /// \return user_load_path_
@@ -179,7 +179,7 @@ private:
     Handles handles_;                     ///< Keeps track of loaded modules
     std::string const system_load_path_;  ///< Default shared object files
     std::string user_load_path_;          ///< Additional shared object files
-    TV_Result error_{TV_OK};  ///< If an error occurs, it's stored here
+    int16_t error_{TV_OK};  ///< If an error occurs, it's stored here
 
     std::vector<std::string> required_functions_ = {
         "create",
@@ -197,7 +197,7 @@ private:
     LibraryHandle _load_module_from_library(ModuleWrapper** target,
                                             std::string const& library_root,
                                             std::string const& libname,
-                                            TV_Int id);
+                                            int16_t id);
 
     void _watched_directory_changed_callback(Dirwatch::Event event,
                                              std::string const& dir,

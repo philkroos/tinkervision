@@ -50,10 +50,10 @@ public:
 };
 
 /**
- * Restrict a value to the range of TV_ImageData.
+ * Restrict a value to the range of uint8_t.
  */
 template <typename In>
-struct ClampImageValue : public Clamp<In, TV_ImageData> {};
+struct ClampImageValue : public Clamp<In, uint8_t> {};
 
 // forward declaration of Convert-wrapper (providing public interface to this
 // module)
@@ -116,8 +116,8 @@ protected:
     }
 
     // output is in order y-block, v-block, u-block
-    void convert_any(Image const& source, Image& target, TV_ImageData* u_ptr,
-                     TV_ImageData* v_ptr) const;
+    void convert_any(Image const& source, Image& target, uint8_t* u_ptr,
+                     uint8_t* v_ptr) const;
 };
 
 struct ConvertYUYVToYV12 : public ConvertYUV422ToYUV420 {
@@ -168,7 +168,7 @@ protected:
 public:
     template <size_t r = 0, size_t g = 1, size_t b = 2>
     void convert(int const y, int const u, int const v,
-                 TV_ImageData* rgb) const;
+                 uint8_t* rgb) const;
 };
 
 struct YUYVToRGBType : public YUVToRGB {

@@ -23,28 +23,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdlib.h>
 #include "tinkervision/tinkervision.h"
 
-void tfcv_callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
+void tfcv_callback(int8_t id, TV_ModuleResult result, void* context) {
     printf("Executing id %d\n", id);
 }
 
-TV_Result result;
+int16_t result;
 
-void scene_start(TV_Id module, TV_Scene* scene) {
+void scene_start(int8_t module, int16_t* scene) {
     result = tv_scene_from_module(module, scene);
     printf("Scene from %d as %d: %s (%d)\n", module, *scene,
            tv_result_string(result), result);
     sleep(1);
 }
 
-void scene_add(TV_Scene scene, TV_Id module) {
+void scene_add(int16_t scene, int8_t module) {
     result = tv_scene_add_module(scene, module);
     printf("Add %d to scene %d: %s (%d)\n", module, scene,
            tv_result_string(result), result);
     sleep(1);
 }
 
-void colormatch_start(TV_Id id, int min_hue, int max_hue) {
-    TV_Result result = tv_module_start("colormatch", &id);
+void colormatch_start(int8_t < id, int min_hue, int max_hue) {
+    int16_t result = tv_module_start("colormatch", &id);
     printf("Colormatch Id %d Start: %d (%s)\n", id, result,
            tv_result_string(result));
     if (result != TV_OK) {
@@ -95,14 +95,14 @@ int main(int argc, char* argv[]) {
 
     int i;
 
-    TV_Scene scene_1, scene_2, scene_3, scene_4, scene_5, scene_6, scene_7,
+    int16_t scene_1, scene_2, scene_3, scene_4, scene_5, scene_6, scene_7,
         scene_8;
 
     size_t ids_count = 10;
 
     /* don't matter */
-    TV_Byte min_hue = 0;
-    TV_Byte max_hue = 10;
+    uint8_t min_hue = 0;
+    uint8_t max_hue = 10;
 
     /* start ids_count colormatch modules to be used in scenes. */
     for (i = 0; i < ids_count; i++) {

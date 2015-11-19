@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 static IplImage* image = NULL;
 
-void tv_callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
+void tv_callback(int8_t id, TV_ModuleResult result, void* context) {
 
     int thickness = 2;
     int linetype = CV_AA;
@@ -52,15 +52,15 @@ void tv_callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
 int main(int argc, char* argv[]) {
 
     /* Framedimensions */
-    TV_Size width, height;
+    uint16_t width, height;
 
     /* Runtime of program */
     int runtime = 20;
 
-    TV_Id module_id = 0;
+    int8_t module_id = 0;
 
     /* Start an idle process in the api to get access to the frame parameters */
-    TV_Result result = tv_start_idle();
+    int16_t result = tv_start_idle();
 
     if (result) {
         printf("Starting the idle process failed with %d: %s\n", result,

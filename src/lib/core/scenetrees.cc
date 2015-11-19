@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "scenetrees.hh"
 
-TV_Result tv::SceneTrees::scene_start(TV_Scene scene_id, TV_Int module_id) {
+int16_t tv::SceneTrees::scene_start(int16_t scene_id, int16_t module_id) {
 
     // same root existing already?
     auto it = std::find_if(scene_trees_.begin(), scene_trees_.end(),
@@ -61,7 +61,7 @@ TV_Result tv::SceneTrees::scene_start(TV_Scene scene_id, TV_Int module_id) {
     }
 }
 
-TV_Result tv::SceneTrees::add_to_scene(TV_Scene scene_id, TV_Int module_id) {
+int16_t tv::SceneTrees::add_to_scene(int16_t scene_id, int16_t module_id) {
     Log("SCENETREES::AddToScene", module_id, " -> ", scene_id);
 
     auto it = std::find_if(
@@ -132,4 +132,4 @@ void tv::SceneTrees::exec_all(Node::ModuleExecutor executor,
     }
 }
 
-void tv::SceneTrees::exec_scene(TV_Scene scene_id) {}
+void tv::SceneTrees::exec_scene(int16_t scene_id) {}

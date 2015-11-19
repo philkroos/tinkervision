@@ -66,7 +66,7 @@ protected:
     /// \param[in] parameter The name of the changed parameter.
     /// \param[in] value New value
     virtual void value_changed(std::string const& parameter,
-                               parameter_t value) override final {
+                               int32_t value) override final {
         factor_ = static_cast<uint8_t>(value);
     }
 };

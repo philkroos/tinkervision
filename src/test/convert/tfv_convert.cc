@@ -8,7 +8,7 @@
 #include "convert.hh"
 #include "testwindow.hh"
 
-void print_max_and_min_yuv(TV_ImageData* data, size_t width, size_t height) {
+void print_max_and_min_yuv(uint8_t* data, size_t width, size_t height) {
 
     auto y = data;
     auto u = y + 1;
@@ -98,7 +98,7 @@ int main() {
     print_max_and_min_yuv(image.data, header.width, header.height);
 
     tv::Window window;
-    TV_Id win_id = 1;
+    int8_t win_id = 1;
 
     auto yuyvToYv12_converter =
         tv::Converter(tv::ColorSpace::YUYV, tv::ColorSpace::YV12);

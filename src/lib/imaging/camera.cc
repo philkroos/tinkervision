@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "logger.hh"
 
-tv::Camera::Camera(TV_Id camera_id) : camera_id_(camera_id) {}
+tv::Camera::Camera(int8_t camera_id) : camera_id_(camera_id) {}
 
 bool tv::Camera::get_frame(tv::Image& image) {
     if (not is_open()) {

@@ -36,7 +36,7 @@ bool tv::ModuleWrapper::has_parameter(std::string const& parameter) const {
 }
 
 bool tv::ModuleWrapper::set_parameter(std::string const& parameter,
-                                      parameter_t value) {
+                                      int32_t value) {
     auto result = tv_module_->set(parameter, value);
 
     if (result and parameter == "period") {  // save this for faster access
@@ -47,7 +47,7 @@ bool tv::ModuleWrapper::set_parameter(std::string const& parameter,
 }
 
 bool tv::ModuleWrapper::get_parameter(std::string const& parameter,
-                                      parameter_t& value) {
+                                      int32_t& value) {
     return tv_module_->get(parameter, value);
 }
 

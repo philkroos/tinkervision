@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "logger.hh"
 #include "scenetrees.hh"
 
-tv::Node::Node(TV_Int node_id, TV_Scene scene_id, TV_Int module_id,
+tv::Node::Node(int16_t node_id, int16_t scene_id, int16_t module_id,
                Node* parent)
     : id_(node_id), module_id_(module_id) {
 
@@ -55,7 +55,7 @@ void tv::Node::execute(ModuleExecutor executor, tv::Timestamp timestamp) {
 }
 
 void tv::Node::execute_for_scene(ModuleExecutor executor,
-                                 tv::Timestamp timestamp, TV_Scene scene_id) {
+                                 tv::Timestamp timestamp, int16_t scene_id) {
     if (timestamp_ != timestamp) {
         timestamp_ = timestamp;
 

@@ -118,7 +118,7 @@ using ColorSpaceMapping = struct ColorSpaceMapping {
 
 class V4L2USBCamera : public Camera {
 public:
-    explicit V4L2USBCamera(TV_Id camera_id);
+    explicit V4L2USBCamera(int8_t camera_id);
     ~V4L2USBCamera(void) override final;
 
     bool open_device(void) override final;

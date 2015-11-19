@@ -34,7 +34,7 @@ private:
         std::string name;
     };
 
-    std::map<TV_Id, Image> windows_;
+    std::map<int8_t, Image> windows_;
     std::string prefix = "Camera ";
 
 public:
@@ -46,7 +46,7 @@ public:
         }
     }
 
-    void update(TV_Id id, TV_ImageData* data, char const* text = "") {
+    void update(int8_t id, uint8_t* data, char const* text = "") {
         auto win = windows_.find(id);
 
         if (win == windows_.end() or not win->second.frame) {
@@ -61,7 +61,7 @@ public:
         cv::waitKey(100);  // skip time to give window-update thread a chance
     }
 
-    void update(TV_Id id, TV_ImageData* data, int rows, int columns,
+    void update(int8_t id, uint8_t* data, int rows, int columns,
                 char const* text = "", int format = CV_8UC3) {
 
         auto win = windows_.find(id);
@@ -91,7 +91,7 @@ public:
         cv::waitKey(100);  // skip time to give window-update thread a chance
     }
 
-    void update(TV_Id id, cv::Mat const& image, int rows, int columns) {
+    void update(int8_t id, cv::Mat const& image, int rows, int columns) {
         auto win = windows_.find(id);
         if (windows_.find(id) == windows_.end()) {
             windows_[id].name = prefix + std::to_string(id) + " ";
@@ -103,7 +103,7 @@ public:
         cv::waitKey(100);  // skip time to give window-update thread a chance
     }
 
-    void put_text(TV_Id id, const char* text) {
+    void put_text(int8_t id, const char* text) {
         auto win = windows_.find(id);
         if (win == windows_.end() or not win->second.frame) {
             return;

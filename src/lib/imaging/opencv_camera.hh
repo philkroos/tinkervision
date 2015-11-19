@@ -32,7 +32,7 @@ namespace tv {
 class OpenCvUSBCamera : public Camera {
 
 public:
-    explicit OpenCvUSBCamera(TV_Id camera_idi);
+    explicit OpenCvUSBCamera(int8_t camera_idi);
     ~OpenCvUSBCamera(void) override final { close(); }
 
     bool open_device(void) override final;
@@ -53,7 +53,7 @@ protected:
 
 private:
     cv::VideoCapture* camera_ = nullptr;
-    static const TV_Int flag_ = CV_8UC3;  // default: color
+    static const int16_t flag_ = CV_8UC3;  // default: color
     cv::Mat container_;
 
     size_t frame_width_ = 0;     ///< resolution width

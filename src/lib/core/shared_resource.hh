@@ -37,11 +37,11 @@ class SharedResource {
 
 public:
     using value_type = Resource;
-    using ResourceMap = std::unordered_map<TV_Int, value_type*>;
-    using IdList = std::forward_list<TV_Int>;
+    using ResourceMap = std::unordered_map<int16_t, value_type*>;
+    using IdList = std::forward_list<int16_t>;
 
-    using ExecAll = std::function<void(TV_Int, Resource&)>;
-    using ExecOne = std::function<TV_Result(Resource&)>;
+    using ExecAll = std::function<void(int16_t, Resource&)>;
+    using ExecOne = std::function<int16_t(Resource&)>;
 
     using AfterAllocatedHook = std::function<void(Resource&)>;
 
@@ -58,7 +58,7 @@ private:
             : resource(resource), deallocator(deallocator) {}
     };
 
-    using ResourceContainerMap = std::unordered_map<TV_Int, ResourceContainer>;
+    using ResourceContainerMap = std::unordered_map<int16_t, ResourceContainer>;
     using Iterator = typename ResourceContainerMap::iterator;
     using ConstIterator = typename ResourceContainerMap::const_iterator;
 
@@ -98,7 +98,7 @@ public:
      * \param[in] executor The function to be executed on the resource
      * identified by id.
      */
-    TV_Result exec_one(TV_Int id, ExecOne executor) {
+    int16_t exec_one(int16_t id, ExecOne executor) {
         if (not managed_.size()) {
             return TV_INVALID_ID;
         }
@@ -129,7 +129,7 @@ public:
         return count;
     }
 
-    bool insert(TV_Int id, Resource* module, Deallocator deallocator) {
+    bool insert(int16_t id, Resource* module, Deallocator deallocator) {
 
         std::lock_guard<std::mutex> lock(managed_mutex_);
         if (exists(managed_, id)) {
@@ -143,7 +143,7 @@ public:
         return true;
     }
 
-    bool remove(TV_Int id) {
+    bool remove(int16_t id) {
         std::lock_guard<std::mutex> lock(managed_mutex_);
         if (not exists(managed_, id)) {
             LogWarning("SHARED_RESOURCE::remove", "Non existing");
@@ -172,7 +172,7 @@ public:
      * \return false if the id was already allocated.
      */
     template <typename T, typename... Args>
-    bool allocate(TV_Int id, AfterAllocatedHook callback, Args... args) {
+    bool allocate(int16_t id, AfterAllocatedHook callback, Args... args) {
         static_assert(std::is_convertible<T*, Resource*>::value,
                       "Wrong type passed to allocate");
 
@@ -206,7 +206,7 @@ public:
      * Marks the resource associated with id as removable.
      * The resource is still active, i.e. managed() would return t.
      */
-    void free(TV_Int id) {
+    void free(int16_t id) {
         // Resource* resource = nullptr;
         {
             std::lock_guard<std::mutex> lock(managed_mutex_);
@@ -264,7 +264,7 @@ public:
      * Check whether a resource is active.
      * \return True If the resource id is active.
      */
-    bool managed(TV_Int id) const {
+    bool managed(int16_t id) const {
         std::lock_guard<std::mutex> lock(managed_mutex_);
         return exists(managed_, id);
     }
@@ -279,7 +279,7 @@ public:
      * \todo Mutex acquisition is not fair and so this method takes
      * too long sometimes.
      */
-    Resource const& operator[](TV_Int id) const {
+    Resource const& operator[](int16_t id) const {
         ConstIterator it;
         {
             std::lock_guard<std::mutex> lock(managed_mutex_);
@@ -299,7 +299,7 @@ public:
      * \todo Mutex acquisition is not fair and so this method takes
      * too long sometimes.
      */
-    Resource* operator[](TV_Int id) {
+    Resource* operator[](int16_t id) {
         Resource* resource = nullptr;
         {
             std::lock_guard<std::mutex> lock(managed_mutex_);
@@ -319,7 +319,7 @@ public:
             std::lock_guard<std::mutex> lock(managed_mutex_);
             auto it = std::find_if(
                 managed_.begin(), managed_.end(),
-                [&unaryp](std::pair<TV_Int, Resource*> const& thing) {
+                [&unaryp](std::pair<int16_t, Resource*> const& thing) {
                     return unaryp(*thing.second.resource);
                 });
             resource = (it == managed_.end()) ? nullptr : it->second.resource;
@@ -335,7 +335,7 @@ public:
      * \return True if both id's are managed, in which case first
      * will be executed first afterwards.
      */
-    bool sort(TV_Id first, TV_Id second) {
+    bool sort(int8_t first, int8_t second) {
         if (not managed(first) or not managed(second)) {
             return false;
         }
@@ -367,7 +367,7 @@ public:
 
     // attention: The following not locked.
 
-    Resource* access_unlocked(TV_Int id) {
+    Resource* access_unlocked(int16_t id) {
         auto it = managed_.find(id);
         return (it == managed_.end()) ? nullptr : it->second.resource;
     }
@@ -378,7 +378,7 @@ private:
     /**
      * Verbose access to the id of a resource-map.
      */
-    TV_Int id(ConstIterator it) const { return it->first; }
+    int16_t id(ConstIterator it) const { return it->first; }
 
     /**
      * Verbose access to the resource of a resource-map.
@@ -388,7 +388,7 @@ private:
     /**
      * Verbose check if a  resource exists in a map.
      */
-    bool exists(ResourceContainerMap const& map, TV_Int id) const {
+    bool exists(ResourceContainerMap const& map, int16_t id) const {
         return map.find(id) != map.end();
     }
 

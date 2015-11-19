@@ -53,7 +53,7 @@ void Snapshot::execute(tv::ImageHeader const& header, tv::ImageData const* data,
             image_.header.width = header.width;
             image_.header.height = header.height;
             image_.header.bytesize = header.bytesize;
-            image_.data = new TV_ImageData[header.bytesize];
+            image_.data = new uint8_t[header.bytesize];
         }
         std::copy_n(data, header.bytesize, image_.data);
 

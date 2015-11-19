@@ -25,43 +25,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 #include <stdint.h>
 
-/* \todo: Use these types everywhere, e.g. see cameracontrol. */
-typedef int8_t TV_Bool;
-typedef int8_t TV_Short;
-typedef int16_t TV_Word;
-typedef int32_t TV_Long;
-typedef uint16_t TV_UWord;
-typedef uint32_t TV_UInt;
-typedef uint8_t TV_Byte;
-typedef const char* TV_String;
-#define TV_CHAR_ARRAY_SIZE 24
-typedef char TV_CharArray[TV_CHAR_ARRAY_SIZE];
-
-typedef TV_Word TV_Int;
-
-typedef TV_Byte TV_ImageData;
-typedef TV_Short TV_Id;
-typedef TV_UWord TV_Size;
-typedef TV_Int TV_Scene;
-typedef TV_Int TV_Result;
-typedef void* TV_Context;
-
-typedef int32_t parameter_t;
+///< Maximum length of strings in and out of Tinkervision.
+#define TV_STRING_SIZE 24
 
 typedef struct TV_ModuleResult {
-    TV_Long x;
-    TV_Long y;
-    TV_Long width;
-    TV_Long height;
-    TV_CharArray string;
+    int32_t x;
+    int32_t y;
+    int32_t width;
+    int32_t height;
+    char string[TV_STRING_SIZE];
 } TV_ModuleResult;
 
 /// General callback applicable for every module that produces a result.
-typedef void (*TV_Callback)(TV_Id, TV_ModuleResult result, TV_Context);
-typedef void (*TV_StringCallback)(TV_Id, TV_String string, TV_Context context);
+typedef void (*TV_Callback)(int8_t, TV_ModuleResult result, void*);
+typedef void (*TV_StringCallback)(int8_t, char const* string, void* context);
 /// \todo Too much data!! Status must be int.
-typedef void (*TV_LibrariesCallback)(TV_String name, TV_String path,
-                                     TV_String status, TV_Context context);
+typedef void (*TV_LibrariesCallback)(char const* name, char const* path,
+                                     char const* status, void* context);
 
 #define TV_UNUSED_ID -1
 

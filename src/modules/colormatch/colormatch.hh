@@ -33,27 +33,25 @@ namespace tv {
 
 class Colormatch : public Module {
 private:
-    TV_Byte const min_saturation{0};    ///< Lower limit
-    TV_Byte const max_saturation{255};  ///< Upper limit
+    uint8_t const min_saturation{0};    ///< Lower limit
+    uint8_t const max_saturation{255};  ///< Upper limit
 
-    TV_Byte const min_value{0};    ///< Lower limit
-    TV_Byte const max_value{255};  ///< Upper limit
+    uint8_t const min_value{0};    ///< Lower limit
+    uint8_t const max_value{255};  ///< Upper limit
 
-    TV_Byte const min_hue{0};    ///< Lower limit
-    TV_Byte const max_hue{180};  ///< Upper limit
+    uint8_t const min_hue{0};    ///< Lower limit
+    uint8_t const max_hue{180};  ///< Upper limit
 
     // configurable values
-    TV_Byte user_min_hue;         ///< The used minimum hue
-    TV_Byte user_max_hue;         ///< The used maximum hue
-    TV_Byte user_min_value;       ///< The used minimum value
-    TV_Byte user_max_value;       ///< The used maximum value
-    TV_Byte user_min_saturation;  ///< The used minimum saturation
-    TV_Byte user_max_saturation;  ///< The used maximum saturation
+    uint8_t user_min_hue;         ///< The used minimum hue
+    uint8_t user_max_hue;         ///< The used maximum hue
+    uint8_t user_min_value;       ///< The used minimum value
+    uint8_t user_max_value;       ///< The used maximum value
+    uint8_t user_min_saturation;  ///< The used minimum saturation
+    uint8_t user_max_saturation;  ///< The used maximum saturation
 
     bool has_result_{false};
     Result result_;
-
-    TV_Context context;
 
 public:
     Colormatch(void)
@@ -87,19 +85,19 @@ protected:
     /// \param[in] parameter The name of the changed parameter.
     /// \param[in] value New value
     void value_changed(std::string const& parameter,
-                       parameter_t value) override final {
+                       int32_t value) override final {
         if (parameter == "min-hue") {
-            user_min_hue = static_cast<TV_Byte>(value);
+            user_min_hue = static_cast<uint8_t>(value);
         } else if (parameter == "max-hue") {
-            user_max_hue = static_cast<TV_Byte>(value);
+            user_max_hue = static_cast<uint8_t>(value);
         } else if (parameter == "min-saturation") {
-            user_min_saturation = static_cast<TV_Byte>(value);
+            user_min_saturation = static_cast<uint8_t>(value);
         } else if (parameter == "max-saturation") {
-            user_max_saturation = static_cast<TV_Byte>(value);
+            user_max_saturation = static_cast<uint8_t>(value);
         } else if (parameter == "min-value") {
-            user_min_value = static_cast<TV_Byte>(value);
+            user_min_value = static_cast<uint8_t>(value);
         } else if (parameter == "max-value") {
-            user_max_value = static_cast<TV_Byte>(value);
+            user_max_value = static_cast<uint8_t>(value);
         }
     }
 

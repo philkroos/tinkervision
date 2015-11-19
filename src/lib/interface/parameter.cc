@@ -26,7 +26,7 @@
 
 #include "parameter.hh"
 
-bool tv::Parameter::set(parameter_t value) {
+bool tv::Parameter::set(int32_t value) {
     if (value < min_ or value > max_) {
         return false;
     }
@@ -34,8 +34,8 @@ bool tv::Parameter::set(parameter_t value) {
     return true;
 }
 
-tv::Parameter::Parameter(std::string const& name, parameter_t min,
-                         parameter_t max, parameter_t init)
+tv::Parameter::Parameter(std::string const& name, int32_t min, int32_t max,
+                         int32_t init)
     : name_(name), min_(min), max_(max), value_(init) {
 
     if (min_ > max_) {

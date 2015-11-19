@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 static IplImage* image = NULL;
 
-void callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
+void callback(int8_t id, TV_ModuleResult result, void* context) {
     CvPoint center;
 
     center.x = result.x;
@@ -41,23 +41,23 @@ void callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
     cvWaitKey(10);
 }
 
-void set(TV_Long* min, TV_Long* max, TV_Byte value, TV_Byte range) {
+void set(int32_t* min, int32_t* max, uint8_t value, uint8_t range) {
     *min = value >= range ? value - range : *max - range + value;
     *max = value < (*max - range) ? value + range : range - value;
 }
 
 int main(int argc, char* argv[]) {
-    TV_Id id = 0;
-    TV_Byte hue, saturation, value; /* commandline */
-    TV_Long min_hue;
-    TV_Long max_hue = 180;
-    TV_Long min_value;
-    TV_Long max_value = 255;
-    TV_Long min_saturation;
-    TV_Long max_saturation = 255;
-    TV_Byte range;
-    TV_Size width, height; /* framesize */
-    TV_Result result = TV_INTERNAL_ERROR;
+    int8_t id = 0;
+    uint8_t hue, saturation, value; /* commandline */
+    int32_t min_hue;
+    int32_t max_hue = 180;
+    int32_t min_value;
+    int32_t max_value = 255;
+    int32_t min_saturation;
+    int32_t max_saturation = 255;
+    uint8_t range;
+    uint16_t width, height; /* framesize */
+    int16_t result = TV_INTERNAL_ERROR;
 
     if (argc < 5) {
         printf(
@@ -68,10 +68,10 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    hue = (TV_Byte)atoi(argv[1]);
-    saturation = (TV_Byte)atoi(argv[2]);
-    value = (TV_Byte)atoi(argv[3]);
-    range = (TV_Byte)atoi(argv[4]);
+    hue = (uint8_t)atoi(argv[1]);
+    saturation = (uint8_t)atoi(argv[2]);
+    value = (uint8_t)atoi(argv[3]);
+    range = (uint8_t)atoi(argv[4]);
 
     set(&min_hue, &max_hue, hue, range);
     set(&min_value, &max_value, value, range);

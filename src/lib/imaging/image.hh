@@ -78,7 +78,7 @@ enum class ColorSpace : char {
 
 using Clock = std::chrono::steady_clock;  ///< Clock used for image timestamps.
 using Timestamp = Clock::time_point;      ///< Convenience typedef.
-using ImageData = TV_ImageData;           ///< Convenience typedef.
+using ImageData = uint8_t;                ///< Convenience typedef.
 
 /// Header for a frame.
 struct ImageHeader {

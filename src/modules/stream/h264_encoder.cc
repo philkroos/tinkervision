@@ -84,7 +84,7 @@ void tv::H264Encoder::initialize(std::size_t framewidth,
     initialized_ = true;
 }
 
-void tv::H264Encoder::add_frame(TV_ImageData const* image_data) {
+void tv::H264Encoder::add_frame(uint8_t const* image_data) {
     x264::Nal* nals{};
     auto nal_count = int{0};
 

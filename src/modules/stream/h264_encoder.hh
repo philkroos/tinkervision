@@ -50,7 +50,7 @@ public:
     /**
      * Add a frame to be encoded.
      */
-    void add_frame(TV_ImageData const* data);
+    void add_frame(uint8_t const* data);
 
     /**
      * Push all encoded nal-unites into output and clear the

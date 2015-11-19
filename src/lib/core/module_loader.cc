@@ -105,7 +105,7 @@ void tv::ModuleLoader::list_available_modules(
 
 bool tv::ModuleLoader::load_module_from_library(ModuleWrapper** target,
                                                 std::string const& libname,
-                                                TV_Int id) {
+                                                int16_t id) {
     auto lib = (LibraryHandle) nullptr;
 
     // prefer user modules
@@ -158,7 +158,7 @@ void tv::ModuleLoader::destroy_all(void) {
     }
 }
 
-TV_Result tv::ModuleLoader::last_error(void) {
+int16_t tv::ModuleLoader::last_error(void) {
     auto last = error_;
     error_ = TV_OK;
     return last;
@@ -207,9 +207,11 @@ bool tv::ModuleLoader::library_name_and_path(size_t count, std::string& name,
     return true;
 }
 
-bool tv::ModuleLoader::library_describe_parameter(
-    std::string const& libname, size_t number, std::string& name,
-    parameter_t& min, parameter_t& max, parameter_t& def) const {
+bool tv::ModuleLoader::library_describe_parameter(std::string const& libname,
+                                                  size_t number,
+                                                  std::string& name,
+                                                  int32_t& min, int32_t& max,
+                                                  int32_t& def) const {
 
     auto it = std::find_if(
         availables_.cbegin(), availables_.cend(),
@@ -240,7 +242,7 @@ bool tv::ModuleLoader::_free_lib(LibraryHandle handle) {
 
 tv::ModuleLoader::LibraryHandle tv::ModuleLoader::_load_module_from_library(
     ModuleWrapper** target, std::string const& library_root,
-    std::string const& libname, TV_Int id) {
+    std::string const& libname, int16_t id) {
 
     auto handle = dlopen((library_root + libname + ".so").c_str(), RTLD_LAZY);
     if (not handle) {

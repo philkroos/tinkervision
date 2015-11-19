@@ -45,7 +45,7 @@ tv::Api::Api(void) {
 
 tv::Api::~Api(void) { (void)quit(); }
 
-TV_Result tv::Api::start(void) {
+int16_t tv::Api::start(void) {
     Log("API", "Restarting");
 
     if (executor_.joinable()) {
@@ -77,7 +77,7 @@ TV_Result tv::Api::start(void) {
     return TV_OK;
 }
 
-TV_Result tv::Api::stop(void) {
+int16_t tv::Api::stop(void) {
 
     auto active_count = modules_.count(
         [](ModuleWrapper const& module) { return module.enabled(); });
@@ -100,7 +100,7 @@ TV_Result tv::Api::stop(void) {
     return TV_OK;
 }
 
-TV_Result tv::Api::quit(void) {
+int16_t tv::Api::quit(void) {
     Log("Api::quit");
 
     // ... release the camera and join the execution thread
@@ -119,7 +119,7 @@ void tv::Api::execute(void) {
     auto image = Image();
 
     // Execute active module. This is the ONLY place where modules are executed.
-    auto module_exec = [&](TV_Int id, ModuleWrapper& module) {
+    auto module_exec = [&](int16_t id, ModuleWrapper& module) {
         auto result = (Result const*)(nullptr);
         Log("API", "Executing module ", id);
 
@@ -146,10 +146,10 @@ void tv::Api::execute(void) {
                                        result->height};
 
                 std::strncpy(res.string, result->result.c_str(),
-                             TV_CHAR_ARRAY_SIZE - 1);
+                             TV_STRING_SIZE - 1);
                 std::fill(res.string + result->result.size(),
-                          res.string + TV_CHAR_ARRAY_SIZE - 1, '\0');
-                res.string[TV_CHAR_ARRAY_SIZE - 1] = '\0';
+                          res.string + TV_STRING_SIZE - 1, '\0');
+                res.string[TV_STRING_SIZE - 1] = '\0';
 
                 callback(id, res, nullptr);
             }
@@ -172,7 +172,7 @@ void tv::Api::execute(void) {
         }
     };
 
-    auto node_exec = [&](TV_Int module_id) {
+    auto node_exec = [&](int16_t module_id) {
         (void)modules_.exec_one(
             module_id, [&module_id, &module_exec](ModuleWrapper& module) {
                 module_exec(module_id, module);
@@ -233,7 +233,7 @@ void tv::Api::execute(void) {
     Log("API", "Mainloop stopped");
 }
 
-TV_Result tv::Api::set_framesize(uint16_t width, uint16_t height) {
+int16_t tv::Api::set_framesize(uint16_t width, uint16_t height) {
 
     auto result = TV_CAMERA_SETTINGS_FAILED;
 
@@ -273,7 +273,7 @@ TV_Result tv::Api::set_framesize(uint16_t width, uint16_t height) {
     return result;
 }
 
-TV_Result tv::Api::start_idle(void) {
+int16_t tv::Api::start_idle(void) {
     auto result = TV_OK;  // optimistic because startable only once
 
     if (not idle_process_running_) {
@@ -283,12 +283,12 @@ TV_Result tv::Api::start_idle(void) {
     return result;
 }
 
-TV_Result tv::Api::module_load(std::string const& name, TV_Id& id) {
+int16_t tv::Api::module_load(std::string const& name, int8_t& id) {
     auto module_id = _next_public_id();
 
-    assert(module_id < std::numeric_limits<TV_Id>::max() and module_id > 0);
+    assert(module_id < std::numeric_limits<int8_t>::max() and module_id > 0);
 
-    auto result = _module_load(name, static_cast<TV_Int>(module_id));
+    auto result = _module_load(name, static_cast<int16_t>(module_id));
 
     if (TV_INVALID_ID == result) {
         // this is an unhandled id clash, see _next_public_id
@@ -296,12 +296,12 @@ TV_Result tv::Api::module_load(std::string const& name, TV_Id& id) {
     }
 
     if (TV_OK == result) {
-        id = static_cast<TV_Id>(module_id);
+        id = static_cast<int8_t>(module_id);
     }
     return result;
 }
 
-TV_Result tv::Api::module_destroy(TV_Id id) {
+int16_t tv::Api::module_destroy(int8_t id) {
     Log("API", "Destroying module ", id);
 
     /// - no scenes are active (currently). Then,
@@ -323,8 +323,8 @@ TV_Result tv::Api::module_destroy(TV_Id id) {
     });
 }
 
-TV_Result tv::Api::set_parameter(TV_Id module_id, std::string parameter,
-                                 parameter_t value) {
+int16_t tv::Api::set_parameter(int8_t module_id, std::string parameter,
+                               int32_t value) {
 
     return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
         if (not module.has_parameter(parameter)) {
@@ -337,8 +337,8 @@ TV_Result tv::Api::set_parameter(TV_Id module_id, std::string parameter,
     });
 }
 
-TV_Result tv::Api::get_parameter(TV_Id module_id, std::string parameter,
-                                 parameter_t* value) {
+int16_t tv::Api::get_parameter(int8_t module_id, std::string parameter,
+                               int32_t* value) {
 
     return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
         if (not module.get_parameter(parameter, *value)) {
@@ -349,8 +349,8 @@ TV_Result tv::Api::get_parameter(TV_Id module_id, std::string parameter,
     });
 }
 
-TV_Result tv::Api::module_start(TV_Id module_id) {
-    auto id = static_cast<TV_Int>(module_id);
+int16_t tv::Api::module_start(int8_t module_id) {
+    auto id = static_cast<int16_t>(module_id);
 
     if (not modules_.managed(id)) {
         return TV_INVALID_ID;
@@ -359,10 +359,10 @@ TV_Result tv::Api::module_start(TV_Id module_id) {
     return _enable_module(module_id);
 }
 
-TV_Result tv::Api::module_stop(TV_Id module_id) {
+int16_t tv::Api::module_stop(int8_t module_id) {
     Log("API", "Stopping module ", module_id);
 
-    auto id = static_cast<TV_Int>(module_id);
+    auto id = static_cast<int16_t>(module_id);
 
     if (not modules_.managed(id)) {
         return TV_INVALID_ID;
@@ -371,26 +371,26 @@ TV_Result tv::Api::module_stop(TV_Id module_id) {
     return _disable_module(module_id);
 }
 
-TV_String tv::Api::result_string(TV_Result code) const {
+char const* tv::Api::result_string(int16_t code) const {
     return result_string_map_[code];
 }
 
-TV_Result tv::Api::is_camera_available(void) {
+int16_t tv::Api::is_camera_available(void) {
     return camera_control_.is_available() ? TV_OK : TV_CAMERA_NOT_AVAILABLE;
 }
 
-TV_Result tv::Api::resolution(TV_Size& width, TV_Size& height) {
+int16_t tv::Api::resolution(uint16_t& width, uint16_t& height) {
     return camera_control_.get_resolution(width, height)
                ? TV_OK
                : TV_CAMERA_NOT_AVAILABLE;
 }
 
-TV_Result tv::Api::request_frameperiod(uint32_t ms) {
+int16_t tv::Api::request_frameperiod(uint32_t ms) {
     frameperiod_ms_ = ms;
     return TV_OK;
 }
 
-TV_Result tv::Api::module_get_name(TV_Id module_id, std::string& name) const {
+int16_t tv::Api::module_get_name(int8_t module_id, std::string& name) const {
     if (not modules_.managed(module_id)) {
         return TV_INVALID_ID;
     }
@@ -399,17 +399,18 @@ TV_Result tv::Api::module_get_name(TV_Id module_id, std::string& name) const {
     return TV_OK;
 }
 
-TV_Result tv::Api::library_get_parameter_count(std::string const& libname,
-                                               size_t& count) const {
+int16_t tv::Api::library_get_parameter_count(std::string const& libname,
+                                             size_t& count) const {
     if (module_loader_.library_parameter_count(libname, count)) {
         return TV_OK;
     }
     return TV_INVALID_ARGUMENT;
 }
 
-TV_Result tv::Api::library_describe_parameter(
-    std::string const& libname, size_t parameter, std::string& name,
-    parameter_t& min, parameter_t& max, parameter_t& def) {
+int16_t tv::Api::library_describe_parameter(std::string const& libname,
+                                            size_t parameter, std::string& name,
+                                            int32_t& min, int32_t& max,
+                                            int32_t& def) {
 
     if (not module_loader_.library_describe_parameter(libname, parameter, name,
                                                       min, max, def)) {
@@ -418,9 +419,9 @@ TV_Result tv::Api::library_describe_parameter(
     return TV_OK;
 }
 
-TV_Result tv::Api::module_enumerate_parameters(TV_Id module_id,
-                                               TV_StringCallback callback,
-                                               TV_Context context) const {
+int16_t tv::Api::module_enumerate_parameters(int8_t module_id,
+                                             TV_StringCallback callback,
+                                             void* context) const {
     if (not modules_.managed(module_id)) {
         return TV_INVALID_ID;
     }
@@ -440,8 +441,8 @@ TV_Result tv::Api::module_enumerate_parameters(TV_Id module_id,
     return TV_OK;
 }
 
-TV_Result tv::Api::libraries_changed_callback(TV_LibrariesCallback callback,
-                                              TV_Context context) {
+int16_t tv::Api::libraries_changed_callback(TV_LibrariesCallback callback,
+                                            void* context) {
 
     module_loader_.update_on_changes(
         [callback, context](std::string const& dir, std::string const& file,
@@ -453,12 +454,12 @@ TV_Result tv::Api::libraries_changed_callback(TV_LibrariesCallback callback,
     return TV_OK;
 }
 
-TV_Result tv::Api::set_user_module_load_path(std::string const& path) {
+int16_t tv::Api::set_user_module_load_path(std::string const& path) {
     return module_loader_.set_user_load_path(path) ? TV_OK
                                                    : TV_INVALID_ARGUMENT;
 }
 
-TV_Result tv::Api::callback_set(TV_Id module_id, TV_Callback callback) {
+int16_t tv::Api::callback_set(int8_t module_id, TV_Callback callback) {
     if (default_callback_ != nullptr) {
         return TV_GLOBAL_CALLBACK_ACTIVE;
     }
@@ -477,12 +478,12 @@ TV_Result tv::Api::callback_set(TV_Id module_id, TV_Callback callback) {
     return TV_OK;
 }
 
-TV_Result tv::Api::callback_default(TV_Callback callback) {
+int16_t tv::Api::callback_default(TV_Callback callback) {
     default_callback_ = callback;
     return TV_OK;
 }
 
-TV_Result tv::Api::get_result(TV_Id module_id, TV_ModuleResult& result) {
+int16_t tv::Api::get_result(int8_t module_id, TV_ModuleResult& result) {
     Log("API", "Getting result from module ", module_id);
 
     return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
@@ -495,10 +496,10 @@ TV_Result tv::Api::get_result(TV_Id module_id, TV_ModuleResult& result) {
         result.y = res.y;
         result.width = res.width;
         result.height = res.height;
-        std::strncpy(result.string, res.result.c_str(), TV_CHAR_ARRAY_SIZE - 1);
+        std::strncpy(result.string, res.result.c_str(), TV_STRING_SIZE - 1);
         std::fill(result.string + res.result.size(),
-                  result.string + TV_CHAR_ARRAY_SIZE - 1, '\0');
-        result.string[TV_CHAR_ARRAY_SIZE - 1] = '\0';
+                  result.string + TV_STRING_SIZE - 1, '\0');
+        result.string[TV_STRING_SIZE - 1] = '\0';
         return TV_OK;
     });
 }
@@ -537,7 +538,7 @@ bool tv::Api::library_get_name_and_path(uint16_t count, std::string& name,
  * Private methods
  */
 
-TV_Result tv::Api::_module_load(std::string const& name, TV_Int id) {
+int16_t tv::Api::_module_load(std::string const& name, int16_t id) {
     Log("API", "ModuleLoad ", name, " ", id);
 
     if (modules_[id]) {
@@ -571,7 +572,7 @@ TV_Result tv::Api::_module_load(std::string const& name, TV_Int id) {
 }
 
 void tv::Api::_disable_all_modules(void) {
-    modules_.exec_all([this](TV_Int id, tv::ModuleWrapper& module) {
+    modules_.exec_all([this](int16_t id, tv::ModuleWrapper& module) {
         module.disable();
         camera_control_.release();
     });
@@ -580,16 +581,17 @@ void tv::Api::_disable_all_modules(void) {
 void tv::Api::_disable_module_if(
     std::function<bool(tv::ModuleWrapper const& module)> predicate) {
 
-    modules_.exec_all([this, &predicate](TV_Int id, tv::ModuleWrapper& module) {
-        if (predicate(module)) {
-            module.disable();
-            camera_control_.release();
-        }
-    });
+    modules_.exec_all(
+        [this, &predicate](int16_t id, tv::ModuleWrapper& module) {
+            if (predicate(module)) {
+                module.disable();
+                camera_control_.release();
+            }
+        });
 }
 
 void tv::Api::_enable_all_modules(void) {
-    modules_.exec_all([this](TV_Int id, tv::ModuleWrapper& module) {
+    modules_.exec_all([this](int16_t id, tv::ModuleWrapper& module) {
         if (not module.enabled()) {
             if (camera_control_.acquire()) {
                 module.enable();
@@ -598,7 +600,7 @@ void tv::Api::_enable_all_modules(void) {
     });
 }
 
-TV_Result tv::Api::_enable_module(TV_Int id) {
+int16_t tv::Api::_enable_module(int16_t id) {
     return modules_.exec_one(id, [this](tv::ModuleWrapper& module) {
         if (module.enabled() or camera_control_.acquire()) {
             module.enable();  // possibly redundant
@@ -609,7 +611,7 @@ TV_Result tv::Api::_enable_module(TV_Int id) {
     });
 }
 
-TV_Result tv::Api::_disable_module(TV_Int id) {
+int16_t tv::Api::_disable_module(int16_t id) {
     return modules_.exec_one(id, [this](tv::ModuleWrapper& module) {
         module.disable();
         camera_control_.release();
@@ -617,17 +619,17 @@ TV_Result tv::Api::_disable_module(TV_Int id) {
     });
 }
 
-TV_Int tv::Api::_next_public_id(void) const {
-    static TV_Id public_id{0};
+int16_t tv::Api::_next_public_id(void) const {
+    static int8_t public_id{0};
     if (++public_id == 0) {
         public_id = 1;
         LogWarning("API", "Overflow of public ids");
     }
-    return static_cast<TV_Int>(public_id);
+    return static_cast<int16_t>(public_id);
 }
 
-TV_Int tv::Api::_next_internal_id(void) const {
-    static TV_Int internal_id{std::numeric_limits<TV_Id>::max() + 1};
+int16_t tv::Api::_next_internal_id(void) const {
+    static int16_t internal_id{std::numeric_limits<int8_t>::max() + 1};
     return internal_id++;
 }
 

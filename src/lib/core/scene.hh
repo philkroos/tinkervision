@@ -36,7 +36,7 @@ namespace tv {
 class Scene {
 
 public:
-    Scene(TV_Scene id, Node& root_node) : id_(id) {
+    Scene(int16_t id, Node& root_node) : id_(id) {
         nodes_.push_back(&root_node);
     }
 
@@ -45,12 +45,12 @@ public:
     /**
      * Depth-first execution of this scene.
      */
-    void execute(std::function<void(TV_Int module_id)> executor,
+    void execute(std::function<void(int16_t module_id)> executor,
                  tv::Timestamp timestamp) {
         tree().execute_for_scene(executor, timestamp, id_);
     }
 
-    TV_Scene id(void) const { return id_; }
+    int16_t id(void) const { return id_; }
 
     Node& leaf(void) const {
         assert(not nodes_.empty());
@@ -80,7 +80,7 @@ public:
     bool enabled(void) { return not disabled_; }
 
 private:
-    TV_Scene id_;
+    int16_t id_;
     std::list<Node*> nodes_;
 
     bool disabled_ = false;

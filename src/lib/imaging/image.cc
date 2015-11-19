@@ -78,7 +78,7 @@ bool tv::ImageAllocator::allocate(uint16_t width, uint16_t height,
     if (not image_.data) {
         image_init_bytesize_ = bytesize;
         if (not foreign_data) {
-            image_.data = new TV_ImageData[bytesize];
+            image_.data = new uint8_t[bytesize];
             LogDebug("IMAGE_ALLOCATOR", "Allocated data at ",
                      (void*)image_.data, " for ", id_);
         }

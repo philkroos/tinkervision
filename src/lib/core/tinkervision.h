@@ -35,7 +35,7 @@ extern "C" {
 /// \return
 ///    - TV_CAMERA_NOT_AVAILABLE if not.
 ///    - TV_OK else.
-TV_Result tv_camera_available(void);
+int16_t tv_camera_available(void);
 
 /// Selects a framesize WxH.
 /// This will temporarily stop and restart all active modules.
@@ -47,7 +47,7 @@ TV_Result tv_camera_available(void);
 /// \return
 ///   - #TV_OK if the settings are ok.
 ///   - #TV_CAMERA_SETTINGS_FAILED if the settings are ignored.
-TV_Result tv_set_framesize(TV_Size width, TV_Size height);
+int16_t tv_set_framesize(uint16_t width, uint16_t height);
 
 /// Starts a dummy module keeping the Api up and running even if no 'real'
 /// module
@@ -57,7 +57,7 @@ TV_Result tv_set_framesize(TV_Size width, TV_Size height);
 /// \return
 ///   - #TV_OK if the dummy module was started or already running.
 ///   - An error code if the module failed to load.
-TV_Result tv_start_idle(void);
+int16_t tv_start_idle(void);
 
 /// Set the minimum inverse frame frequency. Vision modules registered
 /// and started in the api will be executed sequentially during one
@@ -67,13 +67,13 @@ TV_Result tv_start_idle(void);
 /// \param[in] milliseconds The minimum delay between the beginning of
 /// two execution loops.
 /// \return TV_OK in any case.
-TV_Result tv_request_frameperiod(uint32_t milliseconds);
+int16_t tv_request_frameperiod(uint32_t milliseconds);
 
 /// Get the effective frameperiod, which can be larger than the frameperiod
 /// requested.
 /// \param[out] frameperiod Effective, inverse framerate.
 /// \return TV_OK.
-TV_Result tv_effective_frameperiod(uint32_t* frameperiod);
+int16_t tv_effective_frameperiod(uint32_t* frameperiod);
 
 /// Request the resolution of the camera frames.  This can only be called once
 /// the camera is active, so in particular, if the resolution needs to be known
@@ -83,7 +83,7 @@ TV_Result tv_effective_frameperiod(uint32_t* frameperiod);
 /// \return
 ///  - #TV_Ok if width and height are valid
 ///  - #TV_CAMERA_NOT_AVAILABLE else
-TV_Result tv_get_resolution(TV_Size* width, TV_Size* height);
+int16_t tv_get_resolution(uint16_t* width, uint16_t* height);
 
 /// Pause the Api, deactivating but not disabling every module.  The camera will
 /// be released and no further callbacks will be called, but on start(), the Api
@@ -91,18 +91,18 @@ TV_Result tv_get_resolution(TV_Size* width, TV_Size* height);
 /// be acquired again).
 ///     - #TV_OK on success.
 ///     - #TV_EXEC_THREAD_FAILURE on error.
-TV_Result tv_stop(void);
+int16_t tv_stop(void);
 
 /// Restart the API from paused state, initiated through call to stop().
 /// \return
 ///   - #TV_OK if the api was stoppend and is running now.
 ///   - an error code else; also if the api was already running.
-TV_Result tv_start(void);
+int16_t tv_start(void);
 
 /// Stop all modules and shutdown the api.  This is generally not necessary if
 /// the client application terminates in controlled ways.
 /// \return TV_OK
-TV_Result tv_quit(void);
+int16_t tv_quit(void);
 
 /// Parameterize a module.
 /// \param[in] module_id Id of the module to be parameterized.
@@ -115,8 +115,8 @@ TV_Result tv_quit(void);
 /// of the parameter.
 ///   - #TV_INVALID_ID if no module exists with module_id
 ///   - #TV_OK else.
-TV_Result tv_set_parameter(TV_Id module_id, TV_String const parameter,
-                           TV_Long value);
+int16_t tv_set_parameter(int8_t module_id, char const* const parameter,
+                         int32_t value);
 
 /// Return the current value of a modules parameter.
 /// \param[in] module_id The id of the module in question.
@@ -126,8 +126,8 @@ TV_Result tv_set_parameter(TV_Id module_id, TV_String const parameter,
 ///   - #TV_INVALID_ID if no module exists with module_id.
 ///   - #TV_MODULE_NO_SUCH_PARAMETER if the module does not support parameter.
 ///   - #TV_OK else.
-TV_Result tv_get_parameter(TV_Id module_id, TV_String const parameter,
-                           parameter_t* value);
+int16_t tv_get_parameter(int8_t module_id, char const* const parameter,
+                         int32_t* value);
 
 /// Start a vision module identified by its library name.
 /// The requested module will be loaded and started if it is found in one of the
@@ -146,7 +146,7 @@ TV_Result tv_get_parameter(TV_Id module_id, TV_String const parameter,
 ///    - #TV_MODULE_INITIALIZATION_FAILED The module could not be loaded. Maybe
 ///      an invalid name passed.
 ///    - #TV_OK fine, module loaded and active.
-TV_Result tv_module_start(TV_String name, TV_Id* id);
+int16_t tv_module_start(char const* name, int8_t* id);
 
 /// Disable a module without removing it.
 /// A disabled module won't be executed, but it is still available for
@@ -157,7 +157,7 @@ TV_Result tv_module_start(TV_String name, TV_Id* id);
 /// \return
 ///    - #TV_INVALID_ID if no such module exists.
 ///    - #TV_OK else, the module is inactive.
-TV_Result tv_module_stop(TV_Id id);
+int16_t tv_module_stop(int8_t id);
 
 /// Restart a module that has been stopped with module_stop().
 /// \param[in] id Id of the module to be restarted.
@@ -166,7 +166,7 @@ TV_Result tv_module_stop(TV_Id id);
 ///      the given id.
 ///    - #TV_CAMERA_ACQUISATION_FAILED if the camera is not available
 ///    - #TV_OK iff the module is running.
-TV_Result tv_module_restart(TV_Id id);
+int16_t tv_module_restart(int8_t id);
 
 /// Deactivate and remove a module.
 /// The id of a removed module is invalid afterwards.
@@ -175,7 +175,7 @@ TV_Result tv_module_restart(TV_Id id);
 ///    - #TV_NOT_IMPLEMENTED if scenes are active.
 ///    - #TV_INVALID_ID if the module does not exist.
 ///    - #TV_OK if removal succeeded.
-TV_Result tv_module_remove(TV_Id id);
+int16_t tv_module_remove(int8_t id);
 
 /// Get the name of a loaded module.
 /// \param[in] id The id of the module.
@@ -184,14 +184,14 @@ TV_Result tv_module_remove(TV_Id id);
 /// \return
 ///    - #TV_INVALID_ID If no such module exists.
 ///    - #TV_OK else, name will be valid.
-TV_Result tv_module_get_name(TV_Id id, TV_CharArray name);
+int16_t tv_module_get_name(int8_t id, char name[]);
 
 /// Get the identifiers of all parameters of a loaded module.
 /// \param[in] id The id of the module.
 /// \param[in] callback The given method will be called for each parameter's
 /// name.
 /// \param[in] context A pointer to something, which can be used to
-/// differentiate between several instances of #TV_StringCallback.
+/// differentiate between several instances of #char const*Callback.
 /// \return
 ///    - #TV_INVALID_ID If no such module exists.
 ///    - #TV_OK else, callback will be called with the id of the module, one
@@ -200,9 +200,9 @@ TV_Result tv_module_get_name(TV_Id id, TV_CharArray name);
 ///      callbacks will be received.
 /// \deprecated Use tv_library_parameter_count() and
 /// tv_library_describe_parameter().
-TV_Result tv_module_enumerate_parameters(TV_Id module_id,
-                                         TV_StringCallback callback,
-                                         TV_Context context);
+int16_t tv_module_enumerate_parameters(int8_t module_id,
+                                       TV_StringCallback callback,
+                                       void* context);
 
 /// Get the number of currently available libraries.
 /// This can be used to iterate through all libraries using
@@ -210,7 +210,7 @@ TV_Result tv_module_enumerate_parameters(TV_Id module_id,
 /// \todo Add method to get all running modules.
 /// \return #TV_OK
 /// \param[out] count Number of libraries found in both system and user paths.
-TV_Result tv_libraries_count(uint16_t* count);
+int16_t tv_libraries_count(uint16_t* count);
 
 /// Get the name and load path of an available library.
 /// \param[in] count A number smaller then tv_libraries_count().
@@ -221,8 +221,7 @@ TV_Result tv_libraries_count(uint16_t* count);
 ///    - #TV_OK if name and path are valid.
 ///    - #TV_INVALID_ARGUMENT if an error occured, probably count was out of
 ///    range.
-TV_Result tv_library_name_and_path(uint16_t count, TV_CharArray name,
-                                   TV_CharArray path);
+int16_t tv_library_name_and_path(uint16_t count, char name[], char path[]);
 
 /// Get the number of parameters a library supports.
 /// \param[in] libname Name of the module, i.e. filename w/o extension.
@@ -231,7 +230,7 @@ TV_Result tv_library_name_and_path(uint16_t count, TV_CharArray name,
 /// \return
 ///    - #TV_INVALID_ARGUMENT: The library is not available.
 ///    - #TV_OK else
-TV_Result tv_library_parameter_count(TV_String libname, TV_Size* count);
+int16_t tv_library_parameter_count(char const* libname, uint16_t* count);
 
 /// Get the properties of a parameter from a library.
 /// \param[in] libname Name of the module, i.e. filename w/o extension.
@@ -247,14 +246,14 @@ TV_Result tv_library_parameter_count(TV_String libname, TV_Size* count);
 ///    - #TV_OK else
 /// \note All outgoing parameters are beeing set to 0 if the result is not
 /// TV_OK.
-TV_Result tv_library_describe_parameter(TV_String libname, TV_Size parameter,
-                                        TV_CharArray name, TV_Long* min,
-                                        TV_Long* max, TV_Long* def);
+int16_t tv_library_describe_parameter(char const* libname, uint16_t parameter,
+                                      char name[], int32_t* min, int32_t* max,
+                                      int32_t* def);
 
 /// Access the currently set user module load path.
 /// \param[out] path The user defined path searched for modules.
 /// \return TV_OK
-TV_Result tv_user_module_load_path(TV_CharArray path);
+int16_t tv_user_module_load_path(char path[]);
 
 /// Set the user module load path from an existing path.
 /// \param[in] path The user defined path searched for modules. Must not exceed
@@ -263,16 +262,16 @@ TV_Result tv_user_module_load_path(TV_CharArray path);
 ///    - #TV_INVALID_ARGUMENT if the string is too long or the path does not
 ///    exist.
 ///    - #TV_OK else
-TV_Result tv_set_user_module_load_path(TV_String path);
+int16_t tv_set_user_module_load_path(char const* path);
 
 /// Access the fixed system module load path.
 /// \param[out] path The fixed system path searched for modules.
 /// \return TV_OK
-TV_Result tv_system_module_load_path(TV_CharArray path);
+int16_t tv_system_module_load_path(char path[]);
 
 /// Remove all modules.
 /// \return #TV_OK
-TV_Result tv_remove_all_modules(void);
+int16_t tv_remove_all_modules(void);
 
 /// Start a new scene given a loaded module.
 /// \param[in] id Id of a loaded module.
@@ -283,20 +282,20 @@ TV_Result tv_remove_all_modules(void);
 ///    - #TV_INVALID_ID (If no module with id exists)
 ///    - #TV_OK (if the scene was started successfully)
 ///    - (else, an error during scene creation occured.)
-TV_Result tv_scene_from_module(TV_Id id, TV_Scene* scene);
+int16_t tv_scene_from_module(int8_t id, int16_t* scene);
 
 /// Add a module to an existing scene.
 /// \param[in] scene Id of the scene.
 /// \param[in] id Id of the module.
 /// \return
 ///    - #TV_NOT_IMPLEMENTED id currently.
-TV_Result tv_scene_add_module(TV_Scene scene, TV_Id module);
+int16_t tv_scene_add_module(int16_t scene, int8_t module);
 
 /// Remove a scene without affecting the associated modules.
 /// \param[in] scene Id of the scene.
 /// \return
 ///    - #TV_NOT_IMPLEMENTED id currently.
-TV_Result tv_scene_remove(TV_Scene scene);
+int16_t tv_scene_remove(int16_t scene);
 
 /// Set a callback to the result of a specific module.
 /// The given callback will be called after each execution of the specified
@@ -315,12 +314,12 @@ TV_Result tv_scene_remove(TV_Scene scene);
 /// the
 /// generated api.  This method will probably be removed to focus on the
 /// Red-Brick.
-TV_Result tv_set_callback(TV_Id id, TV_Callback callback);
+int16_t tv_set_callback(int8_t id, TV_Callback callback);
 
 /// Enable a default callback which will be called for each result of every
 /// module.
 /// \param[in] callback The default callback.
-TV_Result tv_enable_default_callback(TV_Callback callback);
+int16_t tv_enable_default_callback(TV_Callback callback);
 
 /// Notify the user if a library path changes.
 /// \param[in] callback The given method will be called when a loadable module
@@ -330,8 +329,8 @@ TV_Result tv_enable_default_callback(TV_Callback callback);
 /// \param[in] context A pointer to something.
 /// \return
 ///    - #TV_OK always.
-TV_Result tv_libraries_changed_callback(TV_LibrariesCallback callback,
-                                        TV_Context context);
+int16_t tv_libraries_changed_callback(TV_LibrariesCallback callback,
+                                      void* context);
 
 /// Get the result of the latest execution of a given module.
 /// \param[in] id The module in question.
@@ -339,12 +338,12 @@ TV_Result tv_libraries_changed_callback(TV_LibrariesCallback callback,
 /// \todo What else?
 /// \return TV_INVALID_ID if no such module exists.
 /// \return TV_OK else.
-TV_Result tv_get_result(TV_Id module, TV_ModuleResult* result);
+int16_t tv_get_result(int8_t module, TV_ModuleResult* result);
 
 /// Get a string representation of a result code.
 /// \param[in] code one of the TV_* values.
 /// \return The associated string value.
-TV_String tv_result_string(TV_Result code);
+char const* tv_result_string(int16_t code);
 
 #ifdef __cplusplus
 }

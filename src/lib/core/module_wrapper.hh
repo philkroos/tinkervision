@@ -61,7 +61,7 @@ public:
 private:
     std::string const load_path_;  ///< Path the wrapped module was loaded from
 
-    TV_Int module_id_;  ///< Some id
+    int16_t module_id_;  ///< Some id
 
     bool active_{false};  ///< True if the module is to be executed
 
@@ -79,7 +79,7 @@ private:
     Destructor dtor_;
 
 public:
-    ModuleWrapper(Constructor ctor, Destructor dtor, TV_Int module_id,
+    ModuleWrapper(Constructor ctor, Destructor dtor, int16_t module_id,
                   std::string const& load_path)
         : load_path_(load_path),
           module_id_(module_id),
@@ -117,7 +117,7 @@ public:
                tv_module_->initialize();
     }
 
-    TV_Int id(void) const { return module_id_; }
+    int16_t id(void) const { return module_id_; }
     std::string name(void) const;
     ModuleType const& type(void) const;
 
@@ -159,14 +159,14 @@ public:
     /// \param[in] parameter The name of the parameter.
     /// \param[out] value Will be set accordingly on success.
     /// \return True if such a parameter exists (value is valid).
-    bool get_parameter(std::string const& parameter, parameter_t& value);
+    bool get_parameter(std::string const& parameter, int32_t& value);
 
     /// Set the value of a parameter.
     /// \param[in] parameter The name of the parameter.
     /// \param[in] value The value.
     /// \return true, if the parameter has value \c value now. This might fail
     /// if the range of the parameter is limited.
-    bool set_parameter(std::string const& parameter, parameter_t value);
+    bool set_parameter(std::string const& parameter, int32_t value);
 
     /// Get the number of parameters the wrapped module provides.
     /// \return Count of available parameters.

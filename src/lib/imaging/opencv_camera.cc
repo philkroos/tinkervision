@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "opencv_camera.hh"
 
-tv::OpenCvUSBCamera::OpenCvUSBCamera(TV_Id camera_id) : Camera(camera_id) {}
+tv::OpenCvUSBCamera::OpenCvUSBCamera(int8_t camera_id) : Camera(camera_id) {}
 
 bool tv::OpenCvUSBCamera::open_device(void) {
 

@@ -107,7 +107,7 @@ std::ostream& tv::operator<<(std::ostream& os, tv::Timestamp ts) {
     return os;
 }
 
-std::ostream& tv::operator<<(std::ostream& os, TV_Id id) {
+std::ostream& tv::operator<<(std::ostream& os, int8_t id) {
     os << static_cast<int>(id);
     return os;
 }

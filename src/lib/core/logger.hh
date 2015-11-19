@@ -145,7 +145,7 @@ std::ostream& operator<<(std::ostream& os, SceneTree const& tree);
 std::ostream& operator<<(std::ostream& os, ColorSpace const& format);
 std::ostream& operator<<(std::ostream& os, ImageHeader const& header);
 std::ostream& operator<<(std::ostream& os, Timestamp ts);
-std::ostream& operator<<(std::ostream& os, TV_Id id);
+std::ostream& operator<<(std::ostream& os, int8_t id);
 std::ostream& operator<<(std::ostream& os, Parameter parameter);
 
 #endif

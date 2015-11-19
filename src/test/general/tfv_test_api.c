@@ -23,15 +23,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tinkervision/tinkervision.h"
 
-void callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
+void callback(int8_t id, TV_ModuleResult result, void* context) {
     printf("Callback for module %d\n", id);
 }
 
-void str_callback(TV_Id id, TV_String string, TV_Context context) {
+void str_callback(int8_t id, char const* string, void* context) {
     int ctx = *(int*)(context), i;
-    TV_Size parameter;
-    TV_CharArray name;
-    TV_Long min, max, def;
+    uint16_t parameter;
+    char name[TV_STRING_SIZE];
+    int32_t min, max, def;
 
     printf("String-callback: %d, %s, %d\n", id, string, ctx);
     if (tv_library_parameter_count(string, &parameter) != TV_OK) {
@@ -48,8 +48,8 @@ void str_callback(TV_Id id, TV_String string, TV_Context context) {
     }
 }
 
-void colormatch_start(TV_Id id, int min_hue, int max_hue) {
-    TV_Result result = tv_module_start("colormatch", &id);
+void colormatch_start(int8_t id, int min_hue, int max_hue) {
+    int16_t result = tv_module_start("colormatch", &id);
     printf("Colormatch Id %d Start: %d (%s)\n", id, result,
            tv_result_string(result));
     if (result != TV_OK) {
@@ -73,13 +73,13 @@ void colormatch_start(TV_Id id, int min_hue, int max_hue) {
 }
 
 int main(int argc, char* argv[]) {
-    TV_Size width = 1280;
-    TV_Size height = 720;
-    TV_CharArray string;
+    uint16_t width = 1280;
+    uint16_t height = 720;
+    char string[TV_STRING_SIZE];
     int enum_modules = 1;
     /*int enum_pars = 2;*/
 
-    TV_Result result = tv_set_framesize(width, height);
+    int16_t result = tv_set_framesize(width, height);
 
     printf("SetFramesize: %d (%s)\n", result, tv_result_string(result));
     sleep(1);

@@ -23,12 +23,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdlib.h>
 #include "tinkervision/tinkervision.h"
 
-void tv_callback(TV_Id id, TV_ModuleResult result, TV_Context context) {
+void tv_callback(int8_t id, TV_ModuleResult result, void* context) {
     printf("Executing id %d\n", id);
 }
 
-void colormatch_start(TV_Id id, int min_hue, int max_hue) {
-    TV_Result result = tv_module_start("colormatch", &id);
+void colormatch_start(int8_t id, int min_hue, int max_hue) {
+    int16_t result = tv_module_start("colormatch", &id);
     printf("Colormatch Id %d Start: %d (%s)\n", id, result,
            tv_result_string(result));
     if (result != TV_OK) {
@@ -52,13 +52,13 @@ void colormatch_start(TV_Id id, int min_hue, int max_hue) {
 }
 
 int main(int argc, char* argv[]) {
-    TV_Id ids_count = 10;
-    TV_Result result;
-    TV_Scene scene;
+    int8_t ids_count = 10;
+    int16_t result;
+    int16_t scene;
 
     /* don't matter */
-    TV_Byte min_hue = 0;
-    TV_Byte max_hue = 10;
+    uint8_t min_hue = 0;
+    uint8_t max_hue = 10;
 
     int i, module, scene_start;
 

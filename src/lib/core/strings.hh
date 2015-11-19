@@ -25,7 +25,7 @@ namespace tv {
 
 class TVStringMap {
 private:
-    const std::map<TV_Result, TV_String> string_map_{
+    const std::map<int16_t, char const*> string_map_{
         {TV_OK, "Ok"},
         // 500...
         {TV_NOT_IMPLEMENTED, "Not implemented"},
@@ -52,10 +52,10 @@ private:
         {TV_GLOBAL_CALLBACK_ACTIVE, "Result of incompatible type requested"}};
 
 public:
-    static constexpr TV_String UNKNOWN_CODE{"Unknown result code"};
-    static constexpr TV_String INTERNAL_ERROR{"tinkervision: Internal error"};
+    static constexpr char const* UNKNOWN_CODE{"Unknown result code"};
+    static constexpr char const* INTERNAL_ERROR{"tinkervision: Internal error"};
 
-    TV_String operator[](TV_Result code) const {
+    char const* operator[](int16_t code) const {
         auto result = TVStringMap::UNKNOWN_CODE;
         try {
             auto it = string_map_.find(code);

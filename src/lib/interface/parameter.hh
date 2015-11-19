@@ -42,11 +42,11 @@ public:
     /// else don't set.
     /// \param[in] The new value.
     /// \return True if setting possible.
-    bool set(parameter_t value);
+    bool set(int32_t value);
 
     /// Return the current value of this parameter.
     /// \return value_.
-    parameter_t get(void) const { return value_; }
+    int32_t get(void) const { return value_; }
 
     /// Return the name of this parameter.
     /// \return name_.
@@ -54,11 +54,11 @@ public:
 
     /// Return the minimum allowed value.
     /// \return min_.
-    parameter_t min(void) const { return min_; }
+    int32_t min(void) const { return min_; }
 
     /// Return the maximum allowed value.
     /// \return max_.
-    parameter_t max(void) const { return max_; }
+    int32_t max(void) const { return max_; }
 
 private:
     friend class Module;         ///< Module can create Parameter.
@@ -71,15 +71,14 @@ private:
     /// \param[in] min Minimum value allowed for this parameter.
     /// \param[in] max Maximum value allowed for this parameter.
     /// \param[in] init Initialization value for this parameter.
-    Parameter(std::string const& name, parameter_t min, parameter_t max,
-              parameter_t init);
+    Parameter(std::string const& name, int32_t min, int32_t max, int32_t init);
 
     /// Never needed.
     Parameter& operator=(Parameter const& other) = delete;
 
     std::string const name_;  ///< Parameter name.
-    parameter_t const min_;   ///< Minimum allowed value.
-    parameter_t const max_;   ///< Maximum allowed value.
-    parameter_t value_;       ///< Current value.
+    int32_t const min_;       ///< Minimum allowed value.
+    int32_t const max_;       ///< Maximum allowed value.
+    int32_t value_;           ///< Current value.
 };
 }

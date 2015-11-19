@@ -62,7 +62,7 @@ static auto open = v4l2_open;
 static auto close = v4l2_close;
 }
 
-tv::V4L2USBCamera::V4L2USBCamera(TV_Id camera_id) : Camera(camera_id) {
+tv::V4L2USBCamera::V4L2USBCamera(int8_t camera_id) : Camera(camera_id) {
     // zero-initialize buffers for the frames to be grabbed
     frames_ = new v4l2::Frame[request_buffer_count_ * sizeof(v4l2::Frame)]();
 }
@@ -368,7 +368,7 @@ bool tv::V4L2USBCamera::retrieve_frame(tv::ImageData** data) {
     }
 
     if (result) {
-        *data = static_cast<TV_ImageData*>(frames_[buffer_.index].start);
+        *data = static_cast<uint8_t*>(frames_[buffer_.index].start);
     }
 
     return result;

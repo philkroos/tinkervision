@@ -68,8 +68,8 @@ bool tv::Module::has_parameter(std::string const& parameter) const {
     return parameter_map_.find(parameter) != parameter_map_.cend();
 }
 
-bool tv::Module::register_parameter(std::string const& name, parameter_t min,
-                                    parameter_t max, parameter_t init) {
+bool tv::Module::register_parameter(std::string const& name, int32_t min,
+                                    int32_t max, int32_t init) {
 
     if (initialized_) {
         return false;
@@ -81,8 +81,8 @@ bool tv::Module::register_parameter(std::string const& name, parameter_t min,
         return false;
     }
 
-    /// The parameter name must not exceed #TV_CHAR_ARRAY_SIZE characters
-    if (name.size() > TV_CHAR_ARRAY_SIZE - 1) {
+    /// The parameter name must not exceed #TV_STRING_SIZE characters
+    if (name.size() > TV_STRING_SIZE - 1) {
         LogError("MODULE", name_, ": Parameter name too long ", name);
         init_error_ = true;
         return false;
@@ -93,11 +93,11 @@ bool tv::Module::register_parameter(std::string const& name, parameter_t min,
     return true;
 }
 
-bool tv::Module::set(std::string const& parameter, parameter_t value) {
+bool tv::Module::set(std::string const& parameter, int32_t value) {
     return has_parameter(parameter) and parameter_map_[parameter]->set(value);
 }
 
-bool tv::Module::get(std::string const& parameter, parameter_t& value) {
+bool tv::Module::get(std::string const& parameter, int32_t& value) {
     if (not has_parameter(parameter)) {
         return false;
     }

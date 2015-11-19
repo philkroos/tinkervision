@@ -54,8 +54,8 @@ public:
     virtual ColorSpace image_format(void) const = 0;
 
 protected:
-    explicit Camera(TV_Id camera_id);
-    TV_Id camera_id_;
+    explicit Camera(int8_t camera_id);
+    int8_t camera_id_;
 
     // These are Template Methods, see implementation
     // of the corresponding get_ methods.

@@ -71,7 +71,7 @@ public:
     /// automatically called during construction of the Api.
     /// \sa stop()
     /// \return #TV_OK if execution started successfully.
-    TV_Result start(void);
+    int16_t start(void);
 
     /// Halts (pauses) execution of the main-loop.  This will not do
     /// any change to the registered modules, only they will stop
@@ -85,7 +85,7 @@ public:
     /// \return A result code:
     ///     - #TV_OK when execution halted successfully.
     ///     - #TV_EXEC_THREAD_FAILURE when the thread is still running.
-    TV_Result stop(void);
+    int16_t stop(void);
 
     /// Stops and removes all running modules.  This is not necessary
     /// in general if the Api is being deconstructed in a controlled
@@ -100,13 +100,13 @@ public:
     /// \return A result code:
     ///     - #TV_OK when execution halted successfully.
     ///     - #TV_EXEC_THREAD_FAILURE when the thread is still running.
-    TV_Result quit(void);
+    int16_t quit(void);
 
     /// Set the framesize.
     /// \return
     /// - #TV_CAMERA_SETTINGS_FAILED if the selected size is not valid.
     /// - #TV_OK else
-    TV_Result set_framesize(uint16_t width, uint16_t height);
+    int16_t set_framesize(uint16_t width, uint16_t height);
 
     /// Start an idle process, i.e. a module which will never be
     /// executed.  This is a lightweight module which will not trigger
@@ -119,10 +119,10 @@ public:
     /// no matter how often this method gets called.
     ///
     /// \return #TV_OK if the process is running afterwards
-    TV_Result start_idle(void);
+    int16_t start_idle(void);
 
     /// Load a module by its basename under the given id.
-    TV_Result module_load(std::string const& name, TV_Id& id);
+    int16_t module_load(std::string const& name, int8_t& id);
 
     /// Deactivate and remove a module.
     /// \return
@@ -131,7 +131,7 @@ public:
     ///   - #TV_OK if removal succeeded.
     ///
     /// The method will succeed if:
-    TV_Result module_destroy(TV_Id id);
+    int16_t module_destroy(int8_t id);
 
     /// Set a parameter of a module.
     /// \param[in] module_id Id of a loaded module (may be inactive).
@@ -141,8 +141,8 @@ public:
     ///    - #TV_NO_SUCH_PARAMETER if the parameter does not exist
     ///    - #TV_MODULE_ERROR_SETTING_PARAMETER if the value is incompatible
     ///    - #TV_OK else
-    TV_Result set_parameter(TV_Id module_id, std::string parameter,
-                            parameter_t value);
+    int16_t set_parameter(int8_t module_id, std::string parameter,
+                          int32_t value);
 
     /// Get a parameter's value from a module.
     /// \param[in] module_id Id of a loaded module (may be inactive).
@@ -150,8 +150,8 @@ public:
     /// \param[out] value Value of parameter.
     ///    - #TV_NO_SUCH_PARAMETER if the parameter does not exist
     ///    - #TV_OK else
-    TV_Result get_parameter(TV_Id module_id, std::string parameter,
-                            parameter_t* value);
+    int16_t get_parameter(int8_t module_id, std::string parameter,
+                          int32_t* value);
 
     /// Start a module which was already initialized by
     /// module_load().  This method succeeds if the module was
@@ -165,7 +165,7 @@ public:
     /// - #TV_CAMERA_ACQUISATION_FAILED if the
     ///   camera is not available
     /// - #TV_OK iff the module is running after returning.
-    TV_Result module_start(TV_Id module_id);
+    int16_t module_start(int8_t module_id);
 
     /// Pause a module. This will not remove the module but rather
     /// prevent it from being executed. The id is still reserved and it's
@@ -181,18 +181,18 @@ public:
     /// \return
     ///  - #TV_OK if the module was stopped and marked for removal
     ///  - #TV_INVALID_ID if the id is not registered
-    TV_Result module_stop(TV_Id module_id);
+    int16_t module_stop(int8_t module_id);
 
     /// Convert Api return code to string.
     /// \param[in] code The return code to be represented as string.
     /// \return The string representing code
-    TV_String result_string(TV_Result code) const;
+    char const* result_string(int16_t code) const;
 
     /// Check if a camera is available in the system.
     /// \return
     ///  - #TV_CAMERA_NOT_AVAILABLE if the camera is not available,
     ///  - #TV_OK else
-    TV_Result is_camera_available(void);
+    int16_t is_camera_available(void);
 
     /// Retrieve the frame settings from the camera. This can only work
     /// if the camera was opened already
@@ -201,7 +201,7 @@ public:
     /// \return
     ///  - #TV_CAMERA_NOT_AVAILABLE if the camera is not open
     ///  - #TV_OK else.
-    TV_Result resolution(TV_Size& width, TV_Size& height);
+    int16_t resolution(uint16_t& width, uint16_t& height);
 
     /// Set the time between frame grabbing.  This effectively changes
     /// the frequency of module execution.  It is recommended to keep
@@ -214,7 +214,7 @@ public:
     /// hardcoded  (with the  value set  here being  used if  larger).
     /// \param ms The duration of a frameperiod in milliseconds.
     /// \return #TV_OK
-    TV_Result request_frameperiod(uint32_t ms);
+    int16_t request_frameperiod(uint32_t ms);
 
     /// Get the name of a module.
     /// \param[in] module_id Id of a loaded module.
@@ -222,7 +222,7 @@ public:
     /// \return
     ///    - #TV_INVALID_ID if no such module is loaded.
     ///    - #TV_OK else
-    TV_Result module_get_name(TV_Id module_id, std::string& name) const;
+    int16_t module_get_name(int8_t module_id, std::string& name) const;
 
     /// Get the number of parameters available for a library module.
     /// \param[in] libname Name of the library w/o extension.
@@ -231,8 +231,8 @@ public:
     /// \return
     ///    - #TV_INVALID_ARGUMENT if no such library is loadable.
     ///    - #TV_OK else
-    TV_Result library_get_parameter_count(std::string const& libname,
-                                          size_t& count) const;
+    int16_t library_get_parameter_count(std::string const& libname,
+                                        size_t& count) const;
 
     /// Get the description of a parameter of a library module.
     /// \param[in] libname Name of the library w/o extension.
@@ -245,16 +245,16 @@ public:
     /// \return
     ///    - #TV_INVALID_ARGUMENT if no such library is loadable.
     ///    - #TV_OK else
-    TV_Result library_describe_parameter(std::string const& libname,
-                                         size_t parameter, std::string& name,
-                                         parameter_t& min, parameter_t& max,
-                                         parameter_t& def);
+    int16_t library_describe_parameter(std::string const& libname,
+                                       size_t parameter, std::string& name,
+                                       int32_t& min, int32_t& max,
+                                       int32_t& def);
 
     /// Register a callback to enumerate all parameters of a module.
     /// \deprecated Not used in Tinkerforge context.
-    TV_Result module_enumerate_parameters(TV_Id module_id,
-                                          TV_StringCallback callback,
-                                          TV_Context context) const;
+    int16_t module_enumerate_parameters(int8_t module_id,
+                                        TV_StringCallback callback,
+                                        void* context) const;
 
     /// Attach a callback that will be notified about newly or no longer
     /// available, loadable modules.
@@ -267,8 +267,8 @@ public:
     /// whether the corresponding file has been deleted (0) or is available
     /// (1).
     /// \param context Additional context to be passed to each callback.
-    TV_Result libraries_changed_callback(TV_LibrariesCallback callback,
-                                         TV_Context context);
+    int16_t libraries_changed_callback(TV_LibrariesCallback callback,
+                                       void* context);
 
     /// Set the path to the loadable modules.  The system path is
     /// fixed to #SYS_MODULE_LOAD_PATH, but the path set here
@@ -277,11 +277,11 @@ public:
     /// \param path A valid, accessible full pathname.
     /// \return #TV_INVALID_ARGUMENT if the path could not be set; #TV_OK
     /// else.
-    TV_Result set_user_module_load_path(std::string const& path);
+    int16_t set_user_module_load_path(std::string const& path);
 
     /// Set a callback to the results of a specific module.
     /// \deprecated This is not usable in the context of Tinkerforge.
-    TV_Result callback_set(TV_Id module_id, TV_Callback callback);
+    int16_t callback_set(int8_t module_id, TV_Callback callback);
 
     /// Set a callback to the results of each module.
     /// \param[in] callback Called after each execution of a module provided it
@@ -289,7 +289,7 @@ public:
     /// \return #TV_OK
     /// \note If you want to unregister a callback, simply pass a nullptr here.
     /// \todo Implement method unregister_callback in redbrickapid.
-    TV_Result callback_default(TV_Callback callback);
+    int16_t callback_default(TV_Callback callback);
 
     /// Get the latest result from a module.
     /// \param[in] module_id Id of an active module.
@@ -299,7 +299,7 @@ public:
     ///    - #TV_INVALID_ID if the module is not loaded or inactive
     ///    - #TV_RESULT_NOT_AVAILABLE if the module has no result
     ///    - #TV_OK if result is valid
-    TV_Result get_result(TV_Id module_id, TV_ModuleResult& result);
+    int16_t get_result(int8_t module_id, TV_ModuleResult& result);
 
     /// Retrieve the effective inverse framerate.
     /// \return effective_frameperiod_.
@@ -321,7 +321,7 @@ public:
     // Unfinished scene approach
 
     /// Start a scene which is a directed chain of modules.
-    TV_Result scene_start(TV_Id module_id, TV_Scene* scene_id) {
+    int16_t scene_start(int8_t module_id, int16_t* scene_id) {
         Log("API", "Starting scene");
         return TV_NOT_IMPLEMENTED;
 
@@ -338,12 +338,12 @@ public:
         return scene_trees_.scene_start(*scene_id, module_id);
     }
 
-    TV_Result scene_remove(TV_Scene scene_id) {
+    int16_t scene_remove(int16_t scene_id) {
         Log("API", "Removing scene");
         return TV_NOT_IMPLEMENTED;
     }
 
-    TV_Result add_to_scene(TV_Scene scene_id, TV_Int module_id) {
+    int16_t add_to_scene(int16_t scene_id, int16_t module_id) {
         Log("API", "Add to scene: ", module_id, " -> ", scene_id);
         return TV_NOT_IMPLEMENTED;
 
@@ -362,9 +362,9 @@ public:
         return scene_trees_.add_to_scene(scene_id, module_id);
     }
 
-    TV_Result scene_disable(TV_Scene scene_id) { return TV_NOT_IMPLEMENTED; }
+    int16_t scene_disable(int16_t scene_id) { return TV_NOT_IMPLEMENTED; }
 
-    TV_Result scene_enable(TV_Scene scene_id) { return TV_NOT_IMPLEMENTED; }
+    int16_t scene_enable(int16_t scene_id) { return TV_NOT_IMPLEMENTED; }
 
 private:
     CameraControl camera_control_;  ///< Camera access abstraction
@@ -396,7 +396,7 @@ private:
     /// modules and activating newly registered modules.
     void execute(void);
 
-    TV_Result _module_load(std::string const& name, TV_Int id);
+    int16_t _module_load(std::string const& name, int16_t id);
 
     void _disable_all_modules(void);
 
@@ -405,9 +405,9 @@ private:
 
     void _enable_all_modules(void);
 
-    TV_Result _enable_module(TV_Int id);
+    int16_t _enable_module(int16_t id);
 
-    TV_Result _disable_module(TV_Int id);
+    int16_t _disable_module(int16_t id);
 
     /// Generate a new module id.
     /// \todo There is currently no code that would prevent regeneration of
@@ -415,14 +415,14 @@ private:
     /// id that is currently in use in case of an overflow and a long
     /// running
     /// module.
-    TV_Int _next_public_id(void) const;
+    int16_t _next_public_id(void) const;
 
-    TV_Int _next_internal_id(void) const;
+    int16_t _next_internal_id(void) const;
 
     bool _scenes_active(void) const { return not scene_trees_.empty(); }
 
-    TV_Scene _next_scene_id(void) const {
-        static TV_Scene scene_id{std::numeric_limits<TV_Id>::max() + 1};
+    int16_t _next_scene_id(void) const {
+        static int16_t scene_id{std::numeric_limits<int8_t>::max() + 1};
         return scene_id++;
     }
 };

@@ -142,8 +142,7 @@ protected:
     /// limits of the parameter.
     /// \param[in] parameter The name of the changed parameter.
     /// \param[in] value New value
-    virtual void value_changed(std::string const& parameter,
-                               parameter_t value) {}
+    virtual void value_changed(std::string const& parameter, int32_t value) {}
 
 public:
     /// Default d'tor.
@@ -161,20 +160,20 @@ public:
     /// \param[in] init Default value.
     /// \return True if called during initialization and no such parameter is
     /// registered yet.
-    bool register_parameter(std::string const& name, parameter_t min,
-                            parameter_t max, parameter_t init);
+    bool register_parameter(std::string const& name, int32_t min, int32_t max,
+                            int32_t init);
 
     /// Set the specified parameter to the given value.
     /// \param[in] parameter Name of the parameter to set.
     /// \param[in] value Value of the parameter.
     /// \return True, if the parameter exists and value is its the min/max range
-    bool set(std::string const& parameter, parameter_t value);
+    bool set(std::string const& parameter, int32_t value);
 
     /// Get the value of the specified parameter.
     /// \param[in] parameter Name of the parameter to retrieve.
     /// \param[out] value Current value of the parameter.
     /// \return False if the specified parameter is not registered.
-    bool get(std::string const& parameter, parameter_t& value);
+    bool get(std::string const& parameter, int32_t& value);
 
     /// Get the number of parameters registered for this module.
     /// \return Size of the parameter_map_.
