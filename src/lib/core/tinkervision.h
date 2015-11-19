@@ -139,6 +139,8 @@ TV_Result tv_get_parameter(TV_Id module_id, TV_String const parameter,
 /// filename of the  corresponding library without extension.
 /// \param[out] id On success, the loaded module will be accessible with this
 /// id.
+/// \todo Add method to enable parallel module start instead of currently fixed
+/// sequential.
 /// \return
 ///    - #TV_INTERNAL_ERROR if an id clash occured. This is an open but
 ///      unlikely bug.
@@ -207,6 +209,7 @@ TV_Result tv_module_enumerate_parameters(TV_Id module_id,
 /// Get the number of currently available libraries.
 /// This can be used to iterate through all libraries using
 /// tv_library_name_and_path().
+/// \todo Add method to get all running modules.
 /// \return #TV_OK
 /// \param[out] count Number of libraries found in both system and user paths.
 TV_Result tv_libraries_count(uint16_t* count);

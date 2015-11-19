@@ -59,6 +59,7 @@ typedef struct TV_ModuleResult {
 /// General callback applicable for every module that produces a result.
 typedef void (*TV_Callback)(TV_Id, TV_ModuleResult result, TV_Context);
 typedef void (*TV_StringCallback)(TV_Id, TV_String string, TV_Context context);
+/// \todo Too much data!! Status must be int.
 typedef void (*TV_LibrariesCallback)(TV_String name, TV_String path,
                                      TV_String status, TV_Context context);
 
