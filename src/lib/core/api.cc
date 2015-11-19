@@ -444,13 +444,12 @@ int16_t tv::Api::module_enumerate_parameters(int8_t module_id,
 int16_t tv::Api::libraries_changed_callback(TV_LibrariesCallback callback,
                                             void* context) {
 
-    module_loader_.update_on_changes(
-        [callback, context](std::string const& dir, std::string const& file,
-                            Dirwatch::Event event) {
-            auto const status =
-                (event == Dirwatch::Event::FILE_CREATED ? "create" : "remove");
-            callback(file.c_str(), dir.c_str(), status, context);
-        });
+    module_loader_.update_on_changes([callback, context](
+        std::string const& dir, std::string const& file,
+        Dirwatch::Event event) {
+        auto const status = (event == Dirwatch::Event::FILE_CREATED ? 1 : -1);
+        callback(file.c_str(), dir.c_str(), status, context);
+    });
     return TV_OK;
 }
 

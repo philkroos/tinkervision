@@ -30,7 +30,7 @@
 #include <stdint.h>
 
 ///< Maximum length of strings in and out of Tinkervision.
-#define TV_STRING_SIZE 24
+#define TV_STRING_SIZE 30
 
 typedef struct TV_ModuleResult {
     int32_t x;
@@ -43,9 +43,8 @@ typedef struct TV_ModuleResult {
 /// General callback applicable for every module that produces a result.
 typedef void (*TV_Callback)(int8_t, TV_ModuleResult result, void*);
 typedef void (*TV_StringCallback)(int8_t, char const* string, void* context);
-/// \todo Too much data!! Status must be int.
 typedef void (*TV_LibrariesCallback)(char const* name, char const* path,
-                                     char const* status, void* context);
+                                     int8_t status, void* context);
 
 #define TV_UNUSED_ID -1
 

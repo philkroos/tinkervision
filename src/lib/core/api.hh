@@ -256,16 +256,18 @@ public:
                                         TV_StringCallback callback,
                                         void* context) const;
 
-    /// Attach a callback that will be notified about newly or no longer
-    /// available, loadable modules.
-    /// Initially, all currently available modules will be listed.
-    /// \note It does not make sense to add more then one callback since
-    /// only
-    /// the latest will ever be updated.
-    /// \param callback A #TV_StringCallback where the first parameter
-    /// denotes
-    /// whether the corresponding file has been deleted (0) or is available
-    /// (1).
+    /// Attach a callback that will be notified about newly or no
+    /// longer available, loadable modules.  Initially, all currently
+    /// available modules will be listed.
+    ///
+    /// \note It does not make
+    /// sense to add more then one callback since only the latest will
+    /// ever be updated.
+    ///
+    /// \param[in] callback A #TV_LibrariesCallback, where the first
+    /// parameter is the library name, the second the load path, the
+    /// third the status which is either 1 (library created) or -1
+    /// (library deleted).
     /// \param context Additional context to be passed to each callback.
     int16_t libraries_changed_callback(TV_LibrariesCallback callback,
                                        void* context);
