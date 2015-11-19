@@ -224,6 +224,298 @@ void tv::Api::execute(void) {
     Log("API", "Mainloop stopped");
 }
 
+TV_Result tv::Api::set_framesize(uint16_t width, uint16_t height) {
+
+    auto result = TV_CAMERA_SETTINGS_FAILED;
+
+    /// \todo Count the active modules continuously and remove code dup.
+    auto active_count = modules_.count(
+        [](tv::ModuleWrapper const& module) { return module.enabled(); });
+
+    if (active_count) {
+        uint16_t w, h;
+        camera_control_.get_resolution(w, h);
+
+        if (w != width or h != height) {  // different settings?
+            auto code = stop();
+            if (code != TV_OK) {
+                LogError("API", "SetFramesize ", "Stop returned ", code);
+            }
+
+            /// If the settings can't be applied, any previous ones will
+            /// be restored.
+            if (camera_control_.preselect_framesize(width, height)) {
+                result = TV_OK;
+            }
+
+            code = start();
+            if (code != TV_OK) {
+                LogError("API", "SetFramesize ", "Start returned ", code);
+            }
+        } else {
+            result = TV_OK;
+        }
+    } else {  // camera not running
+        if (camera_control_.preselect_framesize(width, height)) {
+            result = TV_OK;
+        }
+    }
+
+    return result;
+}
+
+TV_Result tv::Api::start_idle(void) {
+    auto result = TV_OK;  // optimistic because startable only once
+
+    if (not idle_process_running_) {
+        result = _module_load("dummy", _next_internal_id());
+    }
+    idle_process_running_ = (result == TV_OK);
+    return result;
+}
+
+TV_Result tv::Api::module_load(std::string const& name, TV_Id& id) {
+    auto module_id = _next_public_id();
+
+    assert(module_id < std::numeric_limits<TV_Id>::max() and module_id > 0);
+
+    auto result = _module_load(name, static_cast<TV_Int>(module_id));
+
+    if (TV_INVALID_ID == result) {
+        // this is an unhandled id clash, see _next_public_id
+        result = TV_INTERNAL_ERROR;
+    }
+
+    if (TV_OK == result) {
+        id = static_cast<TV_Id>(module_id);
+    }
+    return result;
+}
+
+TV_Result tv::Api::module_destroy(TV_Id id) {
+    Log("API", "Destroying module ", id);
+
+    /// - no scenes are active (currently). Then,
+    if (_scenes_active()) {
+        return TV_NOT_IMPLEMENTED;
+    }
+
+    /// the module will be disabled and registered for removal which
+    /// will
+    /// happen in the main execution loop.
+    /// \todo Is a two-stage-removal process still necessary now that
+    /// the allocation stage was removed from SharedResource? Not sure,
+    /// probably not.
+    return modules_.exec_one(id, [this](tv::ModuleWrapper& module) {
+        module.disable();
+        module.tag(ModuleWrapper::Tag::Removable);
+        camera_control_.release();
+        return TV_OK;
+    });
+}
+
+TV_Result tv::Api::set_parameter(TV_Id module_id, std::string parameter,
+                                 parameter_t value) {
+
+    return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
+        if (not module.has_parameter(parameter)) {
+            return TV_MODULE_NO_SUCH_PARAMETER;
+        }
+        if (not module.set_parameter(parameter, value)) {
+            return TV_MODULE_ERROR_SETTING_PARAMETER;
+        }
+        return TV_OK;
+    });
+}
+
+TV_Result tv::Api::get_parameter(TV_Id module_id, std::string parameter,
+                                 parameter_t* value) {
+
+    return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
+        if (not module.get_parameter(parameter, *value)) {
+            return TV_MODULE_NO_SUCH_PARAMETER;
+        }
+
+        return TV_OK;
+    });
+}
+
+TV_Result tv::Api::module_start(TV_Id module_id) {
+    auto id = static_cast<TV_Int>(module_id);
+
+    if (not modules_.managed(id)) {
+        return TV_INVALID_ID;
+    }
+
+    return _enable_module(module_id);
+}
+
+TV_Result tv::Api::module_stop(TV_Id module_id) {
+    Log("API", "Stopping module ", module_id);
+
+    auto id = static_cast<TV_Int>(module_id);
+
+    if (not modules_.managed(id)) {
+        return TV_INVALID_ID;
+    }
+
+    return _disable_module(module_id);
+}
+
+TV_String tv::Api::result_string(TV_Result code) const {
+    return result_string_map_[code];
+}
+
+TV_Result tv::Api::is_camera_available(void) {
+    return camera_control_.is_available() ? TV_OK : TV_CAMERA_NOT_AVAILABLE;
+}
+
+TV_Result tv::Api::resolution(TV_Size& width, TV_Size& height) {
+    return camera_control_.get_resolution(width, height)
+               ? TV_OK
+               : TV_CAMERA_NOT_AVAILABLE;
+}
+
+TV_Result tv::Api::set_execution_latency_ms(TV_UInt ms) {
+    execution_latency_ms_ = std::min(TV_UInt(20), ms);
+    return TV_OK;
+}
+
+TV_Result tv::Api::module_get_name(TV_Id module_id, std::string& name) const {
+    if (not modules_.managed(module_id)) {
+        return TV_INVALID_ID;
+    }
+
+    name = modules_[module_id].name();
+    return TV_OK;
+}
+
+TV_Result tv::Api::library_get_parameter_count(std::string const& libname,
+                                               size_t& count) const {
+    if (module_loader_.library_parameter_count(libname, count)) {
+        return TV_OK;
+    }
+    return TV_INVALID_ARGUMENT;
+}
+
+TV_Result tv::Api::library_describe_parameter(
+    std::string const& libname, size_t parameter, std::string& name,
+    parameter_t& min, parameter_t& max, parameter_t& def) {
+
+    if (not module_loader_.library_describe_parameter(libname, parameter, name,
+                                                      min, max, def)) {
+        return TV_INVALID_ARGUMENT;
+    }
+    return TV_OK;
+}
+
+TV_Result tv::Api::module_enumerate_parameters(TV_Id module_id,
+                                               TV_StringCallback callback,
+                                               TV_Context context) const {
+    if (not modules_.managed(module_id)) {
+        return TV_INVALID_ID;
+    }
+
+    std::vector<Parameter> parameters;
+    modules_[module_id].get_parameters_list(parameters);
+
+    if (parameters.size()) {
+        std::thread([module_id, parameters, callback, context](void) {
+                        for (auto const& par : parameters) {
+                            callback(module_id, par.name().c_str(), context);
+                        }
+                        callback(0, "", context);  // done
+                    }).detach();
+    }
+
+    return TV_OK;
+}
+
+TV_Result tv::Api::libraries_changed_callback(TV_LibrariesCallback callback,
+                                              TV_Context context) {
+
+    module_loader_.update_on_changes(
+        [callback, context](std::string const& dir, std::string const& file,
+                            Dirwatch::Event event) {
+            auto const status =
+                (event == Dirwatch::Event::FILE_CREATED ? "create" : "remove");
+            callback(file.c_str(), dir.c_str(), status, context);
+        });
+    return TV_OK;
+}
+
+TV_Result tv::Api::set_user_module_load_path(std::string const& path) {
+    return module_loader_.set_user_load_path(path) ? TV_OK
+                                                   : TV_INVALID_ARGUMENT;
+}
+
+TV_Result tv::Api::callback_set(TV_Id module_id, TV_Callback callback) {
+    if (default_callback_ != nullptr) {
+        return TV_GLOBAL_CALLBACK_ACTIVE;
+    }
+
+    if (not modules_[module_id]) {
+        return TV_INVALID_ID;
+    }
+
+    auto& module = *modules_[module_id];
+
+    if (not module.register_callback(callback)) {
+        LogError("API", "Could not set callback for module ", module.name());
+        return TV_INTERNAL_ERROR;
+    }
+
+    return TV_OK;
+}
+
+TV_Result tv::Api::callback_default(TV_Callback callback) {
+    default_callback_ = callback;
+    return TV_OK;
+}
+
+TV_Result tv::Api::get_result(TV_Id module_id, TV_ModuleResult& result) {
+    Log("API", "Getting result from module ", module_id);
+
+    return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
+        auto res = module.result();
+        if (res) {
+            return TV_RESULT_NOT_AVAILABLE;
+        }
+
+        result.x = res.x;
+        result.y = res.y;
+        result.width = res.width;
+        result.height = res.height;
+        std::strncpy(result.string, res.result.c_str(), TV_CHAR_ARRAY_SIZE - 1);
+        std::fill(result.string + res.result.size(),
+                  result.string + TV_CHAR_ARRAY_SIZE - 1, '\0');
+        result.string[TV_CHAR_ARRAY_SIZE - 1] = '\0';
+        return TV_OK;
+    });
+}
+
+uint32_t tv::Api::effective_framerate(void) const {
+    /// \todo Verify that the cast is ok here, or better always use uint.
+    return static_cast<uint32_t>(effective_framerate_);
+}
+
+std::string const& tv::Api::user_module_path(void) const {
+    return module_loader_.user_load_path();
+}
+
+std::string const& tv::Api::system_module_path(void) const {
+    return module_loader_.system_load_path();
+}
+
+/// Disable and remove all modules.
+void tv::Api::remove_all_modules(void) {
+    _disable_all_modules();
+
+    modules_.free_all();
+    idle_process_running_ = false;
+    Log("Api", "All modules released");
+}
+
 void tv::Api::get_libraries_count(uint16_t& count) const {
     count = module_loader_.libraries_count();
 }
@@ -231,6 +523,104 @@ void tv::Api::get_libraries_count(uint16_t& count) const {
 bool tv::Api::library_get_name_and_path(uint16_t count, std::string& name,
                                         std::string& path) const {
     return module_loader_.library_name_and_path(count, name, path);
+}
+
+/*
+ * Private methods
+ */
+
+TV_Result tv::Api::_module_load(std::string const& name, TV_Int id) {
+    Log("API", "ModuleLoad ", name, " ", id);
+
+    if (modules_[id]) {
+        return TV_INVALID_ID;
+    }
+
+    auto module = (ModuleWrapper*)(nullptr);
+    if (not module_loader_.load_module_from_library(&module, name, id)) {
+        Log("API", "Loading library ", name, " failed");
+        return module_loader_.last_error();
+    }
+
+    /// \todo Catch the cases in which this fails and remove the module.
+    (void)module->initialize();
+
+    if (not camera_control_.acquire()) {
+        return TV_CAMERA_NOT_AVAILABLE;
+    }
+
+    if (not modules_.insert(id, module, [this](ModuleWrapper& module) {
+            module_loader_.destroy_module(&module);
+        })) {
+
+        camera_control_.release();
+        return TV_MODULE_INITIALIZATION_FAILED;
+    }
+
+    /// \todo Catch the cases in which this fails and remove the module.
+    (void)module->enable();
+    return TV_OK;
+}
+
+void tv::Api::_disable_all_modules(void) {
+    modules_.exec_all([this](TV_Int id, tv::ModuleWrapper& module) {
+        module.disable();
+        camera_control_.release();
+    });
+}
+
+void tv::Api::_disable_module_if(
+    std::function<bool(tv::ModuleWrapper const& module)> predicate) {
+
+    modules_.exec_all([this, &predicate](TV_Int id, tv::ModuleWrapper& module) {
+        if (predicate(module)) {
+            module.disable();
+            camera_control_.release();
+        }
+    });
+}
+
+void tv::Api::_enable_all_modules(void) {
+    modules_.exec_all([this](TV_Int id, tv::ModuleWrapper& module) {
+        if (not module.enabled()) {
+            if (camera_control_.acquire()) {
+                module.enable();
+            }
+        }
+    });
+}
+
+TV_Result tv::Api::_enable_module(TV_Int id) {
+    return modules_.exec_one(id, [this](tv::ModuleWrapper& module) {
+        if (module.enabled() or camera_control_.acquire()) {
+            module.enable();  // possibly redundant
+            return TV_OK;
+        } else {
+            return TV_CAMERA_NOT_AVAILABLE;
+        }
+    });
+}
+
+TV_Result tv::Api::_disable_module(TV_Int id) {
+    return modules_.exec_one(id, [this](tv::ModuleWrapper& module) {
+        module.disable();
+        camera_control_.release();
+        return TV_OK;
+    });
+}
+
+TV_Int tv::Api::_next_public_id(void) const {
+    static TV_Id public_id{0};
+    if (++public_id == 0) {
+        public_id = 1;
+        LogWarning("API", "Overflow of public ids");
+    }
+    return static_cast<TV_Int>(public_id);
+}
+
+TV_Int tv::Api::_next_internal_id(void) const {
+    static TV_Int internal_id{std::numeric_limits<TV_Id>::max() + 1};
+    return internal_id++;
 }
 
 /*
