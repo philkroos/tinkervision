@@ -188,7 +188,8 @@ public:
 
     /// Initialize this module. This will be called immediately after
     /// construction and initializes the internal state.
-    /// \return Always true, currently.
+    /// \return False, if the module could not be constructed or initialized
+    /// correctly.
     bool initialize(void);
 
     /// Retrieve the name of this module.  This equals the filename of the
@@ -225,10 +226,6 @@ public:
     /// Retrieve the latest result from this module.
     /// \return get_result().
     Result const& result(void) const;
-
-    /// Check if this module can be activated.
-    /// \return initialized_, currently.
-    bool activate(void) const { return initialized_; }
 
 private:
     std::string const name_;  ///< Name of this module, c'tor parameter.

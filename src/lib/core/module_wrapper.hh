@@ -63,7 +63,11 @@ private:
 
     int16_t module_id_;  ///< Some id
 
-    bool active_{false};  ///< True if the module is to be executed
+    bool initialized_{
+        false};  ///< True if the module can be executed, set during initialize.
+
+    bool active_{
+        false};  ///< True if the module is running (i.e. will be executed)
 
     ModuleWrapper::Tag tags_{ModuleWrapper::Tag::None};  ///< Runtime tags used
                                                          /// by the mainloop
@@ -113,8 +117,9 @@ public:
     Result const* execute(tv::Image const& image);
 
     bool initialize(void) {
-        return tv_module_->register_parameter("period", 0, 500, 1) and
-               tv_module_->initialize();
+        initialized_ = tv_module_->register_parameter("period", 0, 500, 1) and
+                       tv_module_->initialize();
+        return initialized_;
     }
 
     int16_t id(void) const { return module_id_; }
@@ -127,7 +132,7 @@ public:
     /// \return True if the module could be activated.
     bool enable(void) noexcept {
         Log("MODULE", "Enabling ", module_id_, " (", name(), ")");
-        if (tv_module_->activate()) {
+        if (initialized_) {
             active_ = true;
         } else {
             active_ = false;
