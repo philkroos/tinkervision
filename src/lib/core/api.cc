@@ -323,32 +323,6 @@ int16_t tv::Api::module_destroy(int8_t id) {
     });
 }
 
-int16_t tv::Api::set_parameter(int8_t module_id, std::string parameter,
-                               int32_t value) {
-
-    return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
-        if (not module.has_parameter(parameter)) {
-            return TV_MODULE_NO_SUCH_PARAMETER;
-        }
-        if (not module.set_parameter(parameter, value)) {
-            return TV_MODULE_ERROR_SETTING_PARAMETER;
-        }
-        return TV_OK;
-    });
-}
-
-int16_t tv::Api::get_parameter(int8_t module_id, std::string parameter,
-                               int32_t* value) {
-
-    return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
-        if (not module.get_parameter(parameter, *value)) {
-            return TV_MODULE_NO_SUCH_PARAMETER;
-        }
-
-        return TV_OK;
-    });
-}
-
 int16_t tv::Api::module_start(int8_t module_id) {
     auto id = static_cast<int16_t>(module_id);
 
@@ -409,13 +383,30 @@ int16_t tv::Api::library_get_parameter_count(std::string const& libname,
 
 int16_t tv::Api::library_describe_parameter(std::string const& libname,
                                             size_t parameter, std::string& name,
+                                            uint8_t& type, std::string& string,
                                             int32_t& min, int32_t& max,
                                             int32_t& def) {
 
-    if (not module_loader_.library_describe_parameter(libname, parameter, name,
-                                                      min, max, def)) {
+    Parameter const* p;
+    if (not module_loader_.library_get_parameter(libname, parameter, &p)) {
         return TV_INVALID_ARGUMENT;
     }
+
+    name = p->name();
+    type = p->type() == Parameter::Type::String ? 1 : 0;
+
+    if (1 == type) {
+        if (not p->get(string)) {
+            return TV_INTERNAL_ERROR;
+        }
+    } else {
+        if (not(p->get(def))) {
+            return TV_INTERNAL_ERROR;
+        }
+        min = p->min();
+        max = p->max();
+    }
+
     return TV_OK;
 }
 
@@ -426,13 +417,13 @@ int16_t tv::Api::module_enumerate_parameters(int8_t module_id,
         return TV_INVALID_ID;
     }
 
-    std::vector<Parameter> parameters;
+    std::vector<Parameter const*> parameters;
     modules_[module_id].get_parameters_list(parameters);
 
     if (parameters.size()) {
         std::thread([module_id, parameters, callback, context](void) {
                         for (auto const& par : parameters) {
-                            callback(module_id, par.name().c_str(), context);
+                            callback(module_id, par->name().c_str(), context);
                         }
                         callback(0, "", context);  // done
                     }).detach();

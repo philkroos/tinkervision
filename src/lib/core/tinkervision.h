@@ -118,6 +118,9 @@ int16_t tv_quit(void);
 int16_t tv_set_parameter(int8_t module_id, char const* const parameter,
                          int32_t value);
 
+int16_t tv_set_string_parameter(int8_t module_id, char const* const parameter,
+                                char const* value);
+
 /// Return the current value of a modules parameter.
 /// \param[in] module_id The id of the module in question.
 /// \param[in] parameter Name of the parameter in question.
@@ -236,9 +239,11 @@ int16_t tv_library_parameter_count(char const* libname, uint16_t* count);
 /// \param[in] libname Name of the module, i.e. filename w/o extension.
 /// \param[in] parameter A number < tv_library_parameter_count()
 /// \param[out] name Parameter identifier
-/// \param[out] min Parameter minimum value
-/// \param[out] max Parameter maximum value
-/// \param[out] def Parameter default value
+/// \param[out] type Parameter type: 0 numeric, 1 string.
+/// \param[out] string Parameter value if type = string.
+/// \param[out] min Parameter minimum value if type = numeric.
+/// \param[out] max Parameter maximum value if type = numeric.
+/// \param[out] def Parameter default value if type = numeric.
 /// \return False if the library is not available or number is out of range.
 ///    - #TV_INVALID_ARGUMENT: The library is not available or parameter
 ///    exceeds
@@ -247,8 +252,8 @@ int16_t tv_library_parameter_count(char const* libname, uint16_t* count);
 /// \note All outgoing parameters are beeing set to 0 if the result is not
 /// TV_OK.
 int16_t tv_library_describe_parameter(char const* libname, uint16_t parameter,
-                                      char name[], int32_t* min, int32_t* max,
-                                      int32_t* def);
+                                      char name[], uint8_t* type, char string[],
+                                      int32_t* min, int32_t* max, int32_t* def);
 
 /// Access the currently set user module load path.
 /// \param[out] path The user defined path searched for modules.

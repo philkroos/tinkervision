@@ -74,6 +74,7 @@ header		:= $(src_prefix)/core/tinkervision.h \
                    $(src_prefix)/interface/module.hh \
                    $(src_prefix)/interface/parameter.hh \
                    $(src_prefix)/interface/result.hh \
+                   $(src_prefix)/tools/filesystem.hh \
 		   $(src_prefix)/core/exceptions.hh \
                    $(src_prefix)/imaging/image.hh \
 		   $(src_prefix)/core/logger.hh

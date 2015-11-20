@@ -152,8 +152,8 @@ public:
     ColorSpace expected_format(void) const;
 
     /// Get the list of parameters valid for this module.
-    /// \param[inout] parameter The list of parameters.
-    void get_parameters_list(std::vector<Parameter>& parameter) const;
+    /// \return The list of parameters.
+    void get_parameters_list(std::vector<Parameter const*>& parameters) const;
 
     /// Check if a module supports a parameter.
     /// \param[in] parameter Name of the parameter.
@@ -163,8 +163,11 @@ public:
     /// Get the current value of a parameter.
     /// \param[in] parameter The name of the parameter.
     /// \param[out] value Will be set accordingly on success.
-    /// \return True if such a parameter exists (value is valid).
-    bool get_parameter(std::string const& parameter, int32_t& value);
+    /// \return True if such a parameter exists (value is valid and type is T).
+    template <typename T>
+    bool get_parameter(std::string const& parameter, T& value) {
+        return tv_module_->get(parameter, value);
+    }
 
     /// Set the value of a parameter.
     /// \param[in] parameter The name of the parameter.
@@ -172,6 +175,17 @@ public:
     /// \return true, if the parameter has value \c value now. This might fail
     /// if the range of the parameter is limited.
     bool set_parameter(std::string const& parameter, int32_t value);
+
+    /// Set the value of a string parameter.
+    /// \param[in] parameter The name of the parameter.
+    /// \param[in] value The value.
+    /// \return true, if the parameter has value \c value now. This might fail
+    /// if the range of the parameter is limited.
+    bool set_parameter(std::string const& parameter, std::string const& value);
+
+    Parameter const& get_parameter_by_number(size_t number) const {
+        return tv_module_->get_parameter_by_number(number);
+    }
 
     /// Get the number of parameters the wrapped module provides.
     /// \return Count of available parameters.
@@ -184,8 +198,8 @@ public:
     /// \return The parameter that has been assigned the number specified
     /// internally. If number exceeds get_parameter_count(), the one with the
     /// largest number.
-    Parameter const& describe_parameter_by_id(size_t number) const {
-        return tv_module_->get_parameter_by_id(number);
+    Parameter const& describe_parameter_by_number(size_t number) const {
+        return tv_module_->get_parameter_by_number(number);
     }
 
     Result const& result(void) const;

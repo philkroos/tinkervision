@@ -26,7 +26,7 @@
 
 #include "parameter.hh"
 
-bool tv::Parameter::set(int32_t value) {
+bool tv::NumericalParameter::set(int32_t value) {
     if (value < min_ or value > max_) {
         return false;
     }
@@ -34,14 +34,45 @@ bool tv::Parameter::set(int32_t value) {
     return true;
 }
 
-tv::Parameter::Parameter(std::string const& name, int32_t min, int32_t max,
-                         int32_t init)
-    : name_(name), min_(min), max_(max), value_(init) {
+bool tv::NumericalParameter::get(int32_t& value) const {
+    value = value_;
+    return true;
+}
+
+bool tv::StringParameter::set(std::string const& value) {
+    if (verify_ and verify_(value_, value)) {
+        value_ = value;
+        return true;
+    }
+    return false;
+}
+
+bool tv::StringParameter::get(std::string& value) const {
+    value = value_;
+    return true;
+}
+
+tv::NumericalParameter::NumericalParameter(std::string const& name, int32_t min,
+                                           int32_t max, int32_t init)
+    : Parameter(Parameter::Type::Numerical, name),
+      min_(min),
+      max_(max),
+      value_(init) {
 
     if (min_ > max_) {
         LogError("PARAMETER", "Min > Max ", min_, " ", max_);
     }
-    if (value_ > max_ or value_ < min_) {
+    if (value_ > max_) {
         LogError("PARAMETER", "Init: ", value_);
+        value_ = max_;
+    } else if (value_ < min_) {
+        LogError("PARAMETER", "Init: ", value_);
+        value_ = min_;
     }
 }
+
+tv::StringParameter::StringParameter(
+    std::string const& name, std::string const& init,
+    std::function<bool(std::string const& old, std::string const& value)>
+        verify)
+    : Parameter(Parameter::Type::String, name), value_(init), verify_(verify) {}

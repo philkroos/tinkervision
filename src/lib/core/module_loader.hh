@@ -53,7 +53,8 @@ public:
     ModuleLoader(std::string const& system_lib_load_path,
                  std::string const& user_lib_load_path);
 
-    ~ModuleLoader(void) { destroy_all(); }
+    /// d'tor. Call destroy_all() and delete acquired resources.
+    ~ModuleLoader(void);
 
     /// Modify the user accessible module load path.
     /// \param[in] load_path full path name
@@ -140,14 +141,10 @@ public:
     /// Get the properties of a parameter from a library.
     /// \param[in] libname Name of the module, i.e. filename w/o extension.
     /// \param[in] number A number < library_parameter_count()
-    /// \param[out] name Parameter identifier
-    /// \param[out] min Parameter minimum value
-    /// \param[out] max Parameter maximum value
-    /// \param[out] def Parameter default value
+    /// \param[out] p Requested parameter.
     /// \return False if the library is not available or number is out of range.
-    bool library_describe_parameter(std::string const& libname, size_t number,
-                                    std::string& name, int32_t& min,
-                                    int32_t& max, int32_t& def) const;
+    bool library_get_parameter(std::string const& libname, size_t number,
+                               Parameter const** p) const;
 
     /// Access the currently set user module load path.
     /// \return user_load_path_
@@ -163,7 +160,7 @@ private:
     struct AvailableModule {
         std::string libname;
         std::string loadpath;
-        std::vector<Parameter> parameter;
+        std::vector<Parameter const*> parameter;
     };
     using AvailableModules = std::vector<AvailableModule>;
 

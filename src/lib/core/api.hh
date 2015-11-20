@@ -133,7 +133,7 @@ public:
     /// The method will succeed if:
     int16_t module_destroy(int8_t id);
 
-    /// Set a parameter of a module.
+    /// Set a parameter of a module.  T can be int32_t or std::string.
     /// \param[in] module_id Id of a loaded module (may be inactive).
     /// \param[in] parameter Name of the parameter to set.
     /// \param[in] value Value to set.
@@ -141,17 +141,40 @@ public:
     ///    - #TV_NO_SUCH_PARAMETER if the parameter does not exist
     ///    - #TV_MODULE_ERROR_SETTING_PARAMETER if the value is incompatible
     ///    - #TV_OK else
-    int16_t set_parameter(int8_t module_id, std::string parameter,
-                          int32_t value);
+    template <typename T>
+    int16_t set_parameter(int8_t module_id, std::string const& parameter,
+                          T const& value) {
 
-    /// Get a parameter's value from a module.
+        return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
+            if (not module.has_parameter(parameter)) {
+                return TV_MODULE_NO_SUCH_PARAMETER;
+            }
+            if (not module.set_parameter(parameter, value)) {
+                return TV_MODULE_ERROR_SETTING_PARAMETER;
+            }
+            return TV_OK;
+        });
+    }
+
+    /// Get a parameter's value from a module. T can be int32_t or
+    /// std::string.
     /// \param[in] module_id Id of a loaded module (may be inactive).
-    /// \param[in] parameter Name of the parameter to set.
+    /// \param[in] parameter Name of the parameter to get.
     /// \param[out] value Value of parameter.
     ///    - #TV_NO_SUCH_PARAMETER if the parameter does not exist
     ///    - #TV_OK else
-    int16_t get_parameter(int8_t module_id, std::string parameter,
-                          int32_t* value);
+    template <typename T>
+    int16_t get_parameter(int8_t module_id, std::string const& parameter,
+                          T& value) {
+
+        return modules_.exec_one(module_id, [&](ModuleWrapper& module) {
+            if (not module.get_parameter(parameter, value)) {
+                return TV_MODULE_NO_SUCH_PARAMETER;
+            }
+
+            return TV_OK;
+        });
+    }
 
     /// Start a module which was already initialized by
     /// module_load().  This method succeeds if the module was
@@ -239,6 +262,8 @@ public:
     /// \param[in] parameter Number of the paramater, in range of
     /// library_get_parameter_count()
     /// \param[out] name Name of the parameter, to be used with parameter_set()
+    /// \param[out] type 0 = int32_t, 1 = string.
+    /// \param[out] string Default value of the parameter
     /// \param[out] min Minimum allowed value of the parameter
     /// \param[out] max Maximum allowed value of the parameter
     /// \param[out] def Default, initial value of the parameter
@@ -247,6 +272,7 @@ public:
     ///    - #TV_OK else
     int16_t library_describe_parameter(std::string const& libname,
                                        size_t parameter, std::string& name,
+                                       uint8_t& type, std::string& string,
                                        int32_t& min, int32_t& max,
                                        int32_t& def);
 

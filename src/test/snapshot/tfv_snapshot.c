@@ -38,6 +38,14 @@ int main(int argc, char* argv[]) {
     /* Wait for a moment to have the Snapshot module executed at least once */
     sleep(1);
 
+    result = tv_set_string_parameter(id, "path", "/tmp0");
+    printf("Snapshot setting wrong path: %d (%s)\n", result,
+           tv_result_string(result));
+
+    result = tv_set_string_parameter(id, "path", "/tmp/");
+    printf("Snapshot setting correct path: %d (%s)\n", result,
+           tv_result_string(result));
+
     result = tv_get_result(id, &m_result);
     printf("Snapshot result: %d (%s)\n", result, tv_result_string(result));
     if (result == TV_OK) {

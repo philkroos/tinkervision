@@ -71,7 +71,20 @@ bool tv::Module::has_parameter(std::string const& parameter) const {
 
 bool tv::Module::register_parameter(std::string const& name, int32_t min,
                                     int32_t max, int32_t init) {
+    return register_parameter_typed<NumericalParameter>(name, min, max, init);
+}
 
+bool tv::Module::register_parameter(
+    std::string const& name, std::string const& init,
+    std::function<bool(std::string const& old, std::string const& value)>
+        verify) {
+
+    return register_parameter_typed<StringParameter>(name, init, verify);
+}
+
+template <typename T, typename... Args>
+bool tv::Module::register_parameter_typed(std::string const& name,
+                                          Args... args) {
     if (initialized_) {
         return false;
     }
@@ -89,27 +102,44 @@ bool tv::Module::register_parameter(std::string const& name, int32_t min,
         return false;
     }
 
-    parameter_map_.insert({name, new Parameter(name, min, max, init)});
+    parameter_map_.insert({name, new T(name, args...)});
     parameter_names_.push_back(name);
     return true;
 }
 
 bool tv::Module::set(std::string const& parameter, int32_t value) {
+    return set_parameter(parameter, value);
+}
+
+bool tv::Module::set(std::string const& parameter, std::string const& value) {
+    return set_parameter(parameter, value);
+}
+
+template <typename T>
+bool tv::Module::set_parameter(std::string const& parameter, T const& value) {
     return has_parameter(parameter) and parameter_map_[parameter]->set(value);
 }
 
-bool tv::Module::get(std::string const& parameter, int32_t& value) {
+bool tv::Module::get(std::string const& parameter, int32_t& value) const {
+    return get_parameter(parameter, value);
+}
+
+bool tv::Module::get(std::string const& parameter, std::string& value) const {
+    return get_parameter(parameter, value);
+}
+
+template <typename T>
+bool tv::Module::get_parameter(std::string const& parameter, T& value) const {
     if (not has_parameter(parameter)) {
         return false;
     }
 
-    value = parameter_map_[parameter]->get();
-    return true;
+    return parameter_map_.at(parameter)->get(value);
 }
 
 size_t tv::Module::parameter_count(void) const { return parameter_map_.size(); }
 
-tv::Parameter const& tv::Module::get_parameter_by_id(size_t number) const {
+tv::Parameter const& tv::Module::get_parameter_by_number(size_t number) const {
     // return last if out-of-range
     auto name = parameter_names_[std::min(number, parameter_count())];
     return *parameter_map_.find(name)->second;

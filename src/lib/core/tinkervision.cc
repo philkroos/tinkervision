@@ -129,10 +129,31 @@ int16_t tv_set_parameter(int8_t module_id, char const* const parameter,
     return tv::get_api().set_parameter(module_id, parameter, value);
 }
 
-int16_t tv_get_parameter(int8_t module_id, char const* const parameter,
-                         int32_t* value) {
+int16_t tv_set_string_parameter(int8_t module_id, char const* const parameter,
+                                char const* value) {
+    tv::Log("Tinkervision::SetParameter", module_id, " ", parameter, " ",
+            value);
+    auto svalue = std::string(value);
+    return tv::get_api().set_parameter<std::string>(module_id, parameter,
+                                                    svalue);
+}
+
+int16_t tv_get_numerical_parameter(int8_t module_id,
+                                   char const* const parameter,
+                                   int32_t* value) {
     tv::Log("Tinkervision::GetParameter", module_id, " ", parameter);
-    return tv::get_api().get_parameter(module_id, parameter, value);
+    return tv::get_api().get_parameter(module_id, parameter, *value);
+}
+
+int16_t tv_get_string_parameter(int8_t module_id, char const* const parameter,
+                                char value[]) {
+    tv::Log("Tinkervision::GetParameter", module_id, " ", parameter);
+    std::string svalue;
+    auto result = tv::get_api().get_parameter(module_id, parameter, svalue);
+    if (result == TV_OK) {
+        copy_std_string(svalue, value);
+    }
+    return result;
 }
 
 int16_t tv_module_start(char const* name, int8_t* id) {
@@ -202,14 +223,16 @@ int16_t tv_library_parameter_count(char const* libname, uint16_t* count) {
 }
 
 int16_t tv_library_describe_parameter(char const* libname, uint16_t parameter,
-                                      char name[], int32_t* min, int32_t* max,
+                                      char name[], uint8_t* type, char string[],
+                                      int32_t* min, int32_t* max,
                                       int32_t* def) {
     tv::Log("Tinkervision::LibraryDescribeParameter", libname, " ", parameter);
-    std::string sname;
+    std::string sname, svalue;
     int16_t err = tv::get_api().library_describe_parameter(
-        libname, parameter, sname, *min, *max, *def);
+        libname, parameter, sname, *type, svalue, *min, *max, *def);
     if (err == TV_OK) {
         copy_std_string(sname, name);
+        copy_std_string(svalue, string);
     }
 
     return err;

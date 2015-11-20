@@ -119,9 +119,17 @@ std::ostream& tv::operator<<(std::ostream& os, int8_t id) {
     return os;
 }
 
-std::ostream& tv::operator<<(std::ostream& os, Parameter p) {
-    os << p.name() << ": " << p.get() << " [" << p.min() << "," << p.max()
-       << "]";
+std::ostream& tv::operator<<(std::ostream& os, StringParameter& p) {
+    std::string value;
+    (void)p.get(value);
+    os << p.name() << ": " << value;
+    return os;
+}
+
+std::ostream& tv::operator<<(std::ostream& os, NumericalParameter& p) {
+    int32_t value;
+    (void)p.get(value);
+    os << p.name() << ": " << value << " [" << p.min() << "," << p.max() << "]";
     return os;
 }
 

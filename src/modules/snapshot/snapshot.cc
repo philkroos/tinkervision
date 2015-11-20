@@ -32,22 +32,27 @@
 
 DEFINE_VISION_MODULE(Snapshot)
 
-using namespace tv;
-
-Snapshot::~Snapshot(void) {
+tv::Snapshot::~Snapshot(void) {
     if (image_.data) {
         delete[] image_.data;
     }
 }
 
-void Snapshot::execute(tv::ImageHeader const& header, tv::ImageData const* data,
-                       tv::ImageHeader const&, tv::ImageData*) {
+void tv::Snapshot::execute(tv::ImageHeader const& header,
+                           tv::ImageData const* data, tv::ImageHeader const&,
+                           tv::ImageData*) {
     try {
 
         static auto counter = int(0);
         counter++;
+
+        auto path = std::string();
+        auto prefix = std::string();
+        (void)get("path", path);
+        (void)get("prefix", prefix);
+
         filename_.result =
-            std::string{"Snapshot" + std::to_string(counter) + ".yuv"};
+            std::string{path + prefix + "_" + std::to_string(counter) + ".yuv"};
 
         if (not image_.data) {
             image_.header.width = header.width;
@@ -62,7 +67,7 @@ void Snapshot::execute(tv::ImageHeader const& header, tv::ImageData const* data,
     }
 }
 
-tv::Result const& Snapshot::get_result(void) const {
+tv::Result const& tv::Snapshot::get_result(void) const {
 
     if (image_.data) {
 
@@ -79,4 +84,12 @@ tv::Result const& Snapshot::get_result(void) const {
     }
 
     return filename_;
+}
+
+void tv::Snapshot::init(void) {
+    register_parameter("prefix", "tv_snap");
+    register_parameter("path", "/tmp/", [](std::string const& old_path,
+                                           std::string const& new_path) {
+        return is_directory(new_path);
+    });
 }

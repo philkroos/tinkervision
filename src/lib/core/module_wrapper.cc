@@ -46,13 +46,13 @@ tv::ColorSpace tv::ModuleWrapper::expected_format(void) const {
 std::string tv::ModuleWrapper::name(void) const { return tv_module_->name(); }
 
 void tv::ModuleWrapper::get_parameters_list(
-    std::vector<Parameter>& parameters) const {
+    std::vector<Parameter const*>& parameters) const {
     parameters.clear();
 
     auto map = tv_module_->parameter_map();
     for (auto const& parameter : map) {
         auto p = parameter.second;
-        parameters.push_back({p->name_, p->min_, p->max_, p->value_});
+        parameters.push_back(p);
     }
 }
 
@@ -72,9 +72,9 @@ bool tv::ModuleWrapper::set_parameter(std::string const& parameter,
     return result;
 }
 
-bool tv::ModuleWrapper::get_parameter(std::string const& parameter,
-                                      int32_t& value) {
-    return tv_module_->get(parameter, value);
+bool tv::ModuleWrapper::set_parameter(std::string const& parameter,
+                                      std::string const& value) {
+    return tv_module_->set(parameter, value);
 }
 
 tv::Result const& tv::ModuleWrapper::result(void) const {

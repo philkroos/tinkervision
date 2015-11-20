@@ -30,6 +30,7 @@
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
+#include <functional>
 
 #include "image.hh"
 #include "tinkervision_defines.h"
@@ -150,7 +151,7 @@ public:
 
     using ParameterMap = std::unordered_map<std::string, Parameter*>;
 
-    /// Add a parameter to this module.  This is only possible during
+    /// Add a numerice parameter to this module.  This is only possible during
     /// construction and initialization, e.g. actual modules must register their
     /// parameters in their constructor or in init().
     /// \param[in] name Name of the parameter to be constructed.  If an existing
@@ -163,17 +164,45 @@ public:
     bool register_parameter(std::string const& name, int32_t min, int32_t max,
                             int32_t init);
 
+    /// Add a string parameter to this module.  This is only possible during
+    /// construction and initialization, e.g. actual modules must register their
+    /// parameters in their constructor or in init().
+    /// \param[in] name Name of the parameter to be constructed.  If an existing
+    /// value is passed, the existing parameter will be preserved.
+    /// \param[in] init Default string.
+    /// \return True if called during initialization and no such parameter is
+    /// registered yet.
+    bool register_parameter(
+        std::string const& name, std::string const& init,
+        std::function<bool(std::string const& old, std::string const& value)>
+            verify = nullptr);
+
     /// Set the specified parameter to the given value.
     /// \param[in] parameter Name of the parameter to set.
     /// \param[in] value Value of the parameter.
-    /// \return True, if the parameter exists and value is its the min/max range
+    /// \return True, if the parameter exists, is numeric, and value is its the
+    /// min/max range
     bool set(std::string const& parameter, int32_t value);
+
+    /// Set the specified string parameter to the given value.
+    /// \param[in] parameter Name of the parameter to set.
+    /// \param[in] value Value of the parameter.
+    /// \return True, if the parameter exists and is a string type.
+    bool set(std::string const& parameter, std::string const& value);
 
     /// Get the value of the specified parameter.
     /// \param[in] parameter Name of the parameter to retrieve.
     /// \param[out] value Current value of the parameter.
-    /// \return False if the specified parameter is not registered.
-    bool get(std::string const& parameter, int32_t& value);
+    /// \return False if the specified parameter is not registered or is a
+    /// string type.
+    bool get(std::string const& parameter, int32_t& value) const;
+
+    /// Get the value of the specified parameter.
+    /// \param[in] parameter Name of the parameter to retrieve.
+    /// \param[out] value Current value of the parameter.
+    /// \return False if the specified parameter is not registered or is a
+    /// numerical type.
+    bool get(std::string const& parameter, std::string& value) const;
 
     /// Get the number of parameters registered for this module.
     /// \return Size of the parameter_map_.
@@ -184,7 +213,7 @@ public:
     /// allow access by number.
     /// \param[in] number Number in range [0, parameter_count()].
     /// \return The parameter, if it exists, else the last one.
-    Parameter const& get_parameter_by_id(size_t number) const;
+    Parameter const& get_parameter_by_number(size_t number) const;
 
     /// Initialize this module. This will be called immediately after
     /// construction and initializes the internal state.
@@ -244,6 +273,13 @@ private:
     bool init_error_{false};       ///< An error occured during construction?
 
     Result invalid_result_;  ///< Default result.
+
+    template <typename T, typename... Args>
+    bool register_parameter_typed(std::string const& name, Args... args);
+    template <typename T>
+    bool set_parameter(std::string const& parameter, T const& value);
+    template <typename T>
+    bool get_parameter(std::string const& parameter, T& value) const;
 };
 }
 

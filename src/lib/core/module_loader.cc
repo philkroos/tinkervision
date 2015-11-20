@@ -65,6 +65,15 @@ tv::ModuleLoader::ModuleLoader(std::string const& system_lib_load_path,
     dirwatch_.watch(user_load_path_);
 }
 
+tv::ModuleLoader::~ModuleLoader(void) {
+    destroy_all();
+    for (auto& a : availables_) {
+        for (auto& p : a.parameter) {
+            delete p;
+        }
+    }
+}
+
 bool tv::ModuleLoader::set_user_load_path(std::string const& load_path) {
     if (load_path == user_load_path_) {
         LogWarning("MODULE_LOADER", "Load path does not change: ", load_path);
@@ -248,11 +257,9 @@ bool tv::ModuleLoader::library_name_and_path(size_t count, std::string& name,
     return true;
 }
 
-bool tv::ModuleLoader::library_describe_parameter(std::string const& libname,
-                                                  size_t number,
-                                                  std::string& name,
-                                                  int32_t& min, int32_t& max,
-                                                  int32_t& def) const {
+bool tv::ModuleLoader::library_get_parameter(std::string const& libname,
+                                             size_t number,
+                                             Parameter const** p) const {
 
     auto it = std::find_if(
         availables_.cbegin(), availables_.cend(),
@@ -262,10 +269,7 @@ bool tv::ModuleLoader::library_describe_parameter(std::string const& libname,
         return false;
     }
 
-    name = it->parameter[number].name();
-    min = it->parameter[number].min();
-    max = it->parameter[number].max();
-    def = it->parameter[number].get();
+    *p = it->parameter[number];
     return true;
 }
 
@@ -373,7 +377,26 @@ bool tv::ModuleLoader::_add_available_module(std::string const& path,
 
         Log("MODULE_LOADER", "Adding module ", name, " from ", path);
         availables_.push_back({name, path, {}});
-        tmp->get_parameters_list(availables_.back().parameter);
+
+        // Get a copy of the supported parameters, to have them available even
+        // if the module is not loaded.
+        auto parameters = tmp->get_parameter_count();
+        for (size_t i = 0; i < parameters; ++i) {
+            auto& p = tmp->get_parameter_by_number(i);
+
+            if (p.type() == Parameter::Type::String) {
+                std::string value;
+                (void)p.get(value);
+                availables_.back().parameter.push_back(
+                    new StringParameter(p.name(), value, nullptr));
+            } else if (p.type() == Parameter::Type::Numerical) {
+                int32_t value;
+                (void)p.get(value);
+                availables_.back().parameter.push_back(
+                    new NumericalParameter(p.name(), p.min(), p.max(), value));
+            }
+        }
+
         ok = true;
     }
 

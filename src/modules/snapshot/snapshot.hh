@@ -27,7 +27,8 @@
 #ifndef SNAPSHOT_H
 #define SNAPSHOT_H
 
-#include "tinkervision/module.hh"
+#include "tinkervision/module.hh"      // interface
+#include "tinkervision/filesystem.hh"  // check if set path is correct
 
 namespace tv {
 /// Save the current image to disk.
@@ -45,6 +46,8 @@ protected:
     tv::ColorSpace input_format(void) const override {
         return tv::ColorSpace::YV12;
     }
+
+    void init(void) override;
 
     tv::Result const& get_result(void) const;
 
