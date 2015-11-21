@@ -541,8 +541,11 @@ int16_t tv::Api::_module_load(std::string const& name, int16_t id) {
         return module_loader_.last_error();
     }
 
-    /// \todo Catch the cases in which this fails and remove the module.
-    (void)module->initialize();
+    if (not module->initialize()) {
+        Log("API", "Initializing library ", name, " failed");
+        module_loader_.destroy_module(module);
+        return TV_MODULE_INITIALIZATION_FAILED;
+    }
 
     if (not camera_control_.acquire()) {
         return TV_CAMERA_NOT_AVAILABLE;
