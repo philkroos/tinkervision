@@ -39,7 +39,7 @@ namespace tv {
 
 class CameraControl {
 public:
-    CameraControl(void);
+    CameraControl(void) noexcept;
     ~CameraControl(void);
 
     CameraControl(CameraControl const&) = delete;

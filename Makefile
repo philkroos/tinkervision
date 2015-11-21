@@ -7,6 +7,12 @@ else
 	ccflags += -O3
 endif
 
+ifdef USER_PREFIX
+	usr_prefix = $(USER_PREFIX)
+else
+	usr_prefix = $(HOME)/tv
+endif
+
 # structure
 parts		:= core tools imaging debug interface
 build_prefix	:= build
@@ -40,14 +46,14 @@ vpath %.cc $(src_dir)
 # generates targets, called at below
 define make-goal
 $1/%.o: %.cc
-	$(cc) $(ccflags) -c $$< -o $$@ $(inc)
+	$(cc) $(ccflags) -c $$< -o $$@ $(inc) -DUSR_PREFIX=\"$(usr_prefix)\"
 endef
 
 # setup directory structure
 $(build_dir):
 	@mkdir -p $@
 
-directories: $(build_dir)
+directories: $(build_dir) user_paths
 
 # actual targets
 lib: directories $(obj)
@@ -62,10 +68,13 @@ clean:
 # generate rules
 $(foreach bdir,$(build_dir),$(eval $(call make-goal,$(bdir))))
 
-
 # documentation
 doc:
 	doxygen
+
+# set up the user paths
+user_paths:
+	mkdir -p $(usr_prefix)/modules $(usr_prefix)/frames
 
 # installation
 prefix		:= /usr

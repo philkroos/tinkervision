@@ -477,6 +477,8 @@ private:
     }
 
 public:
+    FrameConversions(void) noexcept {}
+
     void set_frame(Image const& image) {
         frame_ = &image;
         for (auto& converter : provided_formats_) {

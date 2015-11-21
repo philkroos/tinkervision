@@ -87,6 +87,8 @@ private:
     using ConstIterator = typename ResourceContainerMap::const_iterator;
 
 public:
+    SharedResource(void) noexcept {}
+
     ~SharedResource(void) {
         for (auto const& resource : managed_) {
             if (resource.second.resource) delete resource.second.resource;

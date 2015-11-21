@@ -78,5 +78,7 @@ public:
         }
         return result;
     }
+
+    Strings(void) noexcept {}
 };
 }

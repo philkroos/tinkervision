@@ -42,20 +42,13 @@
 #include "scenetrees.hh"
 #include "module_loader.hh"
 #include "shared_resource.hh"
-
-#include "window.hh"
+#include "environment.hh"
 #include "logger.hh"
 
 namespace tv {
 
 /// Defines the public api of the Tinkervision library.
 class Api {
-private:
-    Api(void);
-    friend tv::Api& get_api(void);
-    bool active(void) const { return active_; }
-    bool active_modules(void) const { return modules_.size(); }
-
 public:
     /// No copies allowed.
     Api(Api const&) = delete;
@@ -396,18 +389,20 @@ public:
 
 private:
     CameraControl camera_control_;  ///< Camera access abstraction
-    FrameConversions conversions_;
-    Strings result_string_map_;         ///< String mapping of Api-return values
-    bool idle_process_running_{false};  ///< Dummy module activated?
-    uint32_t effective_frameperiod_{0};  ///< Effective inverse framerate
+    FrameConversions conversions_;  ///< Camera frame in requested formats
+    Environment environment_;       ///< Configuration and scripting context
+    Strings result_string_map_;     ///< String mapping of Api-return values
 
-    ModuleLoader module_loader_{SYS_MODULE_LOAD_PATH, ADD_MODULE_LOAD_PATH};
+    ModuleLoader* module_loader_;  ///< Manages available libraries
 
     using Modules = tv::SharedResource<tv::ModuleWrapper>;  ///< Instantiation
     /// of the resource manager using the abstract base class of a vision
     /// algorithm.
 
     Modules modules_;  ///< RAII-style managed vision algorithms.
+
+    bool idle_process_running_{false};   ///< Dummy module activated?
+    uint32_t effective_frameperiod_{0};  ///< Effective inverse framerate
 
     std::thread executor_;        ///< Mainloop-Context executing the modules.
     bool active_ = true;          ///< While true, the mainloop is running.
@@ -416,6 +411,11 @@ private:
     SceneTrees scene_trees_;
 
     TV_Callback default_callback_ = nullptr;
+
+    Api(void) noexcept;
+    friend tv::Api& get_api(void);
+    bool active(void) const { return active_; }
+    bool active_modules(void) const { return modules_.size(); }
 
     /// Threaded execution context of vision algorithms (modules).
     /// This method is started asynchronously during construction of

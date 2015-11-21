@@ -38,9 +38,15 @@
 
 tv::CameraControl::~CameraControl(void) { release_all(); }
 
-tv::CameraControl::CameraControl(void) {
-    fallback_.allocate(640, 480, 640 * 480 * 3, ColorSpace::BGR888, false);
-    std::fill_n(fallback_().data, fallback_().header.bytesize, 255);
+tv::CameraControl::CameraControl(void) noexcept {
+    try {
+        if (fallback_.allocate(640, 480, 640 * 480 * 3, ColorSpace::BGR888,
+                               false)) {
+            std::fill_n(fallback_().data, fallback_().header.bytesize, 255);
+        }
+    } catch (...) {
+        LogError("CAMERA_CONTROL", "Error allocating fallback image");
+    }
 }
 
 bool tv::CameraControl::is_available(void) {
@@ -170,6 +176,10 @@ bool tv::CameraControl::update_frame(Image& image) {
     }
 
     if (not _update_from_camera()) {
+        if (not fallback_.image().data) {
+            LogError("CAMERA_CONTROL", "No valid image");
+            return false;
+        }
         image_.set_from_image(fallback_.image());
     }
 

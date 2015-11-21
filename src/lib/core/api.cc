@@ -33,17 +33,43 @@
 #include "api.hh"
 #include "module_wrapper.hh"
 
-tv::Api::Api(void) {
-    active_ = true;
-    executor_ = std::thread(&Api::execute, this);
+#ifndef USR_PREFIX
+#error USR_PREFIX not defined
+#endif
 
-    if (not executor_.joinable()) {
+tv::Api::Api(void) noexcept {
+
+    try {
+        if (not environment_.set_user_prefix(USR_PREFIX)) {
+            throw ConstructionException("Environment", USR_PREFIX);
+        }
+
+        // dynamic construction because it is not noexcept
+        module_loader_ = new ModuleLoader(environment_.system_module_path(),
+                                          environment_.user_module_path());
+
+        active_ = true;
+        executor_ = std::thread(&Api::execute, this);
+
+        if (not executor_.joinable()) {
+            throw ConstructionException("Api", "Thread creation failed");
+        }
+
+    } catch (Exception const& e) {
+        LogError("API", "Construction failed: ", e.what());
         active_ = false;
-        LogError("API", "Construction failed.");
+        if (executor_.joinable()) {
+            executor_.join();
+        }
+    } catch (...) {
+        LogError("API", "Construction failed!");
     }
 }
 
-tv::Api::~Api(void) { (void)quit(); }
+tv::Api::~Api(void) {
+    (void)quit();
+    delete module_loader_;
+}
 
 int16_t tv::Api::start(void) {
     Log("API", "Restarting");
@@ -375,7 +401,7 @@ int16_t tv::Api::module_get_name(int8_t module_id, std::string& name) const {
 
 int16_t tv::Api::library_get_parameter_count(std::string const& libname,
                                              size_t& count) const {
-    if (module_loader_.library_parameter_count(libname, count)) {
+    if (module_loader_->library_parameter_count(libname, count)) {
         return TV_OK;
     }
     return TV_INVALID_ARGUMENT;
@@ -388,7 +414,7 @@ int16_t tv::Api::library_describe_parameter(std::string const& libname,
                                             int32_t& def) {
 
     Parameter const* p;
-    if (not module_loader_.library_get_parameter(libname, parameter, &p)) {
+    if (not module_loader_->library_get_parameter(libname, parameter, &p)) {
         return TV_INVALID_ARGUMENT;
     }
 
@@ -435,7 +461,7 @@ int16_t tv::Api::module_enumerate_parameters(int8_t module_id,
 int16_t tv::Api::libraries_changed_callback(TV_LibrariesCallback callback,
                                             void* context) {
 
-    module_loader_.update_on_changes([callback, context](
+    module_loader_->update_on_changes([callback, context](
         std::string const& dir, std::string const& file,
         Dirwatch::Event event) {
         auto const status = (event == Dirwatch::Event::FILE_CREATED ? 1 : -1);
@@ -445,8 +471,8 @@ int16_t tv::Api::libraries_changed_callback(TV_LibrariesCallback callback,
 }
 
 int16_t tv::Api::set_user_module_load_path(std::string const& path) {
-    return module_loader_.set_user_load_path(path) ? TV_OK
-                                                   : TV_INVALID_ARGUMENT;
+    return module_loader_->set_user_load_path(path) ? TV_OK
+                                                    : TV_INVALID_ARGUMENT;
 }
 
 int16_t tv::Api::callback_set(int8_t module_id, TV_Callback callback) {
@@ -499,11 +525,11 @@ uint32_t tv::Api::effective_frameperiod(void) const {
 }
 
 std::string const& tv::Api::user_module_path(void) const {
-    return module_loader_.user_load_path();
+    return module_loader_->user_load_path();
 }
 
 std::string const& tv::Api::system_module_path(void) const {
-    return module_loader_.system_load_path();
+    return module_loader_->system_load_path();
 }
 
 /// Disable and remove all modules.
@@ -516,12 +542,12 @@ void tv::Api::remove_all_modules(void) {
 }
 
 void tv::Api::get_libraries_count(uint16_t& count) const {
-    count = module_loader_.libraries_count();
+    count = module_loader_->libraries_count();
 }
 
 bool tv::Api::library_get_name_and_path(uint16_t count, std::string& name,
                                         std::string& path) const {
-    return module_loader_.library_name_and_path(count, name, path);
+    return module_loader_->library_name_and_path(count, name, path);
 }
 
 /*
@@ -536,14 +562,14 @@ int16_t tv::Api::_module_load(std::string const& name, int16_t id) {
     }
 
     auto module = (ModuleWrapper*)(nullptr);
-    if (not module_loader_.load_module_from_library(&module, name, id)) {
+    if (not module_loader_->load_module_from_library(&module, name, id)) {
         Log("API", "Loading library ", name, " failed");
-        return module_loader_.last_error();
+        return module_loader_->last_error();
     }
 
     if (not module->initialize()) {
         Log("API", "Initializing library ", name, " failed");
-        module_loader_.destroy_module(module);
+        module_loader_->destroy_module(module);
         return TV_MODULE_INITIALIZATION_FAILED;
     }
 
@@ -551,8 +577,9 @@ int16_t tv::Api::_module_load(std::string const& name, int16_t id) {
         return TV_CAMERA_NOT_AVAILABLE;
     }
 
+    // Add modules to managed objects and register destruction handler
     if (not modules_.insert(id, module, [this](ModuleWrapper& module) {
-            module_loader_.destroy_module(&module);
+            module_loader_->destroy_module(&module);
         })) {
 
         camera_control_.release();

@@ -48,11 +48,6 @@ typedef void (*TV_LibrariesCallback)(char const* name, char const* path,
 
 #define TV_UNUSED_ID -1
 
-///< Systemwide vision module load path.
-#define SYS_MODULE_LOAD_PATH "/usr/lib/tinkervision/"
-///< User accessible vision module load path.
-#define ADD_MODULE_LOAD_PATH "/tmp/lib/tinkervision/"
-
 /* result codes */
 
 ///< Default 'no-error' result
