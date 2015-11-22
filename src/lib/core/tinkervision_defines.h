@@ -51,6 +51,7 @@ typedef void (*TV_LibrariesCallback)(char const* name, char const* path,
 #define SYS_MODULES_PATH "/usr/lib/tinkervision/"
 #define MODULES_FOLDER "modules"
 #define FRAMES_FOLDER "frames"
+#define SCRIPTS_FOLDER "scripts"
 
 /* result codes */
 

@@ -47,12 +47,17 @@ tv::Api::Api(void) noexcept(noexcept(CameraControl()) and
             throw ConstructionException("Environment", USR_PREFIX);
         }
 
+        std::string result;
+        if (environment_.python().execute_script("tv_py", result)) {
+            Log("API", "Python test returned ", result);
+        }
+
         // dynamic construction because not noexcept
         modules_ = new Modules;
 
         // dynamic construction because not noexcept
-        module_loader_ = new ModuleLoader(environment_.system_module_path(),
-                                          environment_.user_module_path());
+        module_loader_ = new ModuleLoader(environment_.system_modules_path(),
+                                          environment_.user_modules_path());
 
         active_ = true;
         executor_ = std::thread(&Api::execute, this);
@@ -60,6 +65,8 @@ tv::Api::Api(void) noexcept(noexcept(CameraControl()) and
         if (not executor_.joinable()) {
             throw ConstructionException("Api", "Thread creation failed");
         }
+
+        api_valid_ = true;
 
     } catch (ConstructionException const& e) {
         LogError("API", "Construction failed: ", e.what());
@@ -77,8 +84,14 @@ tv::Api::~Api(void) {
     delete module_loader_;
 }
 
+bool tv::Api::valid(void) const { return api_valid_; }
+
 int16_t tv::Api::start(void) {
     Log("API", "Restarting");
+
+    if (not valid()) {
+        return TV_INTERNAL_ERROR;
+    }
 
     if (executor_.joinable()) {
         return TV_THREAD_RUNNING;
@@ -111,6 +124,10 @@ int16_t tv::Api::start(void) {
 
 int16_t tv::Api::stop(void) {
 
+    if (not valid()) {
+        return TV_OK;
+    }
+
     auto active_count = modules_->count(
         [](ModuleWrapper const& module) { return module.enabled(); });
 
@@ -139,7 +156,9 @@ int16_t tv::Api::quit(void) {
     (void)stop();
 
     // ... remove all modules from the shared context ...
-    remove_all_modules();
+    if (valid()) {
+        remove_all_modules();
+    }
 
     // \todo assert that everything has been stopped.
     return TV_OK;
@@ -477,6 +496,8 @@ int16_t tv::Api::libraries_changed_callback(TV_LibrariesCallback callback,
 }
 
 int16_t tv::Api::set_user_module_load_path(std::string const& path) {
+    return TV_NOT_IMPLEMENTED;
+    // Must adapt this to Environment
     return module_loader_->set_user_load_path(path) ? TV_OK
                                                     : TV_INVALID_ARGUMENT;
 }
@@ -531,7 +552,7 @@ uint32_t tv::Api::effective_frameperiod(void) const {
 }
 
 std::string const& tv::Api::user_module_path(void) const {
-    return module_loader_->user_load_path();
+    return environment_.user_modules_path();
 }
 
 std::string const& tv::Api::system_module_path(void) const {

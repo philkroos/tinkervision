@@ -151,13 +151,14 @@ public:
 
         std::lock_guard<std::mutex> lock(managed_mutex_);
         if (exists(managed_, id)) {
-            LogWarning("SHARED_RESOURCE::allocate", "Double allocate");
+            LogWarning("SHARED_RESOURCE", "Double allocate");
 
             return false;
         }
 
         managed_[id] = {module, deallocator};
         ids_managed_.push_front(id);
+        Log("SHARED_RESOURCE", "Inserted ", module->name(), " (", id, ")");
         return true;
     }
 

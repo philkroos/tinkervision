@@ -31,6 +31,12 @@
 extern "C" {
 #endif
 
+/// Checks if the library is valid.  Should be checked once before usage.
+/// \return
+///    - TV_INTERNAL_ERROR if an error occured during construction.
+///    - TV_OK if the library is usable.
+int16_t tv_valid(void);
+
 /// Checks if the camera device is available.
 /// \return
 ///    - TV_CAMERA_NOT_AVAILABLE if not.

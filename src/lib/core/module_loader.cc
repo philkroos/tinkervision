@@ -46,6 +46,7 @@ tv::ModuleLoader::ModuleLoader(std::string const& system_lib_load_path,
     // list of .so files. Checked for validity in _add_available_module
     _possibly_available_modules(paths, modules);
 
+    Log("MODULE_LOADER", "User module path: ", user_lib_load_path);
     Log("MODULE_LOADER", "Starting with ", paths.size(), " available modules");
 
     for (size_t i = 0; i < modules.size(); ++i) {

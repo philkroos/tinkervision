@@ -28,6 +28,7 @@
 
 #include "logger.hh"
 #include "filesystem.hh"
+#include "python_context.hh"
 
 namespace tv {
 
@@ -35,48 +36,49 @@ class Api;  ///< Constructing Environment
 
 class Environment {
 public:
-    std::string const& system_module_path(void) { return system_module_path_; }
+    /// Get the path where core vision modules are installed.
+    /// \return system_module_path_.
+    std::string const& system_modules_path(void) const;
 
-    std::string user_module_path(void) { return user_prefix_ + modules_dir_; }
+    /// Get the path where additional vision modules are installed.
+    /// \return user_prefix_/modules_dir_.
+    std::string const& user_modules_path(void) const;
+
+    /// Get the path where modules should save frames.
+    /// \return user_prefix_/frames_dir_.
+    std::string const& user_frames_path(void) const;
+
+    /// Get the path where python scripts can be loaded from.
+    /// \return user_prefix_/scripts_dir_.
+    std::string const& user_scripts_path(void) const;
 
     /// Set the user prefix, which is the root of all accessible user paths.
     /// The path has to exist and each of the paths accessible from the user_*
     /// methods of this class have to exist.
     /// \param[in] path An existing path with user write privileges.
-    bool set_user_prefix(std::string const& path) {
-        if (not is_directory(path)) {
-            Log("ENVIRONMENT", "Can't set user prefix to ", path);
-            return false;
-        }
+    bool set_user_prefix(std::string const& path);
 
-        // expecting a path ending with /
-        auto dir = path;
-        if (not(dir.back() == '/')) {
-            dir.push_back('/');
-        }
-
-        if (not is_directory(dir + modules_dir_) or
-            not is_directory(dir + frames_dir_)) {
-
-            Log("ENVIRONMENT", "Can't set user prefix to ", dir);
-            return false;
-        }
-
-        user_prefix_ = dir;
-        Log("ENVIRONMENT", "User prefix set to ", dir);
-
-        return true;
-    }
+    /// Access the python context which allows execution of python scripts.
+    /// \see PythonContext.
+    /// \return python_context_.
+    PythonContext& python(void);
 
 private:
     friend class Api;
 
-    Environment(void) noexcept(noexcept(std::string())) {}
+    Environment(void) noexcept(noexcept(std::string()) and
+                               noexcept(PythonContext()));
 
-    std::string static const system_module_path_;
+    PythonContext python_context_;
+
+    std::string static const system_modules_path_;
     std::string static const modules_dir_;
     std::string static const frames_dir_;
+    std::string static const scripts_dir_;
 
     std::string user_prefix_;
+    std::string user_modules_path_;
+    std::string user_frames_path_;
+    std::string user_scripts_path_;
 };
 }

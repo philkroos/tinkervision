@@ -26,6 +26,59 @@
 
 #include "environment.hh"
 
-const std::string tv::Environment::system_module_path_{SYS_MODULES_PATH};
+const std::string tv::Environment::system_modules_path_{SYS_MODULES_PATH};
 const std::string tv::Environment::modules_dir_{MODULES_FOLDER};
 const std::string tv::Environment::frames_dir_{FRAMES_FOLDER};
+const std::string tv::Environment::scripts_dir_{SCRIPTS_FOLDER};
+
+tv::Environment::Environment(void) noexcept(noexcept(std::string()) and
+                                            noexcept(PythonContext())) {}
+
+std::string const& tv::Environment::system_modules_path(void) const {
+    return system_modules_path_;
+}
+
+std::string const& tv::Environment::user_modules_path(void) const {
+    return user_modules_path_;
+}
+
+std::string const& tv::Environment::user_frames_path(void) const {
+    return user_frames_path_;
+}
+
+std::string const& tv::Environment::user_scripts_path(void) const {
+    return user_scripts_path_;
+}
+
+tv::PythonContext& tv::Environment::python(void) { return python_context_; }
+
+bool tv::Environment::set_user_prefix(std::string const& path) {
+    if (not is_directory(path)) {
+        Log("ENVIRONMENT", "Can't set user prefix to ", path);
+        return false;
+    }
+
+    // expecting a path ending with /
+    auto dir = path;
+    if (not(dir.back() == '/')) {
+        dir.push_back('/');
+    }
+
+    if (not is_directory(dir + modules_dir_) or
+        not is_directory(dir + frames_dir_) or
+        not is_directory(dir + scripts_dir_) or
+        not python_context_.set_path(dir + scripts_dir_)) {
+
+        Log("ENVIRONMENT", "Can't set user prefix to ", dir);
+        return false;
+    }
+
+    user_prefix_ = dir;
+    user_modules_path_ = dir + modules_dir_ + "/";
+    user_frames_path_ = dir + frames_dir_ + "/";
+    user_scripts_path_ = dir + scripts_dir_ + "/";
+
+    Log("ENVIRONMENT", "User prefix set to ", user_prefix_);
+
+    return true;
+}

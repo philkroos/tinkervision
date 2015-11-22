@@ -52,6 +52,10 @@ static void copy_std_string(std::string const& str, char cstr[]) {
 // Library functions
 //
 
+int16_t tv_valid(void) {
+    return tv::get_api().valid() ? TV_OK : TV_INTERNAL_ERROR;
+}
+
 int16_t tv_camera_available(void) {
     tv::Log("Tinkervision::CameraAvailable");
     return tv::get_api().is_camera_available();

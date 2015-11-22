@@ -20,15 +20,17 @@ build_dir	:= $(addprefix $(build_prefix)/,$(parts))
 src_prefix	:= src/lib
 src_dir	:= $(addprefix $(src_prefix)/,$(parts))
 
-libs		:= -lstdc++ -lv4l2 -lm
-inc		:= $(addprefix -I./$(src_prefix)/,$(parts)) $(OCV_inc)
+libs		:= -lstdc++ -lv4l2 -lm -lpython2.7
+inc		:= $(addprefix -I./$(src_prefix)/,$(parts)) \
+		   $(OCV_inc) \
+		   -I/usr/include/python2.7
 ifneq ($(or $(WITH_OPENCV_CAM),$(DEBUG_WINDOW)),)
 	libs	+= -lopencv_highgui -lopencv_imgproc -lopencv_video \
 		   -lrt -lpthread -ldl
 	inc	+= -I/usr/local/include/opencv -I/usr/local/include
 endif
 
-ldflags	:= $(libs) -rdynamic
+ldflags	:= -L/usr/lib/python2.7 $(libs) -rdynamic
 
 # files
 src		:= $(foreach sdir,$(src_dir),$(wildcard $(sdir)/*.cc))
@@ -74,7 +76,9 @@ doc:
 
 # set up the user paths
 user_paths:
-	mkdir -p $(usr_prefix)/modules $(usr_prefix)/frames
+	mkdir -p $(usr_prefix)/modules \
+		 $(usr_prefix)/frames \
+		 $(usr_prefix)/scripts
 
 # installation
 prefix		:= /usr

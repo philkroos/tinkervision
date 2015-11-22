@@ -59,6 +59,10 @@ public:
     /// Standard d'tor, calls quit().
     ~Api(void);
 
+    /// Should be checked before first usage of the api.
+    /// \return true if the library has been constructed successfully.
+    bool valid(void) const;
+
     /// Starts execution of all active modules.  This is only
     /// necessary if the Api had been stopped.  The method is
     /// automatically called during construction of the Api.
@@ -410,6 +414,7 @@ private:
     Modules* modules_;             ///< RAII-style managed vision algorithms.
     ModuleLoader* module_loader_;  ///< Manages available libraries
 
+    bool api_valid_{false};  ///< True once constructed to valid state.
     bool idle_process_running_{false};   ///< Dummy module activated?
     uint32_t effective_frameperiod_{0};  ///< Effective inverse framerate
 
