@@ -30,7 +30,9 @@ void callback(int8_t id, TV_ModuleResult result, void* context) {
 void str_callback(int8_t id, char const* string, void* context) {
     int ctx = *(int*)(context), i;
     uint16_t parameter;
+    uint8_t type;
     char name[TV_STRING_SIZE];
+    char value[TV_STRING_SIZE];
     int32_t min, max, def;
 
     printf("String-callback: %d, %s, %d\n", id, string, ctx);
@@ -39,12 +41,16 @@ void str_callback(int8_t id, char const* string, void* context) {
         return;
     }
     for (i = 0; i < parameter; ++i) {
-        if (tv_library_describe_parameter(string, i, name, &min, &max, &def) !=
-            TV_OK) {
+        if (tv_library_describe_parameter(string, i, name, &type, value, &min,
+                                          &max, &def) != TV_OK) {
             printf("Error during describe_parameter %d\n", i);
             continue;
         }
-        printf("%s/%s: %d [%d, %d]\n", string, name, def, min, max);
+        if (type == 0) {
+            printf("%s/%s: %d [%d, %d]\n", string, name, def, min, max);
+        } else {
+            printf("%s/%s: %s\n", string, name, value);
+        }
     }
 }
 
@@ -77,7 +83,13 @@ int main(int argc, char* argv[]) {
     uint16_t height = 720;
     char string[TV_STRING_SIZE];
 
-    int16_t result = tv_set_framesize(width, height);
+    int16_t result = tv_valid();
+    if (TV_OK != result) {
+        printf("Api not valid: %d (%s)\n", result, tv_result_string(result));
+        return 0;
+    }
+
+    result = tv_set_framesize(width, height);
 
     printf("SetFramesize: %d (%s)\n", result, tv_result_string(result));
     sleep(1);
