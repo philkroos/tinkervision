@@ -29,7 +29,8 @@
 #include "scenetrees.hh"
 
 tv::Node::Node(int16_t node_id, int16_t scene_id, int16_t module_id,
-               Node* parent)
+               Node* parent) noexcept(noexcept(std::vector<Node*>()) and
+                                      noexcept(std::vector<int16_t>()))
     : id_(node_id), module_id_(module_id) {
 
     scenes_.push_back(scene_id);

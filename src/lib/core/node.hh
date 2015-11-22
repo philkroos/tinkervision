@@ -45,14 +45,19 @@ public:
     using ModuleExecutor = std::function<void(int16_t id)>;
 
     // default c'tor to be able to store in container types
-    Node(void) = default;
+    Node(void) noexcept(noexcept(std::vector<Node*>()) and
+                        noexcept(std::vector<int16_t>())) {}
 
     // c'tor for a root node
-    Node(int16_t node_id, int16_t scene_id, int16_t module_id)
+    Node(int16_t node_id, int16_t scene_id,
+         int16_t module_id) noexcept(noexcept(std::vector<Node*>()) and
+                                     noexcept(std::vector<int16_t>()))
         : Node(node_id, scene_id, module_id, nullptr) {}
 
     // complete c'tor
-    Node(int16_t node_id, int16_t scene_id, int16_t module_id, Node* parent);
+    Node(int16_t node_id, int16_t scene_id, int16_t module_id,
+         Node* parent) noexcept(noexcept(std::vector<Node*>()) and
+                                noexcept(std::vector<int16_t>()));
 
     int16_t id(void) const { return id_; }
 

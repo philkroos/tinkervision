@@ -27,6 +27,7 @@
 #include <string>
 
 #include "logger.hh"
+#include "filesystem.hh"
 
 namespace tv {
 
@@ -68,14 +69,14 @@ public:
     }
 
 private:
-    std::string const system_module_path_{"/usr/lib/tinkervision/"};
-    std::string const modules_dir_{"modules"};
-    std::string const frames_dir_{"frames"};
+    friend class Api;
+
+    Environment(void) noexcept(noexcept(std::string())) {}
+
+    std::string static const system_module_path_;
+    std::string static const modules_dir_;
+    std::string static const frames_dir_;
 
     std::string user_prefix_;
-
-    Environment(void) noexcept {}
-
-    friend class Api;
 };
 }

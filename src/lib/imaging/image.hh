@@ -130,10 +130,11 @@ private:
 
 public:
     /// Standard c'tor.
-    explicit ImageAllocator(std::string const& id);
+    explicit ImageAllocator(std::string const& id) noexcept(noexcept(Image()));
 
     /// Currently of no value because max_size_ is ignored.
-    ImageAllocator(std::string const& id, size_t known_max_size);
+    ImageAllocator(std::string const& id,
+                   size_t known_max_size) noexcept(noexcept(Image()));
 
     ImageAllocator(ImageAllocator const&) = delete;
     ImageAllocator& operator=(ImageAllocator const&) = delete;

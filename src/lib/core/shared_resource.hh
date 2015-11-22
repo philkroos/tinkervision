@@ -77,9 +77,10 @@ private:
         Resource* resource = nullptr;
         Deallocator deallocator;
 
-        ResourceContainer(void) = default;
-        ResourceContainer(Resource* resource, Deallocator deallocator)
-            : resource(resource), deallocator(deallocator) {}
+        ResourceContainer(void) noexcept = default;
+        ResourceContainer(Resource* resource, Deallocator deallocator) noexcept
+            : resource(resource),
+              deallocator(deallocator) {}
     };
 
     using ResourceContainerMap = std::unordered_map<int16_t, ResourceContainer>;
@@ -87,8 +88,6 @@ private:
     using ConstIterator = typename ResourceContainerMap::const_iterator;
 
 public:
-    SharedResource(void) noexcept {}
-
     ~SharedResource(void) {
         for (auto const& resource : managed_) {
             if (resource.second.resource) delete resource.second.resource;
@@ -383,6 +382,7 @@ private:
 
 private:
     ResourceContainerMap managed_;
+    // Dynamic allocation because default constructor not nothrow
     IdList ids_managed_;  ///< Sorted access to the active resources
 
     std::mutex mutable managed_mutex_;

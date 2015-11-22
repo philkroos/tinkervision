@@ -477,7 +477,7 @@ private:
     }
 
 public:
-    FrameConversions(void) noexcept {}
+    FrameConversions(void) noexcept(noexcept(std::vector<Converter>())) {}
 
     void set_frame(Image const& image) {
         frame_ = &image;

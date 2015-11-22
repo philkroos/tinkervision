@@ -48,6 +48,10 @@ typedef void (*TV_LibrariesCallback)(char const* name, char const* path,
 
 #define TV_UNUSED_ID -1
 
+#define SYS_MODULES_PATH "/usr/lib/tinkervision/"
+#define MODULES_FOLDER "modules"
+#define FRAMES_FOLDER "frames"
+
 /* result codes */
 
 ///< Default 'no-error' result

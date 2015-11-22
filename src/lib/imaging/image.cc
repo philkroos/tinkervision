@@ -40,11 +40,13 @@ bool tv::operator!=(tv::ImageHeader const& lhs, tv::ImageHeader const& rhs) {
     return not(lhs == rhs);
 }
 
-tv::ImageAllocator::ImageAllocator(std::string const& id)
+tv::ImageAllocator::ImageAllocator(std::string const& id) noexcept(noexcept(Image()))
     : ImageAllocator(id, 0) {}
 
-tv::ImageAllocator::ImageAllocator(std::string const& id, size_t known_max_size)
-    : id_(id), max_size_{known_max_size} {
+tv::ImageAllocator::ImageAllocator(std::string const& id,
+                                   size_t known_max_size) noexcept(noexcept(Image()))
+    : id_(id),
+      max_size_{known_max_size} {
 
     LogDebug("IMAGE_ALLOCATOR", "C'tor for ", id);
 }

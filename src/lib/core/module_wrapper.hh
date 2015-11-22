@@ -126,11 +126,11 @@ public:
     std::string name(void) const;
     ModuleType const& type(void) const;
 
-    bool enabled(void) const noexcept { return active_; }
+    bool enabled(void) const { return active_; }
 
     /// Enable the wrapped module.
     /// \return True if the module could be activated.
-    bool enable(void) noexcept {
+    bool enable(void) {
         Log("MODULE", "Enabling ", module_id_, " (", name(), ")");
         if (initialized_) {
             active_ = true;
@@ -142,7 +142,7 @@ public:
 
     /// Disable this unit. This does not modify the wrapped module, simply stops
     /// it from being executed.
-    void disable(void) noexcept {
+    void disable(void) {
         Log("MODULE", "Disabling ", module_id_, " (", name(), ")");
         active_ = false;
     }

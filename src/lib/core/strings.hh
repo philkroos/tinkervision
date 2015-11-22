@@ -79,6 +79,6 @@ public:
         return result;
     }
 
-    Strings(void) noexcept {}
+    Strings(void) noexcept(noexcept(std::pair<int16_t, char const*>(0, ""))) {}
 };
 }
