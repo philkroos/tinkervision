@@ -61,7 +61,21 @@ public:
     /// Access the python context which allows execution of python scripts.
     /// \see PythonContext.
     /// \return python_context_.
-    PythonContext& python(void);
+    class Python {
+    public:
+        Python& load(std::string const& scriptname);
+
+        Python& set_arg(std::string const& argument);
+
+        Python& execute(void);
+
+        std::string result(void);
+
+    private:
+        std::string script_;
+        std::string argument_;
+        std::string result_;
+    };
 
 private:
     friend class Api;
@@ -69,7 +83,7 @@ private:
     Environment(void) noexcept(noexcept(std::string()) and
                                noexcept(PythonContext()));
 
-    PythonContext python_context_;
+    PythonContext static python_context_;
 
     std::string static const system_modules_path_;
     std::string static const modules_dir_;

@@ -26,6 +26,8 @@
 
 #include "environment.hh"
 
+tv::PythonContext tv::Environment::python_context_;
+
 const std::string tv::Environment::system_modules_path_{SYS_MODULES_PATH};
 const std::string tv::Environment::modules_dir_{MODULES_FOLDER};
 const std::string tv::Environment::frames_dir_{FRAMES_FOLDER};
@@ -50,7 +52,7 @@ std::string const& tv::Environment::user_scripts_path(void) const {
     return user_scripts_path_;
 }
 
-tv::PythonContext& tv::Environment::python(void) { return python_context_; }
+// tv::PythonContext& tv::Environment::python(void) { return python_context_; }
 
 bool tv::Environment::set_user_prefix(std::string const& path) {
     if (not is_directory(path)) {
@@ -82,3 +84,24 @@ bool tv::Environment::set_user_prefix(std::string const& path) {
 
     return true;
 }
+
+tv::Environment::Python& tv::Environment::Python::load(
+    std::string const& scriptname) {
+
+    script_ = scriptname;
+    return *this;
+}
+
+tv::Environment::Python& tv::Environment::Python::set_arg(
+    std::string const& argument) {
+
+    argument_ = argument;
+    return *this;
+}
+
+tv::Environment::Python& tv::Environment::Python::execute(void) {
+    (void)Environment::python_context_.execute_script(script_, result_);
+    return *this;
+}
+
+std::string tv::Environment::Python::result(void) { return result_; }
