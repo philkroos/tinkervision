@@ -71,7 +71,7 @@ public:
             result_.clear();
             build_format(args...);
 
-            (void)tv::Environment::python_context_.execute_script(
+            (void)tv::Environment::python_context_.execute_function(
                 script_, function, result_, format_string_, args...);
 
             format_string_.clear();

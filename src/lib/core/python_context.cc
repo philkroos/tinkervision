@@ -68,3 +68,31 @@ bool tv::PythonContext::set_path(std::string const& pythonpath) noexcept {
 
     return false;
 }
+
+bool tv::PythonContext::load_script(std::string const& script) {
+    auto pscript = scripts_.get_script(script);
+    if (nullptr == pscript) {
+        return false;
+    }
+
+    return pscript->load();
+}
+
+tv::PythonContext::PythonScript* tv::PythonContext::ScriptMap::get_script(
+    std::string const& script) {
+
+    auto ext = std::string();
+    auto pyscript = strip_extension(script, ext);
+
+    /// Script name can be passed without extension, in which case
+    /// .py is assumed, or with extension .py.
+    if (not ext.empty() and ext != "py") {
+        return nullptr;
+    }
+
+    if (not scripts_.count(pyscript)) {
+        scripts_[pyscript] = PythonScript(pyscript);
+    }
+
+    return &scripts_[pyscript];
+}
