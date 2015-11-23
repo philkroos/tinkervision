@@ -24,7 +24,12 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
+#include <Python.h>
+#include <structmember.h>
 #include <string>
+
+#include "filesystem.hh"
+#include "logger.hh"
 
 namespace tv {
 class PythonContext {
@@ -38,10 +43,98 @@ public:
     /// \return true if the path is a directory in the filesystem.
     bool set_path(std::string const& pythonpath) noexcept;
 
-    /// Execute a script from the path set with set_path().
-    /// \param[in] A script in module_path_.
+    /// Execute a function from a script in the path set with set_path().
+    /// \param[in] script A script in module_path_.
+    /// \param[in] function A function defined in script
+    /// \param[out] result Result of calling the function, if any.
     /// \return true If the module exists in module_path_.
-    bool execute_script(std::string const& script, std::string& result);
+    //    bool execute_script(std::string const& script, std::string const&
+    //    function,
+    //                  std::string& result);
+
+    /// Execute a function from a script in the path set with set_path().
+    /// \param[in] script A script in module_path_.
+    /// \param[in] function A function defined in script
+    /// \param[out] result Result of calling the function, if any.
+    /// \param[in] format Format string of the parameters.
+    /// \return true If the module exists in module_path_.
+    template <typename... Args>
+    bool execute_script(std::string const& script, std::string const& function,
+                        std::string& result, std::string& format,
+                        Args const&... args) {
+        if (not is_valid_context()) {
+            return false;
+        }
+
+        Log("PYTHON_CONTEXT", "Got function: ", function);
+        Log("PYTHON_CONTEXT", "Got format string: ", format);
+        Log("PYTHON_CONTEXT", "Got args: ", args...);
+
+        auto ext = std::string();
+        auto pyscript = strip_extension(script, ext);
+
+        /// Script name can be passed without extension, in which case
+        /// .py is assumed, or with extension .py.
+        if (not ext.empty() and ext != "py") {
+            return false;
+        }
+
+        Log("PYTHON_CONTEXT", "Executing ", pyscript);
+
+        auto module_name = PyString_FromString(script.c_str());
+
+        if (module_name == nullptr) {
+            LogError("PYTHON_CONTEXT", "For script ", script);
+            return false;
+        }
+
+        auto module = PyImport_Import(module_name);
+        Py_DECREF(module_name);
+
+        if (module == nullptr) {
+            LogError("PYTHON_CONTEXT", "For module ", script);
+            return false;
+        }
+
+        auto fun = PyObject_GetAttrString(module, function.c_str());
+        Py_DECREF(module);
+
+        if (fun == nullptr) {
+            LogError("PYTHON_CONTEXT", "For function from ", script);
+            return false;
+        }
+
+        auto arguments = Py_BuildValue(format.c_str(), args...);
+        if (arguments == nullptr) {
+            LogError("PYTHON_CONTEXT", "For arguments ", args...);
+            return false;
+        }
+
+        auto res = PyObject_CallObject(fun, arguments);
+
+        Py_DECREF(fun);
+        Py_DECREF(arguments);
+
+        if (res == nullptr) {
+            LogError("PYTHON_CONTEXT", "For result from ", script);
+            return false;
+        }
+
+        if (PyString_Check(res)) {
+            result = std::string(PyString_AsString(res));
+        } else if (PyInt_Check(res)) {
+            result = std::to_string(PyInt_AsLong(res));
+        } else {
+            LogWarning("PYTHON_CONTEXT", "Invalid result from ", script, ": ",
+                       res->ob_type->tp_name);
+        }
+
+        Log("PYTHON_CONTEXT", "Result from ", script, ": ", result);
+
+        Py_DECREF(res);
+
+        return true;
+    }
 
 private:
     std::string module_path_;

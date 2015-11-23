@@ -65,16 +65,49 @@ public:
     public:
         Python& load(std::string const& scriptname);
 
-        Python& set_arg(std::string const& argument);
+        template <typename... Args>
+        Python& call(std::string const& function, Args const&... args) {
 
-        Python& execute(void);
+            result_.clear();
+            build_format(args...);
+
+            (void)tv::Environment::python_context_.execute_script(
+                script_, function, result_, format_string_, args...);
+
+            format_string_.clear();
+            return *this;
+        }
+
+        Python& call(std::string const& function);
 
         std::string result(void);
 
     private:
         std::string script_;
-        std::string argument_;
         std::string result_;
+        std::string format_string_;
+
+        template <typename... Args>
+        void build_format(Args const&... args) {
+            format_string_.push_back('(');
+            add_to_format(args...);
+            format_string_.push_back(')');
+        }
+
+        template <typename... Args>
+        void add_to_format(char const* s, Args const&... args) {
+            format_string_.push_back('s');
+            add_to_format(args...);
+        }
+
+        template <typename... Args>
+        void add_to_format(int const& i, Args const&... args) {
+            format_string_.push_back('i');
+            add_to_format(args...);
+        }
+
+        // anchor
+        void add_to_format(void) {}
     };
 
 private:

@@ -47,11 +47,6 @@ tv::Api::Api(void) noexcept(noexcept(CameraControl()) and
             throw ConstructionException("Environment", USR_PREFIX);
         }
 
-        std::string result;
-        if (environment_.python().execute_script("tv_py", result)) {
-            Log("API", "Python test returned ", result);
-        }
-
         // dynamic construction because not noexcept
         modules_ = new Modules;
 

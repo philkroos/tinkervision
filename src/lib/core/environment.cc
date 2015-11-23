@@ -92,15 +92,13 @@ tv::Environment::Python& tv::Environment::Python::load(
     return *this;
 }
 
-tv::Environment::Python& tv::Environment::Python::set_arg(
-    std::string const& argument) {
+tv::Environment::Python& tv::Environment::Python::call(
+    std::string const& function) {
 
-    argument_ = argument;
-    return *this;
-}
+    auto format = std::string("none");
+    (void)tv::Environment::python_context_.execute_script(script_, function,
+                                                          result_, format, 1);
 
-tv::Environment::Python& tv::Environment::Python::execute(void) {
-    (void)Environment::python_context_.execute_script(script_, result_);
     return *this;
 }
 

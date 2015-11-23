@@ -1,8 +1,9 @@
 CC	:= g++
-CCFLAGS := -Wall -Werror -g -O0 -ansi -pedantic -std=c++11 -D_POSIX_C_SOURCE=199309L
+CCFLAGS := -Wall -Werror -g -O0 -ansi -pedantic -std=c++11 -DWITH_LOGGER
 
 INC	:= -I../ -I../../lib/core \
 	   -I../../lib/tools \
+	   -I../../lib/imaging \
 	   -I/usr/include/python2.7
 LDFLAGS := -g -Wall -lstdc++ -L/usr/lib/python2.7 -lpython2.7
 
