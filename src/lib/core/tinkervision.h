@@ -281,7 +281,7 @@ int16_t tv_set_user_module_load_path(char const* path);
 /// Access the fixed system module load path.
 /// \param[out] path The fixed system path searched for modules.
 /// \return TV_OK
-int16_t tv_system_module_load_path(char path[]);
+int16_t tv_get_system_module_load_path(char path[]);
 
 /// Remove all modules.
 /// \return #TV_OK
