@@ -208,7 +208,7 @@ int16_t tv_library_parameters_count(char const* libname, uint16_t* count) {
                                                      *(size_t*)(count));
 }
 
-int16_t tv_library_describe_parameter(char const* libname, uint16_t parameter,
+int16_t tv_library_parameter_describe(char const* libname, uint16_t parameter,
                                       char name[], uint8_t* type, int32_t* min,
                                       int32_t* max, int32_t* def) {
     tv::Log("Tinkervision::LibraryDescribeParameter", libname, " ", parameter);
