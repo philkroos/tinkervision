@@ -39,11 +39,13 @@
 
 tv::Api::Api(void) noexcept(noexcept(CameraControl()) and
                             noexcept(FrameConversions()) and
-                            noexcept(Environment()) and noexcept(Strings()) and
-                            noexcept(SceneTrees())) {
+                            noexcept(Strings()) and noexcept(SceneTrees())) {
 
     try {
-        if (not environment_.set_user_prefix(USR_PREFIX)) {
+        // dynamic construction because not noexcept on the RedBrick-platform
+        environment_ = new Environment;
+
+        if (not environment_->set_user_prefix(USR_PREFIX)) {
             throw ConstructionException("Environment", USR_PREFIX);
         }
 
@@ -51,8 +53,8 @@ tv::Api::Api(void) noexcept(noexcept(CameraControl()) and
         modules_ = new Modules;
 
         // dynamic construction because not noexcept
-        module_loader_ = new ModuleLoader(environment_.system_modules_path(),
-                                          environment_.user_modules_path());
+        module_loader_ = new ModuleLoader(environment_->system_modules_path(),
+                                          environment_->user_modules_path());
 
         active_ = true;
         executor_ = std::thread(&Api::execute, this);
@@ -76,7 +78,15 @@ tv::Api::Api(void) noexcept(noexcept(CameraControl()) and
 
 tv::Api::~Api(void) {
     (void)quit();
-    delete module_loader_;
+    if (module_loader_) {
+        delete module_loader_;
+    }
+    if (environment_) {
+        delete environment_;
+    }
+    if (modules_) {
+        delete modules_;
+    }
 }
 
 bool tv::Api::valid(void) const { return api_valid_; }
@@ -547,7 +557,7 @@ uint32_t tv::Api::effective_frameperiod(void) const {
 }
 
 std::string const& tv::Api::user_module_path(void) const {
-    return environment_.user_modules_path();
+    return environment_->user_modules_path();
 }
 
 std::string const& tv::Api::system_module_path(void) const {

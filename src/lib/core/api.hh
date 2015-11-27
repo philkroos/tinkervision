@@ -407,8 +407,8 @@ private:
 
     CameraControl camera_control_;  ///< Camera access abstraction
     FrameConversions conversions_;  ///< Camera frame in requested formats
-    Environment environment_;       ///< Configuration and scripting context
     Strings result_string_map_;     ///< String mapping of Api-return values
+    Environment* environment_;      ///< Configuration and scripting context
     SceneTrees scene_trees_;
 
     Modules* modules_;             ///< RAII-style managed vision algorithms.
