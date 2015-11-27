@@ -118,8 +118,8 @@ int16_t tv_quit(void);
 ///   - #TV_INVALID_ID if no module exists with module_id.
 ///   - #TV_MODULE_NO_SUCH_PARAMETER if the module does not support parameter.
 ///   - #TV_OK else.
-int16_t tv_get_numericalparameter(int8_t module_id, char const* const parameter,
-                                  int32_t* value);
+int16_t tv_get_numerical_parameter(int8_t module_id,
+                                   char const* const parameter, int32_t* value);
 
 /// Parameterize a module.
 /// \param[in] module_id Id of the module to be parameterized.
