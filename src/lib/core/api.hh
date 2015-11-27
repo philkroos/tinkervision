@@ -401,8 +401,7 @@ private:
     /// algorithm.
 
     Api(void) noexcept(noexcept(CameraControl()) and
-                       noexcept(FrameConversions()) and
-                       noexcept(Environment()) and noexcept(Strings()) and
+                       noexcept(FrameConversions()) and noexcept(Strings()) and
                        noexcept(SceneTrees()));
 
     CameraControl camera_control_;  ///< Camera access abstraction
