@@ -177,7 +177,7 @@ void tv::Api::execute(void) {
     // Execute active module. This is the ONLY place where modules are executed.
     auto module_exec = [&](int16_t id, ModuleWrapper& module) {
         auto result = (Result const*)(nullptr);
-        Log("API", "Executing module ", id);
+        // Log("API", "Executing module ", id);
 
         if (not module.enabled()) {  // skip paused modules
             return;
@@ -237,7 +237,6 @@ void tv::Api::execute(void) {
     };
 
     // mainloop
-    auto inv_framerate = std::chrono::milliseconds(effective_frameperiod_);
     auto last_loop_time_point = Clock::now();
     auto loops = 0;
     auto loop_duration = Clock::duration(0);
@@ -284,7 +283,9 @@ void tv::Api::execute(void) {
             loops = 0;
             loop_duration = Clock::duration(0);
         }
-        std::this_thread::sleep_until(last_loop_time_point + inv_framerate);
+        // sleep for the duration requested, if it's not in the past
+        std::this_thread::sleep_until(
+            last_loop_time_point + std::chrono::milliseconds(frameperiod_ms_));
     }
     Log("API", "Mainloop stopped");
 }
