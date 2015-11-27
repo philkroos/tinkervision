@@ -43,6 +43,16 @@ int16_t tv_valid(void);
 ///    - TV_OK else.
 int16_t tv_camera_available(void);
 
+/// Request the resolution of the camera frames.  This can only be called once
+/// the camera is active, so in particular, if the resolution needs to be known
+/// before a module can be started, start_idle() must be called.
+/// \param[out] width
+/// \param[out] height
+/// \return
+///  - #TV_Ok if width and height are valid
+///  - #TV_CAMERA_NOT_AVAILABLE else
+int16_t tv_get_framesize(uint16_t* width, uint16_t* height);
+
 /// Selects a framesize WxH.
 /// This will temporarily stop and restart all active modules.
 /// If the requested framesize is not available, the settings will be restored
@@ -81,16 +91,6 @@ int16_t tv_request_frameperiod(uint32_t milliseconds);
 /// \return TV_OK.
 int16_t tv_effective_frameperiod(uint32_t* frameperiod);
 
-/// Request the resolution of the camera frames.  This can only be called once
-/// the camera is active, so in particular, if the resolution needs to be known
-/// before a module can be started, start_idle() must be called.
-/// \param[out] width
-/// \param[out] height
-/// \return
-///  - #TV_Ok if width and height are valid
-///  - #TV_CAMERA_NOT_AVAILABLE else
-int16_t tv_get_resolution(uint16_t* width, uint16_t* height);
-
 /// Pause the Api, deactivating but not disabling every module.  The camera will
 /// be released and no further callbacks will be called, but on start(), the Api
 /// will be found in the exact same state as left (assuming that the camera can
@@ -110,6 +110,17 @@ int16_t tv_start(void);
 /// \return TV_OK
 int16_t tv_quit(void);
 
+/// Return the current value of a modules parameter.
+/// \param[in] module_id The id of the module in question.
+/// \param[in] parameter Name of the parameter in question.
+/// \param[out] value Current value of parameter.
+/// \return
+///   - #TV_INVALID_ID if no module exists with module_id.
+///   - #TV_MODULE_NO_SUCH_PARAMETER if the module does not support parameter.
+///   - #TV_OK else.
+int16_t tv_get_numericalparameter(int8_t module_id, char const* const parameter,
+                                  int32_t* value);
+
 /// Parameterize a module.
 /// \param[in] module_id Id of the module to be parameterized.
 /// \param[in] parameter name of the parameter to be set.
@@ -121,22 +132,14 @@ int16_t tv_quit(void);
 /// of the parameter.
 ///   - #TV_INVALID_ID if no module exists with module_id
 ///   - #TV_OK else.
-int16_t tv_set_parameter(int8_t module_id, char const* const parameter,
-                         int32_t value);
+int16_t tv_set_numerical_parameter(int8_t module_id,
+                                   char const* const parameter, int32_t value);
+
+int16_t tv_get_string_parameter(int8_t module_id, char const* const parameter,
+                                char value[]);
 
 int16_t tv_set_string_parameter(int8_t module_id, char const* const parameter,
                                 char const* value);
-
-/// Return the current value of a modules parameter.
-/// \param[in] module_id The id of the module in question.
-/// \param[in] parameter Name of the parameter in question.
-/// \param[out] value Current value of parameter.
-/// \return
-///   - #TV_INVALID_ID if no module exists with module_id.
-///   - #TV_MODULE_NO_SUCH_PARAMETER if the module does not support parameter.
-///   - #TV_OK else.
-int16_t tv_get_parameter(int8_t module_id, char const* const parameter,
-                         int32_t* value);
 
 /// Start a vision module identified by its library name.
 /// The requested module will be loaded and started if it is found in one of the
@@ -239,7 +242,7 @@ int16_t tv_library_name_and_path(uint16_t count, char name[], char path[]);
 /// \return
 ///    - #TV_INVALID_ARGUMENT: The library is not available.
 ///    - #TV_OK else
-int16_t tv_library_parameter_count(char const* libname, uint16_t* count);
+int16_t tv_library_parameters_count(char const* libname, uint16_t* count);
 
 /// Get the properties of a parameter from a library.
 /// \param[in] libname Name of the module, i.e. filename w/o extension.
@@ -257,14 +260,14 @@ int16_t tv_library_parameter_count(char const* libname, uint16_t* count);
 ///    - #TV_OK else
 /// \note All outgoing parameters are beeing set to 0 if the result is not
 /// TV_OK.
-int16_t tv_library_describe_parameter(char const* libname, uint16_t parameter,
+int16_t tv_library_parameter_describe(char const* libname, uint16_t parameter,
                                       char name[], uint8_t* type, char string[],
                                       int32_t* min, int32_t* max, int32_t* def);
 
 /// Access the currently set user module load path.
 /// \param[out] path The user defined path searched for modules.
 /// \return TV_OK
-int16_t tv_user_module_load_path(char path[]);
+int16_t tv_get_user_module_load_path(char path[]);
 
 /// Set the user module load path from an existing path.
 /// \param[in] path The user defined path searched for modules. Must not exceed

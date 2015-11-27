@@ -61,6 +61,11 @@ int16_t tv_camera_available(void) {
     return tv::get_api().is_camera_available();
 }
 
+int16_t tv_get_framesize(uint16_t* width, uint16_t* height) {
+    tv::Log("Tinkervision::GetResolution");
+    return tv::get_api().resolution(*width, *height);
+}
+
 int16_t tv_set_framesize(uint16_t width, uint16_t height) {
     tv::Log("Tinkervision::SetFramesize", width, " ", height);
     return tv::get_api().set_framesize(width, height);
@@ -77,11 +82,6 @@ int16_t tv_effective_frameperiod(uint32_t* frameperiod) {
     return TV_OK;
 }
 
-int16_t tv_get_resolution(uint16_t* width, uint16_t* height) {
-    tv::Log("Tinkervision::GetResolution");
-    return tv::get_api().resolution(*width, *height);
-}
-
 int16_t tv_stop(void) {
     tv::Log("Tinkervision::Stop");
 
@@ -91,24 +91,6 @@ int16_t tv_stop(void) {
 int16_t tv_start(void) {
     tv::Log("Tinkervision::Start");
     return tv::get_api().start();
-}
-
-int16_t tv_scene_from_module(int8_t module, int16_t* scene_id) {
-    tv::Log("Tinkervision::SceneFromModule", module, " ", scene_id);
-    return TV_NOT_IMPLEMENTED;
-    // return tv::get_api().scene_start(module, scene_id);
-}
-
-int16_t tv_scene_add_module(int16_t scene, int8_t module) {
-    tv::Log("Tinkervision::SceneAddModule", scene, " ", module);
-    return TV_NOT_IMPLEMENTED;
-    // return tv::get_api().add_to_scene(scene, module);
-}
-
-int16_t tv_scene_remove(int16_t scene) {
-    tv::Log("Tinkervision::SceneRemove", scene);
-    return TV_NOT_IMPLEMENTED;
-    // return tv::get_api().scene_remove(scene);
 }
 
 int16_t tv_quit(void) {
@@ -126,27 +108,18 @@ char const* tv_result_string(int16_t code) {
     return tv::get_api().result_string(code);
 }
 
-int16_t tv_set_parameter(int8_t module_id, char const* const parameter,
-                         int32_t value) {
-    tv::Log("Tinkervision::SetParameter", module_id, " ", parameter, " ",
-            value);
-    return tv::get_api().set_parameter(module_id, parameter, value);
-}
-
-int16_t tv_set_string_parameter(int8_t module_id, char const* const parameter,
-                                char const* value) {
-    tv::Log("Tinkervision::SetParameter", module_id, " ", parameter, " ",
-            value);
-    auto svalue = std::string(value);
-    return tv::get_api().set_parameter<std::string>(module_id, parameter,
-                                                    svalue);
-}
-
 int16_t tv_get_numerical_parameter(int8_t module_id,
                                    char const* const parameter,
                                    int32_t* value) {
     tv::Log("Tinkervision::GetParameter", module_id, " ", parameter);
     return tv::get_api().get_parameter(module_id, parameter, *value);
+}
+
+int16_t tv_set_numerical_parameter(int8_t module_id,
+                                   char const* const parameter, int32_t value) {
+    tv::Log("Tinkervision::SetParameter", module_id, " ", parameter, " ",
+            value);
+    return tv::get_api().set_parameter(module_id, parameter, value);
 }
 
 int16_t tv_get_string_parameter(int8_t module_id, char const* const parameter,
@@ -160,20 +133,29 @@ int16_t tv_get_string_parameter(int8_t module_id, char const* const parameter,
     return result;
 }
 
+int16_t tv_set_string_parameter(int8_t module_id, char const* const parameter,
+                                char const* value) {
+    tv::Log("Tinkervision::SetParameter", module_id, " ", parameter, " ",
+            value);
+    auto svalue = std::string(value);
+    return tv::get_api().set_parameter<std::string>(module_id, parameter,
+                                                    svalue);
+}
+
 int16_t tv_module_start(char const* name, int8_t* id) {
     tv::Log("Tinkervision::ModuleStart", name);
     //// \todo Let user specify path (system or user)
     return tv::get_api().module_load(name, *id);
 }
 
-int16_t tv_module_restart(int8_t id) {
-    tv::Log("Tinkervision::ModuleRestart", id);
-    return tv::get_api().module_start(id);
-}
-
 int16_t tv_module_stop(int8_t id) {
     tv::Log("Tinkervision::ModuleStop", id);
     return tv::get_api().module_stop(id);
+}
+
+int16_t tv_module_restart(int8_t id) {
+    tv::Log("Tinkervision::ModuleRestart", id);
+    return tv::get_api().module_start(id);
 }
 
 int16_t tv_module_remove(int8_t id) {
@@ -218,7 +200,7 @@ int16_t tv_library_name_and_path(uint16_t count, char name[], char path[]) {
     return TV_OK;
 }
 
-int16_t tv_library_parameter_count(char const* libname, uint16_t* count) {
+int16_t tv_library_parameters_count(char const* libname, uint16_t* count) {
     tv::Log("Tinkervision::LibraryParameterCount", libname);
     /// \todo Fix types: size_t vs uint16_t
     *count = 0;
@@ -249,7 +231,7 @@ int16_t tv_libraries_changed_callback(TV_LibrariesCallback callback,
     return tv::get_api().libraries_changed_callback(callback, context);
 }
 
-int16_t tv_user_module_load_path(char path[]) {
+int16_t tv_get_user_module_load_path(char path[]) {
     tv::Log("Tinkervision::UserModuleLoadPath");
     auto spath = tv::get_api().user_module_path();
     copy_std_string(spath, path);
@@ -267,7 +249,7 @@ int16_t tv_set_user_module_load_path(char const* path) {
     return tv::get_api().set_user_module_load_path(spath);
 }
 
-int16_t tv_system_module_load_path(char path[]) {
+int16_t tv_get_system_module_load_path(char path[]) {
     tv::Log("Tinkervision::SystemModuleLoadPath");
     auto spath = tv::get_api().system_module_path();
     copy_std_string(spath, path);
@@ -301,5 +283,27 @@ int16_t tv_enable_default_callback(TV_Callback callback) {
 int16_t tv_get_result(int8_t module, TV_ModuleResult* result) {
     tv::Log("Tinkervision::GetResult", module);
     return tv::get_api().get_result(module, *result);
+}
+
+//
+// Not supported currently
+//
+
+int16_t tv_scene_from_module(int8_t module, int16_t* scene_id) {
+    tv::Log("Tinkervision::SceneFromModule", module, " ", scene_id);
+    return TV_NOT_IMPLEMENTED;
+    // return tv::get_api().scene_start(module, scene_id);
+}
+
+int16_t tv_scene_add_module(int16_t scene, int8_t module) {
+    tv::Log("Tinkervision::SceneAddModule", scene, " ", module);
+    return TV_NOT_IMPLEMENTED;
+    // return tv::get_api().add_to_scene(scene, module);
+}
+
+int16_t tv_scene_remove(int16_t scene) {
+    tv::Log("Tinkervision::SceneRemove", scene);
+    return TV_NOT_IMPLEMENTED;
+    // return tv::get_api().scene_remove(scene);
 }
 }

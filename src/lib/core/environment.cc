@@ -96,8 +96,8 @@ tv::Environment::Python& tv::Environment::Python::call(
     std::string const& function) {
 
     auto format = std::string("none");
-    (void)tv::Environment::python_context_.execute_script(script_, function,
-                                                          result_, format, 1);
+    (void)tv::Environment::python_context_.execute_function(script_, function,
+                                                            result_, format, 1);
 
     return *this;
 }
