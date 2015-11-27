@@ -255,12 +255,14 @@ public:
                                         size_t& count) const;
 
     /// Get the description of a parameter of a library module.
+    /// If the parameter is numeric, the min/max/default values are returned. If
+    /// the parameter is a string, these are not set. If the function does not
+    /// return #TV_OK, no value returned is valid.
     /// \param[in] libname Name of the library w/o extension.
     /// \param[in] parameter Number of the paramater, in range of
     /// library_get_parameter_count()
     /// \param[out] name Name of the parameter, to be used with parameter_set()
     /// \param[out] type 0 = int32_t, 1 = string.
-    /// \param[out] string Default value of the parameter
     /// \param[out] min Minimum allowed value of the parameter
     /// \param[out] max Maximum allowed value of the parameter
     /// \param[out] def Default, initial value of the parameter
@@ -269,9 +271,8 @@ public:
     ///    - #TV_OK else
     int16_t library_describe_parameter(std::string const& libname,
                                        size_t parameter, std::string& name,
-                                       uint8_t& type, std::string& string,
-                                       int32_t& min, int32_t& max,
-                                       int32_t& def);
+                                       uint8_t& type, int32_t& min,
+                                       int32_t& max, int32_t& def);
 
     /// Register a callback to enumerate all parameters of a module.
     /// \deprecated Not used in Tinkerforge context.

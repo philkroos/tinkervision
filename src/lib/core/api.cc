@@ -439,9 +439,8 @@ int16_t tv::Api::library_get_parameter_count(std::string const& libname,
 
 int16_t tv::Api::library_describe_parameter(std::string const& libname,
                                             size_t parameter, std::string& name,
-                                            uint8_t& type, std::string& string,
-                                            int32_t& min, int32_t& max,
-                                            int32_t& def) {
+                                            uint8_t& type, int32_t& min,
+                                            int32_t& max, int32_t& def) {
 
     Parameter const* p;
     if (not module_loader_->library_get_parameter(libname, parameter, &p)) {
@@ -451,11 +450,7 @@ int16_t tv::Api::library_describe_parameter(std::string const& libname,
     name = p->name();
     type = p->type() == Parameter::Type::String ? 1 : 0;
 
-    if (1 == type) {
-        if (not p->get(string)) {
-            return TV_INTERNAL_ERROR;
-        }
-    } else {
+    if (0 == type) {  // numerical parameter
         if (not(p->get(def))) {
             return TV_INTERNAL_ERROR;
         }

@@ -261,8 +261,8 @@ int16_t tv_library_parameters_count(char const* libname, uint16_t* count);
 /// \note All outgoing parameters are beeing set to 0 if the result is not
 /// TV_OK.
 int16_t tv_library_parameter_describe(char const* libname, uint16_t parameter,
-                                      char name[], uint8_t* type, char string[],
-                                      int32_t* min, int32_t* max, int32_t* def);
+                                      char name[], uint8_t* type, int32_t* min,
+                                      int32_t* max, int32_t* def);
 
 /// Access the currently set user module load path.
 /// \param[out] path The user defined path searched for modules.

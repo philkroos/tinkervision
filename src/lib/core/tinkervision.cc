@@ -209,16 +209,14 @@ int16_t tv_library_parameters_count(char const* libname, uint16_t* count) {
 }
 
 int16_t tv_library_describe_parameter(char const* libname, uint16_t parameter,
-                                      char name[], uint8_t* type, char string[],
-                                      int32_t* min, int32_t* max,
-                                      int32_t* def) {
+                                      char name[], uint8_t* type, int32_t* min,
+                                      int32_t* max, int32_t* def) {
     tv::Log("Tinkervision::LibraryDescribeParameter", libname, " ", parameter);
-    std::string sname, svalue;
+    std::string sname;
     int16_t err = tv::get_api().library_describe_parameter(
-        libname, parameter, sname, *type, svalue, *min, *max, *def);
+        libname, parameter, sname, *type, *min, *max, *def);
     if (err == TV_OK) {
         copy_std_string(sname, name);
-        copy_std_string(svalue, string);
     }
 
     return err;
