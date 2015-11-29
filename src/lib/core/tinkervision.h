@@ -123,6 +123,20 @@ int16_t tv_set_user_module_load_path(char const* path);
 /// \return TV_OK
 int16_t tv_get_system_module_load_path(char path[]);
 
+/// Retrieve the number of loaded libraries.
+/// The result can be used with tv_get_module_id().
+/// \param[out] count Number of loaded libraries.
+/// \return #TV_OK
+int16_t tv_get_loaded_libraries_count(uint16_t* count);
+
+/// Retrieve the id of a loaded library.
+/// \param[in] library A number \c [0, tv_get_loaded_libraries_count())
+/// \param[out] id Id of the library.
+/// \return
+///    - #TV_INVALID_ARGUMENT if the argument is out of range.
+///    - #TV_OK else
+int16_t tv_get_module_id(int16_t library, int8_t* id);
+
 /// Get a string representation of a result code.
 /// \param[in] code one of the TV_* values.
 /// \return The associated string value.
@@ -135,7 +149,7 @@ char const* tv_result_string(int16_t code);
 /// Get the number of currently available libraries.
 /// This can be used to iterate through all libraries using
 /// tv_library_name_and_path().
-/// \todo Add method to get all running modules.
+/// \see tv_get_loaded_libraries_count() to only get the number of loaded libs.
 /// \return #TV_OK
 /// \param[out] count Number of libraries found in both system and user paths.
 int16_t tv_libraries_count(uint16_t* count);
@@ -232,6 +246,14 @@ int16_t tv_module_stop(int8_t id);
 ///    - #TV_CAMERA_ACQUISATION_FAILED if the camera is not available
 ///    - #TV_OK iff the module is running.
 int16_t tv_module_restart(int8_t id);
+
+/// Check if a loaded module is active, i.e. actually running.
+/// \param[in] id Id of an active module.
+/// \param[out] active Boolean value, 0 if inactive.
+/// \return
+///    - #TV_INVALID_ID if no such module is loaded.
+///    - #TV_OK else
+int16_t tv_module_is_active(int8_t id, uint8_t* active);
 
 /// Deactivate and remove a module.
 /// The id of a removed module is invalid afterwards.

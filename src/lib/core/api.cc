@@ -430,6 +430,22 @@ int16_t tv::Api::module_get_name(int8_t module_id, std::string& name) const {
     return TV_OK;
 }
 
+int16_t tv::Api::module_is_active(int8_t module_id, bool& active) const {
+    if (not modules_->managed(module_id)) {
+        return TV_INVALID_ID;
+    }
+
+    active = (*modules_)[module_id]->enabled();
+    return TV_OK;
+}
+
+size_t tv::Api::loaded_libraries_count(void) const { return modules_->size(); }
+
+int16_t tv::Api::module_id(size_t library, int8_t& id) const {
+    id = static_cast<int8_t>(modules_->managed_id(library));
+    return (id != TV_INVALID_ID ? TV_OK : TV_INVALID_ARGUMENT);
+}
+
 int16_t tv::Api::library_get_parameter_count(std::string const& libname,
                                              size_t& count) const {
     if (module_loader_->library_parameter_count(libname, count)) {

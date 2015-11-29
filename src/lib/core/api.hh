@@ -244,6 +244,27 @@ public:
     ///    - #TV_OK else
     int16_t module_get_name(int8_t module_id, std::string& name) const;
 
+    /// Check if a loaded module is active, i.e. actually running.
+    /// \param[in] id Id of an active module.
+    /// \param[out] active
+    /// \return
+    ///    - #TV_INVALID_ID if no such module is loaded.
+    ///    - #TV_OK else
+    int16_t module_is_active(int8_t module_id, bool& active) const;
+
+    /// Retrieve the number of loaded libraries.
+    /// The result can be used with module_id().
+    /// \return Number of loaded libraries.
+    size_t loaded_libraries_count(void) const;
+
+    /// Retrieve the id of a loaded library.
+    /// \param[in] library A number \c [0, loaded_libraries_count())
+    /// \param[out] id Id of the library.
+    /// \return
+    ///    - #TV_INVALID_ARGUMENT if the argument is out of range.
+    ///    - #TV_OK else
+    int16_t module_id(size_t library, int8_t& id) const;
+
     /// Get the number of parameters available for a library module.
     /// \param[in] libname Name of the library w/o extension.
     /// \param[out] count Number of parameters, can be used with
@@ -339,8 +360,14 @@ public:
     /// Disable and remove all modules.
     void remove_all_modules(void);
 
+    /// Get the number of available libraries
+    /// \param[out] count
     void get_libraries_count(uint16_t& count) const;
 
+    /// Get name and load path of a library.
+    /// \param[in] count In range [0, get_libraries_count())
+    /// \param[out] name
+    /// \param[out] path
     bool library_get_name_and_path(uint16_t count, std::string& name,
                                    std::string& path) const;
 

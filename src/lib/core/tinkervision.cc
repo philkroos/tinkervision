@@ -123,6 +123,17 @@ int16_t tv_get_system_module_load_path(char path[]) {
     return TV_OK;
 }
 
+int16_t tv_get_loaded_libraries_count(uint16_t* count) {
+    tv::Log("Tinkervision::GetLoadedLibrariesCount:");
+    *count = tv::get_api().loaded_libraries_count();
+    return TV_OK;
+}
+
+int16_t tv_get_module_id(int16_t library, int8_t* id) {
+    tv::Log("Tinkervision::GetModuleId", library);
+    return tv::get_api().module_id(library, *id);
+}
+
 char const* tv_result_string(int16_t code) {
     tv::Log("Tinkervision::ResultString", code);
     return tv::get_api().result_string(code);
@@ -198,9 +209,12 @@ int16_t tv_module_restart(int8_t id) {
     return tv::get_api().module_start(id);
 }
 
-int16_t tv_module_remove(int8_t id) {
-    tv::Log("Tinkervision::ModuleRemove", id);
-    return tv::get_api().module_destroy(id);
+int16_t tv_module_is_active(int8_t id, uint8_t* active) {
+    bool bactive;
+    tv::Log("Tinkervision::ModuleIsActive", id);
+    auto result = tv::get_api().module_is_active(id, bactive);
+    *active = static_cast<uint8_t>(bactive);
+    return result;
 }
 
 int16_t tv_module_get_name(int8_t module_id, char name[]) {

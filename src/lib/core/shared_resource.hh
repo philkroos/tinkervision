@@ -202,7 +202,6 @@ public:
         try {
             managed_[id] = ResourceContainer();
             managed_[id].resource = new T(id, args...);
-            // new, was in persist:
             ids_managed_.push_front(id);
 
         } catch (tv::ConstructionException const& ce) {
@@ -367,7 +366,21 @@ public:
         return (it == managed_.end()) ? nullptr : it->second.resource;
     }
 
-    bool size(void) const { return managed_.size(); }
+    /// Get the number of managed objects.
+    size_t size(void) const { return managed_.size(); }
+
+    /// Get the id of a managed object.
+    /// \todo Need to lock?
+    /// \return Id if object is in range \c [0, size())
+    int16_t managed_id(size_t object) const {
+        if (object >= size()) {
+            return TV_INVALID_ID;
+        }
+        auto it = ids_managed_.cbegin();
+        for (size_t i = 0; i < object; ++i, ++it)
+            ;
+        return *it;
+    }
 
 private:
     /// Verbose access to the id of a resource-map.
