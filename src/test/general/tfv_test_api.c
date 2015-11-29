@@ -29,20 +29,20 @@ void callback(int8_t id, TV_ModuleResult result, void* context) {
 
 void str_callback(int8_t id, char const* string, void* context) {
     int ctx = *(int*)(context), i;
-    uint16_t parameter;
+    uint16_t parameters;
     uint8_t type;
     char name[TV_STRING_SIZE];
     char value[TV_STRING_SIZE];
     int32_t min, max, def;
 
     printf("String-callback: %d, %s, %d\n", id, string, ctx);
-    if (tv_library_parameter_count(string, &parameter) != TV_OK) {
+    if (tv_library_parameters_count(string, &parameters) != TV_OK) {
         printf("Error during parameter_count\n");
         return;
     }
-    for (i = 0; i < parameter; ++i) {
-        if (tv_library_describe_parameter(string, i, name, &type, value, &min,
-                                          &max, &def) != TV_OK) {
+    for (i = 0; i < parameters; ++i) {
+        if (tv_library_parameter_describe(string, i, name, &type, &min, &max,
+                                          &def) != TV_OK) {
             printf("Error during describe_parameter %d\n", i);
             continue;
         }
@@ -61,21 +61,21 @@ void colormatch_start(int8_t id, int min_hue, int max_hue) {
     if (result != TV_OK) {
         return;
     }
-    result = tv_set_parameter(id, "min-hue", min_hue);
+    result = tv_module_set_numerical_parameter(id, "min-hue", min_hue);
     printf("Set min-hue: %d (%s)\n", result, tv_result_string(result));
     if (result != TV_OK) {
         return;
     }
-    result = tv_set_parameter(id, "max-hue", max_hue);
+    result = tv_module_set_numerical_parameter(id, "max-hue", max_hue);
     printf("Set max-hue: %d (%s)\n", result, tv_result_string(result));
     if (result != TV_OK) {
         return;
     }
-    result = tv_set_callback(id, callback);
-    if (result != TV_OK) {
-        printf("Setting the callback failed: %d (%s)\n", result,
-               tv_result_string(result));
-    }
+    /* result = tv_callback_set(id, callback); */
+    /* if (result != TV_OK) { */
+    /*     printf("Setting the callback failed: %d (%s)\n", result, */
+    /*            tv_result_string(result)); */
+    /* } */
 }
 
 int main(int argc, char* argv[]) {
@@ -94,14 +94,18 @@ int main(int argc, char* argv[]) {
     printf("SetFramesize: %d (%s)\n", result, tv_result_string(result));
     sleep(1);
 
-    tv_user_module_load_path(string);
+    tv_get_user_module_load_path(string);
     printf("User module path: %s\n", string);
 
-    tv_system_module_load_path(string);
+    tv_get_system_module_load_path(string);
     printf("System module path: %s\n", string);
 
     result = tv_camera_available();
     printf("CameraAvailable: %d (%s)\n", result, tv_result_string(result));
+    sleep(1);
+
+    result = tv_callback_enable_default(callback);
+    printf("Set callback: Code %d (%s)\n", result, tv_result_string(result));
     sleep(1);
 
     result = tv_start_idle();
@@ -109,7 +113,7 @@ int main(int argc, char* argv[]) {
     sleep(2);
 
     width = height = 0;
-    result = tv_get_resolution(&width, &height);
+    result = tv_get_framesize(&width, &height);
     printf("GetResolution: %d (%s)\n", result, tv_result_string(result));
     printf("WxH: %lux%lu\n", (long unsigned)width, (long unsigned)height);
     sleep(1);
@@ -124,7 +128,7 @@ int main(int argc, char* argv[]) {
     sleep(1);
 
     width = height = 0;
-    result = tv_get_resolution(&width, &height);
+    result = tv_get_framesize(&width, &height);
     printf("GetResolution: %d (%s)\n", result, tv_result_string(result));
     printf("WxH: %lux%lu\n", (long unsigned)width, (long unsigned)height);
     sleep(1);
@@ -136,7 +140,7 @@ int main(int argc, char* argv[]) {
     colormatch_start(1, 20, 25);
     /*
        10-29-2015: Deprecated enumeration
-    result = tv_module_enumerate_parameters(1, str_callback, &enum_pars);
+    result = tv_module_parameters_enumerate(1, str_callback, &enum_pars);
     printf("Enumerate Parameters registered: %d\n", result);
     */
 
@@ -171,7 +175,7 @@ int main(int argc, char* argv[]) {
     sleep(2);
 
     /* \todo: Can't get resolution if inactive... ok? */
-    result = tv_get_resolution(&width, &height);
+    result = tv_get_framesize(&width, &height);
     printf("GetResolution: %d (%s)\n", result, tv_result_string(result));
     sleep(1);
 
@@ -183,7 +187,7 @@ int main(int argc, char* argv[]) {
     height = 720;
 
     result = tv_set_framesize(width, height);
-    result = tv_get_resolution(&width, &height);
+    result = tv_get_framesize(&width, &height);
     printf("GetResolution: %d (%s)\n", result, tv_result_string(result));
     printf("SetFramesize: %d (%s)\n", result, tv_result_string(result));
     sleep(1);

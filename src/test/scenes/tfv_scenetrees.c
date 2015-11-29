@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdlib.h>
 #include "tinkervision/tinkervision.h"
 
-void tfcv_callback(int8_t id, TV_ModuleResult result, void* context) {
+void callback(int8_t id, TV_ModuleResult result, void* context) {
     printf("Executing id %d\n", id);
 }
 
@@ -50,21 +50,21 @@ void colormatch_start(int8_t id, int min_hue, int max_hue) {
     if (result != TV_OK) {
         return;
     }
-    result = tv_set_parameter(id, "min-hue", min_hue);
+    result = tv_module_set_numerical_parameter(id, "min-hue", min_hue);
     printf("Set min-hue: %d (%s)\n", result, tv_result_string(result));
     if (result != TV_OK) {
         return;
     }
-    result = tv_set_parameter(id, "max-hue", max_hue);
+    result = tv_module_set_numerical_parameter(id, "max-hue", max_hue);
     printf("Set max-hue: %d (%s)\n", result, tv_result_string(result));
     if (result != TV_OK) {
         return;
     }
-    result = tv_set_callback(id, tfcv_callback);
-    if (result != TV_OK) {
-        printf("Setting the callback failed: %d (%s)\n", result,
-               tv_result_string(result));
-    }
+    /* result = tv_set_callback(id, callback); */
+    /* if (result != TV_OK) { */
+    /*     printf("Setting the callback failed: %d (%s)\n", result, */
+    /*            tv_result_string(result)); */
+    /* } */
 }
 
 /*
@@ -94,6 +94,7 @@ void colormatch_start(int8_t id, int min_hue, int max_hue) {
 int main(int argc, char* argv[]) {
 
     int i;
+    int16_t result;
 
     int16_t scene_1, scene_2, scene_3, scene_4, scene_5, scene_6, scene_7,
         scene_8;
@@ -108,6 +109,9 @@ int main(int argc, char* argv[]) {
     for (i = 0; i < ids_count; i++) {
         colormatch_start(i, min_hue, max_hue);
     }
+
+    result = tv_callback_enable_default(callback);
+    printf("Set callback: Code %d (%s)\n", result, tv_result_string(result));
 
     /* give api time to actually start the modules */
     sleep(1);

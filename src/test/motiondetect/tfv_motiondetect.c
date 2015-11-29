@@ -68,13 +68,16 @@ int main(int argc, char* argv[]) {
         exit(-1);
     }
 
-    result = tv_get_resolution(&width, &height);
+    result = tv_get_framesize(&width, &height);
 
     if (result) {
         printf("Retrieving the framesize failed with %d: %s\n", result,
                tv_result_string(result));
         exit(-1);
     }
+
+    result = tv_callback_enable_default(tv_callback);
+    printf("Set callback: Code %d (%s)\n", result, tv_result_string(result));
 
     image = cvCreateImage(cvSize(width, height), 8, 3);
     cvNamedWindow("Motion", CV_WINDOW_AUTOSIZE);
@@ -86,7 +89,7 @@ int main(int argc, char* argv[]) {
                tv_result_string(result));
     }
 
-    result = tv_set_callback(module_id, tv_callback);
+    /* result = tv_set_callback(module_id, tv_callback); */
 
     if (!result) {
         printf(

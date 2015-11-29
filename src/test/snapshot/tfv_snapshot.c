@@ -32,21 +32,21 @@ int main(int argc, char* argv[]) {
     printf("Load module snapshot: result %d: %s\n", result,
            tv_result_string(result));
 
-    result = tv_get_resolution(&width, &height);
+    result = tv_get_framesize(&width, &height);
     printf("Framesize is %dx%d\n", width, height);
 
     /* Wait for a moment to have the Snapshot module executed at least once */
     sleep(1);
 
-    result = tv_set_string_parameter(id, "path", "/tmp0");
+    result = tv_module_set_string_parameter(id, "path", "/tmp0");
     printf("Snapshot setting wrong path: %d (%s)\n", result,
            tv_result_string(result));
 
-    result = tv_set_string_parameter(id, "path", "/tmp/");
+    result = tv_module_set_string_parameter(id, "path", "/tmp/");
     printf("Snapshot setting correct path: %d (%s)\n", result,
            tv_result_string(result));
 
-    result = tv_get_result(id, &m_result);
+    result = tv_module_get_result(id, &m_result);
     printf("Snapshot result: %d (%s)\n", result, tv_result_string(result));
     if (result == TV_OK) {
         printf("Snapshot is %s\n", m_result.string);

@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
     printf("Configured downscale id %d: Code %d (%s)\n", id, result,
            tv_result_string(result));
 
-    result = tv_set_parameter(id, "factor", factor);
+    result = tv_module_set_numerical_parameter(id, "factor", factor);
 
     printf("Set downscale-factor to %d: Code %d (%s)\n", factor, result,
            tv_result_string(result));
@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
     printf("Stopped downscale %d: Code %d (%s)\n", id, result,
            tv_result_string(result));
 
-    quit();
+    tv_quit();
 
     return 0;
 }

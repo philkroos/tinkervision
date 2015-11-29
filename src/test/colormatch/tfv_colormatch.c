@@ -94,44 +94,48 @@ int main(int argc, char* argv[]) {
     printf("Configured module id %d: Code %d (%s)\n", id, result,
            tv_result_string(result));
 
-    result = tv_enable_default_callback(callback);
+    result = tv_callback_enable_default(callback);
     printf("Set callback: Code %d (%s)\n", result, tv_result_string(result));
 
-    result = tv_set_parameter(id, "min-hue", min_hue);
+    result = tv_module_set_numerical_parameter(id, "min-hue", min_hue);
     printf("Set min-hue: Code %d (%s)\n", result, tv_result_string(result));
-    result = tv_get_parameter(id, "min-hue", &min_hue);
+    result = tv_module_get_numerical_parameter(id, "min-hue", &min_hue);
     printf("%d Code %d (%s)\n", min_hue, result, tv_result_string(result));
 
-    result = tv_set_parameter(id, "max-hue", max_hue);
+    result = tv_module_set_numerical_parameter(id, "max-hue", max_hue);
     printf("Set max-hue: Code %d (%s)\n", result, tv_result_string(result));
-    result = tv_get_parameter(id, "max-hue", &min_hue);
+    result = tv_module_get_numerical_parameter(id, "max-hue", &min_hue);
     printf("%d Code %d (%s)\n", max_hue, result, tv_result_string(result));
 
-    result = tv_set_parameter(id, "min-value", min_value);
+    result = tv_module_set_numerical_parameter(id, "min-value", min_value);
     printf("Set min-value: Code %d (%s)\n", result, tv_result_string(result));
-    result = tv_get_parameter(id, "min-value", &min_hue);
+    result = tv_module_get_numerical_parameter(id, "min-value", &min_hue);
     printf("%d Code %d (%s)\n", min_value, result, tv_result_string(result));
 
-    result = tv_set_parameter(id, "max-value", max_value);
+    result = tv_module_set_numerical_parameter(id, "max-value", max_value);
     printf("Set max-value: Code %d (%s)\n", result, tv_result_string(result));
-    result = tv_get_parameter(id, "max-value", &min_hue);
+    result = tv_module_get_numerical_parameter(id, "max-value", &min_hue);
     printf("%d Code %d (%s)\n", max_value, result, tv_result_string(result));
 
-    result = tv_set_parameter(id, "min-saturation", min_saturation);
+    result =
+        tv_module_set_numerical_parameter(id, "min-saturation", min_saturation);
     printf("Set min-sat: Code %d (%s)\n", result, tv_result_string(result));
-    result = tv_get_parameter(id, "min-saturation", &min_saturation);
+    result = tv_module_get_numerical_parameter(id, "min-saturation",
+                                               &min_saturation);
     printf("%d Code %d (%s)\n", min_saturation, result,
            tv_result_string(result));
 
-    result = tv_set_parameter(id, "max-saturation", max_saturation);
+    result =
+        tv_module_set_numerical_parameter(id, "max-saturation", max_saturation);
     printf("Set max-sat: Code %d (%s)\n", result, tv_result_string(result));
-    result = tv_get_parameter(id, "max-saturation", &min_saturation);
+    result = tv_module_get_numerical_parameter(id, "max-saturation",
+                                               &min_saturation);
     printf("%d Code %d (%s)\n", max_saturation, result,
            tv_result_string(result));
 
     sleep(2);
 
-    tv_get_resolution(&width, &height);
+    tv_get_framesize(&width, &height);
     printf("WxH: %dx%d (Code %d: %s)\n", width, height, result,
            tv_result_string(result));
     image = cvCreateImage(cvSize(width, height), 8, 3);

@@ -37,9 +37,9 @@
 
 extern "C" {
 
-///
-/// Utilities
-///
+//
+// Utilities
+//
 static void copy_std_string(std::string const& str, char cstr[]) {
     assert(str.length() < TV_STRING_SIZE - 1);
 
@@ -49,7 +49,7 @@ static void copy_std_string(std::string const& str, char cstr[]) {
 }
 
 //
-// Library functions
+// GENERAL FUNCTIONS
 //
 
 int16_t tv_valid(void) {
@@ -59,27 +59,6 @@ int16_t tv_valid(void) {
 int16_t tv_camera_available(void) {
     tv::Log("Tinkervision::CameraAvailable");
     return tv::get_api().is_camera_available();
-}
-
-int16_t tv_get_framesize(uint16_t* width, uint16_t* height) {
-    tv::Log("Tinkervision::GetResolution");
-    return tv::get_api().resolution(*width, *height);
-}
-
-int16_t tv_set_framesize(uint16_t width, uint16_t height) {
-    tv::Log("Tinkervision::SetFramesize", width, " ", height);
-    return tv::get_api().set_framesize(width, height);
-}
-
-int16_t tv_start_idle(void) {
-    tv::Log("Tinkervision::StartIdle");
-    return tv::get_api().start_idle();
-}
-
-int16_t tv_effective_frameperiod(uint32_t* frameperiod) {
-    tv::Log("Tinkervision::EffectiveFrameperiod");
-    *frameperiod = tv::get_api().effective_frameperiod();
-    return TV_OK;
 }
 
 int16_t tv_stop(void) {
@@ -98,9 +77,50 @@ int16_t tv_quit(void) {
     return tv::get_api().quit();
 }
 
+int16_t tv_get_framesize(uint16_t* width, uint16_t* height) {
+    tv::Log("Tinkervision::GetResolution");
+    return tv::get_api().resolution(*width, *height);
+}
+
+int16_t tv_set_framesize(uint16_t width, uint16_t height) {
+    tv::Log("Tinkervision::SetFramesize", width, " ", height);
+    return tv::get_api().set_framesize(width, height);
+}
+
 int16_t tv_request_frameperiod(uint32_t milliseconds) {
     tv::Log("Tinkervision::RequestFrameperiod", milliseconds);
     return tv::get_api().request_frameperiod(milliseconds);
+}
+
+int16_t tv_effective_frameperiod(uint32_t* frameperiod) {
+    tv::Log("Tinkervision::EffectiveFrameperiod");
+    *frameperiod = tv::get_api().effective_frameperiod();
+    return TV_OK;
+}
+
+int16_t tv_get_user_module_load_path(char path[]) {
+    tv::Log("Tinkervision::UserModuleLoadPath");
+    auto spath = tv::get_api().user_module_path();
+    copy_std_string(spath, path);
+    return TV_OK;
+}
+
+int16_t tv_set_user_module_load_path(char const* path) {
+    tv::Log("Tinkervision::SetUserModuleLoadPath");
+    auto spath = std::string(path);
+
+    if (spath.size() >= TV_STRING_SIZE) {
+        return TV_INVALID_ARGUMENT;
+    }
+
+    return tv::get_api().set_user_module_load_path(spath);
+}
+
+int16_t tv_get_system_module_load_path(char path[]) {
+    tv::Log("Tinkervision::SystemModuleLoadPath");
+    auto spath = tv::get_api().system_module_path();
+    copy_std_string(spath, path);
+    return TV_OK;
 }
 
 char const* tv_result_string(int16_t code) {
@@ -108,78 +128,9 @@ char const* tv_result_string(int16_t code) {
     return tv::get_api().result_string(code);
 }
 
-int16_t tv_get_numerical_parameter(int8_t module_id,
-                                   char const* const parameter,
-                                   int32_t* value) {
-    tv::Log("Tinkervision::GetParameter", module_id, " ", parameter);
-    return tv::get_api().get_parameter(module_id, parameter, *value);
-}
-
-int16_t tv_set_numerical_parameter(int8_t module_id,
-                                   char const* const parameter, int32_t value) {
-    tv::Log("Tinkervision::SetParameter", module_id, " ", parameter, " ",
-            value);
-    return tv::get_api().set_parameter(module_id, parameter, value);
-}
-
-int16_t tv_get_string_parameter(int8_t module_id, char const* const parameter,
-                                char value[]) {
-    tv::Log("Tinkervision::GetParameter", module_id, " ", parameter);
-    std::string svalue;
-    auto result = tv::get_api().get_parameter(module_id, parameter, svalue);
-    if (result == TV_OK) {
-        copy_std_string(svalue, value);
-    }
-    return result;
-}
-
-int16_t tv_set_string_parameter(int8_t module_id, char const* const parameter,
-                                char const* value) {
-    tv::Log("Tinkervision::SetParameter", module_id, " ", parameter, " ",
-            value);
-    auto svalue = std::string(value);
-    return tv::get_api().set_parameter<std::string>(module_id, parameter,
-                                                    svalue);
-}
-
-int16_t tv_module_start(char const* name, int8_t* id) {
-    tv::Log("Tinkervision::ModuleStart", name);
-    //// \todo Let user specify path (system or user)
-    return tv::get_api().module_load(name, *id);
-}
-
-int16_t tv_module_stop(int8_t id) {
-    tv::Log("Tinkervision::ModuleStop", id);
-    return tv::get_api().module_stop(id);
-}
-
-int16_t tv_module_restart(int8_t id) {
-    tv::Log("Tinkervision::ModuleRestart", id);
-    return tv::get_api().module_start(id);
-}
-
-int16_t tv_module_remove(int8_t id) {
-    tv::Log("Tinkervision::ModuleRemove", id);
-    return tv::get_api().module_destroy(id);
-}
-
-int16_t tv_module_get_name(int8_t module_id, char name[]) {
-    tv::Log("Tinkervision::ModuleGetName", module_id);
-    std::string module_name;
-    auto err = tv::get_api().module_get_name(module_id, module_name);
-    if (err == TV_OK) {
-        copy_std_string(module_name, name);
-    }
-    return err;
-}
-
-int16_t tv_module_enumerate_parameters(int8_t module_id,
-                                       TV_StringCallback callback,
-                                       void* context) {
-    tv::Log("Tinkervision::ModuleEnumerateParameters", module_id);
-    return tv::get_api().module_enumerate_parameters(module_id, callback,
-                                                     context);
-}
+//
+// LIBRARY INFORMATION FUNCTIONS
+//
 
 int16_t tv_libraries_count(uint16_t* count) {
     tv::Log("Tinkervision::LibrariesCount");
@@ -222,36 +173,49 @@ int16_t tv_library_parameter_describe(char const* libname, uint16_t parameter,
     return err;
 }
 
-int16_t tv_libraries_changed_callback(TV_LibrariesCallback callback,
-                                      void* context) {
-    tv::Log("Tinkervision::LibrariesChangedCallback", (void*)callback, " ",
-            context);
-    return tv::get_api().libraries_changed_callback(callback, context);
+//
+// MODULE HANDLING FUNCTIONS
+//
+
+int16_t tv_start_idle(void) {
+    tv::Log("Tinkervision::StartIdle");
+    return tv::get_api().start_idle();
 }
 
-int16_t tv_get_user_module_load_path(char path[]) {
-    tv::Log("Tinkervision::UserModuleLoadPath");
-    auto spath = tv::get_api().user_module_path();
-    copy_std_string(spath, path);
-    return TV_OK;
+int16_t tv_module_start(char const* name, int8_t* id) {
+    tv::Log("Tinkervision::ModuleStart", name);
+    //// \todo Let user specify path (system or user)
+    return tv::get_api().module_load(name, *id);
 }
 
-int16_t tv_set_user_module_load_path(char const* path) {
-    tv::Log("Tinkervision::SetUserModuleLoadPath");
-    auto spath = std::string(path);
+int16_t tv_module_stop(int8_t id) {
+    tv::Log("Tinkervision::ModuleStop", id);
+    return tv::get_api().module_stop(id);
+}
 
-    if (spath.size() >= TV_STRING_SIZE) {
-        return TV_INVALID_ARGUMENT;
+int16_t tv_module_restart(int8_t id) {
+    tv::Log("Tinkervision::ModuleRestart", id);
+    return tv::get_api().module_start(id);
+}
+
+int16_t tv_module_remove(int8_t id) {
+    tv::Log("Tinkervision::ModuleRemove", id);
+    return tv::get_api().module_destroy(id);
+}
+
+int16_t tv_module_get_name(int8_t module_id, char name[]) {
+    tv::Log("Tinkervision::ModuleGetName", module_id);
+    std::string module_name;
+    auto err = tv::get_api().module_get_name(module_id, module_name);
+    if (err == TV_OK) {
+        copy_std_string(module_name, name);
     }
-
-    return tv::get_api().set_user_module_load_path(spath);
+    return err;
 }
 
-int16_t tv_get_system_module_load_path(char path[]) {
-    tv::Log("Tinkervision::SystemModuleLoadPath");
-    auto spath = tv::get_api().system_module_path();
-    copy_std_string(spath, path);
-    return TV_OK;
+int16_t tv_module_get_result(int8_t module, TV_ModuleResult* result) {
+    tv::Log("Tinkervision::GetResult", module);
+    return tv::get_api().get_result(module, *result);
 }
 
 int16_t tv_remove_all_modules(void) {
@@ -261,30 +225,56 @@ int16_t tv_remove_all_modules(void) {
 }
 
 //
-// Callbacks
+// MODULE PARAMATERS FUNCTIONS
 //
 
-int16_t tv_set_callback(int8_t module, TV_Callback callback) {
-    tv::Log("Tinkervision::SetCallback", module);
-    return tv::get_api().callback_set(module, callback);
+int16_t tv_module_enumerate_parameters(int8_t module_id,
+                                       TV_StringCallback callback,
+                                       void* context) {
+    tv::Log("Tinkervision::ModuleEnumerateParameters", module_id);
+    return tv::get_api().module_enumerate_parameters(module_id, callback,
+                                                     context);
 }
 
-int16_t tv_enable_default_callback(TV_Callback callback) {
-    tv::Log("Tinkervision::EnableDefaultCallback");
-    return tv::get_api().callback_default(callback);
+int16_t tv_module_get_numerical_parameter(int8_t module_id,
+                                          char const* const parameter,
+                                          int32_t* value) {
+    tv::Log("Tinkervision::GetParameter", module_id, " ", parameter);
+    return tv::get_api().get_parameter(module_id, parameter, *value);
+}
+
+int16_t tv_module_set_numerical_parameter(int8_t module_id,
+                                          char const* const parameter,
+                                          int32_t value) {
+    tv::Log("Tinkervision::SetParameter", module_id, " ", parameter, " ",
+            value);
+    return tv::get_api().set_parameter(module_id, parameter, value);
+}
+
+int16_t tv_module_get_string_parameter(int8_t module_id,
+                                       char const* const parameter,
+                                       char value[]) {
+    tv::Log("Tinkervision::GetParameter", module_id, " ", parameter);
+    std::string svalue;
+    auto result = tv::get_api().get_parameter(module_id, parameter, svalue);
+    if (result == TV_OK) {
+        copy_std_string(svalue, value);
+    }
+    return result;
+}
+
+int16_t tv_module_set_string_parameter(int8_t module_id,
+                                       char const* const parameter,
+                                       char const* value) {
+    tv::Log("Tinkervision::SetParameter", module_id, " ", parameter, " ",
+            value);
+    auto svalue = std::string(value);
+    return tv::get_api().set_parameter<std::string>(module_id, parameter,
+                                                    svalue);
 }
 
 //
-// Accessors for the same data provided by the callbacks
-//
-
-int16_t tv_get_result(int8_t module, TV_ModuleResult* result) {
-    tv::Log("Tinkervision::GetResult", module);
-    return tv::get_api().get_result(module, *result);
-}
-
-//
-// Not supported currently
+// SCENE HANDLING FUNCTIONS
 //
 
 int16_t tv_scene_from_module(int8_t module, int16_t* scene_id) {
@@ -303,5 +293,26 @@ int16_t tv_scene_remove(int16_t scene) {
     tv::Log("Tinkervision::SceneRemove", scene);
     return TV_NOT_IMPLEMENTED;
     // return tv::get_api().scene_remove(scene);
+}
+
+//
+// CALLBACKS
+//
+
+int16_t tv_callback_set(int8_t module, TV_Callback callback) {
+    tv::Log("Tinkervision::SetCallback", module);
+    return tv::get_api().callback_set(module, callback);
+}
+
+int16_t tv_callback_enable_default(TV_Callback callback) {
+    tv::Log("Tinkervision::EnableDefaultCallback");
+    return tv::get_api().callback_default(callback);
+}
+
+int16_t tv_callback_set_libraries_changed(TV_LibrariesCallback callback,
+                                          void* context) {
+    tv::Log("Tinkervision::LibrariesChangedCallback", (void*)callback, " ",
+            context);
+    return tv::get_api().libraries_changed_callback(callback, context);
 }
 }
