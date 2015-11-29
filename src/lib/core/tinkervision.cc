@@ -217,6 +217,11 @@ int16_t tv_module_is_active(int8_t id, uint8_t* active) {
     return result;
 }
 
+int16_t tv_module_remove(int8_t id) {
+    tv::Log("Tinkervision::ModuleRemove", id);
+    return tv::get_api().module_destroy(id);
+}
+
 int16_t tv_module_get_name(int8_t module_id, char name[]) {
     tv::Log("Tinkervision::ModuleGetName", module_id);
     std::string module_name;
