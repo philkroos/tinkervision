@@ -24,6 +24,9 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
+#ifndef ENVIRONMENT_H
+#define ENVIRONMENT_H
+
 #include <string>
 #include <mutex>
 
@@ -52,6 +55,10 @@ public:
     /// Get the path where python scripts can be loaded from.
     /// \return user_prefix_/scripts_dir_.
     std::string const& user_scripts_path(void) const;
+
+    /// Access the user prefix, which is the root of all accessible user paths.
+    /// \return user_prefix_.
+    std::string const& user_prefix(void) const;
 
     /// Set the user prefix, which is the root of all accessible user paths.
     /// The path has to exist and each of the paths accessible from the user_*
@@ -152,3 +159,5 @@ void Environment::Python::add_to_format(int const& i, Args const&... args) {
     add_to_format(args...);
 }
 }
+
+#endif

@@ -25,6 +25,7 @@
 /// USA.
 
 #include "environment.hh"
+#include "tinkervision_defines.h"
 
 tv::Environment::Python tv::Environment::python_;
 
@@ -52,7 +53,22 @@ std::string const& tv::Environment::user_scripts_path(void) const {
     return user_scripts_path_;
 }
 
-// tv::PythonContext& tv::Environment::python(void) { return python_context_; }
+std::string const& tv::Environment::user_prefix(void) const {
+    return user_prefix_;
+}
+
+bool tv::Environment::Python::set_path(std::string const& path) {
+    return python_context_.set_path(path);
+}
+
+tv::Environment::Python& tv::Environment::Python::load(
+    std::string const& scriptname) {
+
+    script_ = scriptname;
+    return *this;
+}
+
+std::string tv::Environment::Python::result(void) { return result_; }
 
 bool tv::Environment::set_user_prefix(std::string const& path) {
     if (not is_directory(path)) {
@@ -85,17 +101,6 @@ bool tv::Environment::set_user_prefix(std::string const& path) {
     return true;
 }
 
-bool tv::Environment::Python::set_path(std::string const& path) {
-    return python_context_.set_path(path);
-}
-
-tv::Environment::Python& tv::Environment::Python::load(
-    std::string const& scriptname) {
-
-    script_ = scriptname;
-    return *this;
-}
-
 tv::Environment::Python& tv::Environment::Python::call(
     std::string const& function) {
 
@@ -107,5 +112,3 @@ tv::Environment::Python& tv::Environment::Python::call(
     }
     return *this;
 }
-
-std::string tv::Environment::Python::result(void) { return result_; }

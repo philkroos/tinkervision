@@ -31,6 +31,7 @@
 #include "module_wrapper.hh"
 #include "filesystem.hh"
 #include "dirwatch.hh"
+#include "environment.hh"
 
 namespace tv {
 
@@ -50,17 +51,17 @@ public:
     /// c'tor.
     /// Initialize this class with a path where libraries are to be
     /// found.
-    ModuleLoader(std::string const& system_lib_load_path,
-                 std::string const& user_lib_load_path);
+    ModuleLoader(Environment const& environment_);
 
     /// d'tor. Call destroy_all() and delete acquired resources.
     ~ModuleLoader(void);
 
     /// Modify the user accessible module load path.
-    /// \param[in] load_path full path name
-    /// \return true if the path was added. In this case, the previous user load
-    /// path has been removed.
-    bool set_user_load_path(std::string const& load_path);
+    /// \param[in] old_path full, previous path.
+    /// \param[in] load_path full path name searched for for libraries.
+    /// \return true if the path was added or not modified.
+    bool switch_user_load_path(std::string const& old_path,
+                               std::string const& load_path);
 
     /// List all loadable modules. Both system_load_path_ and
     /// user_lib_load_path_ are searched for loadable modules, which are
@@ -146,16 +147,6 @@ public:
     bool library_get_parameter(std::string const& libname, size_t number,
                                Parameter const** p) const;
 
-    /// Access the currently set user module load path.
-    /// \return user_load_path_
-    std::string const& user_load_path(void) const { return user_load_path_; }
-
-    /// Access the static system module load path.
-    /// \return system_load_path_
-    std::string const& system_load_path(void) const {
-        return system_load_path_;
-    }
-
 private:
     struct AvailableModule {
         std::string libname;
@@ -172,11 +163,10 @@ private:
     };
     using Handles = std::unordered_map<ModuleWrapper*, ModuleHandle>;
 
-    AvailableModules availables_;         ///< Keeps track of loadable modules
-    Handles handles_;                     ///< Keeps track of loaded modules
-    std::string const system_load_path_;  ///< Default shared object files
-    std::string user_load_path_;          ///< Additional shared object files
-    int16_t error_{TV_OK};  ///< If an error occurs, it's stored here
+    Environment const& environment_;
+    AvailableModules availables_;  ///< Keeps track of loadable modules
+    Handles handles_;              ///< Keeps track of loaded modules
+    int16_t error_{TV_OK};         ///< If an error occurs, it's stored here
 
     std::vector<std::string> required_functions_ = {
         "create",

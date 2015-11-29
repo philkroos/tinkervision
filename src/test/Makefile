@@ -7,10 +7,11 @@ SCENES		:= scenes
 GENERAL	:= general
 FS		:= filesystem
 ML		:= moduleloader
+DW		:= dirwatch
 
 ALL		:= $(COLORTRACK) $(CONVERT) \
 		   $(SNAPSHOT) $(MOTIONDETECT) \
-		   $(GENERAL) $(SCENES) $(ML) $(FS) # $(STREAM)
+		   $(GENERAL) $(SCENES) $(ML) $(FS) $(DW)# $(STREAM)
 all:
 	@for test in $(ALL); do \
 		cd $$test && make && cd ..; \

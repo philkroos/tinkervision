@@ -5,12 +5,12 @@
 #include <thread>
 #include <chrono>
 
-std::ostream& operator<<(std::ostream& os, tv::Dirwatch::Event event) {
-    if (event == tv::Dirwatch::Event::FILE_CREATED) {
+std::ostream& operator<<(std::ostream& os, Dirwatch::Event event) {
+    if (event == Dirwatch::Event::FILE_CREATED) {
         os << "File Created";
-    } else if (event == tv::Dirwatch::Event::FILE_DELETED) {
+    } else if (event == Dirwatch::Event::FILE_DELETED) {
         os << "File Deleted";
-    } else if (event == tv::Dirwatch::Event::DIR_DELETED) {
+    } else if (event == Dirwatch::Event::DIR_DELETED) {
         os << "Dir Deleted";
     }
 
@@ -20,7 +20,7 @@ std::ostream& operator<<(std::ostream& os, tv::Dirwatch::Event event) {
     return os;
 }
 
-void dirwatch_callback(tv::Dirwatch::Event event, std::string const& dir,
+void dirwatch_callback(Dirwatch::Event event, std::string const& dir,
                        std::string const& file) {
     std::cout << "Dirwatch event for " << dir << "/" << file << ": " << event
               << std::endl;
@@ -30,7 +30,7 @@ int main() {
 
     system("mkdir ./watched-dir");
 
-    tv::Dirwatch dirwatch(dirwatch_callback);
+    Dirwatch dirwatch(dirwatch_callback);
     dirwatch.watch("./watched-dir");
     dirwatch.add_watched_extension("so");
 

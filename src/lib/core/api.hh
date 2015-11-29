@@ -317,14 +317,16 @@ public:
     int16_t libraries_changed_callback(TV_LibrariesCallback callback,
                                        void* context);
 
-    /// Set the path to the loadable modules.  The system path is
-    /// fixed to #SYS_MODULE_LOAD_PATH, but the path set here
-    /// (defaulting to #ADD_MODULE_LOAD_PATH) is prioritized during module
-    /// loading.
+    /// Set the user path prefix.
+    /// path has to be a valid, accessible filesystem directory and provide the
+    /// subdirectories frames, modules, scripts.  The standard prefix can be set
+    /// during library build \c (USER_PREFIX=... make), and defaults to \c
+    /// $HOME/tv.
     /// \param path A valid, accessible full pathname.
-    /// \return #TV_INVALID_ARGUMENT if the path could not be set; #TV_OK
-    /// else.
-    int16_t set_user_module_load_path(std::string const& path);
+    /// \return
+    ///    - #TV_INVALID_ARGUMENT if the path could not be set
+    ///    - #TV_OK else.
+    int16_t set_user_paths_prefix(std::string const& path);
 
     /// Set a callback to the results of a specific module.
     /// \deprecated This is not usable in the context of Tinkerforge.
@@ -353,8 +355,13 @@ public:
     /// \see request_frameperiod()
     uint32_t effective_frameperiod(void) const;
 
-    std::string const& user_module_path(void) const;
+    /// Retrieve the current user path.
+    /// \see set_user_paths_prefix().
+    /// \return The path holding the directory structure for user files.
+    std::string const& user_paths_prefix(void) const;
 
+    /// Retrieve the system-wide path to the vision modules.
+    /// \return Path where vision modules are installed.
     std::string const& system_module_path(void) const;
 
     /// Disable and remove all modules.
@@ -491,6 +498,5 @@ private:
         return scene_id++;
     }
 };
-
 Api& get_api(void);
 }

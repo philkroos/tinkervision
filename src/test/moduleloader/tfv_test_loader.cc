@@ -8,22 +8,22 @@
 #include <chrono>
 
 #include "module_loader.hh"
+#include "tinkervision_defines.h"
 
 static void directory_changes(std::string const& dir, std::string const& file,
                               Dirwatch::Event event) {
     std::cout << "In " << dir << ": " << file << " was ";
     if (event == Dirwatch::Event::FILE_CREATED) {
         std::cout << "created";
-    }
-    else {
+    } else {
         std::cout << "deleted";
     }
     std::cout << std::endl;
 }
 
-static void modify_dir(void) {
-    std::string f1("/tmp/lib/tinkervision/ignored");
-    std::string f2("/tmp/lib/tinkervision/test.so");
+static void modify_dir(std::string const& dir) {
+    std::string f1(dir + "ignored");
+    std::string f2(dir + "test.so");
 
     std::remove(f1.c_str());
     std::remove(f2.c_str());
@@ -45,6 +45,16 @@ static void modify_dir(void) {
     std::remove(f2.c_str());
 }
 
+namespace tv {
+// Needing this to access Environment, which has a private constructor.
+class Api {
+    Environment env;
+
+public:
+    Environment& environment(void) { return env; }
+};
+}
+
 int main() {
 
     if (getuid() != 0) {
@@ -55,7 +65,13 @@ int main() {
                      "relies on." << std::endl;
     }
 
-    tv::ModuleLoader loader("/usr/lib/tinkervision", "/tmp/lib/tinkervision/");
+    auto api = tv::Api();
+    auto& env = api.environment();
+    if (not env.set_user_prefix(USR_PREFIX)) {
+        std::cout << "Could not set user prefix to " << USR_PREFIX << std::endl;
+    }
+
+    tv::ModuleLoader loader(env);
     auto modules = std::vector<std::string>();
     auto paths = std::vector<std::string>();
 
@@ -69,7 +85,7 @@ int main() {
 
     loader.update_on_changes(directory_changes);
 
-    std::thread(&modify_dir).detach();
+    std::thread(&modify_dir, env.user_prefix()).detach();
     std::this_thread::sleep_for(std::chrono::seconds(10));
 
     return 0;

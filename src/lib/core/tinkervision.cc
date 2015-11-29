@@ -98,22 +98,22 @@ int16_t tv_effective_frameperiod(uint32_t* frameperiod) {
     return TV_OK;
 }
 
-int16_t tv_get_user_module_load_path(char path[]) {
-    tv::Log("Tinkervision::UserModuleLoadPath");
-    auto spath = tv::get_api().user_module_path();
+int16_t tv_get_user_paths_prefix(char path[]) {
+    tv::Log("Tinkervision::UserGetPathsPrefix:");
+    auto spath = tv::get_api().user_paths_prefix();
     copy_std_string(spath, path);
     return TV_OK;
 }
 
-int16_t tv_set_user_module_load_path(char const* path) {
-    tv::Log("Tinkervision::SetUserModuleLoadPath");
+int16_t tv_set_user_paths_prefix(char const* path) {
+    tv::Log("Tinkervision::SetUserPathsPrefix");
     auto spath = std::string(path);
 
     if (spath.size() >= TV_STRING_SIZE) {
         return TV_INVALID_ARGUMENT;
     }
 
-    return tv::get_api().set_user_module_load_path(spath);
+    return tv::get_api().set_user_paths_prefix(spath);
 }
 
 int16_t tv_get_system_module_load_path(char path[]) {

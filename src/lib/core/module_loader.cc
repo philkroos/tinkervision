@@ -34,10 +34,8 @@
 #include "filesystem.hh"
 #include "logger.hh"
 
-tv::ModuleLoader::ModuleLoader(std::string const& system_lib_load_path,
-                               std::string const& user_lib_load_path)
-    : system_load_path_(system_lib_load_path),
-      user_load_path_(user_lib_load_path),
+tv::ModuleLoader::ModuleLoader(Environment const& environment)
+    : environment_(environment),
       dirwatch_(&ModuleLoader::_watched_directory_changed_callback, this) {
 
     auto modules = std::vector<std::string>{};
@@ -46,7 +44,7 @@ tv::ModuleLoader::ModuleLoader(std::string const& system_lib_load_path,
     // list of .so files. Checked for validity in _add_available_module
     _possibly_available_modules(paths, modules);
 
-    Log("MODULE_LOADER", "User module path: ", user_lib_load_path);
+    Log("MODULE_LOADER", "User libs dir: ", environment_.user_modules_path());
     Log("MODULE_LOADER", "Starting with ", paths.size(), " available modules");
 
     for (size_t i = 0; i < modules.size(); ++i) {
@@ -62,8 +60,8 @@ tv::ModuleLoader::ModuleLoader(std::string const& system_lib_load_path,
 
     // monitor changes
     dirwatch_.add_watched_extension("so");
-    dirwatch_.watch(system_load_path_);
-    dirwatch_.watch(user_load_path_);
+    dirwatch_.watch(environment_.system_modules_path());
+    dirwatch_.watch(environment_.user_modules_path());
 }
 
 tv::ModuleLoader::~ModuleLoader(void) {
@@ -75,15 +73,11 @@ tv::ModuleLoader::~ModuleLoader(void) {
     }
 }
 
-bool tv::ModuleLoader::set_user_load_path(std::string const& load_path) {
-    if (load_path == user_load_path_) {
+bool tv::ModuleLoader::switch_user_load_path(std::string const& old_path,
+                                             std::string const& load_path) {
+    if (load_path == environment_.user_modules_path()) {
         LogWarning("MODULE_LOADER", "Load path does not change: ", load_path);
         return true;
-    }
-
-    if (not is_directory(load_path)) {
-        LogError("MODULE_LOADER", "Load path is not a directory: ", load_path);
-        return false;
     }
 
     if (not dirwatch_.watch(load_path)) {
@@ -94,7 +88,7 @@ bool tv::ModuleLoader::set_user_load_path(std::string const& load_path) {
     std::vector<int> lost_modules;
     for (size_t i = 0; i < availables_.size(); ++i) {
         auto const& module = availables_[i];
-        if (module.loadpath == user_load_path_) {
+        if (module.loadpath == old_path) {
             lost_modules.push_back(i);
             /// Notifies the listener about modules that are no longer
             /// available.
@@ -108,9 +102,8 @@ bool tv::ModuleLoader::set_user_load_path(std::string const& load_path) {
         availables_.erase(availables_.cbegin() + idx);
     }
 
-    dirwatch_.unwatch(user_load_path_);
-    user_load_path_ = load_path;
-    dirwatch_.watch(user_load_path_);
+    dirwatch_.unwatch(old_path);
+    dirwatch_.watch(environment_.user_modules_path());
     return true;
 }
 
@@ -131,13 +124,13 @@ void tv::ModuleLoader::_possibly_available_modules(
     auto filter = [](std::string const&, std::string ext,
                      bool is_file) { return is_file and ext == "so"; };
 
-    list_directory_content(system_load_path_, modules, filter);
+    list_directory_content(environment_.system_modules_path(), modules, filter);
     for (size_t i = 0; i < modules.size(); ++i) {
-        paths.push_back(system_load_path_);
+        paths.push_back(environment_.system_modules_path());
     }
-    list_directory_content(user_load_path_, modules, filter);
+    list_directory_content(environment_.user_modules_path(), modules, filter);
     for (size_t i = paths.size(); i < modules.size(); ++i) {
-        paths.push_back(user_load_path_);
+        paths.push_back(environment_.user_modules_path());
     }
 
     /// All available modules are listed by name, i.e. the same as the filename
@@ -160,13 +153,16 @@ bool tv::ModuleLoader::load_module_from_library(ModuleWrapper** target,
     }
 
     // prefer user modules
-    lib = _load_module_from_library(target, user_load_path_, libname, id);
+    lib = _load_module_from_library(target, environment_.user_modules_path(),
+                                    libname, id);
     if (lib != nullptr) {
-        handles_[*target] = {libname, user_load_path_, lib};
+        handles_[*target] = {libname, environment_.user_modules_path(), lib};
     } else {
-        lib = _load_module_from_library(target, system_load_path_, libname, id);
+        lib = _load_module_from_library(
+            target, environment_.system_modules_path(), libname, id);
         if (lib != nullptr) {
-            handles_[*target] = {libname, system_load_path_, lib};
+            handles_[*target] = {libname, environment_.system_modules_path(),
+                                 lib};
         } else {
             return false;
         }

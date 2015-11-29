@@ -104,19 +104,23 @@ int16_t tv_request_frameperiod(uint32_t milliseconds);
 /// \return TV_OK.
 int16_t tv_effective_frameperiod(uint32_t* frameperiod);
 
-/// Access the currently set user module load path.
-/// \param[out] path The user defined path searched for modules.
+/// Access the currently set user paths prefix.
+/// \see tv_set_user_paths_prefix()
+/// \param[out] path The user defined path.
 /// \return TV_OK
-int16_t tv_get_user_module_load_path(char path[]);
+int16_t tv_get_user_paths_prefix(char path[]);
 
-/// Set the user module load path from an existing path.
-/// \param[in] path The user defined path searched for modules. Must not exceed
-/// #TV_CHAR_ARRAY_SIZE characters
+/// Set the user paths prefix from an existing path. The directory has to
+/// provide the subdirectories modules (path searched for user modules), frames
+/// (default path to store or load frames from) and scripts (path used to load
+/// python scripts from).
+/// \param[in] path The user defined path. Must not exceed
+/// #TV_STRING_SIZE characters
 /// \return
 ///    - #TV_INVALID_ARGUMENT if the string is too long or the path does not
 ///    exist.
 ///    - #TV_OK else
-int16_t tv_set_user_module_load_path(char const* path);
+int16_t tv_set_user_paths_prefix(char const* path);
 
 /// Access the fixed system module load path.
 /// \param[out] path The fixed system path searched for modules.

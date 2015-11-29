@@ -10,7 +10,7 @@ else
 endif
 
 SO		:= grayfilter.so
-OBJ		:= module.o grayfilter.o
+OBJ		:= grayfilter.o
 
 all: so
 

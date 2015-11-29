@@ -53,8 +53,7 @@ tv::Api::Api(void) noexcept(noexcept(CameraControl()) and
         modules_ = new Modules;
 
         // dynamic construction because not noexcept
-        module_loader_ = new ModuleLoader(environment_->system_modules_path(),
-                                          environment_->user_modules_path());
+        module_loader_ = new ModuleLoader(*environment_);
 
         active_ = true;
         executor_ = std::thread(&Api::execute, this);
@@ -512,11 +511,15 @@ int16_t tv::Api::libraries_changed_callback(TV_LibrariesCallback callback,
     return TV_OK;
 }
 
-int16_t tv::Api::set_user_module_load_path(std::string const& path) {
-    return TV_NOT_IMPLEMENTED;
-    // Must adapt this to Environment
-    return module_loader_->set_user_load_path(path) ? TV_OK
-                                                    : TV_INVALID_ARGUMENT;
+int16_t tv::Api::set_user_paths_prefix(std::string const& path) {
+    auto old_modules_path = environment_->user_modules_path();
+    auto result = environment_->set_user_prefix(path);
+
+    // notify the environment to update the list of available modules.
+    (void)module_loader_->switch_user_load_path(
+        old_modules_path, environment_->user_modules_path());
+
+    return result ? TV_OK : TV_INVALID_ARGUMENT;
 }
 
 int16_t tv::Api::callback_set(int8_t module_id, TV_Callback callback) {
@@ -568,12 +571,12 @@ uint32_t tv::Api::effective_frameperiod(void) const {
     return effective_frameperiod_;
 }
 
-std::string const& tv::Api::user_module_path(void) const {
+std::string const& tv::Api::user_paths_prefix(void) const {
     return environment_->user_modules_path();
 }
 
 std::string const& tv::Api::system_module_path(void) const {
-    return module_loader_->system_load_path();
+    return environment_->system_modules_path();
 }
 
 /// Disable and remove all modules.

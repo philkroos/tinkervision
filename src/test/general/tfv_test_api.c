@@ -94,8 +94,8 @@ int main(int argc, char* argv[]) {
     printf("SetFramesize: %d (%s)\n", result, tv_result_string(result));
     sleep(1);
 
-    tv_get_user_module_load_path(string);
-    printf("User module path: %s\n", string);
+    tv_get_user_paths_prefix(string);
+    printf("User prefix: %s\n", string);
 
     tv_get_system_module_load_path(string);
     printf("System module path: %s\n", string);
