@@ -40,7 +40,7 @@ private:
     uint8_t max_factor_{10};
 
 public:
-    Downscale(void) : Module("downscale") { /* cv::namedWindow("Downscale"); */
+    Downscale(Environment const& envir) : Module("downscale", envir) {
 
         register_parameter("factor", 0, max_factor_, 0);
     }

@@ -42,7 +42,8 @@ tv::Stream::~Stream(void) {
     streamer_.get();
 }
 
-tv::Stream::Stream() : Module("stream"), context_(ExecutionContext::get()) {
+tv::Stream::Stream(Environment const& envir)
+    : Module("stream", envir), context_(ExecutionContext::get()) {
 
     task_scheduler_ = BasicTaskScheduler::createNew();
 

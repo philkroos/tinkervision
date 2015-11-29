@@ -310,7 +310,7 @@ tv::ModuleLoader::LibraryHandle tv::ModuleLoader::_load_module_from_library(
         *target = new ModuleWrapper(
             ModuleWrapper::Constructor(dlsym(handle, "create")),
             ModuleWrapper::Destructor(dlsym(handle, "destroy")), id,
-            library_root);
+            environment_, library_root);
 
     } catch (Exception& ce) {
         LogError("MODULE_LOADER", ce.what());

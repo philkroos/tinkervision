@@ -26,7 +26,8 @@
 
 #include "module.hh"
 
-tv::Module::Module(const char* name) : name_{name} {
+tv::Module::Module(const char* name, tv::Environment const& envir)
+    : environment(envir), name_{name} {
     Log("EXECUTABLE", "Constructor for ", name);
 }
 

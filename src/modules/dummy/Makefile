@@ -6,6 +6,9 @@ else
 	CCFLAGS	:= -Wall -Werror -O3 -std=c++11 -shared -fPIC
 endif
 
+LDFLAGS	:= -L/usr/lib/python2.7 -lpython2.7
+INC		:= -I/usr/include/python2.7
+
 SO		:= dummy.so
 OBJ		:= dummy.o
 

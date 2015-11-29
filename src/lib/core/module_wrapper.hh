@@ -45,7 +45,7 @@ enum class ModuleType : uint8_t;
 
 class ModuleWrapper {
 public:
-    using Constructor = Module* (*)();
+    using Constructor = Module* (*)(Environment const&);
     using Destructor = void (*)(Module*);
 
     // runtime tags describing some sort of status this module is in, as
@@ -84,10 +84,10 @@ private:
 
 public:
     ModuleWrapper(Constructor ctor, Destructor dtor, int16_t module_id,
-                  std::string const& load_path)
+                  Environment const& envir, std::string const& load_path)
         : load_path_(load_path),
           module_id_(module_id),
-          tv_module_(ctor()),
+          tv_module_(ctor(envir)),
           dtor_(dtor) {}
 
     ~ModuleWrapper(void) {

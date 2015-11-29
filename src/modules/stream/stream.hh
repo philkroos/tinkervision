@@ -43,7 +43,7 @@ namespace tv {
 
 class Stream : public Module {
 public:
-    Stream(void);
+    Stream(Environment const& envir);
 
     ~Stream(void) override;
 

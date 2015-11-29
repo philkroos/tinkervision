@@ -16,6 +16,9 @@ ifeq ($(DEBUG),yes)
 	LDFLAGS	+= `pkg-config --libs opencv`
 endif
 
+LDFLAGS	+= -L/usr/lib/python2.7 -lpython2.7
+INC		+= -I/usr/include/python2.7
+
 SO		:= stream.so
 OBJ		:= stream.o h264_media_session.o execution_context.o h264_encoder.o
 

@@ -36,6 +36,7 @@
 #include "tinkervision_defines.h"
 #include "logger.hh"
 #include "parameter.hh"
+#include "environment.hh"
 
 #include "result.hh"
 
@@ -58,7 +59,7 @@ protected:
     /// object (without extension).
     /// \todo Prevent construction if the name is wrong, in ModuleLoader.
     /// \param[in] name Name and identifier of this module.
-    Module(const char* name);
+    Module(const char* name, Environment const& envir);
 
     /// Declare the expected colorspace for input frames. This will be called
     /// once immediately after construction, before the first execute().
@@ -144,6 +145,8 @@ protected:
     /// \param[in] parameter The name of the changed parameter.
     /// \param[in] value New value
     virtual void value_changed(std::string const& parameter, int32_t value) {}
+
+    Environment const& environment;  ///< Environment passed to the constructor
 
 public:
     /// Default d'tor.
@@ -283,12 +286,14 @@ private:
 };
 }
 
-#define DECLARE_VISION_MODULE(name)      \
-    extern "C" tv::Module* create(void); \
+#define DECLARE_VISION_MODULE(name)                              \
+    extern "C" tv::Module* create(tv::Environment const& envir); \
     extern "C" void destroy(tv::name* module);
 
-#define DEFINE_VISION_MODULE(name)                                 \
-    extern "C" tv::Module* create(void) { return new tv::name(); } \
+#define DEFINE_VISION_MODULE(name)                                \
+    extern "C" tv::Module* create(tv::Environment const& envir) { \
+        return new tv::name(envir);                               \
+    }                                                             \
     extern "C" void destroy(tv::name* module) { delete module; }
 
 #endif

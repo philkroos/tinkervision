@@ -36,7 +36,7 @@ namespace tv {
 class Snapshot : public Module {
 
 public:
-    Snapshot(void) : Module("snapshot") {}
+    Snapshot(Environment const& envir) : Module("snapshot", envir) {}
     ~Snapshot(void) override;
 
 protected:

@@ -33,7 +33,7 @@ namespace tv {
 
 struct Grayfilter : public Module {
 public:
-    Grayfilter(void) : Module("grayfilter") {}
+    Grayfilter(Environment const& envir) : Module("grayfilter", envir) {}
 
     ~Grayfilter(void) override = default;
 

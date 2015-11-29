@@ -54,8 +54,8 @@ private:
     Result result_;
 
 public:
-    Colormatch(void)
-        : Module("colormatch"),
+    Colormatch(Environment const& envir)
+        : Module("colormatch", envir),
           user_min_hue(min_hue),
           user_max_hue(max_hue),
           user_min_value(min_value),
