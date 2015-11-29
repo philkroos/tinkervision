@@ -12,14 +12,14 @@ def run(red):
     ok = red.vision_remove_all_modules()
     check(ok, "RemoveAll")
 
-    ok, user_path = red.vision_lib_get_user_load_path();
+    ok, user_path = red.vision_lib_get_user_prefix();
     check(ok, "UserPath")
 
     [ok, system_path] = red.vision_lib_get_system_load_path();
     check(ok, "SystemLoadPath")
 
     print "System module path:", system_path
-    print "User module path:", user_path
+    print "User prefix:", user_path
 
     [ok, count] = red.vision_libs_count();
     check(ok, "LibsCount")

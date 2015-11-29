@@ -572,7 +572,7 @@ uint32_t tv::Api::effective_frameperiod(void) const {
 }
 
 std::string const& tv::Api::user_paths_prefix(void) const {
-    return environment_->user_modules_path();
+    return environment_->user_prefix();
 }
 
 std::string const& tv::Api::system_module_path(void) const {
