@@ -96,9 +96,11 @@ tv::Environment::Python& tv::Environment::Python::call(
     std::string const& function) {
 
     auto format = std::string("none");
-    (void)tv::Environment::python_context_.execute_function(script_, function,
-                                                            result_, format, 1);
-
+    {
+        std::lock_guard<std::mutex> py_lock(py_mutex_);
+        (void)tv::Environment::python_context_.execute_function(
+            script_, function, result_, format, 1);
+    }
     return *this;
 }
 

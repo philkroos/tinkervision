@@ -25,6 +25,7 @@
 /// USA.
 
 #include <string>
+#include <mutex>
 
 #include "logger.hh"
 #include "filesystem.hh"
@@ -83,6 +84,7 @@ public:
         std::string result(void);
 
     private:
+        std::mutex py_mutex_;
         std::string script_;
         std::string result_;
         std::string format_string_;
