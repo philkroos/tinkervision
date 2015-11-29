@@ -384,8 +384,8 @@ int16_t tv_callback_enable_default(TV_Callback callback);
 /// \param[in] context A pointer to something.
 /// \return
 ///    - #TV_OK always.
-int16_t tv_callback_libraries_changed(TV_LibrariesCallback callback,
-                                      void* context);
+int16_t tv_callback_libraries_changed_set(TV_LibrariesCallback callback,
+                                          void* context);
 
 #ifdef __cplusplus
 }
