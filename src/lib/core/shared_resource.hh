@@ -46,7 +46,7 @@
 
 #include <mutex>
 #include <unordered_map>
-#include <forward_list>
+#include <list>
 #include <algorithm>
 #include <functional>
 
@@ -62,7 +62,7 @@ class SharedResource {
 public:
     using value_type = Resource;
     using ResourceMap = std::unordered_map<int16_t, value_type*>;
-    using IdList = std::forward_list<int16_t>;
+    using IdList = std::list<int16_t>;
 
     using ExecAll = std::function<void(int16_t, Resource&)>;
     using ExecOne = std::function<int16_t(Resource&)>;
@@ -105,11 +105,6 @@ public:
             for (auto& id : ids_managed_) {
                 executor(id, *(managed_[id].resource));
             }
-            /*
-                        for (auto& resource : managed_) {
-                            executor(resource.first, *resource.second);
-                        }
-        */
         }
     }
 
@@ -157,7 +152,7 @@ public:
         }
 
         managed_[id] = {module, deallocator};
-        ids_managed_.push_front(id);
+        ids_managed_.push_back(id);
         Log("SHARED_RESOURCE", "Inserted ", module->name(), " (", id, ")");
         return true;
     }
@@ -202,7 +197,7 @@ public:
         try {
             managed_[id] = ResourceContainer();
             managed_[id].resource = new T(id, args...);
-            ids_managed_.push_front(id);
+            ids_managed_.push_back(id);
 
         } catch (tv::ConstructionException const& ce) {
             LogError("SHARED_RESOURCE::allocate", ce.what());
@@ -344,12 +339,15 @@ public:
             std::find(std::begin(ids_managed_), std::end(ids_managed_), first);
 
         if (it_second != std::begin(ids_managed_)) {
-            ids_managed_.erase_after(std::prev(it_second));
+            ids_managed_.erase(it_second);
         } else {
-            ids_managed_.erase_after(ids_managed_.before_begin());
+            ids_managed_.pop_front();
         }
 
-        ids_managed_.insert_after(it_first, second);
+        if (it_first != std::end(ids_managed_)) {
+            ++it_first;
+        }
+        ids_managed_.insert(it_first, second);
         return true;
     }
 
@@ -376,6 +374,7 @@ public:
         if (object >= size()) {
             return TV_INVALID_ID;
         }
+
         auto it = ids_managed_.cbegin();
         for (size_t i = 0; i < object; ++i, ++it)
             ;
