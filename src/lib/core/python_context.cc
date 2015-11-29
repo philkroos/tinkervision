@@ -26,6 +26,27 @@
 
 #include "python_context.hh"
 
+bool tv::PythonContext::PythonScript::load(void) {
+    if (module_ != nullptr) {  // already loaded
+        return true;
+    }
+    auto module_name = PyString_FromString(script_.c_str());
+
+    if (module_name == nullptr) {
+        LogError("PYTHON_CONTEXT", "For script ", script_);
+        return false;
+    }
+
+    module_ = PyImport_Import(module_name);
+    Py_DECREF(module_name);
+
+    if (module_ == nullptr) {
+        LogError("PYTHON_CONTEXT", "For module ", script_);
+        return false;
+    }
+    return true;
+}
+
 tv::PythonContext::~PythonContext(void) { Py_Finalize(); }
 
 bool tv::PythonContext::is_valid_context(void) { return initialized_; }
@@ -67,15 +88,6 @@ bool tv::PythonContext::set_path(std::string const& pythonpath) noexcept {
     }
 
     return false;
-}
-
-bool tv::PythonContext::load_script(std::string const& script) {
-    auto pscript = scripts_.get_script(script);
-    if (nullptr == pscript) {
-        return false;
-    }
-
-    return pscript->load();
 }
 
 tv::PythonContext::PythonScript* tv::PythonContext::ScriptMap::get_script(

@@ -50,26 +50,7 @@ class PythonContext {
             }
         }
 
-        bool load(void) {
-            if (module_ != nullptr) {  // already loaded
-                return true;
-            }
-            auto module_name = PyString_FromString(script_.c_str());
-
-            if (module_name == nullptr) {
-                LogError("PYTHON_CONTEXT", "For script ", script_);
-                return false;
-            }
-
-            module_ = PyImport_Import(module_name);
-            Py_DECREF(module_name);
-
-            if (module_ == nullptr) {
-                LogError("PYTHON_CONTEXT", "For module ", script_);
-                return false;
-            }
-            return true;
-        }
+        bool load(void);
 
         template <typename... Args>
         bool call(std::string const& function, std::string& result,
@@ -116,12 +97,12 @@ class PythonContext {
 
     class ScriptMap {
     public:
-        using Scripts = std::unordered_map<std::string, PythonScript>;
-
         /// Normalizes passed string and retrieves script.
         PythonScript* get_script(std::string const& script);
 
     private:
+        using Scripts = std::unordered_map<std::string, PythonScript>;
+
         Scripts scripts_;
     };
 
@@ -136,8 +117,6 @@ public:
     /// \param[in] pythonpath Will be added to sys.path.
     /// \return true if the path is a directory in the filesystem.
     bool set_path(std::string const& pythonpath) noexcept;
-
-    bool load_script(std::string const& script);
 
     /// Execute a function from a script in the path set with set_path().
     /// \param[in] script A script in module_path_.
