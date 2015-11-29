@@ -26,7 +26,7 @@
 
 #include "environment.hh"
 
-tv::PythonContext tv::Environment::python_context_;
+tv::Environment::Python tv::Environment::python_;
 
 const std::string tv::Environment::system_modules_path_{SYS_MODULES_PATH};
 const std::string tv::Environment::modules_dir_{MODULES_FOLDER};
@@ -34,7 +34,7 @@ const std::string tv::Environment::frames_dir_{FRAMES_FOLDER};
 const std::string tv::Environment::scripts_dir_{SCRIPTS_FOLDER};
 
 tv::Environment::Environment(void) noexcept(noexcept(std::string()) and
-                                            noexcept(PythonContext())) {}
+                                            noexcept(Python())) {}
 
 std::string const& tv::Environment::system_modules_path(void) const {
     return system_modules_path_;
@@ -69,7 +69,7 @@ bool tv::Environment::set_user_prefix(std::string const& path) {
     if (not is_directory(dir + modules_dir_) or
         not is_directory(dir + frames_dir_) or
         not is_directory(dir + scripts_dir_) or
-        not python_context_.set_path(dir + scripts_dir_)) {
+        not Environment::python_.set_path(dir + scripts_dir_)) {
 
         Log("ENVIRONMENT", "Can't set user prefix to ", dir);
         return false;
@@ -85,6 +85,10 @@ bool tv::Environment::set_user_prefix(std::string const& path) {
     return true;
 }
 
+bool tv::Environment::Python::set_path(std::string const& path) {
+    return python_context_.set_path(path);
+}
+
 tv::Environment::Python& tv::Environment::Python::load(
     std::string const& scriptname) {
 
@@ -98,8 +102,8 @@ tv::Environment::Python& tv::Environment::Python::call(
     auto format = std::string("none");
     {
         std::lock_guard<std::mutex> py_lock(py_mutex_);
-        (void)tv::Environment::python_context_.execute_function(
-            script_, function, result_, format, 1);
+        (void)python_context_.execute_function(script_, function, result_,
+                                               format, 1);
     }
     return *this;
 }

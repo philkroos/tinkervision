@@ -54,35 +54,39 @@ int main() {
     // see Makefile of tinkervision, target user_paths.
     api.environment().set_user_prefix(path + "/tv");
 
-    std::cout << tv::Environment::Python()
+    std::cout << api.environment()
+                     .python()
                      .load("tv_py")
                      .call("tv_external_set", "Value", 4)
                      .call("tv_external_get", "Value")
                      .result() << std::endl;
 
     // No crash for wrong file:
-    std::cout << tv::Environment::Python()
+    std::cout << api.environment()
+                     .python()
                      .load("does_not_exist")
                      .call("tv_external_set2", 300)
                      .call("tv_external_get", "Value")
                      .result() << std::endl;
 
     // No crash for wrong values:
-    std::cout << tv::Environment::Python()
+    std::cout << api.environment()
+                     .python()
                      .load("tv_py")
                      .call("tv_external_set2", 3, 4, 5)
                      .call("tv_external_get", "Value")
                      .result() << std::endl;
 
     // No crash for python exception:
-    std::cout << tv::Environment::Python()
+    std::cout << api.environment()
+                     .python()
                      .load("tv_py")
                      .call("tv_external_set2", 3, 4, 5)
                      .call("tv_external_crash", "Value")
                      .result() << std::endl;
 
     // Does work sequentially
-    auto py = tv::Environment::Python().load("tv_py");
+    auto& py = api.environment().python().load("tv_py");
     (void)py.call("tv_external_set", "Value", "Test");
     (void)py.call("tv_external_get", "Value");
     std::cout << py.result() << std::endl;

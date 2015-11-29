@@ -64,53 +64,41 @@ public:
     /// \return python_context_.
     class Python {
     public:
+        bool set_path(std::string const& path);
+
         Python& load(std::string const& scriptname);
 
         template <typename... Args>
-        Python& call(std::string const& function, Args const&... args) {
-
-            result_.clear();
-            build_format(args...);
-
-            (void)tv::Environment::python_context_.execute_function(
-                script_, function, result_, format_string_, args...);
-
-            format_string_.clear();
-            return *this;
-        }
+        Python& call(std::string const& function, Args const&... args);
 
         Python& call(std::string const& function);
 
         std::string result(void);
 
     private:
+        friend class Environment;
+        Python(void) = default;
+
+        PythonContext python_context_;
         std::mutex py_mutex_;
         std::string script_;
         std::string result_;
         std::string format_string_;
 
         template <typename... Args>
-        void build_format(Args const&... args) {
-            format_string_.push_back('(');
-            add_to_format(args...);
-            format_string_.push_back(')');
-        }
+        void build_format(Args const&... args);
 
         template <typename... Args>
-        void add_to_format(char const* s, Args const&... args) {
-            format_string_.push_back('s');
-            add_to_format(args...);
-        }
+        void add_to_format(char const* s, Args const&... args);
 
         template <typename... Args>
-        void add_to_format(int const& i, Args const&... args) {
-            format_string_.push_back('i');
-            add_to_format(args...);
-        }
+        void add_to_format(int const& i, Args const&... args);
 
         // anchor
         void add_to_format(void) {}
     };
+
+    Python& python(void) { return Environment::python_; }
 
 private:
     friend class Api;
@@ -118,7 +106,7 @@ private:
     Environment(void) noexcept(noexcept(std::string()) and
                                noexcept(PythonContext()));
 
-    PythonContext static python_context_;
+    Python static python_;
 
     std::string static const system_modules_path_;
     std::string static const modules_dir_;
@@ -130,4 +118,37 @@ private:
     std::string user_frames_path_;
     std::string user_scripts_path_;
 };
+
+template <typename... Args>
+Environment::Python& Environment::Python::call(std::string const& function,
+                                               Args const&... args) {
+
+    result_.clear();
+    build_format(args...);
+
+    (void)python_context_.execute_function(script_, function, result_,
+                                           format_string_, args...);
+
+    format_string_.clear();
+    return *this;
+}
+
+template <typename... Args>
+void Environment::Python::build_format(Args const&... args) {
+    format_string_.push_back('(');
+    add_to_format(args...);
+    format_string_.push_back(')');
+}
+
+template <typename... Args>
+void Environment::Python::add_to_format(char const* s, Args const&... args) {
+    format_string_.push_back('s');
+    add_to_format(args...);
+}
+
+template <typename... Args>
+void Environment::Python::add_to_format(int const& i, Args const&... args) {
+    format_string_.push_back('i');
+    add_to_format(args...);
+}
 }
