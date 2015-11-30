@@ -48,9 +48,9 @@ public:
     /// \return user_prefix_/modules_dir_.
     std::string const& user_modules_path(void) const;
 
-    /// Get the path where modules should save frames.
-    /// \return user_prefix_/frames_dir_.
-    std::string const& user_frames_path(void) const;
+    /// Get the path where modules should save data.
+    /// \return user_prefix_/data_dir_.
+    std::string const& user_data_path(void) const;
 
     /// Get the path where python scripts can be loaded from.
     /// \return user_prefix_/scripts_dir_.
@@ -117,12 +117,12 @@ private:
 
     std::string static const system_modules_path_;
     std::string static const modules_dir_;
-    std::string static const frames_dir_;
+    std::string static const data_dir_;
     std::string static const scripts_dir_;
 
     std::string user_prefix_;
     std::string user_modules_path_;
-    std::string user_frames_path_;
+    std::string user_data_path_;
     std::string user_scripts_path_;
 };
 

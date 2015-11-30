@@ -318,10 +318,10 @@ public:
                                        void* context);
 
     /// Set the user path prefix.
-    /// path has to be a valid, accessible filesystem directory and provide the
-    /// subdirectories frames, modules, scripts.  The standard prefix can be set
-    /// during library build \c (USER_PREFIX=... make), and defaults to \c
-    /// $HOME/tv.
+    /// path has to be a valid, accessible filesystem directory and provide
+    /// certain subdirectories (\see tinkervision_defines.h).  The standard
+    /// prefix can be set during library build \c (USER_PREFIX=... make), and
+    /// defaults to \c $HOME/tv.
     /// \param path A valid, accessible full pathname.
     /// \return
     ///    - #TV_INVALID_ARGUMENT if the path could not be set

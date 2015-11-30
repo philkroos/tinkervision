@@ -31,7 +31,7 @@ tv::Environment::Python tv::Environment::python_;
 
 const std::string tv::Environment::system_modules_path_{SYS_MODULES_PATH};
 const std::string tv::Environment::modules_dir_{MODULES_FOLDER};
-const std::string tv::Environment::frames_dir_{FRAMES_FOLDER};
+const std::string tv::Environment::data_dir_{DATA_FOLDER};
 const std::string tv::Environment::scripts_dir_{SCRIPTS_FOLDER};
 
 tv::Environment::Environment(void) noexcept(noexcept(std::string()) and
@@ -45,8 +45,8 @@ std::string const& tv::Environment::user_modules_path(void) const {
     return user_modules_path_;
 }
 
-std::string const& tv::Environment::user_frames_path(void) const {
-    return user_frames_path_;
+std::string const& tv::Environment::user_data_path(void) const {
+    return user_data_path_;
 }
 
 std::string const& tv::Environment::user_scripts_path(void) const {
@@ -83,7 +83,7 @@ bool tv::Environment::set_user_prefix(std::string const& path) {
     }
 
     if (not is_directory(dir + modules_dir_) or
-        not is_directory(dir + frames_dir_) or
+        not is_directory(dir + data_dir_) or
         not is_directory(dir + scripts_dir_) or
         not Environment::python_.set_path(dir + scripts_dir_)) {
 
@@ -93,7 +93,7 @@ bool tv::Environment::set_user_prefix(std::string const& path) {
 
     user_prefix_ = dir;
     user_modules_path_ = dir + modules_dir_ + "/";
-    user_frames_path_ = dir + frames_dir_ + "/";
+    user_data_path_ = dir + data_dir_ + "/";
     user_scripts_path_ = dir + scripts_dir_ + "/";
 
     Log("ENVIRONMENT", "User prefix set to ", user_prefix_);

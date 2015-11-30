@@ -76,8 +76,8 @@ doc:
 
 # set up the user paths
 user_paths:
-	mkdir -p $(usr_prefix)/modules \
-		 $(usr_prefix)/frames \
+	mkdir -p $(usr_prefix)/lib \
+		 $(usr_prefix)/data \
 		 $(usr_prefix)/scripts
 
 # installation
