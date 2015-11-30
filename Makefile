@@ -90,7 +90,8 @@ header		:= $(src_prefix)/core/tinkervision.h \
                    $(src_prefix)/interface/result.hh \
                    $(src_prefix)/tools/filesystem.hh \
 		   $(src_prefix)/core/exceptions.hh \
-		   $(src_prefix)/core/logger.hh
+		   $(src_prefix)/core/logger.hh \
+                   $(src_prefix)/core/python_context.hh
 #                   $(src_prefix)/imaging/image.hh \
 
 install: $(build_prefix)/$(output)

@@ -89,6 +89,7 @@ int main(int argc, char* argv[]) {
     uint16_t width = 1280;
     uint16_t height = 720;
     char string[TV_STRING_SIZE];
+    uint32_t period;
 
     int16_t result = tv_valid();
     if (TV_OK != result) {
@@ -115,7 +116,20 @@ int main(int argc, char* argv[]) {
     result = tv_start_idle();
     printf("StartIdle: %d (%s)\n", result, tv_result_string(result));
     sleep(2);
+
+    result = tv_effective_frameperiod(&period);
+    printf("Current frameperiod: %d (%d)\n", period, result);
+
+    /*
+    period = 500;
+    result = tv_request_frameperiod(period);
+    printf("Set framerate to %d (%d)\n", period, result);
+    sleep(15);
+
+    result = tv_effective_frameperiod(&period);
+    printf("Current framerate: %d (%d)\n", period, result);
     return 0;
+    */
 
     width = height = 0;
     result = tv_get_framesize(&width, &height);

@@ -1,4 +1,5 @@
 MODULES	:= grayfilter dummy colormatch motiondetect snapshot downscale
+HERE		:= $(PWD)
 
 DEBUG ?= no
 
@@ -14,7 +15,7 @@ clean:
 
 install:
 	@for dir in $(MODULES); do \
-		cd $$dir && sudo make install && cd ..; \
+		cd $(HERE)/$$dir && sudo make install && cd ..; \
 	done
 
 .phony: clean install

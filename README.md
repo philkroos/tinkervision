@@ -64,7 +64,7 @@ build the custom version of `red-brick-apid`:
 1. `cd /home/tf/Software/red-brick-apid`
 2. `git checkout tinkervision && cd src`
 3. `WITH_VISION=yes python build_pkg.py`
-4. `sudo dpkg -i redapid-2.0.2_armhf.deb`
+4. `sudo dpkg -i redapid-2.0.2+vision_armhf.deb`
 
 The next step is to test the library bindings. This repository comes with some
 scripts which call into the generated Python-API. In general, all languages

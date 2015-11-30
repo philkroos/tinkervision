@@ -35,13 +35,13 @@ extern "C" {
 // GENERAL FUNCTIONS
 //
 
-/// Checks if the library is valid.  Should be checked once before usage.
+/// Check if the library is valid.  Should be called once before usage.
 /// \return
 ///    - TV_INTERNAL_ERROR if an error occured during construction.
 ///    - TV_OK if the library is usable.
 int16_t tv_valid(void);
 
-/// Checks if the camera device is available.
+/// Check if the camera device is available.
 /// \return
 ///    - TV_CAMERA_NOT_AVAILABLE if not.
 ///    - TV_OK else.
@@ -285,7 +285,7 @@ int16_t tv_module_get_name(int8_t id, char name[]);
 /// \return TV_OK else.
 int16_t tv_module_get_result(int8_t module, TV_ModuleResult* result);
 
-/// Remove all modules.
+/// Disable, remove and destroy all modules.
 /// \return #TV_OK
 int16_t tv_remove_all_modules(void);
 
@@ -406,7 +406,7 @@ int16_t tv_callback_enable_default(TV_Callback callback);
 /// \param[in] callback The given method will be called when a loadable module
 /// is being created or deleted in one of the available loadpaths.  The callback
 /// will receive the name and path of the library and the event, which can be
-/// "create" or "remove".
+/// "create" (1) or "remove" (-1).
 /// \param[in] context A pointer to something.
 /// \return
 ///    - #TV_OK always.
