@@ -52,9 +52,11 @@ class Api {
 public:
     /// No copies allowed.
     Api(Api const&) = delete;
+    Api(Api const&&) = delete;
 
     /// No copies allowed.
     Api& operator=(Api const&) = delete;
+    Api& operator=(Api const&&) = delete;
 
     /// Standard d'tor, calls quit().
     ~Api(void);

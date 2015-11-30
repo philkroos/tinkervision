@@ -27,12 +27,14 @@
 #ifndef DUMMY_H
 #define DUMMY_H
 
-#include "tinkervision/module.hh"
+#include "module.hh"
 
 namespace tv {
 class Dummy : public Module {
 public:
-    Dummy(Environment const& envir) : Module("dummy", envir) {}
+    Dummy(Environment const& envir) : Module("dummy", envir) {
+        environment.python().load("dummy").call("say_hi", "from", "Py");
+    }
 
     /// Returning None prevents this module from being executed.
     ColorSpace input_format(void) const override { return ColorSpace::NONE; }

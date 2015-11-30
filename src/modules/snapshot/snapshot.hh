@@ -27,8 +27,8 @@
 #ifndef SNAPSHOT_H
 #define SNAPSHOT_H
 
-#include "tinkervision/module.hh"      // interface
-#include "tinkervision/filesystem.hh"  // check if set path is correct
+#include "module.hh"      // interface
+#include "filesystem.hh"  // check if set path is correct
 
 namespace tv {
 /// Save the current image to disk.

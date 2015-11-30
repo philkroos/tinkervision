@@ -100,8 +100,7 @@ int16_t tv_effective_frameperiod(uint32_t* frameperiod) {
 
 int16_t tv_get_user_paths_prefix(char path[]) {
     tv::Log("Tinkervision::UserGetPathsPrefix:");
-    auto spath = tv::get_api().user_paths_prefix();
-    copy_std_string(spath, path);
+    copy_std_string(tv::get_api().user_paths_prefix(), path);
     return TV_OK;
 }
 
@@ -118,7 +117,7 @@ int16_t tv_set_user_paths_prefix(char const* path) {
 
 int16_t tv_get_system_module_load_path(char path[]) {
     tv::Log("Tinkervision::SystemModuleLoadPath");
-    auto spath = tv::get_api().system_module_path();
+    auto& spath = tv::get_api().system_module_path();
     copy_std_string(spath, path);
     return TV_OK;
 }

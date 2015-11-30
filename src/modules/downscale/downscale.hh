@@ -30,7 +30,7 @@
 #include <iostream>
 #include <opencv2/highgui/highgui.hpp>
 
-#include "tinkervision/module.hh"
+#include "module.hh"
 
 namespace tv {
 

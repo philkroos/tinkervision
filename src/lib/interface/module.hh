@@ -173,6 +173,9 @@ public:
     /// \param[in] name Name of the parameter to be constructed.  If an existing
     /// value is passed, the existing parameter will be preserved.
     /// \param[in] init Default string.
+    /// \param[in] verify If provided, called with the old and new value when
+    /// changing the parameter is requested, which then will only happen if the
+    /// predicate evals to true.
     /// \return True if called during initialization and no such parameter is
     /// registered yet.
     bool register_parameter(

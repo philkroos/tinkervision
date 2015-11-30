@@ -31,7 +31,6 @@
 #include <mutex>
 
 #include "logger.hh"
-#include "filesystem.hh"
 #include "python_context.hh"
 
 namespace tv {
@@ -41,7 +40,7 @@ class Api;  ///< Constructing Environment
 class Environment {
 public:
     /// Get the path where core vision modules are installed.
-    /// \return system_module_path_.
+    /// \return SYS_MODULE_PATH.
     std::string const& system_modules_path(void) const;
 
     /// Get the path where additional vision modules are installed.
@@ -67,8 +66,6 @@ public:
     bool set_user_prefix(std::string const& path);
 
     /// Access the python context which allows execution of python scripts.
-    /// \see PythonContext.
-    /// \return python_context_.
     class Python {
     public:
         bool set_path(std::string const& path);
@@ -105,7 +102,7 @@ public:
         void add_to_format(void) {}
     };
 
-    Python& python(void) { return Environment::python_; }
+    Python& python(void) const { return python_; }
 
 private:
     friend class Api;
@@ -113,13 +110,9 @@ private:
     Environment(void) noexcept(noexcept(std::string()) and
                                noexcept(PythonContext()));
 
-    Python static python_;
+    Python mutable python_;
 
-    std::string static const system_modules_path_;
-    std::string static const modules_dir_;
-    std::string static const data_dir_;
-    std::string static const scripts_dir_;
-
+    std::string system_modules_path_{"/usr/lib/tinkervision/"};
     std::string user_prefix_;
     std::string user_modules_path_;
     std::string user_data_path_;

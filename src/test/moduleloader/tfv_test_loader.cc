@@ -65,9 +65,13 @@ int main() {
                      "likely the path has been created as root, so a regular "
                      "user can't create or delete files there, which this test "
                      "relies on." << std::endl;
+        std::cout
+            << "This currently does not work with the dummy module due to "
+               "unresolved symbols.  This is specific for this test and can "
+               "be ignored by deleting the dummy.so file." << std::endl;
     }
 
-    auto api = tv::Api();
+    tv::Api api;
     auto& env = api.environment();
     if (not env.set_user_prefix(USR_PREFIX)) {
         std::cout << "Could not set user prefix to " << USR_PREFIX << std::endl;

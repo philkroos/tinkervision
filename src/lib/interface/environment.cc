@@ -25,14 +25,9 @@
 /// USA.
 
 #include "environment.hh"
+
 #include "tinkervision_defines.h"
-
-tv::Environment::Python tv::Environment::python_;
-
-const std::string tv::Environment::system_modules_path_{SYS_MODULES_PATH};
-const std::string tv::Environment::modules_dir_{MODULES_FOLDER};
-const std::string tv::Environment::data_dir_{DATA_FOLDER};
-const std::string tv::Environment::scripts_dir_{SCRIPTS_FOLDER};
+#include "filesystem.hh"
 
 tv::Environment::Environment(void) noexcept(noexcept(std::string()) and
                                             noexcept(Python())) {}
@@ -82,19 +77,19 @@ bool tv::Environment::set_user_prefix(std::string const& path) {
         dir.push_back('/');
     }
 
-    if (not is_directory(dir + modules_dir_) or
-        not is_directory(dir + data_dir_) or
-        not is_directory(dir + scripts_dir_) or
-        not Environment::python_.set_path(dir + scripts_dir_)) {
+    if (not is_directory(dir + MODULES_FOLDER) or
+        not is_directory(dir + DATA_FOLDER) or
+        not is_directory(dir + SCRIPTS_FOLDER) or
+        not Environment::python_.set_path(dir + SCRIPTS_FOLDER)) {
 
         Log("ENVIRONMENT", "Can't set user prefix to ", dir);
         return false;
     }
 
     user_prefix_ = dir;
-    user_modules_path_ = dir + modules_dir_ + "/";
-    user_data_path_ = dir + data_dir_ + "/";
-    user_scripts_path_ = dir + scripts_dir_ + "/";
+    user_modules_path_ = dir + MODULES_FOLDER + "/";
+    user_data_path_ = dir + DATA_FOLDER + "/";
+    user_scripts_path_ = dir + SCRIPTS_FOLDER + "/";
 
     Log("ENVIRONMENT", "User prefix set to ", user_prefix_);
 

@@ -29,7 +29,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "tinkervision/module.hh"
+#include "module.hh"
 
 namespace tv {
 

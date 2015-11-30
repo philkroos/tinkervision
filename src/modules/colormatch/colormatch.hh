@@ -27,7 +27,7 @@
 #ifndef COLORMATCH_H
 #define COLORMATCH_H
 
-#include "tinkervision/module.hh"
+#include "module.hh"
 
 namespace tv {
 

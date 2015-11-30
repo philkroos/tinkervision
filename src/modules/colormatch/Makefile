@@ -10,10 +10,11 @@ else
 endif
 
 LDFLAGS	+= -L/usr/lib/python2.7 -lpython2.7
-INC		+= -I/usr/include/python2.7
+INC		+= -I/usr/include/python2.7 -I/usr/include/tinkervision
 
 SO		:= colormatch.so
-OBJ		:= colormatch.o
+TV		:= interface/module.o interface/image.o interface/parameter.o
+OBJ		:= colormatch.o $(TV)
 
 all: so
 
@@ -27,7 +28,7 @@ so: $(OBJ)
 	clean
 
 clean:
-	rm -f *.o *.so
+	rm -f *.o *.so interface/*.o
 
 install: $(SO)
 	install -m 544 $(SO) $(HOME)/tv/lib/$(SO)

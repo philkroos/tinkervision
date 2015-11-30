@@ -71,11 +71,18 @@ void colormatch_start(int8_t id, int min_hue, int max_hue) {
     if (result != TV_OK) {
         return;
     }
-    /* result = tv_callback_set(id, callback); */
-    /* if (result != TV_OK) { */
-    /*     printf("Setting the callback failed: %d (%s)\n", result, */
-    /*            tv_result_string(result)); */
-    /* } */
+    result = tv_module_get_numerical_parameter(id, "min-hue", &min_hue);
+    printf("Got min-hue: %d -- %d (%s)\n", min_hue, result,
+           tv_result_string(result));
+    if (result != TV_OK) {
+        return;
+    }
+    result = tv_module_get_numerical_parameter(id, "max-hue", &max_hue);
+    printf("Got max-hue: %d -- %d (%s)\n", max_hue, result,
+           tv_result_string(result));
+    if (result != TV_OK) {
+        return;
+    }
 }
 
 int main(int argc, char* argv[]) {
@@ -92,7 +99,6 @@ int main(int argc, char* argv[]) {
     result = tv_set_framesize(width, height);
 
     printf("SetFramesize: %d (%s)\n", result, tv_result_string(result));
-    sleep(1);
 
     tv_get_user_paths_prefix(string);
     printf("User prefix: %s\n", string);
@@ -102,15 +108,14 @@ int main(int argc, char* argv[]) {
 
     result = tv_camera_available();
     printf("CameraAvailable: %d (%s)\n", result, tv_result_string(result));
-    sleep(1);
 
     result = tv_callback_enable_default(callback);
     printf("Set callback: Code %d (%s)\n", result, tv_result_string(result));
-    sleep(1);
 
     result = tv_start_idle();
     printf("StartIdle: %d (%s)\n", result, tv_result_string(result));
     sleep(2);
+    return 0;
 
     width = height = 0;
     result = tv_get_framesize(&width, &height);

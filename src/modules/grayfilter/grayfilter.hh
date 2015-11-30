@@ -27,7 +27,7 @@
 #ifndef GRAYFILTER_H
 #define GRAYFILTER_H
 
-#include "tinkervision/module.hh"
+#include "module.hh"
 
 namespace tv {
 
