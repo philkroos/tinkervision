@@ -330,6 +330,7 @@ void tv::ModuleLoader::_watched_directory_changed_callback(
     // Modify list of available events accordingly
     if (event == Dirwatch::Event::FILE_CREATED) {
         if (not _add_available_module(dir, strip_extension(file))) {
+            Log("MODULE_LOADER", "Ignoring new library ", file, " in ", dir);
             return;
         }
 
@@ -341,6 +342,9 @@ void tv::ModuleLoader::_watched_directory_changed_callback(
 
         if (it != availables_.cend()) {
             availables_.erase(it);
+        } else {
+            Log("MODULE_LOADER", "Ignoring deletion of ", file, " in ", dir);
+            return;
         }
     }
 

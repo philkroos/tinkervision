@@ -23,6 +23,7 @@ static void directory_changes(std::string const& dir, std::string const& file,
 
 static void modify_dir(std::string const& dir) {
     std::string f1(dir + "ignored");
+    // New 11-30-2015: test.so will be ignored because it is not a valid module.
     std::string f2(dir + "test.so");
 
     std::remove(f1.c_str());
@@ -34,11 +35,12 @@ static void modify_dir(std::string const& dir) {
     std::this_thread::sleep_for(std::chrono::seconds(2));
     ignored << "test" << std::endl;
     ignored.close();
-    std::cout << "Closed " << f2 << std::endl;
+    std::cout << "Created " << f1 << std::endl;
 
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     lib << "test" << std::endl;
     lib.close();
+    std::cout << "Created " << f2 << std::endl;
 
     std::this_thread::sleep_for(std::chrono::seconds(2));
     std::remove(f1.c_str());
@@ -85,7 +87,7 @@ int main() {
 
     loader.update_on_changes(directory_changes);
 
-    std::thread(&modify_dir, env.user_prefix()).detach();
+    std::thread(&modify_dir, env.user_modules_path()).detach();
     std::this_thread::sleep_for(std::chrono::seconds(10));
 
     return 0;

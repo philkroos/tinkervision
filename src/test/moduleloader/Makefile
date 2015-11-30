@@ -1,6 +1,6 @@
 CC	:= g++
 usr_prefix = $(HOME)/tv
-CCFLAGS := -Wall -Werror -g -std=c++11 -O0 -pedantic -DDEBUG -DUSR_PREFIX=\"$(usr_prefix)\"
+CCFLAGS := -Wall -Werror -g -std=c++11 -O0 -pedantic -DDEBUG -DWITH_LOGGER -DUSR_PREFIX=\"$(usr_prefix)\"
 
 INC	:= -I../../lib/core \
 	   -I../../lib/imaging \
