@@ -39,28 +39,28 @@ private:
         {TV_NOT_IMPLEMENTED, "Not implemented"},
         {TV_INTERNAL_ERROR, "Unknown internal error"},
         {TV_INVALID_ARGUMENT, "Invalid argument passed"},
-        {TV_NODE_ALLOCATION_FAILED, "Allocation of a scene node failed"},
+        {TV_NODE_ALLOCATION_FAILED, "Allocating scene node failed"},
         {TV_NO_ACTIVE_MODULES, "No active modules"},
         // -21...
         {TV_CAMERA_NOT_AVAILABLE, "Camera not available"},
-        {TV_CAMERA_SETTINGS_FAILED, "Setting camera properties failed"},
+        {TV_CAMERA_SETTINGS_FAILED, "Camera settings failed"},
         // -31...
         {TV_INVALID_ID, "ID is invalid"},
-        {TV_MODULE_INITIALIZATION_FAILED, "Initialization of module failed"},
-        {TV_MODULE_ERROR_SETTING_PARAMETER, "Module parameterization failed"},
+        {TV_MODULE_INITIALIZATION_FAILED, "Module Initialization failed"},
+        {TV_MODULE_ERROR_SETTING_PARAMETER, "Module settings failed"},
         {TV_MODULE_NO_SUCH_PARAMETER, "No such parameter"},
         // -41...
-        {TV_EXEC_THREAD_FAILURE, "The main thread did not react"},
-        {TV_THREAD_RUNNING, "The main thread is already running"},
+        {TV_EXEC_THREAD_FAILURE, "Main thread did not react"},
+        {TV_THREAD_RUNNING, "Main thread already running"},
         // -51...
-        {TV_MODULE_DLOPEN_FAILED, "Could not open requested module"},
-        {TV_MODULE_DLSYM_FAILED, "Required function not defined in module"},
-        {TV_MODULE_DLCLOSE_FAILED, "Closing the library failed"},
-        {TV_MODULE_CONSTRUCTION_FAILED, "Library construction error"},
-        {TV_MODULE_NOT_AVAILABLE, "Library is not available"},
+        {TV_MODULE_DLOPEN_FAILED, "Module dlopen failed"},
+        {TV_MODULE_DLSYM_FAILED, "Module dlsym failed"},
+        {TV_MODULE_DLCLOSE_FAILED, "Module dlclose failed"},
+        {TV_MODULE_CONSTRUCTION_FAILED, "Module construction failed"},
+        {TV_MODULE_NOT_AVAILABLE, "Module not available"},
         // -61...
-        {TV_RESULT_NOT_AVAILABLE, "Result requested where none is provided"},
-        {TV_GLOBAL_CALLBACK_ACTIVE, "Result of incompatible type requested"}};
+        {TV_RESULT_NOT_AVAILABLE, "No result provided by module"},
+        {TV_GLOBAL_CALLBACK_ACTIVE, "Global callback is active"}};
 
 public:
     static constexpr char const* UNKNOWN_CODE{"Unknown result code"};
