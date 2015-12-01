@@ -61,6 +61,7 @@ void tv::Snapshot::execute(tv::ImageHeader const& header,
             image_.data = new uint8_t[header.bytesize];
         }
         std::copy_n(data, header.bytesize, image_.data);
+        have_snapped_ = true;
 
     } catch (...) {
         std::cout << "Exception during Snapshotting" << std::endl;
