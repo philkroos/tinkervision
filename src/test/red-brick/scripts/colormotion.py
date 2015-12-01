@@ -13,22 +13,22 @@ def run(red):
 
     print "Colormatch started with id", id
 
-    ok = red.vision_parameter_set(id, "min-hue", 20)
+    ok = red.vision_numerical_parameter_set(id, "min-hue", 20)
 
     if ok != 0:
         raise Exception("VisionParameterSet returned error: " + str(ok))
 
-    ok = red.vision_parameter_set(id, "max-hue", 40)
+    ok = red.vision_numerical_parameter_set(id, "max-hue", 40)
 
     if ok != 0:
         raise Exception("VisionParameterSet returned error: " + str(ok))
 
-    ok, max_hue = red.vision_parameter_get(id, "max-hue")
+    ok, max_hue = red.vision_numerical_parameter_get(id, "max-hue")
 
     if ok != 0:
         raise Exception("VisionParameterGet returned error: " + str(ok))
 
-    ok, min_hue = red.vision_parameter_get(id, "min-hue")
+    ok, min_hue = red.vision_numerical_parameter_get(id, "min-hue")
 
     if ok != 0:
         raise Exception("VisionParameterGet returned error: " + str(ok))
