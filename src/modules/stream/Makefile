@@ -10,6 +10,10 @@ LIBS_LIVE       := $(addprefix -l,$(LIVE_MODULES))
 LIBS_X264	:= -lx264
 LDFLAGS	:= $(LIBS_X264) $(LIBS_LIVE) -rdynamic
 
+ifndef PRE
+	PRE = /usr/lib/tinkervision
+endif
+
 ifeq ($(DEBUG),yes)
 	CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
 	INC		+= `pkg-config --cflags opencv`
@@ -42,7 +46,6 @@ clean:
 prefix	:= /usr/
 
 install: $(SO)
-	mkdir -p $(prefix)/lib/tinkervision/
-	install -m 544 $(SO) $(prefix)/lib/tinkervision/$(SO)
+	install -m 544 $(SO) $(PRE)/$(SO)
 
 .PHONY: install

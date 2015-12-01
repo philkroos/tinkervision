@@ -1,5 +1,9 @@
-MODULES	:= grayfilter dummy colormatch motiondetect snapshot downscale
-HERE		:= $(PWD)
+MODULES	:= colormatch grayfilter dummy motiondetect snapshot downscale
+HERE		:= $(shell pwd)
+
+ifndef PRE
+	PRE = /usr/lib/tinkervision
+endif
 
 DEBUG ?= no
 
@@ -14,8 +18,9 @@ clean:
 	done
 
 install:
+	export PRE
 	@for dir in $(MODULES); do \
-		cd $(HERE)/$$dir && sudo make install && cd ..; \
+		make -C $(HERE)/$$dir install; \
 	done
 
 .phony: clean install

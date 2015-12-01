@@ -9,6 +9,10 @@ else
 	CCFLAGS	:= -Wall -Werror -O3 -std=c++11 -shared -fPIC
 endif
 
+ifndef PRE
+	PRE = /usr/lib/tinkervision
+endif
+
 LDFLAGS	+= -L/usr/lib/python2.7 -lpython2.7
 INC		+= -I/usr/include/python2.7 -I/usr/include/tinkervision
 
@@ -30,7 +34,8 @@ so: $(OBJ)
 clean:
 	rm -f *.o *.so interface/*.o
 
+
 install: $(SO)
-	install -m 544 $(SO) $(HOME)/tv/lib/$(SO)
+	install -m 544 $(SO) $(PRE)/$(SO)
 
 .PHONY: install
