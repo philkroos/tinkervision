@@ -39,7 +39,7 @@ namespace tv {
 class OpenCvUSBCamera : public Camera {
 
 public:
-    explicit OpenCvUSBCamera(int8_t camera_idi);
+    explicit OpenCvUSBCamera(uint8_t camera_id);
     ~OpenCvUSBCamera(void) override final { close(); }
 
     bool open_device(void) override final;

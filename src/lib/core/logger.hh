@@ -47,6 +47,7 @@ void LogWarning(std::string const& prefix, Args const&... args) {}
 #include <bitset>
 #include <chrono>
 #include <iomanip>
+#include <mutex>
 
 #include "image.hh"
 
@@ -68,6 +69,8 @@ private:
         std::chrono::steady_clock::now()};
     std::string logfilename_ = "/tmp/tv.log";
     std::ofstream logfile_;
+
+    std::mutex logger_mutex_;
 
     Logger(void) {
         logfile_.open(logfilename_, std::ios::out | std::ios::trunc);
@@ -91,6 +94,7 @@ private:
 public:
     template <typename... Args>
     void log_default(std::string prefix, Args const&... args) {
+        std::lock_guard<std::mutex> lock(logger_mutex_);
         if (not logfile_.is_open()) {
             return;
         }
@@ -150,6 +154,7 @@ std::ostream& operator<<(std::ostream& os, ColorSpace const& format);
 std::ostream& operator<<(std::ostream& os, ImageHeader const& header);
 std::ostream& operator<<(std::ostream& os, Timestamp ts);
 std::ostream& operator<<(std::ostream& os, int8_t id);
+std::ostream& operator<<(std::ostream& os, uint8_t id);
 std::ostream& operator<<(std::ostream& os, StringParameter& parameter);
 std::ostream& operator<<(std::ostream& os, NumericalParameter& parameter);
 

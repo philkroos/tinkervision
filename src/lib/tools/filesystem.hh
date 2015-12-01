@@ -50,11 +50,16 @@ std::string strip_extension(std::string const& filename);
 /// \return the extension of the file. Empty string if none.
 std::string extension(std::string const& filename);
 
-/// Check if a file exists in the filesystem.  This function uses the stat
-/// function.
+/// Check if a file exists in the filesystem.  This function uses stat.
 /// \param[in] fullname Full filename, including path and extension.
 /// \return true if fullname is a regular file in a readable directory.
 bool is_file(std::string const& fullname);
+
+/// Check if a character device exists in the filesystem.  This function uses
+/// stat. Camera devices are usually character (special) devices.
+/// \param[in] fullname Full filename, including path and extension.
+/// \return true if fullname is a regular file in a readable directory.
+bool is_cdevice(std::string const& fullname);
 
 /// Check if a directory exists in the filesystem.  This function uses the stat
 /// function.

@@ -44,6 +44,10 @@ public:
     bool get_properties(uint16_t& height, uint16_t& width,
                         size_t& framebytesize);
 
+    /// Get the loaded device's id.
+    /// \return camera_id_.
+    uint8_t id(void) const { return camera_id_; }
+
     /// This is a shortcut for open(0, 0).
     bool open(void);
 
@@ -58,12 +62,13 @@ public:
 
     ImageHeader frame_header(void) const { return image_.header; }
 
+    /// Just check if the device is open, do not change the current state.
     virtual bool is_open(void) const = 0;
     virtual ColorSpace image_format(void) const = 0;
 
 protected:
-    explicit Camera(int8_t camera_id);
-    int8_t camera_id_;
+    explicit Camera(uint8_t camera_id);
+    uint8_t camera_id_;
 
     // These are Template Methods, see implementation
     // of the corresponding get_ methods.

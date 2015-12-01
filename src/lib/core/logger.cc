@@ -115,7 +115,12 @@ std::ostream& tv::operator<<(std::ostream& os, tv::Timestamp ts) {
 }
 
 std::ostream& tv::operator<<(std::ostream& os, int8_t id) {
-    os << static_cast<int>(id);
+    os << std::to_string(id);
+    return os;
+}
+
+std::ostream& tv::operator<<(std::ostream& os, uint8_t id) {
+    os << std::to_string(id);
     return os;
 }
 

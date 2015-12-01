@@ -175,7 +175,6 @@ void tv::Api::execute(void) {
 
     // Execute active module. This is the ONLY place where modules are executed.
     auto module_exec = [&](int16_t id, ModuleWrapper& module) {
-        auto result = (Result const*)(nullptr);
         // Log("API", "Executing module ", id);
 
         if (not module.enabled()) {  // skip paused modules
@@ -187,27 +186,8 @@ void tv::Api::execute(void) {
                                  // and execute the module
 
             conversions_.get_frame(image, module.expected_format());
-            result = module.execute(image);
-        }
-
-        if (result and *result) {  // neither nullptr nor invalid?
-            auto callback =
-                default_callback_ ? default_callback_ : module.callback();
-
-            if (callback) {
-
-                // Log("API", "Callback for id ", id);
-                TV_ModuleResult res = {result->x, result->y, result->width,
-                                       result->height};
-
-                std::strncpy(res.string, result->result.c_str(),
-                             TV_STRING_SIZE - 1);
-                std::fill(res.string + result->result.size(),
-                          res.string + TV_STRING_SIZE - 1, '\0');
-                res.string[TV_STRING_SIZE - 1] = '\0';
-
-                callback(id, res, nullptr);
-            }
+            // ignoring result, doing callbacks (maybe, see default_callback_)
+            (void)module.execute(image);
         }
 
         auto output = module.modified_image();
@@ -405,8 +385,16 @@ char const* tv::Api::result_string(int16_t code) const {
     return result_string_map_[code];
 }
 
-int16_t tv::Api::is_camera_available(void) {
-    return camera_control_.is_available() ? TV_OK : TV_CAMERA_NOT_AVAILABLE;
+bool tv::Api::is_camera_available(void) {
+    return camera_control_.is_available();
+}
+
+bool tv::Api::is_camera_available(uint8_t id) {
+    return camera_control_.is_available(id);
+}
+
+bool tv::Api::prefer_camera_with_id(uint8_t id) {
+    return camera_control_.switch_to_preferred(id);
 }
 
 int16_t tv::Api::resolution(uint16_t& width, uint16_t& height) {
@@ -543,6 +531,11 @@ int16_t tv::Api::callback_set(int8_t module_id, TV_Callback callback) {
 
 int16_t tv::Api::callback_default(TV_Callback callback) {
     default_callback_ = callback;
+
+    modules_->exec_all([&callback](int16_t id, ModuleWrapper& module) {
+        (void)module.register_callback(callback);
+    });
+
     return TV_OK;
 }
 
@@ -551,7 +544,7 @@ int16_t tv::Api::get_result(int8_t module_id, TV_ModuleResult& result) {
 
     return modules_->exec_one(module_id, [&](ModuleWrapper& module) {
         auto res = module.result();
-        if (res) {
+        if (not res) {
             return TV_RESULT_NOT_AVAILABLE;
         }
 
@@ -631,6 +624,11 @@ int16_t tv::Api::_module_load(std::string const& name, int16_t id) {
 
         camera_control_.release();
         return TV_MODULE_INITIALIZATION_FAILED;
+    }
+
+    /// Add the default callback to each new module
+    if (default_callback_) {
+        module->register_callback(default_callback_);
     }
 
     /// \todo Catch the cases in which this fails and remove the module.

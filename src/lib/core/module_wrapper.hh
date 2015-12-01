@@ -75,6 +75,9 @@ private:
     Module* tv_module_;  ///< Wrapped module
 
     TV_Callback cb_ = nullptr;  ///< Callback for results of the wrapped module
+    bool callbacks_enabled_{true};  ///< If false, callbacks won't be made. This
+                                    /// has only relevance if the wrapped module
+                                    /// can_have_result()
 
     uint8_t period_{1};  ///< An execution frequency for the wrapped module.
                          /// Defaults to 1, which means 'execute every cycle'.
@@ -102,7 +105,7 @@ public:
     ModuleWrapper& operator=(ModuleWrapper&& rhs) = delete;
 
     bool register_callback(TV_Callback callback) {
-        if (not tv_module_->can_have_result() or cb_) {
+        if (not tv_module_->can_have_result()) {
             return false;
         }
 
@@ -117,8 +120,14 @@ public:
     Result const* execute(tv::Image const& image);
 
     bool initialize(void) {
-        initialized_ = tv_module_->register_parameter("period", 0, 500, 1) and
-                       tv_module_->initialize();
+
+        initialized_ =
+            tv_module_->register_parameter("period", 0, 500, 1) and
+            /// \todo These make only sense for modules with result
+            tv_module_->register_parameter("result_timeout", 0, 20, 40) and
+            tv_module_->register_parameter("callbacks_enabled", 0, 1, 1) and
+            tv_module_->initialize();
+
         return initialized_;
     }
 

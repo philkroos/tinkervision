@@ -54,6 +54,22 @@ public:
     ///         - False if not and any of the steps above fails.
     bool is_available(void);
 
+    /// Same as is_available for a specific camera.
+    /// \param[in] id Device id.
+    bool is_available(uint8_t id);
+
+    /// Select a specific device as preferred camera. On acquire() and other
+    /// methods needing to open a device, this one will always be preferred.
+    /// \param[in] id Device id.
+    /// \return is_available(id).
+    bool prefer(uint8_t id);
+
+    /// Switch to the given device, if possible. Calls prefer() first.
+    /// \param[in] device Preferred device.
+    /// \return true If device is available and the current is_open() state has
+    /// not changed.
+    bool switch_to_preferred(uint8_t device);
+
     /// Request a framesize to be set when initializing the camera.
     /// This will only work the camera is not active.
     /// \param[in] framewidth Width requested
@@ -69,8 +85,7 @@ public:
     bool acquire(void);
 
     /// Same as calling acquire(), add_user(max(0, user-1)). No effect if user
-    /// is
-    /// 0.
+    /// is 0.
     /// \param[in] user Reserve the camera for that many users.
     /// \return
     ///         - True if a device is open.
@@ -79,7 +94,11 @@ public:
 
     /// Check if a camera is open. No effects on visible state.
     /// \return True if a device is open.
-    bool is_open(void);
+    bool is_open(void) const;
+
+    /// Get the id of the open camera, if any.
+    /// \return -1 if no camera is open, camera_->id() else.
+    int16_t current_device(void) const;
 
     /// Reduce the usercount by one, possibly release the camera device.
     /// No effects if no user registered.
@@ -96,7 +115,7 @@ public:
 
     /// Releases the acquired device, if any, without resetting it's usercount.
     /// This is usefull to pause framegrabbing and returning to the known state
-    /// later.  Does not reduce the usercounter.
+    /// later.  Also used to switch the selected device.
     void stop_camera(void);
 
     /// Releases the acquired device, if any, resetting it's usercount.
@@ -132,10 +151,15 @@ public:
         return image_().header.timestamp;
     }
 
+    /// \return prefered_device_ is not -1.
+    bool device_preferred(void) const { return preferred_device_ >= 0; }
+
 private:
-    Camera* camera_ = nullptr;
+    Camera* camera_{nullptr};
     size_t requested_width_{640};
     size_t requested_height_{480};
+
+    int16_t preferred_device_{-1};  ///< If any device id is preferred, >= 0.
 
     ImageAllocator fallback_{"CC/Fallback"};  ///< Black frame
     ImageAllocator image_{"CC/Image"};        ///< Data exchanged with the Api
@@ -143,17 +167,18 @@ private:
     int usercount_ = 0;
     bool stopped_ = false;
 
-    inline bool _device_exists(int number) const {
-        struct stat buffer;
-        return (stat(std::string("/dev/video" + std::to_string(number)).c_str(),
-                     &buffer) == 0);
-    }
-
     std::mutex camera_mutex_;  //< This locks access to the private methods
 
-    bool _open_device(void);
-    void _close_device(void);
+    /// Open a device.
+    bool _open_device(Camera** device);
+    /// Open a specific device.
+    bool _open_device(Camera** device, uint8_t id);
+
+    /// Close a device.
+    void _close_device(Camera** device);
+    /// Test camera_, locking it.
     bool _test_device(void);
+    bool _test_device(Camera** cam, uint8_t device);
     bool _init(void);
     bool _update_from_camera(void);
     bool _update_from_fallback(void);

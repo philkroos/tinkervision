@@ -57,8 +57,21 @@ int16_t tv_valid(void) {
 }
 
 int16_t tv_camera_available(void) {
-    tv::Log("Tinkervision::CameraAvailable");
-    return tv::get_api().is_camera_available();
+    tv::Log("Tinkervision::CameraAvailable:");
+    return tv::get_api().is_camera_available() ? TV_OK
+                                               : TV_CAMERA_NOT_AVAILABLE;
+}
+
+int16_t tv_camera_id_available(uint8_t id) {
+    tv::Log("Tinkervision::CameraIdAvailable", id);
+    return tv::get_api().is_camera_available(id) ? TV_OK
+                                                 : TV_CAMERA_NOT_AVAILABLE;
+}
+
+int16_t tv_prefer_camera_with_id(uint8_t id) {
+    tv::Log("Tinkervision::PreferCameraWithId", id);
+    return tv::get_api().prefer_camera_with_id(id) ? TV_OK
+                                                   : TV_CAMERA_NOT_AVAILABLE;
 }
 
 int16_t tv_stop(void) {

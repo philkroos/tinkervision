@@ -28,7 +28,7 @@
 
 #include "opencv_camera.hh"
 
-tv::OpenCvUSBCamera::OpenCvUSBCamera(int8_t camera_id) : Camera(camera_id) {}
+tv::OpenCvUSBCamera::OpenCvUSBCamera(uint8_t camera_id) : Camera(camera_id) {}
 
 bool tv::OpenCvUSBCamera::open_device(void) {
 

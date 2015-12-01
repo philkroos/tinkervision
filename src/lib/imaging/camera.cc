@@ -30,7 +30,7 @@
 
 #include "logger.hh"
 
-tv::Camera::Camera(int8_t camera_id) : camera_id_(camera_id) {}
+tv::Camera::Camera(uint8_t camera_id) : camera_id_(camera_id) {}
 
 bool tv::Camera::get_frame(tv::Image& image) {
     if (not is_open()) {
@@ -65,7 +65,7 @@ bool tv::Camera::open(uint16_t width, uint16_t height) {
         auto& header = image_.header;
         retrieve_properties(header.width, header.height, header.bytesize);
         header.format = image_format();
-        Log("CAMERA", "Opened camera ", header);
+        Log("CAMERA", "Opened camera ", camera_id_, ": ", header);
     }
     return success;
 }
@@ -73,4 +73,5 @@ bool tv::Camera::open(uint16_t width, uint16_t height) {
 void tv::Camera::stop(void) {
     active_ = false;
     close();
+    Log("CAMERA", "Closed camera ", camera_id_);
 }

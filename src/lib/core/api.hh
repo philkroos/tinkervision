@@ -211,10 +211,22 @@ public:
     char const* result_string(int16_t code) const;
 
     /// Check if a camera is available in the system.
-    /// \return
-    ///  - #TV_CAMERA_NOT_AVAILABLE if the camera is not available,
-    ///  - #TV_OK else
-    int16_t is_camera_available(void);
+    /// \return true if available
+    bool is_camera_available(void);
+
+    /// Check if a specific camera is available in the system.
+    /// \param[in] id Device id
+    /// \return true if available.
+    bool is_camera_available(uint8_t id);
+
+    /// Select a specific camera.
+    /// If the specified camera is not available in the system, another one may
+    /// still be used. This is for the case that multiple cameras are available.
+    /// If the library is already active with another camera and the selected
+    /// one would be available too, it will be switched.
+    /// \param[in] id Device id
+    /// \return true if the device is available.
+    bool prefer_camera_with_id(uint8_t id);
 
     /// Retrieve the frame settings from the camera. This can only work
     /// if the camera was opened already

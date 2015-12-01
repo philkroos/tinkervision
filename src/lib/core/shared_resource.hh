@@ -67,6 +67,7 @@ public:
     using ExecAll = std::function<void(int16_t, Resource&)>;
     using ExecOne = std::function<int16_t(Resource&)>;
 
+    using CRefPredicate = std::function<bool(Resource const&)>;
     using AfterAllocatedHook = std::function<void(Resource&)>;
 
     using Allocator = std::function<void(void)>;
@@ -95,7 +96,7 @@ public:
     }
 
     /// Execute a function on all active resources in turn.
-    /// \parm[in] executor The function to be executed on each resource.
+    /// \param[in] executor The function to be executed on each resource.
     void exec_all(ExecAll executor) {
         if (not managed_.size()) {
             return;
@@ -104,6 +105,23 @@ public:
             std::lock_guard<std::mutex> lock(managed_mutex_);
             for (auto& id : ids_managed_) {
                 executor(id, *(managed_[id].resource));
+            }
+        }
+    }
+
+    /// Execute a function on all active resources that satisfy a predicate..
+    /// \param[in] executor The function to be executed on each resource.
+    /// \param[in] predicate A predicate accepting a single resource cref.
+    void exec_if(ExecAll executor, CRefPredicate predicate) {
+        if (not managed_.size()) {
+            return;
+
+        } else {
+            std::lock_guard<std::mutex> lock(managed_mutex_);
+            for (auto& id : ids_managed_) {
+                if (predicate(*(managed_[id].resource))) {
+                    executor(id, *(managed_[id].resource));
+                }
             }
         }
     }
@@ -131,7 +149,7 @@ public:
     /// true results.
     /// \param[in] predicate A predicate.
     /// \return The number of true results over each active module.
-    size_t count(std::function<bool(Resource const&)> predicate) {
+    size_t count(CRefPredicate predicate) {
         std::lock_guard<std::mutex> lock(managed_mutex_);
         size_t count = 0;
         for (auto const& resource : managed_) {
@@ -234,7 +252,7 @@ public:
     }
 
     /// Removes each (active) resource for which a given predicate holds.
-    /// \parm[in] predicate A predicate accepting a single resource cref.
+    /// \param[in] predicate A predicate accepting a single resource cref.
     /// \return The number of resources removed.
     size_t free_if(std::function<bool(Resource const& resource)> predicate) {
         std::lock_guard<std::mutex> mlock(managed_mutex_);

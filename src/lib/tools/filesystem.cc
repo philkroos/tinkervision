@@ -42,7 +42,7 @@ static std::string basename(std::string const& fullname) {
 }
 */
 std::string strip_extension(std::string const& filename,
-                                std::string& extension) {
+                            std::string& extension) {
     auto rev_it = std::find(filename.rbegin(), filename.rend(), '.');
 
     if (rev_it == filename.rend() or
@@ -77,16 +77,21 @@ bool is_file(std::string const& fullname) {
     return (stat(fullname.c_str(), &buffer) == 0) and S_ISREG(buffer.st_mode);
 }
 
+bool is_cdevice(std::string const& fullname) {
+    struct stat buffer;
+    return (stat(fullname.c_str(), &buffer) == 0) and S_ISCHR(buffer.st_mode);
+}
+
 bool is_directory(std::string const& fullname) {
     struct stat buffer;
     return (stat(fullname.c_str(), &buffer) == 0) and S_ISDIR(buffer.st_mode);
 }
 
-void list_directory_content(
-    std::string const& directory, std::vector<std::string>& contents,
-    std::function<bool(std::string const& filename,
-                       std::string const& extension, bool is_regular_file)>
-        filter) {
+void list_directory_content(std::string const& directory,
+                            std::vector<std::string>& contents,
+                            std::function<bool(std::string const& filename,
+                                               std::string const& extension,
+                                               bool is_regular_file)> filter) {
 
     if (not is_directory(directory)) {
         return;

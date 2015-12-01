@@ -36,6 +36,8 @@
 #include "v4l2_camera.hh"
 #endif
 
+#include "filesystem.hh"
+
 tv::CameraControl::~CameraControl(void) { release_all(); }
 
 tv::CameraControl::CameraControl(void) noexcept {
@@ -51,12 +53,51 @@ tv::CameraControl::CameraControl(void) noexcept {
 
 bool tv::CameraControl::is_available(void) {
 
-    if (camera_ and camera_->is_open()) {
+    return (camera_ and camera_->is_open()) or _test_device();
+}
 
-        return true;
+bool tv::CameraControl::is_available(uint8_t id) {
+
+    if (camera_ and camera_->id() == id) {  // correct camera currently selected
+        return camera_->is_open() or _test_device();
     }
 
-    return _test_device();
+    Camera* tmp{nullptr};
+    auto result = _test_device(&tmp, id);
+    if (tmp) {
+        delete tmp;
+    }
+    return result;
+}
+
+bool tv::CameraControl::prefer(uint8_t id) {
+    /// Sets preferred_device_ to id, no matter if that device is available or
+    /// not.  Does not switch the open device, this needs to be done manually.
+    if (is_available(id)) {
+        preferred_device_ = id;
+        return true;
+    }
+    return false;
+}
+
+bool tv::CameraControl::switch_to_preferred(uint8_t id) {
+    auto open = is_open();
+    if (prefer(id)) {
+
+        /// If the currently opened device is the same, do nothing else. Else,
+        /// stop_camera() and call init() again, effectively opening the
+        /// preferred_device_ or, if impossible, any other.
+        if (is_open() and camera_->id() != id) {
+            stop_camera();
+            _init();
+        }
+    }
+    if (is_open()) {
+        assert(open);  // never change overall camera status here
+        return camera_->id() == id;
+    }
+
+    return not open;  // never close open cam here
 }
 
 bool tv::CameraControl::preselect_framesize(uint16_t framewidth,
@@ -113,21 +154,27 @@ bool tv::CameraControl::acquire(void) {
         usercount_++;
         Log("CAMERACONTROL::acquire", usercount_, " users.");
     } else {
-        _close_device();
+        _close_device(&camera_);
     }
 
     return open;
 }
 
-bool tv::CameraControl::is_open(void) {
+bool tv::CameraControl::is_open(void) const {
 
     if (not camera_ or not camera_->is_open()) {
-        if (camera_) {
-            release();
-        }
+        assert(not camera_);
+        // 12-01-2015: To make this method const.
+        // if (camera_) {
+        //     release();
+        // }
     }
 
     return camera_ != nullptr;
+}
+
+int16_t tv::CameraControl::current_device(void) const {
+    return not is_open() ? -1 : static_cast<uint16_t>(camera_->id());
 }
 
 void tv::CameraControl::release(void) {
@@ -137,13 +184,13 @@ void tv::CameraControl::release(void) {
     if (not usercount_ and camera_) {
         Log("CAMERACONTROL", "Closing the device");
         std::lock_guard<std::mutex> camera_lock(camera_mutex_);
-        _close_device();
+        _close_device(&camera_);
     }
 }
 
 void tv::CameraControl::stop_camera(void) {
     std::lock_guard<std::mutex> camera_lock(camera_mutex_);
-    _close_device();
+    _close_device(&camera_);
 }
 
 void tv::CameraControl::release_all(void) {
@@ -153,7 +200,7 @@ void tv::CameraControl::release_all(void) {
     }
 
     // in case usercount_ was already 0:
-    _close_device();
+    _close_device(&camera_);
 }
 
 bool tv::CameraControl::get_properties(uint16_t& height, uint16_t& width,
@@ -175,6 +222,7 @@ bool tv::CameraControl::update_frame(Image& image) {
         }
     }
 
+    // camera_ is open
     if (not _update_from_camera()) {
         if (not fallback_.image().data) {
             LogError("CAMERA_CONTROL", "No valid image");
@@ -209,18 +257,40 @@ bool tv::CameraControl::_update_from_camera(void) {
 bool tv::CameraControl::_test_device(void) {
     std::lock_guard<std::mutex> cam_mutex(camera_mutex_);
 
-    if (not _open_device()) {
+    if (not _open_device(&camera_)) {
         return false;
     }
 
-    _close_device();
+    _close_device(&camera_);
+    return true;
+}
+
+bool tv::CameraControl::_test_device(Camera** cam, uint8_t device) {
+    /// This assumes that device is not the currently used camera, if any.
+    /// E.g., if camera_ is not nullptr and it is the same id,
+    /// _test_device()
+    /// must be used, which locks access to the device in use.
+
+    assert(not*cam or (*cam != camera_));
+    if (not _open_device(cam, device)) {
+        return false;
+    }
+
+    _close_device(cam);
     return true;
 }
 
 bool tv::CameraControl::_init(void) {
     std::lock_guard<std::mutex> cam_mutex(camera_mutex_);
 
-    auto success = _open_device();
+    /// Open the preferred_device_ if set, or any other.
+    auto success = false;
+    if (device_preferred()) {
+        success =
+            _open_device(&camera_, preferred_device_) or _open_device(&camera_);
+    } else {
+        success = _open_device(&camera_);
+    }
     if (success) {
         image_.allocate(camera_->frame_header(), false);
     }
@@ -228,45 +298,73 @@ bool tv::CameraControl::_init(void) {
     return success;
 }
 
-bool tv::CameraControl::_open_device(void) {
+bool tv::CameraControl::_open_device(Camera** device) {
     static const auto MAX_DEVICE = 5;
-    auto i = int(MAX_DEVICE);
+    auto i = uint8_t(MAX_DEVICE);
 
+    std::string device_name("/dev/video");
     // selecting the highest available device
-    for (; i >= 0; --i) {
-        if (_device_exists(i)) {
+    for (; i > 0; --i) {
+        device_name += std::to_string(i);
+        if (is_cdevice(device_name)) {
 
 #ifdef WITH_OPENCV_CAM
             Log("CAMERACONTROL", "Opening OpenCV camera device ", i);
-            camera_ = new OpenCvUSBCamera(i);
+            *device = new OpenCvUSBCamera(i);
 #else
             Log("CAMERACONTROL", "Opening V4L2 camera device ", i);
-            camera_ = new V4L2USBCamera(i);
+            *device = new V4L2USBCamera(i);
 #endif
 
-            if (camera_->open(requested_width_, requested_height_)) {
+            if ((*device)->open(requested_width_, requested_height_)) {
                 stopped_ = false;
-                break;
+                return true;
             } else {
-                delete camera_;
-                camera_ = nullptr;
-                continue;
+                (*device)->stop();
+                delete *device;
+                (*device) = nullptr;
             }
         }
+        device_name.pop_back();
     }
-    return i >= 0;
+    return false;
 }
 
-void tv::CameraControl::_close_device() {
-
-    if (camera_) {
-
-        camera_->stop();
-
-        /// \todo It is not necessary to always delete the cam.
-        delete camera_;
-        camera_ = nullptr;
+bool tv::CameraControl::_open_device(Camera** device, uint8_t id) {
+    if (not is_cdevice("/dev/video" + std::to_string(id))) {
+        return false;
     }
 
-    stopped_ = true;
+#ifdef WITH_OPENCV_CAM
+    Log("CAMERACONTROL", "Opening OpenCV camera device ", id);
+    *device = new OpenCvUSBCamera(id);
+#else
+    Log("CAMERACONTROL", "Opening V4L2 camera device ", id);
+    *device = new V4L2USBCamera(id);
+#endif
+    if (not(*device)->open(requested_width_, requested_height_)) {
+        delete *device;
+        (*device) = nullptr;
+        return false;
+    }
+
+    // device active
+    stopped_ = false;
+    return true;
+}
+
+void tv::CameraControl::_close_device(Camera** device) {
+
+    auto stop = *device == camera_;
+    if (*device) {
+
+        (*device)->stop();
+        delete *device;
+        (*device) = nullptr;
+    }
+    /// If device equals camera_, the publicly available device will be
+    /// stopped.
+    if (stop) {
+        stopped_ = true;
+    }
 }
