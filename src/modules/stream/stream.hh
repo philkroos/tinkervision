@@ -27,7 +27,7 @@
 #ifndef STREAM_H
 #define STREAM_H
 
-#include "tinkervision.hh"
+#include "module.hh"
 
 #include <future>  // async
 
