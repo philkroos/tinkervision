@@ -42,8 +42,8 @@ int main(void) {
     }
     std::cout << "Using cameras " << int(c0) << " and " << int(c1) << std::endl;
 
-    auto result = tv_prefer_camera_with_id(c0);
-    check(result, "PreferCam", c0);
+    auto result = tv_prefer_camera_with_id(c1);
+    check(result, "PreferCam", c1);
 
     int8_t module;
     result = tv_module_start("snapshot", &module);
@@ -68,15 +68,21 @@ int main(void) {
         }
     }
 
+    result = tv_module_set_string_parameter(module, "format", "tiff");
+    check(result, "SetStringParameter:Format:tiff");
+
+    std::this_thread::sleep_for(std::chrono::seconds(4));
     TV_ModuleResult m_result;
-    result = tv_module_get_result(module, &m_result);
+    while (TV_OK != tv_module_get_result(module, &m_result))
+        ;
     std::cout << "Snapshot result: " << m_result.string << " -- "
               << tv_result_string(result) << std::endl;
 
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    result = tv_prefer_camera_with_id(c1);
+    result = tv_prefer_camera_with_id(c0);
+    std::this_thread::sleep_for(std::chrono::seconds(4));
 
-    result = tv_module_get_result(module, &m_result);
+    while (TV_OK != tv_module_get_result(module, &m_result))
+        ;
     std::cout << "Snapshot result: " << m_result.string << " -- "
               << tv_result_string(result) << std::endl;
 
