@@ -27,12 +27,15 @@
 #ifndef SNAPSHOT_H
 #define SNAPSHOT_H
 
-#include "module.hh"      // interface
-#include "filesystem.hh"  // check if set path is correct
+#include "module.hh"  // interface
+
+#include <array>
+#include <string>
+
+#include "filesystem.hh"  // check if set path is correctly
 
 namespace tv {
 /// Save the current image to disk.
-/// \todo Allow parameterizing this and other modules with strings..?
 class Snapshot : public Module {
 
 public:
@@ -44,7 +47,8 @@ protected:
                  tv::ImageHeader const&, tv::ImageData*) override final;
 
     tv::ColorSpace input_format(void) const override {
-        return tv::ColorSpace::YV12;
+        return format_ == "yv12" ? tv::ColorSpace::YV12
+                                 : tv::ColorSpace::BGR888;
     }
 
     void init(void) override;
@@ -57,10 +61,26 @@ protected:
 
     bool outputs_image(void) const override final { return false; }
 
+    void value_changed(std::string const& parameter,
+                       std::string const& value) override final;
+
 private:
-    tv::Result filename_;
+    tv::Result mutable filename_;
     tv::Image image_{};
     bool have_snapped_{false};
+
+    std::string path_{"/tmp/"};
+    std::string prefix_{"tv-snap"};
+    std::string format_{"jpg"};
+
+    /// \todo Check if all of these formats are supported on the platform,
+    /// probably during make.
+    std::array<std::string, 8> supported_formats_{
+        {"yv12", "pgm", "bmp", "png", "jpg", "jpeg", "tiff",
+         "tif"}};  ///< Supported formats to save frames. Internal
+    /// format yuv + see OpenCV-doc for imread.
+
+    bool format_supported(std::string const& format) const;
 };
 }
 DECLARE_VISION_MODULE(Snapshot)

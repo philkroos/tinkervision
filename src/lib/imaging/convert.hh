@@ -516,6 +516,8 @@ public:
                 image = (*converter)(*frame_);
             }
         }
+
+        assert(image.header.format != tv::ColorSpace::INVALID);
     }
 
     tv::ImageHeader get_header(tv::ColorSpace format) {

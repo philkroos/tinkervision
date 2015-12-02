@@ -1,11 +1,13 @@
 CC		:= g++
 
+INC		:= `pkg-config --cflags opencv`
+LDFLAGS	:= `pkg-config --libs opencv`
+CCFLAGS	:= -Wall -Werror -std=c++11 -shared -fPIC -DWITH_LOGGER
+
 ifeq ($(DEBUG),yes)
-	CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
-	INC		:= `pkg-config --cflags opencv`
-	LDFLAGS	:= `pkg-config --libs opencv`
+	CCFLAGS	+= -g -O0 -DDEBUG
 else
-	CCFLAGS	:= -Wall -Werror -O3 -std=c++11 -shared -fPIC
+	CCFLAGS	+= -O3
 endif
 
 ifndef PRE
