@@ -36,10 +36,12 @@ tv::Stream::~Stream(void) {
     killswitch_ = 1;
     context_.quit = true;
 
-    std::chrono::milliseconds span(100);
-    while (streamer_.wait_for(span) == std::future_status::timeout)
-        ;
-    streamer_.get();
+    if (streamer_.valid()) {
+        std::chrono::milliseconds span(100);
+        while (streamer_.wait_for(span) == std::future_status::timeout)
+            ;
+        streamer_.get();
+    }
 }
 
 tv::Stream::Stream(Environment const& envir)
