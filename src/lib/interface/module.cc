@@ -118,7 +118,11 @@ bool tv::Module::set(std::string const& parameter, std::string const& value) {
 
 template <typename T>
 bool tv::Module::set_parameter(std::string const& parameter, T const& value) {
-    return has_parameter(parameter) and parameter_map_[parameter]->set(value);
+    if (has_parameter(parameter) and parameter_map_[parameter]->set(value)) {
+        value_changed(parameter, value);
+        return true;
+    }
+    return false;
 }
 
 bool tv::Module::get(std::string const& parameter, int32_t& value) const {
