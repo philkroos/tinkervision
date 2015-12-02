@@ -264,27 +264,30 @@ void tv::Api::execute(void) {
             } else {
                 LogWarning("API", "Could not retrieve the next frame");
             }
+
+            // Propagate deletion of modules marked for removal
+            modules_->free_if([](ModuleWrapper const& module) {
+                return module.tags() & ModuleWrapper::Tag::Removable;
+            });
+
+            loops++;
+            loop_duration += (Clock::now() - last_loop_time_point);
+            if (loops == 10) {
+                effective_frameperiod_ =
+                    std::chrono::duration_cast<std::chrono::milliseconds>(
+                        loop_duration).count() /
+                    10.0;
+
+                loops = 0;
+                loop_duration = Clock::duration(0);
+            }
+            // sleep for the duration requested, if it's not in the past
+            std::this_thread::sleep_until(
+                last_loop_time_point +
+                std::chrono::milliseconds(frameperiod_ms_));
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
         }
-
-        // Propagate deletion of modules marked for removal
-        modules_->free_if([](ModuleWrapper const& module) {
-            return module.tags() & ModuleWrapper::Tag::Removable;
-        });
-
-        loops++;
-        loop_duration += (Clock::now() - last_loop_time_point);
-        if (loops == 10) {
-            effective_frameperiod_ =
-                std::chrono::duration_cast<std::chrono::milliseconds>(
-                    loop_duration).count() /
-                10.0;
-
-            loops = 0;
-            loop_duration = Clock::duration(0);
-        }
-        // sleep for the duration requested, if it's not in the past
-        std::this_thread::sleep_until(
-            last_loop_time_point + std::chrono::milliseconds(frameperiod_ms_));
     }
     Log("API", "Mainloop stopped");
 }
