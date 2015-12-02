@@ -45,8 +45,9 @@ tv::Stream::~Stream(void) {
 }
 
 tv::Stream::Stream(Environment const& envir)
-    : Module("stream", envir), context_(ExecutionContext::get()) {
+    : Module("stream", envir), context_(ExecutionContext::get()) {}
 
+void tv::Stream::setup(void) {
     task_scheduler_ = BasicTaskScheduler::createNew();
 
     usage_environment_ = BasicUsageEnvironment::createNew(*task_scheduler_);
@@ -65,6 +66,10 @@ tv::Stream::Stream(Environment const& envir)
 void tv::Stream::execute(tv::ImageHeader const& header,
                          tv::ImageData const* data, tv::ImageHeader const&,
                          tv::ImageData*) {
+    if (not session_) {
+        setup();
+    }
+
     if (not subsession_) {
 
         context_.encoder.initialize(header.width, header.height, 10);  // FPS!
@@ -79,9 +84,7 @@ void tv::Stream::execute(tv::ImageHeader const& header,
             task_scheduler_->doEventLoop(&killswitch_);
         });
 
-        // std::cout << "Play the stream using " <<
-        // rtsp_server_->rtspURL(session_)
-        //           << std::endl;
+        Log("STREAM", "Streaming on ", rtsp_server_->rtspURL(session_));
     }
 
     // if no one is watching anyway, discard old data

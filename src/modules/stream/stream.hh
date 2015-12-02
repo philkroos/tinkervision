@@ -74,6 +74,8 @@ private:
     AsyncTask streamer_;
 
     char killswitch_ = 0;  ///< signal live555 to stop the event loop
+
+    void setup(void);
 };
 }
 
