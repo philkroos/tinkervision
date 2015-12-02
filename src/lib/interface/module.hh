@@ -133,7 +133,8 @@ protected:
     /// an invalid then?
     virtual Result const& get_result(void) const;
 
-    /// Hook for modules which want to be notified about a parameter change.
+    /// Hook for modules which want to be notified about a numerical parameter
+    /// change.
     /// This will be called whenever a parameter was successfully changed.
     /// It may be usefull to store the new value reduntantly inside the actual
     /// module for faster access, if the parameter is accessed often.  The
@@ -145,6 +146,21 @@ protected:
     /// \param[in] parameter The name of the changed parameter.
     /// \param[in] value New value
     virtual void value_changed(std::string const& parameter, int32_t value) {}
+
+    /// Hook for modules which want to be notified about a string parameter
+    /// change.
+    /// This will be called whenever a parameter was successfully changed.
+    /// It may be usefull to store the new value reduntantly inside the actual
+    /// module for faster access, if the parameter is accessed often.  The
+    /// default implementation does nothing.
+    /// \note The value passed here will be in the allowed range of the
+    /// registered parameter, so a deriving module can use a smaller type
+    /// internally, and rely on the safety of a cast, if possible from the
+    /// limits of the parameter.
+    /// \param[in] parameter The name of the changed parameter.
+    /// \param[in] value New value
+    virtual void value_changed(std::string const& parameter,
+                               std::string const& value) {}
 
     Environment const& environment;  ///< Environment passed to the constructor
 
