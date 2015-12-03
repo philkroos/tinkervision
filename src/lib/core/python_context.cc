@@ -52,17 +52,13 @@ tv::PythonContext::~PythonContext(void) { Py_Finalize(); }
 bool tv::PythonContext::is_valid_context(void) { return initialized_; }
 
 bool tv::PythonContext::set_path(std::string const& pythonpath) noexcept {
-    if (initialized_) {
-        return false;
-    }
-
     try {
         if (not is_directory(pythonpath)) {
             LogError("PYTHON_CONTEXT", "Not a valid path: ", pythonpath);
-            initialized_ = false;
             return false;
         }
 
+        // no-op if run twice
         Py_Initialize();
 
         auto addpath =
