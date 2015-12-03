@@ -79,7 +79,26 @@ int main(void) {
               << tv_result_string(result) << std::endl;
 
     result = tv_prefer_camera_with_id(c0);
+    check(result, "PreferCam", c0);
     std::this_thread::sleep_for(std::chrono::seconds(4));
+
+    /* Haertetest */
+    while (TV_OK != tv_prefer_camera_with_id(c1))
+        ;
+    while (TV_OK != tv_prefer_camera_with_id(c0))
+        ;
+    while (TV_OK != tv_prefer_camera_with_id(c1))
+        ;
+    while (TV_OK != tv_prefer_camera_with_id(c0))
+        ;
+    while (TV_OK != tv_prefer_camera_with_id(c1))
+        ;
+    while (TV_OK != tv_prefer_camera_with_id(c0))
+        ;
+    while (TV_OK != tv_prefer_camera_with_id(c1))
+        ;
+    while (TV_OK != tv_prefer_camera_with_id(c0))
+        ;
 
     while (TV_OK != tv_module_get_result(module, &m_result))
         ;

@@ -67,6 +67,8 @@ bool tv::CameraControl::is_available(uint8_t id) {
     if (tmp) {
         delete tmp;
     }
+
+    Log("CAMERA_CONTROL", "Device ", id, " available: ", result);
     return result;
 }
 
@@ -81,6 +83,8 @@ bool tv::CameraControl::prefer(uint8_t id) {
 }
 
 bool tv::CameraControl::switch_to_preferred(uint8_t id) {
+    std::lock_guard<std::mutex> cam_mutex(camera_mutex_);
+
     auto open = is_open();
     if (prefer(id)) {
 
@@ -92,8 +96,10 @@ bool tv::CameraControl::switch_to_preferred(uint8_t id) {
             _init();
         }
     }
-    if (is_open()) {
-        assert(open);  // never change overall camera status here
+    auto open_now = is_open();
+    assert(open == open_now);  // never change overall camera status here
+
+    if (open_now) {
         return camera_->id() == id;
     }
 
@@ -112,13 +118,17 @@ bool tv::CameraControl::preselect_framesize(uint16_t framewidth,
     requested_width_ = framewidth;
     requested_height_ = frameheight;
 
-    if (not _init()) {
-        requested_width_ = old_width;
-        requested_height_ = old_height;
-        return false;
-    }
+    {
+        std::lock_guard<std::mutex> cam_mutex(camera_mutex_);
 
-    stop_camera();
+        if (not _init()) {
+            requested_width_ = old_width;
+            requested_height_ = old_height;
+            return false;
+        }
+
+        stop_camera();
+    }
 
     return true;
 }
@@ -137,6 +147,7 @@ bool tv::CameraControl::acquire(size_t user) {
 }
 
 bool tv::CameraControl::acquire(void) {
+    std::lock_guard<std::mutex> cam_mutex(camera_mutex_);
 
     auto open = is_open();
 
@@ -189,7 +200,7 @@ void tv::CameraControl::release(void) {
 }
 
 void tv::CameraControl::stop_camera(void) {
-    std::lock_guard<std::mutex> camera_lock(camera_mutex_);
+    Log("CAMERA_CONTROL", "Stop");
     _close_device(&camera_);
 }
 
@@ -281,14 +292,16 @@ bool tv::CameraControl::_test_device(Camera** cam, uint8_t device) {
 }
 
 bool tv::CameraControl::_init(void) {
-    std::lock_guard<std::mutex> cam_mutex(camera_mutex_);
+    Log("CAMERA_CONTROL", "Init");
 
     /// Open the preferred_device_ if set, or any other.
     auto success = false;
     if (device_preferred()) {
+        Log("CAMERA_CONTROL", "Init with selected id ", preferred_device_);
         success =
             _open_device(&camera_, preferred_device_) or _open_device(&camera_);
     } else {
+        Log("CAMERA_CONTROL", "Init with any device");
         success = _open_device(&camera_);
     }
     if (success) {
