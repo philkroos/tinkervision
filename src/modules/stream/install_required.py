@@ -87,11 +87,16 @@ if __name__ == '__main__':
     dry_run = False  # really do sth?
     clean = False # remove manually installed stuff?
 
+    pre = '/usr/'
     for a in sys.argv[1:]:
         if a == '-dry':
             dry_run = True
         elif a == '-clean':
             clean = True
+        elif a == '-live':
+            only_live = True
+        elif a == '-local':
+            pre = '/usr/local/'
 
     requirements = {
         'libx264-dev' : apt_get,
@@ -99,4 +104,4 @@ if __name__ == '__main__':
     }
 
     for req in requirements:
-        requirements[req](req, clean, dry_run, prefix = "/usr/")
+        requirements[req](req, clean, dry_run, prefix = pre)

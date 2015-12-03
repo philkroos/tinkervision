@@ -36,15 +36,26 @@ tv::Stream::~Stream(void) {
     killswitch_ = 1;
     context_.quit = true;
 
-    std::chrono::milliseconds span(100);
-    while (streamer_.wait_for(span) == std::future_status::timeout)
-        ;
-    streamer_.get();
+    if (streamer_.valid()) {
+        std::chrono::milliseconds span(100);
+        while (streamer_.wait_for(span) == std::future_status::timeout)
+            ;
+        streamer_.get();
+    }
 }
 
 tv::Stream::Stream(Environment const& envir)
     : Module("stream", envir), context_(ExecutionContext::get()) {
 
+    register_parameter(
+        "url", "<inactive>",
+        [this](std::string const&, std::string const& new_value) {
+            // Only allow the value that will be set from execute()
+            return not url_.empty() and (new_value == url_);
+        });
+}
+
+void tv::Stream::setup(void) {
     task_scheduler_ = BasicTaskScheduler::createNew();
 
     usage_environment_ = BasicUsageEnvironment::createNew(*task_scheduler_);
@@ -63,6 +74,10 @@ tv::Stream::Stream(Environment const& envir)
 void tv::Stream::execute(tv::ImageHeader const& header,
                          tv::ImageData const* data, tv::ImageHeader const&,
                          tv::ImageData*) {
+    if (not session_) {
+        setup();
+    }
+
     if (not subsession_) {
 
         context_.encoder.initialize(header.width, header.height, 10);  // FPS!
@@ -77,9 +92,9 @@ void tv::Stream::execute(tv::ImageHeader const& header,
             task_scheduler_->doEventLoop(&killswitch_);
         });
 
-        // std::cout << "Play the stream using " <<
-        // rtsp_server_->rtspURL(session_)
-        //           << std::endl;
+        url_ = rtsp_server_->rtspURL(session_);
+        Log("STREAM", "Streaming on ", url_);
+        set("url", url_);
     }
 
     // if no one is watching anyway, discard old data

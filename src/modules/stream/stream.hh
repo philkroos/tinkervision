@@ -64,8 +64,11 @@ private:
     ServerMediaSession* session_ = nullptr;
 
     int port_ = 8554;
-    const char* streamname_{"tinkervision"};
+    const char* streamname_{"tv"};
     const char* streamtypename_{"H.264 stream"};
+    std::string url_{""};  ///< URL of the stream:
+    /// rtsp://<ip>:port_/streamname_. Retrievable from
+    /// the read-only string parameter url once streaming.
 
     H264MediaSession* subsession_ = nullptr;
     ExecutionContext& context_;
@@ -74,6 +77,8 @@ private:
     AsyncTask streamer_;
 
     char killswitch_ = 0;  ///< signal live555 to stop the event loop
+
+    void setup(void);
 };
 }
 
