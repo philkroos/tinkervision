@@ -186,3 +186,5 @@ tv::Result const& tv::Module::result(void) const {
     }
     return get_result();
 }
+
+void tv::Module::stop(void) {}

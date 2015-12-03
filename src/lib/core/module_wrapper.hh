@@ -153,6 +153,7 @@ public:
     /// it from being executed.
     void disable(void) {
         Log("MODULE", "Disabling ", module_id_, " (", name(), ")");
+        tv_module_->stop();
         active_ = false;
     }
 

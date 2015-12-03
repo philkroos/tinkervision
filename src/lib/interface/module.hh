@@ -42,6 +42,8 @@
 
 namespace tv {
 
+class ModuleWrapper;  ///< Tinkervision-internal module representation
+
 /// Module interface.  This class declares the only interface needed by modules
 /// to be executable in the library context.  All methods to be implemented are
 /// declared in the protected namespace.  The public namespace contains only
@@ -90,7 +92,7 @@ protected:
     /// \return A valid ImageHeader.
     virtual ImageHeader get_output_image_header(ImageHeader const& input);
 
-    /// Possibly initialize this module.  This will be called once after
+    /// Possibly initialize this module.  This will be called only once after
     /// construction of this module.  The default implementation is empty.
     /// \sa initialize(), which calls this.
     virtual void init(void);
@@ -121,6 +123,10 @@ protected:
                          tv::ImageData const* data,
                          tv::ImageHeader const& output_header,
                          tv::ImageData* output_data) = 0;
+
+    /// The module is about to be stopped.  This can be used to reset some
+    /// internal state. The default implementation is empty.
+    virtual void stop(void);
 
     /// Retrieve the result from this module.  The default implementation
     /// returns an invalid result.
@@ -279,6 +285,8 @@ public:
     Result const& result(void) const;
 
 private:
+    friend class ModuleWrapper;
+
     std::string const name_;  ///< Name of this module, c'tor parameter.
 
     ParameterMap parameter_map_;                ///< Available parameters.
