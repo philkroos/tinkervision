@@ -70,8 +70,6 @@ protected:
     explicit Camera(uint8_t camera_id);
     uint8_t camera_id_;
 
-    // These are Template Methods, see implementation
-    // of the corresponding get_ methods.
     virtual bool open_device(void) = 0;
     virtual bool open_device(uint16_t width, uint16_t height) = 0;
     virtual bool retrieve_frame(tv::ImageData** data) = 0;

@@ -58,7 +58,11 @@ bool tv::Camera::get_properties(uint16_t& width, uint16_t& height,
 bool tv::Camera::open(void) { return open(0, 0); }
 
 bool tv::Camera::open(uint16_t width, uint16_t height) {
+#ifdef WITH_OPENCV_CAM
+    auto success = open_device();
+#else
     auto success = (width ? open_device(width, height) : open_device());
+#endif
 
     if (success) {
         active_ = true;
