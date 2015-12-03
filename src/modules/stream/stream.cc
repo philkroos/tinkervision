@@ -45,7 +45,15 @@ tv::Stream::~Stream(void) {
 }
 
 tv::Stream::Stream(Environment const& envir)
-    : Module("stream", envir), context_(ExecutionContext::get()) {}
+    : Module("stream", envir), context_(ExecutionContext::get()) {
+
+    register_parameter(
+        "url", "<inactive>",
+        [this](std::string const&, std::string const& new_value) {
+            // Only allow the value that will be set from execute()
+            return not url_.empty() and (new_value == url_);
+        });
+}
 
 void tv::Stream::setup(void) {
     task_scheduler_ = BasicTaskScheduler::createNew();
@@ -84,7 +92,9 @@ void tv::Stream::execute(tv::ImageHeader const& header,
             task_scheduler_->doEventLoop(&killswitch_);
         });
 
-        Log("STREAM", "Streaming on ", rtsp_server_->rtspURL(session_));
+        url_ = rtsp_server_->rtspURL(session_);
+        Log("STREAM", "Streaming on ", url_);
+        set("url", url_);
     }
 
     // if no one is watching anyway, discard old data

@@ -25,11 +25,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 int main(int argc, char* argv[]) {
     int8_t id;
+    char url[TV_STRING_SIZE];
     int16_t result = tv_module_start("stream", &id);
     printf("Started streamer with result %d: %s\n", result,
            tv_result_string(result));
 
     if (!result) {
+        sleep(1);
+        result = tv_module_get_string_parameter(id, "url", url);
+        printf("Streaming on %s (%s)\n", url, tv_result_string(result));
         sleep(20);
     }
 
