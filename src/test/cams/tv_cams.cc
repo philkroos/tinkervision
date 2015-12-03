@@ -5,29 +5,7 @@
 #include <chrono>
 
 #include "tinkervision/tinkervision.h"
-
-void get_args(std::string& sargs) {}
-
-template <typename T, typename... Args>
-void get_args(std::string& sargs, T const& t) {
-    sargs += std::to_string(t);
-}
-
-template <typename T, typename... Args>
-void get_args(std::string& sargs, T const& t, Args... args) {
-    sargs += std::to_string(t) + ", ";
-    get_args(sargs, args...);
-}
-
-template <typename... Args>
-void check(int16_t result, std::string const& function, Args... args) {
-    if (result) {
-        std::string sargs;
-        get_args(sargs, args...);
-        std::cout << "Function failed with " << result << ": " << function
-                  << "(" << sargs << ")" << std::endl;
-    }
-}
+#include "../check_result.hh"
 
 int main(void) {
     uint8_t c0 = 0, c1, max_cam = 10;
@@ -59,7 +37,7 @@ int main(void) {
     for (size_t i = 0; i < count; ++i) {
         result = tv_library_parameter_describe("snapshot", i, name, &type, &min,
                                                &max, &def);
-        check(result, "LibParameterDescribe", i);
+        check(result, "LibParameterDescribe", "snapshot", i);
         if (type == 1) {
             std::cout << "Parameter: " << name << std::endl;
         } else {
