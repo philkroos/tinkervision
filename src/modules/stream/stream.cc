@@ -50,7 +50,15 @@ void tv::Stream::setup(void) {
 
     usage_environment_ = BasicUsageEnvironment::createNew(*task_scheduler_);
 
-    rtsp_server_ = RTSPServer::createNew(*usage_environment_, port_, nullptr);
+    for (int i = 0; i < 10;
+         ++i) {  // just try some more ports if opening fails.
+        port_ = port_ + i;
+        rtsp_server_ =
+            RTSPServer::createNew(*usage_environment_, port_, nullptr);
+        if (rtsp_server_) {
+            break;
+        }
+    }
 
     if (not rtsp_server_) {
         throw ConstructionException("Stream",
@@ -109,6 +117,9 @@ void tv::Stream::stop(void) {
     /// Deallocation done by live555
     session_ = nullptr;
     subsession_ = nullptr;
+    rtsp_server_ = nullptr;
+    task_scheduler_ = nullptr;
+    usage_environment_ = nullptr;
 
     url_ = "<inactive>";
     set("url", url_);
