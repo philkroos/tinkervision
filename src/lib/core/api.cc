@@ -187,7 +187,14 @@ void tv::Api::execute(void) {
 
             conversions_.get_frame(image, module.expected_format());
             // ignoring result, doing callbacks (maybe, see default_callback_)
-            (void)module.execute(image);
+            try {
+                (void)module.execute(image);
+            } catch (...) {
+                LogError("API", "Module ", module.name(), " (", id,
+                         ") crashed: ");
+                module.tag(ModuleWrapper::Tag::Removable);
+                return;
+            }
         }
 
         auto output = module.modified_image();
