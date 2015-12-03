@@ -32,17 +32,7 @@
 
 DEFINE_VISION_MODULE(Stream)
 
-tv::Stream::~Stream(void) {
-    killswitch_ = 1;
-    context_.quit = true;
-
-    if (streamer_.valid()) {
-        std::chrono::milliseconds span(100);
-        while (streamer_.wait_for(span) == std::future_status::timeout)
-            ;
-        streamer_.get();
-    }
-}
+tv::Stream::~Stream(void) { stop(); }
 
 tv::Stream::Stream(Environment const& envir)
     : Module("stream", envir), context_(ExecutionContext::get()) {
@@ -104,4 +94,22 @@ void tv::Stream::execute(tv::ImageHeader const& header,
 
     /// \todo check for constant frame dimensions
     context_.encoder.add_frame(data);
+}
+
+void tv::Stream::stop(void) {
+    killswitch_ = 1;
+    context_.quit = true;
+
+    if (streamer_.valid()) {
+        std::chrono::milliseconds span(100);
+        while (streamer_.wait_for(span) == std::future_status::timeout)
+            ;
+        streamer_.get();
+    }
+    /// Deallocation done by live555
+    session_ = nullptr;
+    subsession_ = nullptr;
+
+    url_ = "<inactive>";
+    set("url", url_);
 }

@@ -57,6 +57,8 @@ protected:
     bool outputs_image(void) const override final { return false; }
     bool produces_result(void) const override final { return false; }
 
+    void stop(void) override final;
+
 private:
     TaskScheduler* task_scheduler_ = nullptr;
     BasicUsageEnvironment* usage_environment_ = nullptr;
