@@ -101,6 +101,14 @@ public:
     ///     - #TV_EXEC_THREAD_FAILURE when the thread is still running.
     int16_t quit(void);
 
+    /// Execute a specific module now, interrupting the main execution loop.
+    /// \todo Figure out what to do about the details (e.g. frame requesting?
+    /// Restarting the loop? Activate module if inactive? ...) and implement
+    /// this.
+    /// \param[in] id Id of a loaded module.
+    /// \return #TV_NOT_IMPLEMENTED
+    int16_t exec_one_now(int8_t id);
+
     /// Set the framesize.
     /// \return
     /// - #TV_CAMERA_SETTINGS_FAILED if the selected size is not valid.

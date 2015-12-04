@@ -279,6 +279,11 @@ void tv::Api::execute(void) {
     Log("API", "Mainloop stopped");
 }
 
+int16_t tv::Api::exec_one_now(int8_t id) {
+    // return modules_->exec_one_now(id, module_exec);
+    return TV_NOT_IMPLEMENTED;
+}
+
 int16_t tv::Api::set_framesize(uint16_t width, uint16_t height) {
 
     auto result = TV_CAMERA_SETTINGS_FAILED;
