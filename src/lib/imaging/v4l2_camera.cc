@@ -325,10 +325,12 @@ bool tv::V4L2USBCamera::_set_highest_framerate(v4l2::PixelFormat& px_format) {
 
         // return result of trying to set the framerate
         result = io_operation(device_, v4l2::set_parameter, &stream_parameter);
+        Log("V4L2", "Set framerate to ", framerate_);
     }
 
     else {  // return can't set the framerate explicitly
 
+        Log("V4L2", "Can't set the framerate");
         result = false;
     }
 

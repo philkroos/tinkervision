@@ -1,7 +1,7 @@
 cc		:= g++
 ccflags	:= -Wall -Werror -pedantic -shared -std=c++11 -fpic -DWITH_LOGGER
 
-ifdef OCV
+ifndef V4L2
 	ccflags += -DWITH_OPENCV_CAM
 endif
 
