@@ -98,7 +98,6 @@ int main(int argc, char* argv[]) {
     }
 
     result = tv_set_framesize(width, height);
-
     printf("SetFramesize: %d (%s)\n", result, tv_result_string(result));
 
     tv_get_user_paths_prefix(string);

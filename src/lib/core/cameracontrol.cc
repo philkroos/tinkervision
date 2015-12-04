@@ -108,10 +108,6 @@ bool tv::CameraControl::switch_to_preferred(uint8_t id) {
 
 bool tv::CameraControl::preselect_framesize(uint16_t framewidth,
                                             uint16_t frameheight) {
-#ifdef WITH_OPENCV_CAM
-    return false;
-#endif
-
     if (is_open()) {
         return false;
     }
@@ -129,11 +125,20 @@ bool tv::CameraControl::preselect_framesize(uint16_t framewidth,
             requested_width_ = old_width;
             requested_height_ = old_height;
             return false;
+        } else {
+            uint16_t width, height;
+            size_t bytesize;
+            camera_->get_properties(width, height, bytesize);
+
+            stop_camera();
+
+            if ((width != framewidth) or (height != frameheight)) {
+                requested_width_ = old_width;
+                requested_height_ = old_height;
+                return false;
+            }
         }
-
-        stop_camera();
     }
-
     return true;
 }
 

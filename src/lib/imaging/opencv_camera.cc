@@ -27,11 +27,16 @@
 #ifdef WITH_OPENCV_CAM
 
 #include "opencv_camera.hh"
+#include "logger.hh"
 
 tv::OpenCvUSBCamera::OpenCvUSBCamera(uint8_t camera_id) : Camera(camera_id) {}
 
 bool tv::OpenCvUSBCamera::open_device(void) {
 
+    assert(not camera_);
+    if (camera_) {
+        return false;
+    }
     camera_ = new cv::VideoCapture(camera_id_);
 
     auto result = is_open();
@@ -41,6 +46,32 @@ bool tv::OpenCvUSBCamera::open_device(void) {
         if (not frame_width_) {
             _retrieve_properties();
         }
+    }
+
+    return result;
+}
+
+bool tv::OpenCvUSBCamera::open_device(uint16_t width, uint16_t height) {
+
+    assert(not camera_);
+    if (camera_) {
+        return false;
+    }
+    camera_ = new cv::VideoCapture(camera_id_);
+
+    auto result = is_open();
+    if (not result) {
+        close();
+    } else {
+        if (not camera_->set(CV_CAP_PROP_FRAME_WIDTH,
+                             static_cast<double>(width))) {
+            LogWarning("OPENCV_CAM", "Could not set framewidth to ", width);
+        }
+        if (not camera_->set(CV_CAP_PROP_FRAME_HEIGHT,
+                             static_cast<double>(height))) {
+            LogWarning("OPENCV_CAM", "Could not set frameheight to ", height);
+        }
+        _retrieve_properties();
     }
 
     return result;
