@@ -45,6 +45,7 @@
 #define SHARED_RESOURCE_H
 
 #include <mutex>
+#include <atomic>
 #include <unordered_map>
 #include <list>
 #include <algorithm>
@@ -102,9 +103,18 @@ public:
             return;
 
         } else {
+            // Lock access to all resources
             std::lock_guard<std::mutex> lock(managed_mutex_);
             for (auto& id : ids_managed_) {
+                /// but allow execution of an interrupt from exec_one_now()
+                if (interrupt_lock_.test_and_set(std::memory_order_acquire)) {
+                    while (
+                        interrupt_lock_.test_and_set(std::memory_order_acquire))
+                        ;
+                }
                 executor(id, *(managed_[id].resource));
+
+                interrupt_lock_.clear();
             }
         }
     }
@@ -117,11 +127,20 @@ public:
             return;
 
         } else {
+            // Lock access to all resources
             std::lock_guard<std::mutex> lock(managed_mutex_);
             for (auto& id : ids_managed_) {
+                /// but allow execution of an interrupt from exec_one_now()
+                if (interrupt_lock_.test_and_set(std::memory_order_acquire)) {
+                    while (
+                        interrupt_lock_.test_and_set(std::memory_order_acquire))
+                        ;
+                }
                 if (predicate(*(managed_[id].resource))) {
                     executor(id, *(managed_[id].resource));
                 }
+
+                interrupt_lock_.clear();
             }
         }
     }
@@ -142,6 +161,28 @@ public:
             return executor(resource(it));
         } else {
             return TV_INVALID_ID;
+        }
+    }
+
+    /// Force execution of a function on a specific ressource now.
+    /// This will interrupt possible running calls to exec_if() or exec_all().
+    /// \param[in] id The id of the resource on which executor shall be
+    /// executed.
+    /// \param[in] executor The function to be executed on each resource.
+    void exec_one_now(int16_t id, ExecAll executor) const {
+        if (not managed_.size()) {
+            return;
+
+        } else {
+            while (interrupt_lock_.test_and_set(std::memory_order_acquire))
+                ;
+            auto it = managed_.find(id);
+            if (it != managed_.end()) {
+                return executor(resource(it));
+            } else {
+                return TV_INVALID_ID;
+            }
+            interrupt_lock_.clear();
         }
     }
 
@@ -417,6 +458,7 @@ private:
     IdList ids_managed_;  ///< Sorted access to the active resources
 
     std::mutex mutable managed_mutex_;
+    std::atomic_flag mutable interrupt_lock_{ATOMIC_FLAG_INIT};
 };
 }
 
