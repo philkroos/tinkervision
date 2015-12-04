@@ -321,7 +321,7 @@ bool tv::CameraControl::_open_device(Camera** device) {
 
     std::string device_name("/dev/video");
     // selecting the highest available device
-    for (; i > 0; --i) {
+    for (; i >= 0; --i) {
         device_name += std::to_string(i);
         if (is_cdevice(device_name)) {
 
