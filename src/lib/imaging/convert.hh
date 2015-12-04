@@ -214,10 +214,14 @@ public:
     ~YV12ToRGBType(void) override = default;
 
 protected:
-    template <size_t r, size_t g, size_t b>
+    template <uint8_t r, uint8_t g, uint8_t b>
     void convert(Image const& source, Image& target) const;
 };
 
+/// Convert from Y'V420p to BGR888.
+/// Uses formula from [wiki], section Y'UV420p (and Y'V12 or YV12) to RGB888
+/// conversion
+/// [wiki]: https://en.wikipedia.org/wiki/YUV
 struct ConvertYV12ToRGB : public YV12ToRGBType {
 public:
     ConvertYV12ToRGB(void);
@@ -287,6 +291,11 @@ protected:
                                size_t& target_bytesize) const;
 };
 
+/// Convert from BGR888 to Y'V420p.
+/// Uses formula and description from [wiki], sections
+/// "Y'UV420p (and Y'V12 or YV12) to RGB888 conversion" and "Y'UV444 to RGB888
+/// conversion".
+/// [wiki]: https://en.wikipedia.org/wiki/YUV
 struct ConvertBGRToYV12 : public Convert {
 public:
     ConvertBGRToYV12(void);
@@ -300,6 +309,10 @@ protected:
     void convert(Image const& source, Image& target) const override final;
 };
 
+/// Convert from BGR888 to Y'UV444.
+/// Uses formula and description from [wiki], section
+/// "Y'UV444 to RGB888 conversion".
+/// [wiki]: https://en.wikipedia.org/wiki/YUV
 struct ConvertBGRToYUYV : public Convert {
 public:
     ConvertBGRToYUYV(void);

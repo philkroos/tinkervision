@@ -232,7 +232,7 @@ void tv::ConvertYUYVToBGR::target_format(tv::ImageHeader const& source,
     target_size(source, target_width, target_height, target_bytesize);
 }
 
-template <size_t r, size_t g, size_t b>
+template <uint8_t r, uint8_t g, uint8_t b>
 void tv::YV12ToRGBType::convert(tv::Image const& source,
                                 tv::Image& target) const {
     assert(source.header.format == ColorSpace::YV12);
@@ -356,16 +356,16 @@ void tv::ConvertBGRToYV12::convert(Image const& source, Image& target) const {
             *y0++ = 0.299 * row0[5] + 0.587 * row0[4] + 0.114 * row0[3];
             *y1++ = 0.299 * row1[2] + 0.587 * row1[1] + 0.114 * row1[0];
             *y1++ = 0.299 * row1[5] + 0.587 * row1[4] + 0.114 * row1[3];
-            *u++ = ((0.499 * row0[2] - 0.331 * row0[1] - 0.169 * row0[0]) +
-                    (0.499 * row1[2] - 0.331 * row1[1] - 0.169 * row1[0]) +
-                    (0.499 * row0[5] - 0.331 * row0[4] - 0.169 * row0[3]) +
-                    (0.499 * row1[5] - 0.331 * row1[4] - 0.169 * row1[3])) /
+            *u++ = ((0.499 * row0[0] - 0.331 * row0[1] - 0.169 * row0[2]) +
+                    (0.499 * row1[0] - 0.331 * row1[1] - 0.169 * row1[2]) +
+                    (0.499 * row0[3] - 0.331 * row0[4] - 0.169 * row0[5]) +
+                    (0.499 * row1[3] - 0.331 * row1[4] - 0.169 * row1[5])) /
                        4.0 +
                    128;
-            *v++ = ((-0.0813 * row0[2] - 0.418 * row0[1] + 0.499 * row0[0]) +
-                    (-0.0813 * row1[2] - 0.418 * row1[1] + 0.499 * row1[0]) +
-                    (-0.0813 * row0[5] - 0.418 * row0[4] + 0.499 * row0[3]) +
-                    (-0.0813 * row1[5] - 0.418 * row1[4] + 0.499 * row1[3])) /
+            *v++ = ((-0.0813 * row0[0] - 0.418 * row0[1] + 0.499 * row0[2]) +
+                    (-0.0813 * row1[0] - 0.418 * row1[1] + 0.499 * row1[2]) +
+                    (-0.0813 * row0[3] - 0.418 * row0[4] + 0.499 * row0[5]) +
+                    (-0.0813 * row1[3] - 0.418 * row1[4] + 0.499 * row1[5])) /
                        4.0 +
                    128;
 
@@ -395,21 +395,21 @@ void tv::ConvertBGRToYUYV::convert(Image const& source, Image& target) const {
 
     auto rgb = source.data;
     auto y0 = target.data;
-    auto u = target.data + 1;
-    auto v = u + 1;
-    auto y1 = v + 1;
+    auto u = y0 + 1;
+    auto y1 = u + 1;
+    auto v = y1 + 1;
 
     for (size_t i = 0; i < source.header.height; ++i) {
         for (size_t j = 0; j < source.header.width; j += 2) {
 
             *y0 = 0.299 * rgb[2] + 0.587 * rgb[1] + 0.114 * rgb[0];
             *y1 = 0.299 * rgb[5] + 0.587 * rgb[4] + 0.114 * rgb[3];
-            *u = ((0.499 * rgb[2] - 0.331 * rgb[1] - 0.169 * rgb[0]) +
-                  (0.499 * rgb[5] - 0.331 * rgb[4] - 0.169 * rgb[3])) /
+            *u = ((0.499 * rgb[0] - 0.331 * rgb[1] - 0.169 * rgb[2]) +
+                  (0.499 * rgb[3] - 0.331 * rgb[4] - 0.169 * rgb[5])) /
                      2.0 +
                  128;
-            *v = ((-0.0813 * rgb[2] - 0.418 * rgb[1] + 0.499 * rgb[0]) +
-                  (-0.0813 * rgb[5] - 0.418 * rgb[4] + 0.499 * rgb[3])) /
+            *v = ((-0.0813 * rgb[0] - 0.418 * rgb[1] + 0.499 * rgb[2]) +
+                  (-0.0813 * rgb[3] - 0.418 * rgb[4] + 0.499 * rgb[5])) /
                      2.0 +
                  128;
 

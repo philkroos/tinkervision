@@ -108,6 +108,10 @@ bool tv::CameraControl::switch_to_preferred(uint8_t id) {
 
 bool tv::CameraControl::preselect_framesize(uint16_t framewidth,
                                             uint16_t frameheight) {
+#ifdef WITH_OPENCV_CAM
+    return false;
+#endif
+
     if (is_open()) {
         return false;
     }
@@ -317,7 +321,7 @@ bool tv::CameraControl::_open_device(Camera** device) {
 
     std::string device_name("/dev/video");
     // selecting the highest available device
-    for (; i > 0; --i) {
+    for (; i >= 0; --i) {
         device_name += std::to_string(i);
         if (is_cdevice(device_name)) {
 
