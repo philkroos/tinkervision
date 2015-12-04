@@ -28,7 +28,7 @@ libs		:= -lstdc++ -lv4l2 -lm -lpython2.7
 inc		:= $(addprefix -I./$(src_prefix)/,$(parts)) \
 		   $(OCV_inc) \
 		   -I/usr/include/python2.7
-ifdef OCV
+ifndef V4L2
 	libs	+= `pkg-config --libs opencv` \
 		   -lrt -lpthread -ldl
 	inc	+= -I/usr/local/include/opencv -I/usr/local/include
