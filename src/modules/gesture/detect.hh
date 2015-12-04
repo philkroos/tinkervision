@@ -16,8 +16,8 @@ private:
     size_t history_;     ///< Number of images for background calculation
     size_t available_;   ///< Currently available images, 0 < x <= history_
     uint8_t threshold_;  ///< If (pixel - background) > threshold, foreground.
+    bool detecting_;     ///< State
 
-    std::vector<ImageData*> images_;
     uint16_t* background_{nullptr};
     ImageData* foreground_{nullptr};
     ImageData* input_{nullptr};
@@ -28,7 +28,7 @@ public:
     void init(size_t width, size_t height);
 
     void set_fg_threshold(uint8_t value);
-    void set_history_size(size_t size);
+    bool set_history_size(size_t size);
     bool get_hand(ImageData const* data, Hand& hand, ImageData** foreground);
 };
 

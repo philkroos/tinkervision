@@ -7,8 +7,8 @@
 int main(void) {
     int8_t id;
 
-    auto result = tv_prefer_camera_with_id(0);
-    check(result, "PreferCamera", 0);
+    auto result = tv_prefer_camera_with_id(1);
+    check(result, "PreferCamera", 1);
 
     result = tv_module_start("gesture", &id);
     check(result, "ModuleStart", "Gesture");
