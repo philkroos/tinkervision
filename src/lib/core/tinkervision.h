@@ -269,6 +269,31 @@ int16_t tv_module_stop(int8_t id);
 ///    - #TV_OK iff the module is running.
 int16_t tv_module_restart(int8_t id);
 
+/// Force execution of a module now.
+/// Now means, as soon as possible. The currently executed module, if any, won't
+/// be stopped, but the main execution loop will be <paused> immediately after
+/// new frame will be acquired and the requested module will execute.  If id is
+/// not available, the loop won't be stopped. The module will receive the
+/// current frame.
+/// \param[in] id Id of the module to execute.
+/// \return
+///    - #TV_CAMERA_NOT_AVAILABLE camera not open
+///    - #TV_INVALID_ID module not found
+///    - #TV_INVALID_OK module will be executed.
+int16_t tv_module_run_now(int8_t id);
+
+/// Do the same as tv_module_run_now(), but acquire a new frame first.
+/// This will also request the next frame and restart the main execution loop
+/// after id has been executed, since all sequenced modules are guaranteed to
+/// receive the same frame during one loop.
+/// \param[in] id Id of the module to execute.
+/// \return
+///    - #TV_CAMERA_NOT_AVAILABLE camera not open
+///    - #TV_INVALID_ID module not found
+///    - #TV_INVALID_OK module will be executed and the main execution loop will
+///    restart.
+int16_t tv_module_run_now_new_frame(int8_t id);
+
 /// Check if a loaded module is active, i.e. actually running.
 /// \param[in] id Id of an active module.
 /// \param[out] active Boolean value, 0 if inactive.

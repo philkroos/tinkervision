@@ -102,12 +102,20 @@ public:
     int16_t quit(void);
 
     /// Execute a specific module now, interrupting the main execution loop.
-    /// \todo Figure out what to do about the details (e.g. frame requesting?
-    /// Restarting the loop? Activate module if inactive? ...) and implement
-    /// this.
+    /// - If module is inactive, activate it for one run
+    /// - Do not request a new frame
+    /// - Halt, but later resume the main execution loop
     /// \param[in] id Id of a loaded module.
     /// \return #TV_NOT_IMPLEMENTED
-    int16_t exec_one_now(int8_t id);
+    int16_t module_run_now(int8_t id);
+
+    /// Execute a specific module now, interrupting the main execution loop.
+    /// - If module is inactive, activate it for one run
+    /// - Request a new frame
+    /// - Stop the current main execution loop
+    /// \param[in] id Id of a loaded module.
+    /// \return #TV_NOT_IMPLEMENTED
+    int16_t module_run_now_new_frame(int8_t id);
 
     /// Set the framesize.
     /// \return

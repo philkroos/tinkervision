@@ -149,6 +149,22 @@ public:
         return active_;
     }
 
+    /// Enable the wrapped module.
+    /// If the module is not currently enabled, also set Tag::ExecAndDisable.
+    /// \return True if the module could be activated.
+    bool enable_at_least_once(void) {
+        Log("MODULE", "Enabling ", module_id_, " (", name(), ")");
+        if (initialized_) {
+            if (not active_) {
+                tag(Tag::ExecAndDisable);
+            }
+            active_ = true;
+        } else {
+            active_ = false;
+        }
+        return active_;
+    }
+
     /// Disable this unit. This does not modify the wrapped module, simply stops
     /// it from being executed.
     void disable(void) {

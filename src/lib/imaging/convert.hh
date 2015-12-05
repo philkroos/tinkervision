@@ -495,7 +495,7 @@ public:
     void set_frame(Image const& image) {
         frame_ = &image;
         for (auto& converter : provided_formats_) {
-            // signal for conversion necessary, see get_frame
+            // signal conversion necessary, see get_frame
             converter.reset();
         }
     }

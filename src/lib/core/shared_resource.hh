@@ -170,6 +170,7 @@ public:
     /// executed.
     /// \param[in] executor The function to be executed on the resource
     /// identified by id.
+    /// \deprecated Favor exec_one_now for faster response.
     int16_t exec_one(int16_t id, ExecOne executor) {
         std::shared_lock<std::shared_timed_mutex> lock(mutex_);
 
@@ -177,7 +178,12 @@ public:
             return TV_INVALID_ID;
         }
 
-        return exec_one_common(id, executor);
+        auto it = managed_.find(id);
+        if (it != managed_.end()) {
+            return executor(resource(it));
+        } else {
+            return TV_INVALID_ID;
+        }
     }
 
     /// Force execution of a specific ressource now.
@@ -185,22 +191,15 @@ public:
     /// \param[in] id The id of the resource on which executor shall be
     /// executed.
     /// \param[in] executor The function to be executed on each resource.
-    void exec_one_now(int16_t id, ExecOne executor) const {
+    int16_t exec_one_now(int16_t id, ExecOne executor) const {
         std::shared_lock<std::shared_timed_mutex> lock(mutex_);
 
         if (not managed_.size()) {
-            return;
-
-        } else {
-            resume_on_interrupt_ = false;
-
-            while (interrupt_lock_.test_and_set(std::memory_order_acquire))
-                ;
-
-            auto result = exec_one_common(id, executor);
-            interrupt_lock_.clear();
-            return result;
+            return TV_INVALID_ID;
         }
+
+        resume_on_interrupt_ = true;
+        return exec_one_now_common(id, executor);
     }
 
     /// Force execution of a specific ressource now, terminating the main loop.
@@ -209,20 +208,15 @@ public:
     /// \param[in] id The id of the resource on which executor shall be
     /// executed.
     /// \param[in] executor The function to be executed on each resource.
-    void exec_one_now_restarting(int16_t id, ExecOne executor) const {
+    int16_t exec_one_now_restarting(int16_t id, ExecOne executor) const {
         std::shared_lock<std::shared_timed_mutex> lock(mutex_);
 
         if (not managed_.size()) {
-            return;
-
-        } else {
-            resume_on_interrupt_ = false;
-            while (interrupt_lock_.test_and_set(std::memory_order_acquire))
-                ;
-            auto result = exec_one_common(id, executor);
-            interrupt_lock_.clear();
-            return result;
+            return TV_INVALID_ID;
         }
+
+        resume_on_interrupt_ = false;
+        return exec_one_now_common(id, executor);
     }
 
     /// Evaluate a predicate for each active resource and counts the number of
@@ -493,14 +487,20 @@ private:
         return map.find(id) != map.end();
     }
 
-    /// Helper for the exec_one* methods
-    int16_t inline exec_one_common(int16_t id, ExecOne executor) const {
+    /// Helper for the exec_one_now methods
+    int16_t inline exec_one_now_common(int16_t id, ExecOne executor) const {
+
+        auto result = TV_INVALID_ID;
         auto it = managed_.find(id);
+
         if (it != managed_.end()) {
-            return executor(resource(it));
-        } else {
-            return TV_INVALID_ID;
+            while (interrupt_lock_.test_and_set(std::memory_order_acquire))
+                ;
+            result = executor(resource(it));
+            interrupt_lock_.clear();
         }
+
+        return result;
     }
 
 private:

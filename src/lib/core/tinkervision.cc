@@ -221,6 +221,16 @@ int16_t tv_module_restart(int8_t id) {
     return tv::get_api().module_start(id);
 }
 
+int16_t tv_module_run_now(int8_t id) {
+    tv::Log("Tinkervision::ModuleRestart", id);
+    return tv::get_api().module_run_now(id);
+}
+
+int16_t tv_module_run_now_new_frame(int8_t id) {
+    tv::Log("Tinkervision::ModuleRestart", id);
+    return tv::get_api().module_run_now_new_frame(id);
+}
+
 int16_t tv_module_is_active(int8_t id, uint8_t* active) {
     bool bactive;
     tv::Log("Tinkervision::ModuleIsActive", id);
