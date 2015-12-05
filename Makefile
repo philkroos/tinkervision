@@ -11,6 +11,10 @@ else
 	ccflags += -O3
 endif
 
+ifdef DEFAULT_CALL
+	ccflags += -DDEFAULT_CALL
+endif
+
 ifdef USER_PREFIX
 	usr_prefix = $(USER_PREFIX)
 else

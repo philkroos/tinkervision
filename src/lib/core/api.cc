@@ -28,7 +28,6 @@
 
 #include <sys/types.h>
 #include <unistd.h>
-#include <iterator>
 
 #include "api.hh"
 #include "module_wrapper.hh"
@@ -37,6 +36,34 @@
 #error USR_PREFIX not defined
 #endif
 
+#ifndef DEFAULT_CALL
+#define LOW_LATENCY_CALL(code, ...)                                   \
+    buffered_result_ = TV_RESULT_BUFFERED;                            \
+    buffer_flag_.test_and_set();                                      \
+    std::thread([this, __VA_ARGS__](void) {                           \
+        buffered_result_.store(code);                                 \
+        buffer_flag_.clear();                                         \
+                }).detach();                                          \
+    for (uint8_t i = 0; i < 5 and buffer_flag_.test_and_set(); ++i) { \
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));  \
+    }                                                                 \
+    return static_cast<int16_t>(buffered_result_.load());
+#else
+#define LOW_LATENCY_CALL(code, ...) return code
+#endif
+
+int16_t tv::Api::latency_test(void) {
+    int a(0);  // need something to capture
+    LOW_LATENCY_CALL([](void) { return TV_OK; }(), a);
+}
+int16_t tv::Api::latency_test(uint16_t milliseconds) {
+    LOW_LATENCY_CALL([&milliseconds](void) {
+                         std::this_thread::sleep_for(
+                             std::chrono::milliseconds(milliseconds));
+                         return TV_OK;
+                     }(),
+                     milliseconds);
+}
 tv::Api::Api(void) noexcept(noexcept(CameraControl()) and
                             noexcept(FrameConversions()) and
                             noexcept(Strings()) and noexcept(SceneTrees())) {
@@ -155,6 +182,10 @@ int16_t tv::Api::stop(void) {
 
 int16_t tv::Api::quit(void) {
     Log("Api::quit");
+
+    // ... wait for any running operations to finish
+    while (buffer_flag_.test_and_set())
+        ;
 
     // ... release the camera and join the execution thread
     (void)stop();
@@ -285,19 +316,21 @@ int16_t tv::Api::module_run_now(int8_t id) {
 }
 
 int16_t tv::Api::module_run_now_new_frame(int8_t id) {
-    return modules_->exec_one_now_restarting(id,
-                                             [this, id](ModuleWrapper& module) {
-        Image frame;
-        assert(module.enable_at_least_once());
-        if (not camera_control_.update_frame(frame)) {
-            LogWarning("API", "Could not retrieve the next frame");
-            return TV_CAMERA_NOT_AVAILABLE;
-        }
+    LOW_LATENCY_CALL(
+        modules_->exec_one_now_restarting(id,
+                                          [this, id](ModuleWrapper& module) {
+            Image frame;
+            assert(module.enable_at_least_once());
+            if (not camera_control_.update_frame(frame)) {
+                LogWarning("API", "Could not retrieve the next frame");
+                return TV_CAMERA_NOT_AVAILABLE;
+            }
 
-        conversions_.set_frame(frame);
-        module_exec(id, module);
-        return TV_OK;
-    });
+            conversions_.set_frame(frame);
+            module_exec(id, module);
+            return TV_OK;
+        }),
+        id);
 }
 
 int16_t tv::Api::set_framesize(uint16_t width, uint16_t height) {

@@ -41,6 +41,19 @@ extern "C" {
 ///    - TV_OK if the library is usable.
 int16_t tv_valid(void);
 
+int16_t tv_latency_test(void);
+int16_t tv_duration_test(uint16_t);
+
+#ifndef DEFAULT_CALL
+/// Get the buffered result, if available. If any operation returns
+/// #TV_RESULT_BUFFERED, this method can be called until anything else is
+/// returned.
+/// \return
+///    - #TV_RESULT_BUFFERED until the result is available
+///    - result of the last buffered op else.
+int16_t tv_get_buffered_result(void);
+#endif
+
 /// Check if a specific camera device is available.
 /// \return
 ///    - TV_CAMERA_NOT_AVAILABLE if not.
@@ -49,11 +62,14 @@ int16_t tv_camera_id_available(uint8_t id);
 
 /// Select a specific camera.
 /// If the specified camera is not available in the system, another one may
-/// still be used. This is for the case that multiple cameras are available. If
-/// the library is already active with another camera and the selected one would
+/// still be used. This is for the case that multiple cameras are available.
+/// If
+/// the library is already active with another camera and the selected one
+/// would
 /// be available too, it will be switched.
 /// \return
-///    - TV_CAMERA_NOT_AVAILABLE if the camera with id is not available or the
+///    - TV_CAMERA_NOT_AVAILABLE if the camera with id is not available or
+///    the
 ///    global camera state changed with this method (e.g. open previously,
 ///    closed now, no matter which id).
 ///    - TV_OK else.
@@ -65,9 +81,12 @@ int16_t tv_prefer_camera_with_id(uint8_t id);
 ///    - TV_OK else.
 int16_t tv_camera_available(void);
 
-/// Pause the Api, deactivating but not disabling every module.  The camera will
-/// be released and no further callbacks will be called, but on start(), the Api
-/// will be found in the exact same state as left (assuming that the camera can
+/// Pause the Api, deactivating but not disabling every module.  The camera
+/// will
+/// be released and no further callbacks will be called, but on start(), the
+/// Api
+/// will be found in the exact same state as left (assuming that the camera
+/// can
 /// be acquired again).
 ///     - #TV_OK on success.
 ///     - #TV_EXEC_THREAD_FAILURE on error.
@@ -79,13 +98,16 @@ int16_t tv_stop(void);
 ///   - an error code else; also if the api was already running.
 int16_t tv_start(void);
 
-/// Stop all modules and shutdown the api.  This is generally not necessary if
+/// Stop all modules and shutdown the api.  This is generally not necessary
+/// if
 /// the client application terminates in controlled ways.
 /// \return TV_OK
 int16_t tv_quit(void);
 
-/// Request the resolution of the camera frames.  This can only be called once
-/// the camera is active, so in particular, if the resolution needs to be known
+/// Request the resolution of the camera frames.  This can only be called
+/// once
+/// the camera is active, so in particular, if the resolution needs to be
+/// known
 /// before a module can be started, start_idle() must be called.
 /// \param[out] width
 /// \param[out] height
@@ -96,7 +118,8 @@ int16_t tv_get_framesize(uint16_t* width, uint16_t* height);
 
 /// Selects a framesize WxH.
 /// This will temporarily stop and restart all active modules.
-/// If the requested framesize is not available, the settings will be restored
+/// If the requested framesize is not available, the settings will be
+/// restored
 /// to the last valid settings, if any.  If no module is running, the camera
 /// will just be tested.
 /// \param[in] width
@@ -129,8 +152,10 @@ int16_t tv_effective_frameperiod(uint32_t* frameperiod);
 int16_t tv_get_user_paths_prefix(char path[]);
 
 /// Set the user paths prefix from an existing path. The directory has to
-/// provide the subdirectories modules (path searched for user modules), frames
-/// (default path to store or load frames from) and scripts (path used to load
+/// provide the subdirectories modules (path searched for user modules),
+/// frames
+/// (default path to store or load frames from) and scripts (path used to
+/// load
 /// python scripts from).
 /// \param[in] path The user defined path. Must not exceed
 /// #TV_STRING_SIZE characters
@@ -171,16 +196,19 @@ char const* tv_result_string(int16_t code);
 /// Get the number of currently available libraries.
 /// This can be used to iterate through all libraries using
 /// tv_library_name_and_path().
-/// \see tv_get_loaded_libraries_count() to only get the number of loaded libs.
+/// \see tv_get_loaded_libraries_count() to only get the number of loaded
+/// libs.
 /// \return #TV_OK
-/// \param[out] count Number of libraries found in both system and user paths.
+/// \param[out] count Number of libraries found in both system and user
+/// paths.
 int16_t tv_libraries_count(uint16_t* count);
 
 /// Get the name and load path of an available library.
 /// \param[in] count A number smaller then tv_libraries_count().
 /// \param[out]  A number smaller then tv_libraries_count().
 /// \param[out] path Either "system" or "user". Get the actual values with
-/// tv_user_module_load_path() and tv_system_module_load_path(), respectively.
+/// tv_user_module_load_path() and tv_system_module_load_path(),
+/// respectively.
 /// \return
 ///    - #TV_OK if name and path are valid.
 ///    - #TV_INVALID_ARGUMENT if an error occured, probably count was out of
@@ -222,36 +250,43 @@ int16_t tv_library_parameter_describe(char const* libname, uint16_t parameter,
 
 /// Starts a dummy module keeping the Api up and running even if no 'real'
 /// module
-/// is active.  This can be used to block the camera or if the resolution has to
+/// is active.  This can be used to block the camera or if the resolution
+/// has to
 /// be known before any module is running.  Subsequent calls will not start
-/// another dummy.  The Dummy, once started, can only be quit by calling quit().
+/// another dummy.  The Dummy, once started, can only be quit by calling
+/// quit().
 /// \return
 ///   - #TV_OK if the dummy module was started or already running.
 ///   - An error code if the module failed to load.
 int16_t tv_start_idle(void);
 
 /// Start a vision module identified by its library name.
-/// The requested module will be loaded and started if it is found in one of the
+/// The requested module will be loaded and started if it is found in one of
+/// the
 /// available library search paths #SYS_MODULE_LOAD_PATH or
 /// #ADD_MODULE_LOAD_PATH.  On success, it will be assigned a unique id.
 /// \param[in] name The name of the requested module, which is the exact
 /// filename of the  corresponding library without extension.
-/// \param[out] id On success, the loaded module will be accessible with this
+/// \param[out] id On success, the loaded module will be accessible with
+/// this
 /// id.
-/// \todo Add method to enable parallel module start instead of currently fixed
+/// \todo Add method to enable parallel module start instead of currently
+/// fixed
 /// sequential.
 /// \return
 ///    - #TV_INTERNAL_ERROR if an id clash occured. This is an open but
 ///      unlikely bug.
 ///    - #TV_CAMERA_NOT_AVAILABLE if the camera could not be opened.
-///    - #TV_MODULE_INITIALIZATION_FAILED The module could not be loaded. Maybe
+///    - #TV_MODULE_INITIALIZATION_FAILED The module could not be loaded.
+///    Maybe
 ///      an invalid name passed.
 ///    - #TV_OK fine, module loaded and active.
 int16_t tv_module_start(char const* name, int8_t* id);
 
 /// Disable a module without removing it.
 /// A disabled module won't be executed, but it is still available for
-/// configuration or reactivation. The associated camera will be released if it
+/// configuration or reactivation. The associated camera will be released if
+/// it
 /// is not used by other modules.
 /// \see tv_module_restart()
 /// \param[in] id Id of the module to be stopped.
@@ -270,9 +305,12 @@ int16_t tv_module_stop(int8_t id);
 int16_t tv_module_restart(int8_t id);
 
 /// Force execution of a module now.
-/// Now means, as soon as possible. The currently executed module, if any, won't
-/// be stopped, but the main execution loop will be <paused> immediately after
-/// new frame will be acquired and the requested module will execute.  If id is
+/// Now means, as soon as possible. The currently executed module, if any,
+/// won't
+/// be stopped, but the main execution loop will be <paused> immediately
+/// after
+/// new frame will be acquired and the requested module will execute.  If id
+/// is
 /// not available, the loop won't be stopped. The module will receive the
 /// current frame.
 /// \param[in] id Id of the module to execute.
@@ -283,14 +321,17 @@ int16_t tv_module_restart(int8_t id);
 int16_t tv_module_run_now(int8_t id);
 
 /// Do the same as tv_module_run_now(), but acquire a new frame first.
-/// This will also request the next frame and restart the main execution loop
-/// after id has been executed, since all sequenced modules are guaranteed to
+/// This will also request the next frame and restart the main execution
+/// loop
+/// after id has been executed, since all sequenced modules are guaranteed
+/// to
 /// receive the same frame during one loop.
 /// \param[in] id Id of the module to execute.
 /// \return
 ///    - #TV_CAMERA_NOT_AVAILABLE camera not open
 ///    - #TV_INVALID_ID module not found
-///    - #TV_INVALID_OK module will be executed and the main execution loop will
+///    - #TV_INVALID_OK module will be executed and the main execution loop
+///    will
 ///    restart.
 int16_t tv_module_run_now_new_frame(int8_t id);
 
@@ -313,7 +354,8 @@ int16_t tv_module_remove(int8_t id);
 
 /// Get the name of a loaded module.
 /// \param[in] id The id of the module.
-/// \param[out] name The name, which is exactly the name that would be passed to
+/// \param[out] name The name, which is exactly the name that would be
+/// passed to
 /// module_start().
 /// \return
 ///    - #TV_INVALID_ID If no such module exists.
@@ -345,7 +387,8 @@ int16_t tv_remove_all_modules(void);
 /// \return
 ///    - #TV_INVALID_ID If no such module exists.
 ///    - #TV_OK else, callback will be called with the id of the module, one
-///      parameter name per time, and \c context. After all parameter names have
+///      parameter name per time, and \c context. After all parameter names
+///      have
 ///      been passed, the callback receives an id of \c 0 and no further
 ///      callbacks will be received.
 /// \deprecated Use tv_library_parameter_count() and
@@ -360,7 +403,8 @@ int16_t tv_module_enumerate_parameters(int8_t module_id,
 /// \param[out] value Current value of parameter.
 /// \return
 ///   - #TV_INVALID_ID if no module exists with module_id.
-///   - #TV_MODULE_NO_SUCH_PARAMETER if the module does not support parameter.
+///   - #TV_MODULE_NO_SUCH_PARAMETER if the module does not support
+///   parameter.
 ///   - #TV_OK else.
 int16_t tv_module_get_numerical_parameter(int8_t module_id,
                                           char const* const parameter,
@@ -371,7 +415,8 @@ int16_t tv_module_get_numerical_parameter(int8_t module_id,
 /// \param[in] parameter name of the parameter to be set.
 /// \param[in] value Value to be set for parameter.
 /// \return
-///   - #TV_MODULE_NO_SUCH_PARAMETER if the module does not support parameter.
+///   - #TV_MODULE_NO_SUCH_PARAMETER if the module does not support
+///   parameter.
 ///   - #TV_MODULE_ERROR_SETTING_PARAMETER a module internal error during
 /// setting
 /// of the parameter.
@@ -446,9 +491,12 @@ int16_t tv_callback_set(int8_t id, TV_Callback callback);
 int16_t tv_callback_enable_default(TV_Callback callback);
 
 /// Notify the user if a library path changes.
-/// \param[in] callback The given method will be called when a loadable module
-/// is being created or deleted in one of the available loadpaths.  The callback
-/// will receive the name and path of the library and the event, which can be
+/// \param[in] callback The given method will be called when a loadable
+/// module
+/// is being created or deleted in one of the available loadpaths.  The
+/// callback
+/// will receive the name and path of the library and the event, which can
+/// be
 /// "create" (1) or "remove" (-1).
 /// \param[in] context A pointer to something.
 /// \return

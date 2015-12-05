@@ -65,6 +65,19 @@ public:
     /// \return true if the library has been constructed successfully.
     bool valid(void) const;
 
+    int16_t latency_test(void);
+    int16_t latency_test(uint16_t);
+
+#ifndef DEFAULT_CALL
+    /// Get the buffered result, if available.
+    /// \return
+    ///    - #TV_RESULT_BUFFERED until the result is available
+    ///    - result of the last buffered op else.
+    int16_t get_buffered_result(void) const {
+        return static_cast<int16_t>(buffered_result_.load());
+    }
+#endif
+
     /// Starts execution of all active modules.  This is only
     /// necessary if the Api had been stopped.  The method is
     /// automatically called during construction of the Api.
@@ -488,6 +501,13 @@ private:
     bool active_ = true;          ///< While true, the mainloop is running.
     uint32_t frameperiod_ms_{0};  ///< Minimum inverse framerate
 
+#ifndef DEFAULT_CALL
+    std::atomic_int buffered_result_{
+        TV_OK};  ///< If an op takes too long, buffer for the
+                 /// result, retrievable with get_buffered_result()
+    std::atomic_flag buffer_flag_{
+        ATOMIC_FLAG_INIT};  ///< Used to signal an operation is finished
+#endif
     TV_Callback default_callback_ = nullptr;
 
     bool active(void) const { return active_; }

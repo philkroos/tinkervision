@@ -58,6 +58,11 @@ typedef void (*TV_LibrariesCallback)(char const* name, char const* path,
 ///< Default 'no-error' result
 #define TV_OK 0
 
+#ifndef DEFAULT_CALL
+///< Special result: Timeout occured, result buffered.
+#define TV_RESULT_BUFFERED 1
+#endif
+
 /* General errors: */
 #define TV_NOT_IMPLEMENTED -1
 #define TV_INTERNAL_ERROR -2

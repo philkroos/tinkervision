@@ -18,8 +18,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include <stdio.h>
-#include <unistd.h> /* sleep (posix) */
-#include <time.h>   /* nanosleep (posix) */
+#include <unistd.h>   /* sleep (posix) */
+#include <time.h>     /* nanosleep (posix) */
+#include <sys/time.h> /* nanosleep (posix) */
 
 #include "tinkervision/tinkervision.h"
 
@@ -90,6 +91,8 @@ int main(int argc, char* argv[]) {
     uint16_t height = 720;
     char string[TV_STRING_SIZE];
     uint32_t period;
+    struct timeval before, after;
+    double duration;
 
     int16_t result = tv_valid();
     if (TV_OK != result) {
@@ -97,6 +100,31 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
+    gettimeofday(&before, NULL);
+    result = tv_latency_test();
+    gettimeofday(&after, NULL);
+    duration = difftime(after.tv_sec, before.tv_sec);
+    duration += (after.tv_usec - before.tv_usec) / 1000000.0;
+    printf("LatencyTest: %d (%s) -> %f sec\n", result, tv_result_string(result),
+           duration);
+
+    gettimeofday(&before, NULL);
+    result = tv_duration_test(2000); /* milliseconds */
+    gettimeofday(&after, NULL);
+    duration = difftime(after.tv_sec, before.tv_sec);
+    duration += (after.tv_usec - before.tv_usec) / 1000000.0;
+    printf("DurationTest: %d (%s) -> %f sec\n", result,
+           tv_result_string(result), duration);
+
+    while (TV_RESULT_BUFFERED == (result = tv_get_buffered_result()))
+        ;
+    gettimeofday(&after, NULL);
+    duration = difftime(after.tv_sec, before.tv_sec);
+    duration += (after.tv_usec - before.tv_usec) / 1000000.0;
+    printf("Got result: %d (%s) -> %f sec\n", result, tv_result_string(result),
+           duration);
+
+    return 0;
     result = tv_set_framesize(width, height);
     printf("SetFramesize: %d (%s)\n", result, tv_result_string(result));
 
