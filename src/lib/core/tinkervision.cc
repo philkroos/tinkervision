@@ -31,11 +31,37 @@
 #include <string>
 #include <cstring>
 #include <cassert>
+#include <atomic>
+#include <thread>
 
 #include "api.hh"
 #include "logger.hh"
 
 extern "C" {
+
+#ifndef DEFAULT_CALL
+static std::atomic_int tv_buffered_result{
+    TV_OK};  ///< If an op takes too long, buffer for the
+             /// result, retrievable with get_buffered_result()
+static std::atomic_flag tv_buffer_flag{
+    ATOMIC_FLAG_INIT};  ///< Used to signal an operation is finished
+#endif
+
+#ifndef DEFAULT_CALL
+#define LOW_LATENCY_CALL(code)                                          \
+    tv_buffered_result = TV_RESULT_BUFFERED;                            \
+    tv_buffer_flag.test_and_set();                                      \
+    std::thread([&](void) {                                             \
+        tv_buffered_result.store(code);                                 \
+        tv_buffer_flag.clear();                                         \
+                }).detach();                                            \
+    for (uint8_t i = 0; i < 5 and tv_buffer_flag.test_and_set(); ++i) { \
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));    \
+    }                                                                   \
+    return static_cast<int16_t>(tv_buffered_result.load());
+#else
+#define LOW_LATENCY_CALL(code) return code
+#endif
 
 //
 // Utilities
@@ -58,16 +84,25 @@ int16_t tv_valid(void) {
 
 int16_t tv_latency_test(void) {
     tv::Log("Tinkervision::LatencyTest:");
-    return tv::get_api().latency_test();
+
+    LOW_LATENCY_CALL([](void) { return TV_OK; }());
 }
+
 int16_t tv_duration_test(uint16_t milliseconds) {
     tv::Log("Tinkervision::LatencyTest", milliseconds);
-    return tv::get_api().latency_test(milliseconds);
+    LOW_LATENCY_CALL([&milliseconds](void) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+        return TV_OK;
+    }());
 }
 
 #ifndef DEFAULT_CALL
+/// Get the buffered result, if available.
+/// \return
+///    - #TV_RESULT_BUFFERED until the result is available
+///    - result of the last buffered op else.
 int16_t tv_get_buffered_result(void) {
-    return tv::get_api().get_buffered_result();
+    return static_cast<int16_t>(tv_buffered_result.load());
 }
 #endif
 
@@ -102,6 +137,11 @@ int16_t tv_start(void) {
 
 int16_t tv_quit(void) {
     tv::Log("Tinkervision::Quit");
+
+    // Wait for any running operations to finish
+    while (tv_buffer_flag.test_and_set())
+        ;
+
     return tv::get_api().quit();
 }
 
@@ -228,22 +268,22 @@ int16_t tv_module_start(char const* name, int8_t* id) {
 
 int16_t tv_module_stop(int8_t id) {
     tv::Log("Tinkervision::ModuleStop", id);
-    return tv::get_api().module_stop(id);
+    LOW_LATENCY_CALL(tv::get_api().module_stop(id));
 }
 
 int16_t tv_module_restart(int8_t id) {
     tv::Log("Tinkervision::ModuleRestart", id);
-    return tv::get_api().module_start(id);
+    LOW_LATENCY_CALL(tv::get_api().module_start(id));
 }
 
 int16_t tv_module_run_now(int8_t id) {
     tv::Log("Tinkervision::ModuleRestart", id);
-    return tv::get_api().module_run_now(id);
+    LOW_LATENCY_CALL(tv::get_api().module_run_now(id));
 }
 
 int16_t tv_module_run_now_new_frame(int8_t id) {
     tv::Log("Tinkervision::ModuleRestart", id);
-    return tv::get_api().module_run_now_new_frame(id);
+    LOW_LATENCY_CALL(tv::get_api().module_run_now_new_frame(id));
 }
 
 int16_t tv_module_is_active(int8_t id, uint8_t* active) {
@@ -256,7 +296,7 @@ int16_t tv_module_is_active(int8_t id, uint8_t* active) {
 
 int16_t tv_module_remove(int8_t id) {
     tv::Log("Tinkervision::ModuleRemove", id);
-    return tv::get_api().module_destroy(id);
+    LOW_LATENCY_CALL(tv::get_api().module_destroy(id));
 }
 
 int16_t tv_module_get_name(int8_t module_id, char name[]) {
@@ -276,8 +316,10 @@ int16_t tv_module_get_result(int8_t module, TV_ModuleResult* result) {
 
 int16_t tv_remove_all_modules(void) {
     tv::Log("Tinkervision::RemoveAllModules");
-    tv::get_api().remove_all_modules();
-    return TV_OK;
+    LOW_LATENCY_CALL([](void) {
+        tv::get_api().remove_all_modules();
+        return TV_OK;
+    }());
 }
 
 //
