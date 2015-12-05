@@ -229,13 +229,16 @@ void tv::Api::execute(void) {
         // Log("API", "Execution at ", last_loop_time_point);
 
         Image frame;
+
         if (active_modules()) {  // This does not account for modules
             // being 'stopped', i.e. this is true even if all modules are in
             // paused state.  Then, camera_control_ will return the last
             // image retrieved from the camera (and it will be ignored by
             // update_module anyways)
 
-            if (camera_control_.update_frame(frame)) {
+            if (not camera_control_.update_frame(frame)) {
+                LogWarning("API", "Could not retrieve the next frame");
+            } else {
                 conversions_.set_frame(frame);
 
                 if (not _scenes_active()) {
@@ -244,9 +247,6 @@ void tv::Api::execute(void) {
                     scene_trees_.exec_all(
                         node_exec, camera_control_.latest_frame_timestamp());
                 }
-
-            } else {
-                LogWarning("API", "Could not retrieve the next frame");
             }
 
             // Propagate deletion of modules marked for removal
@@ -276,9 +276,28 @@ void tv::Api::execute(void) {
     Log("API", "Mainloop stopped");
 }
 
-int16_t tv::Api::exec_one_now(int8_t id) {
-    // return modules_->exec_one_now(id, module_exec);
-    return TV_NOT_IMPLEMENTED;
+int16_t tv::Api::module_run_now(int8_t id) {
+    return modules_->exec_one_now(id, [this, id](ModuleWrapper& module) {
+        assert(module.enable_at_least_once());
+        module_exec(id, module);
+        return TV_OK;
+    });
+}
+
+int16_t tv::Api::module_run_now_new_frame(int8_t id) {
+    return modules_->exec_one_now_restarting(id,
+                                             [this, id](ModuleWrapper& module) {
+        Image frame;
+        assert(module.enable_at_least_once());
+        if (not camera_control_.update_frame(frame)) {
+            LogWarning("API", "Could not retrieve the next frame");
+            return TV_CAMERA_NOT_AVAILABLE;
+        }
+
+        conversions_.set_frame(frame);
+        module_exec(id, module);
+        return TV_OK;
+    });
 }
 
 int16_t tv::Api::set_framesize(uint16_t width, uint16_t height) {
