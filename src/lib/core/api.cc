@@ -50,7 +50,7 @@ tv::Api::Api(void) noexcept(noexcept(CameraControl()) and
         }
 
         // dynamic construction because not noexcept
-        modules_ = new Modules;
+        modules_ = new Modules(&Api::module_exec, this);
 
         // dynamic construction because not noexcept
         module_loader_ = new ModuleLoader(*environment_);
@@ -168,58 +168,55 @@ int16_t tv::Api::quit(void) {
     return TV_OK;
 }
 
+// Execute active module. This is the ONLY place where modules are executed.
+void tv::Api::module_exec(int16_t id, ModuleWrapper& module) {
+    // Log("API", "Executing module ", id);
+
+    if (not module.enabled()) {  // skip paused modules
+        return;
+    }
+
+    if (module.expected_format() !=
+        ColorSpace::NONE) {  // retrieve the frame in the requested format
+                             // and execute the module
+
+        conversions_.get_frame(image_, module.expected_format());
+        // ignoring result, doing callbacks (maybe, see default_callback_)
+        try {
+            (void)module.execute(image_);
+        } catch (...) {
+            LogError("API", "Module ", module.name(), " (", id, ") crashed: ");
+            module.tag(ModuleWrapper::Tag::Removable);
+            return;
+        }
+    }
+
+    auto output = module.modified_image();
+    if (output.header.format != ColorSpace::INVALID) {
+        conversions_.set_frame(output);
+    }
+
+    auto& tags = module.tags();
+    if (tags & ModuleWrapper::Tag::ExecAndRemove) {
+        module.tag(ModuleWrapper::Tag::Removable);
+        camera_control_.release();
+
+    } else if (tags & ModuleWrapper::Tag::ExecAndDisable) {
+        Log("API", "Disabling ExecAndDisable-tagged id ", module.id());
+        module.disable();
+        camera_control_.release();
+    }
+}
+
 void tv::Api::execute(void) {
     Log("API", "Starting main loop");
 
-    auto image = Image();
-
-    // Execute active module. This is the ONLY place where modules are executed.
-    auto module_exec = [&](int16_t id, ModuleWrapper& module) {
-        // Log("API", "Executing module ", id);
-
-        if (not module.enabled()) {  // skip paused modules
-            return;
-        }
-
-        if (module.expected_format() !=
-            ColorSpace::NONE) {  // retrieve the frame in the requested format
-                                 // and execute the module
-
-            conversions_.get_frame(image, module.expected_format());
-            // ignoring result, doing callbacks (maybe, see default_callback_)
-            try {
-                (void)module.execute(image);
-            } catch (...) {
-                LogError("API", "Module ", module.name(), " (", id,
-                         ") crashed: ");
-                module.tag(ModuleWrapper::Tag::Removable);
-                return;
-            }
-        }
-
-        auto output = module.modified_image();
-        if (output.header.format != ColorSpace::INVALID) {
-            conversions_.set_frame(output);
-        }
-
-        auto& tags = module.tags();
-        if (tags & ModuleWrapper::Tag::ExecAndRemove) {
-            module.tag(ModuleWrapper::Tag::Removable);
-            camera_control_.release();
-
-        } else if (tags & ModuleWrapper::Tag::ExecAndDisable) {
-            Log("API", "Disabling ExecAndDisable-tagged id ", module.id());
-            module.disable();
-            camera_control_.release();
-        }
-    };
-
     auto node_exec = [&](int16_t module_id) {
-        (void)modules_->exec_one(
-            module_id, [&module_id, &module_exec](ModuleWrapper& module) {
-                module_exec(module_id, module);
-                return TV_OK;
-            });
+        (void)modules_->exec_one(module_id,
+                                 [&module_id, this](ModuleWrapper& module) {
+            module_exec(module_id, module);
+            return TV_OK;
+        });
     };
 
     // mainloop
@@ -242,7 +239,7 @@ void tv::Api::execute(void) {
                 conversions_.set_frame(frame);
 
                 if (not _scenes_active()) {
-                    modules_->exec_all(module_exec);
+                    modules_->exec_all();
                 } else {
                     scene_trees_.exec_all(
                         node_exec, camera_control_.latest_frame_timestamp());

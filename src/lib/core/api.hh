@@ -464,11 +464,13 @@ private:
     CameraControl camera_control_;  ///< Camera access abstraction
     FrameConversions conversions_;  ///< Camera frame in requested formats
     Strings result_string_map_;     ///< String mapping of Api-return values
-    Environment* environment_;      ///< Configuration and scripting context
     SceneTrees scene_trees_;
 
+    Environment* environment_;     ///< Configuration and scripting context
     Modules* modules_;             ///< RAII-style managed vision algorithms.
     ModuleLoader* module_loader_;  ///< Manages available libraries
+
+    Image image_;  ///< Current frame in requested format
 
     bool api_valid_{false};  ///< True once constructed to valid state.
     bool idle_process_running_{false};   ///< Dummy module activated?
@@ -482,6 +484,10 @@ private:
 
     bool active(void) const { return active_; }
     bool active_modules(void) const { return modules_->size(); }
+
+    /// Only context from which modules are executed.
+    void module_exec(int16_t id, ModuleWrapper& module);
+    friend Modules;
 
     /// Threaded execution context of vision algorithms (modules).
     /// This method is started asynchronously during construction of
