@@ -56,6 +56,21 @@ int16_t tv_valid(void) {
     return tv::get_api().valid() ? TV_OK : TV_INTERNAL_ERROR;
 }
 
+int16_t tv_latency_test(void) {
+    tv::Log("Tinkervision::LatencyTest:");
+    return tv::get_api().latency_test();
+}
+int16_t tv_duration_test(uint16_t milliseconds) {
+    tv::Log("Tinkervision::LatencyTest", milliseconds);
+    return tv::get_api().latency_test(milliseconds);
+}
+
+#ifndef DEFAULT_CALL
+int16_t tv_get_buffered_result(void) {
+    return tv::get_api().get_buffered_result();
+}
+#endif
+
 int16_t tv_camera_available(void) {
     tv::Log("Tinkervision::CameraAvailable:");
     return tv::get_api().is_camera_available() ? TV_OK
