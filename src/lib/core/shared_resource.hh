@@ -90,13 +90,25 @@ private:
     using ConstIterator = typename ResourceContainerMap::const_iterator;
 
 public:
+    SharedResource(void)
+        : SharedResource(&SharedResource::fallback_executor, this) {}
+
+    template <class Callable>
+    SharedResource(void (Callable::*default_executor)(int16_t, Resource&),
+                   Callable* object) {
+
+        executor_ = std::bind(default_executor, object, std::placeholders::_1,
+                              std::placeholders::_2);
+    }
+
     ~SharedResource(void) {
         for (auto const& resource : managed_) {
             if (resource.second.resource) delete resource.second.resource;
         }
     }
 
-    /// Execute a function on all active resources in turn.
+    /// Execute a function on all active resources in turn. The parameter is an
+    /// optional replacement for the default executor set during construction.
     /// \param[in] executor The function to be executed on each resource.
     void exec_all(ExecAll executor) {
         if (not managed_.size()) {
@@ -118,6 +130,10 @@ public:
             }
         }
     }
+
+    /// Call exec_all(ExecAll) with the default executor supplied during
+    /// construction.
+    void inline exec_all(void) { exec_all(executor_); }
 
     /// Execute a function on all active resources that satisfy a predicate..
     /// \param[in] executor The function to be executed on each resource.
@@ -498,6 +514,15 @@ private:
 
     bool mutable resume_on_interrupt_{
         false};  ///< Signal to resume execution on interrupt
+
+    ExecAll executor_;  ///< Default executor (for exec_all())
+
+    /// Execute if no executor is available during exec_all().
+    /// An executor must be supplied during construction or as an argument to
+    /// exec_all().
+    void fallback_executor(int16_t, Resource&) {
+        LogWarning("SHARED_RESOURCE", "No executor defined");
+    }
 };
 }
 
