@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
         sleep(1);
         result = tv_module_get_string_parameter(id, "url", url);
         printf("Streaming on %s (%s)\n", url, tv_result_string(result));
-        sleep(20);
+        sleep(50);
     }
 
     return 0;

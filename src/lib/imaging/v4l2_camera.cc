@@ -37,6 +37,7 @@
 #include <sys/mman.h>
 #include <linux/videodev2.h>
 #include <libv4l2.h>
+#include <cstdio>
 
 #include "v4l2_camera.hh"
 
@@ -72,6 +73,12 @@ static auto close = v4l2_close;
 tv::V4L2USBCamera::V4L2USBCamera(uint8_t camera_id) : Camera(camera_id) {
     // zero-initialize buffers for the frames to be grabbed
     frames_ = new v4l2::Frame[request_buffer_count_ * sizeof(v4l2::Frame)]();
+    v4l2_log_file = fopen(v4l2_log, "a");
+    if (v4l2_log_file) {
+        Log("V4L2", "Opened logfile ", v4l2_log);
+    } else {
+        Log("V4L2", "Faile to open logfile ", v4l2_log, ": ", errno);
+    }
 }
 
 tv::V4L2USBCamera::~V4L2USBCamera(void) {
@@ -86,6 +93,9 @@ tv::V4L2USBCamera::~V4L2USBCamera(void) {
         }
     }
 
+    if (v4l2_log_file) {
+        fclose(v4l2_log_file);
+    }
     delete[] frames_;
 }
 
@@ -104,7 +114,7 @@ bool tv::V4L2USBCamera::open_device(uint16_t width, uint16_t height) {
     const char* device =
         (std::string("/dev/video") + std::to_string(camera_id_)).c_str();
 
-    device_ = v4l2::open(device, O_RDWR | O_NONBLOCK, 0);
+    device_ = v4l2::open(device, O_RDWR, 0);
     Log("V4L2", "Open ", device, ": ", device_);
 
     if (device_ == -1) {
