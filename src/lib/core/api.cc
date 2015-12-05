@@ -36,34 +36,6 @@
 #error USR_PREFIX not defined
 #endif
 
-#ifndef DEFAULT_CALL
-#define LOW_LATENCY_CALL(code, ...)                                   \
-    buffered_result_ = TV_RESULT_BUFFERED;                            \
-    buffer_flag_.test_and_set();                                      \
-    std::thread([this, __VA_ARGS__](void) {                           \
-        buffered_result_.store(code);                                 \
-        buffer_flag_.clear();                                         \
-                }).detach();                                          \
-    for (uint8_t i = 0; i < 5 and buffer_flag_.test_and_set(); ++i) { \
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));  \
-    }                                                                 \
-    return static_cast<int16_t>(buffered_result_.load());
-#else
-#define LOW_LATENCY_CALL(code, ...) return code
-#endif
-
-int16_t tv::Api::latency_test(void) {
-    int a(0);  // need something to capture
-    LOW_LATENCY_CALL([](void) { return TV_OK; }(), a);
-}
-int16_t tv::Api::latency_test(uint16_t milliseconds) {
-    LOW_LATENCY_CALL([&milliseconds](void) {
-                         std::this_thread::sleep_for(
-                             std::chrono::milliseconds(milliseconds));
-                         return TV_OK;
-                     }(),
-                     milliseconds);
-}
 tv::Api::Api(void) noexcept(noexcept(CameraControl()) and
                             noexcept(FrameConversions()) and
                             noexcept(Strings()) and noexcept(SceneTrees())) {
@@ -182,10 +154,6 @@ int16_t tv::Api::stop(void) {
 
 int16_t tv::Api::quit(void) {
     Log("Api::quit");
-
-    // ... wait for any running operations to finish
-    while (buffer_flag_.test_and_set())
-        ;
 
     // ... release the camera and join the execution thread
     (void)stop();
@@ -316,21 +284,19 @@ int16_t tv::Api::module_run_now(int8_t id) {
 }
 
 int16_t tv::Api::module_run_now_new_frame(int8_t id) {
-    LOW_LATENCY_CALL(
-        modules_->exec_one_now_restarting(id,
-                                          [this, id](ModuleWrapper& module) {
-            Image frame;
-            assert(module.enable_at_least_once());
-            if (not camera_control_.update_frame(frame)) {
-                LogWarning("API", "Could not retrieve the next frame");
-                return TV_CAMERA_NOT_AVAILABLE;
-            }
+    return modules_->exec_one_now_restarting(id,
+                                             [this, id](ModuleWrapper& module) {
+        Image frame;
+        assert(module.enable_at_least_once());
+        if (not camera_control_.update_frame(frame)) {
+            LogWarning("API", "Could not retrieve the next frame");
+            return TV_CAMERA_NOT_AVAILABLE;
+        }
 
-            conversions_.set_frame(frame);
-            module_exec(id, module);
-            return TV_OK;
-        }),
-        id);
+        conversions_.set_frame(frame);
+        module_exec(id, module);
+        return TV_OK;
+    });
 }
 
 int16_t tv::Api::set_framesize(uint16_t width, uint16_t height) {
@@ -415,7 +381,7 @@ int16_t tv::Api::module_destroy(int8_t id) {
     /// \todo Is a two-stage-removal process still necessary now that
     /// the allocation stage was removed from SharedResource? Not sure,
     /// probably not.
-    return modules_->exec_one(id, [this](tv::ModuleWrapper& module) {
+    return modules_->exec_one_now(id, [this](tv::ModuleWrapper& module) {
         module.disable();
         module.tag(ModuleWrapper::Tag::Removable);
         camera_control_.release();
@@ -606,7 +572,7 @@ int16_t tv::Api::callback_default(TV_Callback callback) {
 int16_t tv::Api::get_result(int8_t module_id, TV_ModuleResult& result) {
     Log("API", "Getting result from module ", module_id);
 
-    return modules_->exec_one(module_id, [&](ModuleWrapper& module) {
+    return modules_->exec_one_now(module_id, [&](ModuleWrapper& module) {
         auto res = module.result();
         if (not res) {
             return TV_RESULT_NOT_AVAILABLE;
@@ -638,11 +604,13 @@ std::string const& tv::Api::system_module_path(void) const {
 
 /// Disable and remove all modules.
 void tv::Api::remove_all_modules(void) {
-    _disable_all_modules();
+    std::thread([this](void) {
+                    _disable_all_modules();
 
-    modules_->free_all();
-    idle_process_running_ = false;
-    Log("Api", "All modules released");
+                    modules_->free_all();
+                    idle_process_running_ = false;
+                    Log("Api", "All modules released");
+                }).detach();
 }
 
 void tv::Api::get_libraries_count(uint16_t& count) const {
@@ -701,6 +669,8 @@ int16_t tv::Api::_module_load(std::string const& name, int16_t id) {
 }
 
 void tv::Api::_disable_all_modules(void) {
+
+    modules_->interrupt();
     modules_->exec_all([this](int16_t id, tv::ModuleWrapper& module) {
         module.disable();
         camera_control_.release();
@@ -730,7 +700,7 @@ void tv::Api::_enable_all_modules(void) {
 }
 
 int16_t tv::Api::_enable_module(int16_t id) {
-    return modules_->exec_one(id, [this](tv::ModuleWrapper& module) {
+    return modules_->exec_one_now(id, [this](tv::ModuleWrapper& module) {
         if (module.enabled() or camera_control_.acquire()) {
             module.enable();  // possibly redundant
             return TV_OK;
@@ -741,7 +711,7 @@ int16_t tv::Api::_enable_module(int16_t id) {
 }
 
 int16_t tv::Api::_disable_module(int16_t id) {
-    return modules_->exec_one(id, [this](tv::ModuleWrapper& module) {
+    return modules_->exec_one_now(id, [this](tv::ModuleWrapper& module) {
         module.disable();
         camera_control_.release();
         return TV_OK;

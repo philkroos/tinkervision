@@ -219,6 +219,14 @@ public:
         return exec_one_now_common(id, executor);
     }
 
+    /// Interrupt the main execution loop (exec_all()) non resuming.
+    void interrupt(void) {
+        resume_on_interrupt_ = false;
+        while (interrupt_lock_.test_and_set(std::memory_order_acquire))
+            ;
+        interrupt_lock_.clear();
+    }
+
     /// Evaluate a predicate for each active resource and counts the number of
     /// true results.
     /// \param[in] predicate A predicate.
@@ -235,6 +243,11 @@ public:
         return count;
     }
 
+    /// Insert a new resource.
+    /// \param[in] id Identifier of the resource.
+    /// \param[in] module resource
+    /// \param[in] deallocator Optional function to be called immediately before
+    /// this resource is removed.
     bool insert(int16_t id, Resource* module, Deallocator deallocator) {
         std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
