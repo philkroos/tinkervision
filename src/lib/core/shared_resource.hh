@@ -44,7 +44,7 @@
 #ifndef SHARED_RESOURCE_H
 #define SHARED_RESOURCE_H
 
-#include <mutex>
+#include <shared_mutex>
 #include <atomic>
 #include <unordered_map>
 #include <list>
@@ -103,8 +103,8 @@ public:
             return;
 
         } else {
-            // Lock access to all resources
-            std::lock_guard<std::mutex> lock(managed_mutex_);
+            std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
             for (auto& id : ids_managed_) {
                 /// but allow execution of an interrupt from exec_one_now()
                 if (interrupt_lock_.test_and_set(std::memory_order_acquire)) {
@@ -127,8 +127,8 @@ public:
             return;
 
         } else {
-            // Lock access to all resources
-            std::lock_guard<std::mutex> lock(managed_mutex_);
+            std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
             for (auto& id : ids_managed_) {
                 /// but allow execution of an interrupt from exec_one_now()
                 if (interrupt_lock_.test_and_set(std::memory_order_acquire)) {
@@ -151,11 +151,12 @@ public:
     /// \param[in] executor The function to be executed on the resource
     /// identified by id.
     int16_t exec_one(int16_t id, ExecOne executor) {
+        std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
         if (not managed_.size()) {
             return TV_INVALID_ID;
         }
 
-        std::lock_guard<std::mutex> lock(managed_mutex_);
         auto it = managed_.find(id);
         if (it != managed_.end()) {
             return executor(resource(it));
@@ -170,6 +171,8 @@ public:
     /// executed.
     /// \param[in] executor The function to be executed on each resource.
     void exec_one_now(int16_t id, ExecAll executor) const {
+        std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
         if (not managed_.size()) {
             return;
 
@@ -191,7 +194,8 @@ public:
     /// \param[in] predicate A predicate.
     /// \return The number of true results over each active module.
     size_t count(CRefPredicate predicate) {
-        std::lock_guard<std::mutex> lock(managed_mutex_);
+        std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
         size_t count = 0;
         for (auto const& resource : managed_) {
             if (predicate(*(resource.second.resource))) {
@@ -202,8 +206,8 @@ public:
     }
 
     bool insert(int16_t id, Resource* module, Deallocator deallocator) {
+        std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
-        std::lock_guard<std::mutex> lock(managed_mutex_);
         if (exists(managed_, id)) {
             LogWarning("SHARED_RESOURCE", "Double allocate");
 
@@ -217,7 +221,8 @@ public:
     }
 
     bool remove(int16_t id) {
-        std::lock_guard<std::mutex> lock(managed_mutex_);
+        std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
         if (not exists(managed_, id)) {
             LogWarning("SHARED_RESOURCE::remove", "Non existing");
 
@@ -246,7 +251,8 @@ public:
         static_assert(std::is_convertible<T*, Resource*>::value,
                       "Wrong type passed to allocate");
 
-        std::lock_guard<std::mutex> lock(managed_mutex_);
+        std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
         if (exists(managed_, id)) {
             LogWarning("SHARED_RESOURCE::allocate", "Double allocate");
 
@@ -274,30 +280,21 @@ public:
     /// Marks the resource associated with id as removable.
     /// The resource is still active, i.e. managed() would return t.
     void free(int16_t id) {
-        // Resource* resource = nullptr;
-        {
-            std::lock_guard<std::mutex> lock(managed_mutex_);
-            if (exists(managed_, id)) {
-                auto resource = managed_[id].resource;
-                managed_.erase(id);
-                ids_managed_.remove(id);
-                delete resource;
-            }
+        std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
+        if (exists(managed_, id)) {
+            auto resource = managed_[id].resource;
+            managed_.erase(id);
+            ids_managed_.remove(id);
+            delete resource;
         }
-        /*
-            if (resource) {
-                std::lock_guard<std::mutex> lock(garbage_mutex_);
-                garbage_[id] = resource;
-            }
-        */
     }
 
     /// Removes each (active) resource for which a given predicate holds.
     /// \param[in] predicate A predicate accepting a single resource cref.
     /// \return The number of resources removed.
     size_t free_if(std::function<bool(Resource const& resource)> predicate) {
-        std::lock_guard<std::mutex> mlock(managed_mutex_);
-        // std::lock_guard<std::mutex> glock(garbage_mutex_);
+        std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
         auto count = static_cast<size_t>(0);
         for (auto it = managed_.cbegin(); it != managed_.cend();) {
@@ -317,9 +314,8 @@ public:
     }
 
     void free_all(void) {
-        std::lock_guard<std::mutex> mlock(managed_mutex_);
-        // std::lock_guard<std::mutex> glock(garbage_mutex_);
-        // garbage_.insert(managed_.begin(), managed_.end());
+        std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
         managed_.clear();
         ids_managed_.clear();
     }
@@ -327,7 +323,8 @@ public:
     /// Check whether a resource is active.
     /// \return True If the resource id is active.
     bool managed(int16_t id) const {
-        std::lock_guard<std::mutex> lock(managed_mutex_);
+        std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
         return exists(managed_, id);
     }
 
@@ -341,7 +338,7 @@ public:
     Resource const& operator[](int16_t id) const {
         ConstIterator it;
         {
-            std::lock_guard<std::mutex> lock(managed_mutex_);
+            std::shared_lock<std::shared_timed_mutex> lock(mutex_);
             it = managed_.find(id);
         }
         return *(it->second.resource);
@@ -358,7 +355,7 @@ public:
     Resource* operator[](int16_t id) {
         Resource* resource = nullptr;
         {
-            std::lock_guard<std::mutex> lock(managed_mutex_);
+            std::shared_lock<std::shared_timed_mutex> lock(mutex_);
             auto it = managed_.find(id);
             resource = (it == managed_.end()) ? nullptr : it->second.resource;
         }
@@ -370,7 +367,8 @@ public:
     Resource* find_if(std::function<bool(Resource const&)> unaryp) {
         Resource* resource = nullptr;
         {
-            std::lock_guard<std::mutex> lock(managed_mutex_);
+
+            std::shared_lock<std::shared_timed_mutex> lock(mutex_);
             auto it = std::find_if(
                 managed_.begin(), managed_.end(),
                 [&unaryp](std::pair<int16_t, Resource*> const& thing) {
@@ -391,7 +389,8 @@ public:
             return false;
         }
 
-        std::lock_guard<std::mutex> lock(managed_mutex_);
+        std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
         auto it_second =
             std::find(std::begin(ids_managed_), std::end(ids_managed_), second);
         auto it_first =
@@ -413,31 +412,37 @@ public:
     /// Manually sort the complete list of managed id's
     /// \param[in] sorter A function sorting the list of managed ids
     void sort_manually(std::function<void(IdList& ids)> sorter) {
-        std::lock_guard<std::mutex> lock(managed_mutex_);
+        std::unique_lock<std::shared_timed_mutex> lock(mutex_);
         sorter(ids_managed_);
     }
 
-    // attention: The following not locked.
-    Resource* access_unlocked(int16_t id) {
-        auto it = managed_.find(id);
-        return (it == managed_.end()) ? nullptr : it->second.resource;
+    /// Get the number of managed objects.
+    /// \return managed_.size()
+    size_t size(void) const {
+        std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+        return managed_.size();
     }
 
-    /// Get the number of managed objects.
-    size_t size(void) const { return managed_.size(); }
-
     /// Get the id of a managed object.
-    /// \todo Need to lock?
     /// \return Id if object is in range \c [0, size())
     int16_t managed_id(size_t object) const {
         if (object >= size()) {
             return TV_INVALID_ID;
         }
 
+        std::shared_lock<std::shared_timed_mutex> lock(mutex_);
         auto it = ids_managed_.cbegin();
         for (size_t i = 0; i < object; ++i, ++it)
             ;
         return *it;
+    }
+
+    /// Unlocked access. Must only be used from locking contexts (which is,
+    /// every other accessing method).
+    /// \param[in] id Resource id
+    Resource* access_unlocked(int16_t id) {
+        auto it = managed_.find(id);
+        return (it == managed_.end()) ? nullptr : it->second.resource;
     }
 
 private:
@@ -453,12 +458,13 @@ private:
     }
 
 private:
-    ResourceContainerMap managed_;
-    // Dynamic allocation because default constructor not nothrow
-    IdList ids_managed_;  ///< Sorted access to the active resources
+    ResourceContainerMap managed_;  ///< Active resources
+    IdList ids_managed_;            ///< Sorted access to the active resources
 
-    std::mutex mutable managed_mutex_;
-    std::atomic_flag mutable interrupt_lock_{ATOMIC_FLAG_INIT};
+    std::shared_timed_mutex mutable mutex_;  ///< multiple reads, one write
+
+    std::atomic_flag mutable interrupt_lock_{
+        ATOMIC_FLAG_INIT};  ///< Signal to interrupt execution loops
 };
 }
 

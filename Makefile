@@ -1,5 +1,5 @@
 cc		:= g++
-ccflags	:= -Wall -Werror -pedantic -shared -std=c++11 -fpic -DWITH_LOGGER
+ccflags	:= -Wall -Werror -pedantic -shared -std=c++14 -fpic -DWITH_LOGGER
 
 ifndef V4L2
 	ccflags += -DWITH_OPENCV_CAM
