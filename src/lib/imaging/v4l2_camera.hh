@@ -145,6 +145,12 @@ protected:
     void close(void) override final;
 
 private:
+#ifdef DEBUG
+    char const* v4l2_log = "/tmp/tv_v4l2.log";
+#else
+    char const* v4l2_log = "/dev/null";
+#endif
+
     std::array<ColorSpaceMapping, 1> supported_codings_ = {{
         {v4l2::YUYV, ColorSpace::YUYV},
         // Got no hw supporting this to test it yet
