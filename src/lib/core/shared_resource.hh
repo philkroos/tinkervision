@@ -130,8 +130,12 @@ public:
             std::shared_lock<std::shared_timed_mutex> lock(mutex_);
 
             for (auto& id : ids_managed_) {
-                /// but allow execution of an interrupt from exec_one_now()
+                /// Allow interrupting execution of a specific resource.
+                /// \see exec_one_now(), exec_one_now_restarting()
                 if (interrupt_lock_.test_and_set(std::memory_order_acquire)) {
+                    if (not resume_on_interrupt_) {
+                        break;
+                    }
                     while (
                         interrupt_lock_.test_and_set(std::memory_order_acquire))
                         ;
@@ -157,35 +161,51 @@ public:
             return TV_INVALID_ID;
         }
 
-        auto it = managed_.find(id);
-        if (it != managed_.end()) {
-            return executor(resource(it));
-        } else {
-            return TV_INVALID_ID;
-        }
+        return exec_one_common(id, executor);
     }
 
-    /// Force execution of a function on a specific ressource now.
+    /// Force execution of a specific ressource now.
     /// This will interrupt possible running calls to exec_if() or exec_all().
     /// \param[in] id The id of the resource on which executor shall be
     /// executed.
     /// \param[in] executor The function to be executed on each resource.
-    void exec_one_now(int16_t id, ExecAll executor) const {
+    void exec_one_now(int16_t id, ExecOne executor) const {
         std::shared_lock<std::shared_timed_mutex> lock(mutex_);
 
         if (not managed_.size()) {
             return;
 
         } else {
+            resume_on_interrupt_ = false;
+
             while (interrupt_lock_.test_and_set(std::memory_order_acquire))
                 ;
-            auto it = managed_.find(id);
-            if (it != managed_.end()) {
-                return executor(resource(it));
-            } else {
-                return TV_INVALID_ID;
-            }
+
+            auto result = exec_one_common(id, executor);
             interrupt_lock_.clear();
+            return result;
+        }
+    }
+
+    /// Force execution of a specific ressource now, terminating the main loop.
+    /// This is just like exec_one_now(), but it will signal the loop run from
+    /// exec_all() to not resume execution but terminate.
+    /// \param[in] id The id of the resource on which executor shall be
+    /// executed.
+    /// \param[in] executor The function to be executed on each resource.
+    void exec_one_now_restarting(int16_t id, ExecOne executor) const {
+        std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
+        if (not managed_.size()) {
+            return;
+
+        } else {
+            resume_on_interrupt_ = false;
+            while (interrupt_lock_.test_and_set(std::memory_order_acquire))
+                ;
+            auto result = exec_one_common(id, executor);
+            interrupt_lock_.clear();
+            return result;
         }
     }
 
@@ -457,6 +477,16 @@ private:
         return map.find(id) != map.end();
     }
 
+    /// Helper for the exec_one* methods
+    int16_t inline exec_one_common(int16_t id, ExecOne executor) const {
+        auto it = managed_.find(id);
+        if (it != managed_.end()) {
+            return executor(resource(it));
+        } else {
+            return TV_INVALID_ID;
+        }
+    }
+
 private:
     ResourceContainerMap managed_;  ///< Active resources
     IdList ids_managed_;            ///< Sorted access to the active resources
@@ -465,6 +495,9 @@ private:
 
     std::atomic_flag mutable interrupt_lock_{
         ATOMIC_FLAG_INIT};  ///< Signal to interrupt execution loops
+
+    bool mutable resume_on_interrupt_{
+        false};  ///< Signal to resume execution on interrupt
 };
 }
 
