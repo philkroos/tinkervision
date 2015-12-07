@@ -48,16 +48,22 @@ static std::atomic_flag tv_buffer_flag{
 #endif
 
 #ifndef DEFAULT_CALL
-#define LOW_LATENCY_CALL(code)                                          \
-    tv_buffered_result = TV_RESULT_BUFFERED;                            \
-    tv_buffer_flag.test_and_set();                                      \
-    std::thread([&](void) {                                             \
-        tv_buffered_result.store(code);                                 \
-        tv_buffer_flag.clear();                                         \
-                }).detach();                                            \
-    for (uint8_t i = 0; i < 5 and tv_buffer_flag.test_and_set(); ++i) { \
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));    \
-    }                                                                   \
+#define LOW_LATENCY_CALL(code)                                           \
+    tv_buffered_result = TV_RESULT_BUFFERED;                             \
+    while (tv_buffer_flag.test_and_set())                                \
+        ;                                                                \
+    std::thread([&](void) {                                              \
+        tv_buffered_result.store(code);                                  \
+        tv_buffer_flag.clear();                                          \
+                }).detach();                                             \
+    bool set(true);                                                      \
+    for (uint8_t i = 0; i < 5 and (set = tv_buffer_flag.test_and_set()); \
+         ++i) {                                                          \
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));     \
+    }                                                                    \
+    if (not set) {                                                       \
+        tv_buffer_flag.clear();                                          \
+    }                                                                    \
     return static_cast<int16_t>(tv_buffered_result.load());
 #else
 #define LOW_LATENCY_CALL(code) return code
@@ -142,6 +148,7 @@ int16_t tv_quit(void) {
     while (tv_buffer_flag.test_and_set())
         ;
 
+    tv_buffer_flag.clear();
     return tv::get_api().quit();
 }
 
