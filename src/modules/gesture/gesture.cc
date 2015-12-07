@@ -63,6 +63,8 @@ static void auto_canny(cv::Mat& image) {
 void tv::Gesture::value_changed(std::string const& parameter, int32_t value) {
     if (parameter == "fg-threshold") {
         detect_.set_fg_threshold(static_cast<uint8_t>(value));
+    } else if (parameter == "min-hand-size") {
+        detect_.set_hand_size(static_cast<uint16_t>(value));
     }
 }
 
@@ -77,16 +79,25 @@ void tv::Gesture::execute(tv::ImageHeader const& header, ImageData const* data,
 
     switch (state_) {
         case State::Initial:
-            detect_.init(header.width, header.height);
+            detect_.init(static_cast<uint16_t>(header.width),
+                         static_cast<uint16_t>(header.height));
             state_ = State::Detect;
             break;
         case State::Detect: {
             ImageData* foreground{nullptr};
-            if (detect_.get_hand(data, hand_, &foreground)) {
+            ImageData* labels{nullptr};
+            if (detect_.get_hand(data, hand_, &foreground, &labels)) {
                 if (foreground) {
                     cv::Mat fg(header.height, header.width, CV_8UC1,
                                (void*)foreground);
                     cv::imshow("Canny", fg);
+                    cv::waitKey(20);
+                }
+
+                if (labels) {
+                    cv::Mat lb(header.height, header.width, CV_8UC1,
+                               (void*)labels);
+                    cv::imshow("Gesture", lb);
                     cv::waitKey(20);
                 }
 

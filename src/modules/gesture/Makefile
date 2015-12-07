@@ -1,5 +1,5 @@
 CC		:= g++
-CCFLAGS	:= -Wall -Werror -std=c++11 -shared -fPIC -DWITH_LOGGER
+CCFLAGS	:= -Wall -Werror -std=c++14 -shared -fPIC -DWITH_LOGGER
 
 INC		:= `pkg-config --cflags opencv`
 LDFLAGS	:= `pkg-config --libs opencv`
