@@ -31,12 +31,12 @@ namespace tv {
 /// y are set), a rectangle (width and height also set) or a string.  A
 /// numerical value is 'unset' if it equals -1.  The string is unset if it is
 /// empty.  If neither x nor the string are set, the result is considered
-/// invalid.  The result is also invalid if the maximum string of 12 byte is
-/// exceeded.  Other assumptions are not made, so the considerations above can
-/// be ignored, e.g. to return a string and a value or three values which do not
-/// represent a location.  This has to be documented with the module producing
-/// such a result.  The result will always be returned completely, regardless of
-/// any unset values.
+/// invalid.  The result is also invalid if the maximum string length of
+/// (TV_STRING_SIZE - 1) is exceeded.  Other assumptions are not made, so the
+/// considerations above can be ignored, e.g. to return a string and a value or
+/// three values which do not represent a location.  This has to be documented
+/// with the module producing such a result.  The result will always be returned
+/// completely, regardless of any unset values.
 struct Result {
     int32_t x{-1};           /// First value, -1 means unset.
     int32_t y{-1};           /// Second value, -1 means unset.
@@ -45,6 +45,8 @@ struct Result {
     std::string result{""};  /// Fifth value, "" means unset.
 
     /// A result is valid if at least x is > 0 or the string has been set.
-    operator bool(void) const { return x > 0 or result != ""; }
+    operator bool(void) const {
+        return x > 0 or (result != "" and result.size() < TV_STRING_SIZE);
+    }
 };
 }
