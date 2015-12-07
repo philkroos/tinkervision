@@ -182,7 +182,7 @@ void tv::Api::module_exec(int16_t id, ModuleWrapper& module) {
         conversions_.get_frame(image_, module.expected_format());
         // ignoring result, doing callbacks (maybe, see default_callback_)
         try {
-            (void)module.execute(image_);
+            module.execute(image_);
         } catch (...) {
             LogError("API", "Module ", module.name(), " (", id, ") crashed: ");
             module.tag(ModuleWrapper::Tag::Removable);
@@ -190,7 +190,7 @@ void tv::Api::module_exec(int16_t id, ModuleWrapper& module) {
         }
     }
 
-    auto output = module.modified_image();
+    auto& output = module.modified_image();
     if (output.header.format != ColorSpace::INVALID) {
         conversions_.set_frame(output);
     }
@@ -570,7 +570,6 @@ int16_t tv::Api::callback_default(TV_Callback callback) {
 }
 
 int16_t tv::Api::get_result(int8_t module_id, TV_ModuleResult& result) {
-    Log("API", "Getting result from module ", module_id);
 
     return modules_->exec_one_now(module_id, [&](ModuleWrapper& module) {
         auto res = module.result();
@@ -583,8 +582,6 @@ int16_t tv::Api::get_result(int8_t module_id, TV_ModuleResult& result) {
         result.width = res.width;
         result.height = res.height;
         std::strncpy(result.string, res.result.c_str(), TV_STRING_SIZE - 1);
-        std::fill(result.string + res.result.size(),
-                  result.string + TV_STRING_SIZE - 1, '\0');
         result.string[TV_STRING_SIZE - 1] = '\0';
         return TV_OK;
     });

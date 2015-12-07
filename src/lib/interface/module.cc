@@ -184,7 +184,7 @@ tv::Result const& tv::Module::execute(tv::Image const& image) {
     execute(image.header, image.data, output_image_.header(),
             output_image_.image().data);
 
-    return get_result();
+    return result();
 }
 
 bool tv::Module::has_result(void) const { return false; }
@@ -192,10 +192,7 @@ bool tv::Module::has_result(void) const { return false; }
 tv::Result const& tv::Module::get_result(void) const { return invalid_result_; }
 
 tv::Result const& tv::Module::result(void) const {
-    if (not can_have_result_ or not has_result()) {
-        return invalid_result_;
-    }
-    return get_result();
+    return (can_have_result_ and has_result()) ? get_result() : invalid_result_;
 }
 
 void tv::Module::stop(void) {}

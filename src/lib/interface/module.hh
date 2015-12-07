@@ -134,9 +134,6 @@ protected:
     /// \note This will only be called if the module actually has a result, as
     /// indicated by the value of (produces_result() and has_result()).
     /// \return Latest result of this module.
-    /// \todo Store a valid result to have it available if future execute()
-    /// calls do not produce a valid one, but one is requested? Or simply return
-    /// an invalid then?
     virtual Result const& get_result(void) const;
 
     /// Hook for modules which want to be notified about a numerical parameter
@@ -264,6 +261,7 @@ public:
 
     /// Execute this module with the current camera frame.
     /// \param[in] image Current frame.
+    /// \return A valid result if the module provides one.
     Result const& execute(tv::Image const& image);
 
     /// Get the modified image.  If this module outputs_image(), the result of

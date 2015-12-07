@@ -28,7 +28,7 @@
 
 #include <cstring>
 
-tv::Result const* tv::ModuleWrapper::execute(tv::Image const& image) {
+void tv::ModuleWrapper::execute(tv::Image const& image) {
     static decltype(period_) current{0};
 
     /// Execute the module if period_ is not 0 and the module is scheduled to
@@ -38,7 +38,7 @@ tv::Result const* tv::ModuleWrapper::execute(tv::Image const& image) {
         current = 0;
         auto result = &tv_module_->execute(image);
 
-        if (callbacks_enabled_ and cb_ and result and *result) {
+        if (callbacks_enabled_ and cb_ and result) {
             Log("MODULE_WRAPPER", "Callback for ", module_id_, " - ", name());
             TV_ModuleResult cresult = {result->x, result->y, result->width,
                                        result->height};
@@ -47,9 +47,7 @@ tv::Result const* tv::ModuleWrapper::execute(tv::Image const& image) {
             cresult.string[TV_STRING_SIZE - 1] = '\0';
             cb_(static_cast<int8_t>(module_id_), cresult, nullptr);
         }
-        return result;
     }
-    return nullptr;
 }
 
 tv::ColorSpace tv::ModuleWrapper::expected_format(void) const {
