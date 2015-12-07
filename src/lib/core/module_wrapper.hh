@@ -121,12 +121,16 @@ public:
 
     bool initialize(void) {
 
-        initialized_ =
-            tv_module_->register_parameter("period", 0, 500, 1) and
-            /// \todo These make only sense for modules with result
-            tv_module_->register_parameter("result_timeout", 0, 20, 40) and
-            tv_module_->register_parameter("callbacks_enabled", 0, 1, 1) and
-            tv_module_->initialize();
+        initialized_ = true;
+        if (tv_module_->produces_result()) {
+            initialized_ =
+                tv_module_->register_parameter("result_timeout", 0, 40, 20) and
+                tv_module_->register_parameter("callbacks_enabled", 0, 1, 1);
+        }
+
+        initialized_ = initialized_ and
+                       tv_module_->register_parameter("period", 0, 500, 1) and
+                       tv_module_->initialize();
 
         return initialized_;
     }
