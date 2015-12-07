@@ -329,8 +329,7 @@ int16_t tv_callback_enable_default(TV_Callback callback) {
 
 int16_t tv_callback_libraries_changed_set(TV_LibrariesCallback callback,
                                           void* context) {
-    tv::Log("Tinkervision::LibrariesChangedCallback", (void*)callback, " ",
-            context);
+    tv::Log("Tinkervision::LibrariesChangedCallback:");
     return tv::get_api().libraries_changed_callback(callback, context);
 }
 }

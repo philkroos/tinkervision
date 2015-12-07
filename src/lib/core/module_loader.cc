@@ -99,7 +99,7 @@ bool tv::ModuleLoader::switch_user_load_path(std::string const& old_path,
         }
     }
     for (auto const& idx : lost_modules) {
-        availables_.erase(availables_.cbegin() + idx);
+        availables_.erase(availables_.begin() + idx);
     }
 
     dirwatch_.unwatch(old_path);
@@ -335,7 +335,7 @@ void tv::ModuleLoader::_watched_directory_changed_callback(
         }
 
     } else if (event == Dirwatch::Event::FILE_DELETED) {
-        auto it = std::find_if(availables_.cbegin(), availables_.cend(),
+        auto it = std::find_if(availables_.begin(), availables_.end(),
                                [&](AvailableModule const& a) {
             return a.libname == strip_extension(file) and a.loadpath == dir;
         });

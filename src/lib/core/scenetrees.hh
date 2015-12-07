@@ -126,8 +126,8 @@ private:
     std::vector<SceneTree*> scene_trees_;
 
 public:
-    static_assert(noexcept(Node()), "node");
-    static_assert(noexcept(std::vector<SceneTree*>()), "st");
+    // static_assert(noexcept(Node()), "node");
+    // static_assert(noexcept(std::vector<SceneTree*>()), "st");
     SceneTrees(void) noexcept(noexcept(Node()) and
                               noexcept(std::vector<SceneTree*>())) {}
     ~SceneTrees(void) {

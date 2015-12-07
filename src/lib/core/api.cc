@@ -707,7 +707,7 @@ int16_t tv::Api::_next_internal_id(void) const {
 static tv::Api* api = nullptr;
 
 tv::Api& tv::get_api(void) {
-    static_assert(noexcept(Api()), "Api is not noexcept");
+    // static_assert(noexcept(Api()), "Api is not noexcept");
 
     if (not api) {
         api = new Api;

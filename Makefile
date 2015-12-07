@@ -1,5 +1,5 @@
-cc		:= g++
-ccflags	:= -Wall -Werror -pedantic -shared -std=c++11 -fpic -DWITH_LOGGER
+#cc		:= g++
+ccflags	:= -Wall -Werror -shared -std=c++11 -fpic -DWITH_LOGGER
 
 ifdef DEBUG
 	ccflags += -g -O0 -DDEBUG
@@ -20,18 +20,22 @@ build_dir	:= $(addprefix $(build_prefix)/,$(parts))
 src_prefix	:= src/lib
 src_dir	:= $(addprefix $(src_prefix)/,$(parts))
 
-libs		:= -lstdc++ -lv4l2 -lm -lpython2.7
+libs		:= -lstdc++ -lv4l2 -lm
 inc		:= $(addprefix -I./$(src_prefix)/,$(parts)) \
-		   $(OCV_inc) \
-		   -I/usr/include/python2.7
+		   $(OCV_inc)
 ifneq ($(or $(WITH_OPENCV_CAM),$(DEBUG_WINDOW)),)
 	libs	+= -lopencv_highgui -lopencv_imgproc -lopencv_video \
 		   -lrt -lpthread -ldl
 	inc	+= -I/usr/local/include/opencv -I/usr/local/include
 endif
 
-ldflags	:= -L/usr/lib/python2.7 $(libs) -rdynamic
+ldflags	:= $(libs) -rdynamic
 
+ifdef WITH_PYTHON
+	ldflags += -L/usr/lib/python2.7
+	libs += -lpython2.7
+	inc += -I/usr/include/python2.7
+endif
 # files
 src		:= $(foreach sdir,$(src_dir),$(wildcard $(sdir)/*.cc))
 obj		:= $(patsubst $(src_prefix)/%.cc,build/%.o,$(src))
@@ -90,8 +94,11 @@ header		:= $(src_prefix)/core/tinkervision.h \
                    $(src_prefix)/interface/result.hh \
                    $(src_prefix)/tools/filesystem.hh \
 		   $(src_prefix)/core/exceptions.hh \
-		   $(src_prefix)/core/logger.hh \
-                   $(src_prefix)/core/python_context.hh
+		   $(src_prefix)/core/logger.hh
+
+ifdef WITH_PYTHON
+	header += $(src_prefix)/core/python_context.hh
+endif
 #                   $(src_prefix)/imaging/image.hh \
 
 install: $(build_prefix)/$(output)

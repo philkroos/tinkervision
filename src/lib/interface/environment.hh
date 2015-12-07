@@ -31,7 +31,10 @@
 #include <mutex>
 
 #include "logger.hh"
+
+#ifdef WITH_PYTHON
 #include "python_context.hh"
+#endif
 
 namespace tv {
 
@@ -65,6 +68,7 @@ public:
     /// \param[in] path An existing path with user write privileges.
     bool set_user_prefix(std::string const& path);
 
+#ifdef WITH_PYTHON
     /// Access the python context which allows execution of python scripts.
     class Python {
     public:
@@ -103,14 +107,19 @@ public:
     };
 
     Python& python(void) const { return python_; }
+#endif
 
 private:
     friend class Api;
 
+#ifdef WITH_PYTHON
     Environment(void) noexcept(noexcept(std::string()) and
                                noexcept(PythonContext()));
 
     Python mutable python_;
+#else
+    Environment(void) noexcept(noexcept(std::string()));
+#endif
 
     std::string system_modules_path_{"/usr/lib/tinkervision/"};
     std::string user_prefix_;
@@ -119,6 +128,7 @@ private:
     std::string user_scripts_path_;
 };
 
+#ifdef WITH_PYTHON
 template <typename... Args>
 Environment::Python& Environment::Python::call(std::string const& function,
                                                Args const&... args) {
@@ -151,6 +161,7 @@ void Environment::Python::add_to_format(int const& i, Args const&... args) {
     format_string_.push_back('i');
     add_to_format(args...);
 }
+#endif
 }
 
 #endif

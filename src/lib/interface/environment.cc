@@ -29,8 +29,12 @@
 #include "tinkervision_defines.h"
 #include "filesystem.hh"
 
+#ifdef WITH_PYTHON
 tv::Environment::Environment(void) noexcept(noexcept(std::string()) and
                                             noexcept(Python())) {}
+#else
+tv::Environment::Environment(void) noexcept(noexcept(std::string())) {}
+#endif
 
 std::string const& tv::Environment::system_modules_path(void) const {
     return system_modules_path_;
@@ -52,6 +56,7 @@ std::string const& tv::Environment::user_prefix(void) const {
     return user_prefix_;
 }
 
+#ifdef WITH_PYTHON
 bool tv::Environment::Python::set_path(std::string const& path) {
     return python_context_.set_path(path);
 }
@@ -64,6 +69,7 @@ tv::Environment::Python& tv::Environment::Python::load(
 }
 
 std::string tv::Environment::Python::result(void) { return result_; }
+#endif
 
 bool tv::Environment::set_user_prefix(std::string const& path) {
     if (not is_directory(path)) {
@@ -77,6 +83,7 @@ bool tv::Environment::set_user_prefix(std::string const& path) {
         dir.push_back('/');
     }
 
+#ifdef WITH_PYTHON
     if (not is_directory(dir + MODULES_FOLDER) or
         not is_directory(dir + DATA_FOLDER) or
         not is_directory(dir + SCRIPTS_FOLDER) or
@@ -85,6 +92,15 @@ bool tv::Environment::set_user_prefix(std::string const& path) {
         Log("ENVIRONMENT", "Can't set user prefix to ", dir);
         return false;
     }
+#else
+    if (not is_directory(dir + MODULES_FOLDER) or
+        not is_directory(dir + DATA_FOLDER) or
+        not is_directory(dir + SCRIPTS_FOLDER)) {
+
+        Log("ENVIRONMENT", "Can't set user prefix to ", dir);
+        return false;
+    }
+#endif
 
     user_prefix_ = dir;
     user_modules_path_ = dir + MODULES_FOLDER + "/";
@@ -96,6 +112,7 @@ bool tv::Environment::set_user_prefix(std::string const& path) {
     return true;
 }
 
+#ifdef WITH_PYTHON
 tv::Environment::Python& tv::Environment::Python::call(
     std::string const& function) {
 
@@ -107,3 +124,4 @@ tv::Environment::Python& tv::Environment::Python::call(
     }
     return *this;
 }
+#endif
