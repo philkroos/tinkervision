@@ -2,6 +2,8 @@
 #include <string>
 #include <type_traits>
 
+#include <tinkervision/tinkervision.h>
+
 template<typename T> std::string string(T object) {
     return std::to_string(object);
 }
@@ -26,11 +28,20 @@ void get_args(std::string& sargs, T const& t, Args... args) {
 }
 
 template <typename... Args>
-void check(int16_t result, std::string const& function, Args... args) {
+bool check(int16_t result, std::string const& function, Args... args) {
     if (result) {
         std::string sargs;
         get_args(sargs, args...);
         std::cout << "Function failed with " << result << ": " << function
-                  << "(" << sargs << ")" << std::endl;
+                  << "(" << sargs << "): " << tv_result_string(result) << std::endl;
     }
+    return result == TV_OK;
+}
+
+template<typename Func, typename... Args>
+bool checked(Func function, std::string const& name, Args const&... args) {
+    auto result = function(args...);
+    check(result, name, args...);
+
+    return result == TV_OK;
 }
