@@ -604,13 +604,11 @@ std::string const& tv::Api::system_module_path(void) const {
 
 /// Disable and remove all modules.
 void tv::Api::remove_all_modules(void) {
-    std::thread([this](void) {
-                    _disable_all_modules();
+    _disable_all_modules();
 
-                    modules_->free_all();
-                    idle_process_running_ = false;
-                    Log("Api", "All modules released");
-                }).detach();
+    modules_->free_all();
+    idle_process_running_ = false;
+    Log("Api", "All modules released");
 }
 
 void tv::Api::get_libraries_count(uint16_t& count) const {
