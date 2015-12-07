@@ -1,7 +1,7 @@
 cc		:= g++
 ccflags	:= -Wall -Werror -pedantic -shared -std=c++14 -fpic -DWITH_LOGGER
 
-ifndef V4L2
+ifdef OCVC
 	ccflags += -DWITH_OPENCV_CAM
 endif
 
@@ -32,7 +32,7 @@ libs		:= -lstdc++ -lv4l2 -lm -lpython2.7
 inc		:= $(addprefix -I./$(src_prefix)/,$(parts)) \
 		   $(OCV_inc) \
 		   -I/usr/include/python2.7
-ifndef V4L2
+ifdef OCVC
 	libs	+= `pkg-config --libs opencv` \
 		   -lrt -lpthread -ldl
 	inc	+= -I/usr/local/include/opencv -I/usr/local/include
