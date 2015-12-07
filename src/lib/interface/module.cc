@@ -72,6 +72,12 @@ bool tv::Module::has_parameter(std::string const& parameter) const {
 
 bool tv::Module::register_parameter(std::string const& name, int32_t min,
                                     int32_t max, int32_t init) {
+    if (max < min or init < min or init > max) {
+        LogError("MODULE", name_, ": Invalid values: ", min, " ", max, " ",
+                 init);
+        init_error_ = true;
+        return false;
+    }
     return register_parameter_typed<NumericalParameter>(name, min, max, init);
 }
 
@@ -80,6 +86,11 @@ bool tv::Module::register_parameter(
     std::function<bool(std::string const& old, std::string const& value)>
         verify) {
 
+    if (init.size() >= TV_STRING_SIZE) {
+        LogError("MODULE", name_, ": Parameter default value too long ", init);
+        init_error_ = true;
+        return false;
+    }
     return register_parameter_typed<StringParameter>(name, init, verify);
 }
 
@@ -97,7 +108,7 @@ bool tv::Module::register_parameter_typed(std::string const& name,
     }
 
     /// The parameter name must not exceed #TV_STRING_SIZE characters
-    if (name.size() > TV_STRING_SIZE - 1) {
+    if (name.size() >= TV_STRING_SIZE) {
         LogError("MODULE", name_, ": Parameter name too long ", name);
         init_error_ = true;
         return false;
