@@ -25,7 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tinkervision/tinkervision.h"
 
 void callback(int8_t id, TV_ModuleResult result, void* context) {
-    printf("Callback for module %d\n", id);
+    printf("Callback for module %d: %d,%d,%d,%d,%s\n", id, result.x, result.y,
+           result.width, result.height, result.string);
 }
 
 void str_callback(int8_t id, char const* string, void* context) {
@@ -124,7 +125,6 @@ int main(int argc, char* argv[]) {
     printf("Got result: %d (%s) -> %f sec\n", result, tv_result_string(result),
            duration);
 
-    return 0;
     result = tv_set_framesize(width, height);
     printf("SetFramesize: %d (%s)\n", result, tv_result_string(result));
 

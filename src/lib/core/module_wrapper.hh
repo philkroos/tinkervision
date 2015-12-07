@@ -72,7 +72,8 @@ private:
     ModuleWrapper::Tag tags_{ModuleWrapper::Tag::None};  ///< Runtime tags used
                                                          /// by the mainloop
 
-    Module* tv_module_;  ///< Wrapped module
+    Module* tv_module_{nullptr};  ///< Wrapped module
+    Result latest_result_;        ///< Set after execute if provided
 
     TV_Callback cb_ = nullptr;  ///< Callback for results of the wrapped module
     bool callbacks_enabled_{true};  ///< If false, callbacks won't be made. This
@@ -116,10 +117,16 @@ public:
 
     /// Execute the wrapped module with the given image.
     /// \param[in] image The current frame
-    /// \return The result of the execution or nullptr;
-    Result const* execute(tv::Image const& image);
+    void execute(tv::Image const& image);
 
+    /// Try to initialize the wrapped module.
+    /// \return \c false if initialization failed.
     bool initialize(void) {
+
+        /// This can only be run once.
+        if (initialized_) {
+            return false;
+        }
 
         initialized_ = true;
         if (tv_module_->produces_result()) {
@@ -232,6 +239,8 @@ public:
         return tv_module_->get_parameter_by_number(number);
     }
 
+    /// Retrieve the result of the latest execute().
+    /// \return Latest or an invalid result.
     Result const& result(void) const;
 
     tv::Image const& modified_image(void) {
