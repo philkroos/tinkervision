@@ -35,7 +35,9 @@ class Strings {
 private:
     const std::map<int16_t, char const*> string_map_{
         {TV_OK, "Ok"},
+#ifndef DEFAULT_CALL
         {TV_RESULT_BUFFERED, "Result buffered"},
+#endif
         // -11...
         {TV_NOT_IMPLEMENTED, "Not implemented"},
         {TV_INTERNAL_ERROR, "Unknown internal error"},

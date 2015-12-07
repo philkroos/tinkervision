@@ -45,9 +45,7 @@ static std::atomic_int tv_buffered_result{
              /// result, retrievable with get_buffered_result()
 static std::atomic_flag tv_buffer_flag{
     ATOMIC_FLAG_INIT};  ///< Used to signal an operation is finished
-#endif
 
-#ifndef DEFAULT_CALL
 #define LOW_LATENCY_CALL(code)                                           \
     tv_buffered_result = TV_RESULT_BUFFERED;                             \
     while (tv_buffer_flag.test_and_set())                                \
@@ -144,11 +142,13 @@ int16_t tv_start(void) {
 int16_t tv_quit(void) {
     tv::Log("Tinkervision::Quit");
 
+#ifndef DEFAULT_CALL
     // Wait for any running operations to finish
     while (tv_buffer_flag.test_and_set())
         ;
-
     tv_buffer_flag.clear();
+#endif
+
     return tv::get_api().quit();
 }
 
