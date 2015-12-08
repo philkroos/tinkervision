@@ -137,7 +137,7 @@ public:
     /// not available!
     /// \return True if the library is available. Only then count is valid.
     bool library_parameter_count(std::string const& libname,
-                                 size_t& count) const;
+                                 uint16_t& count) const;
 
     /// Get the properties of a parameter from a library.
     /// \param[in] libname Name of the module, i.e. filename w/o extension.

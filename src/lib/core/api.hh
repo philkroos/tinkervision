@@ -302,7 +302,7 @@ public:
     ///    - #TV_INVALID_ARGUMENT if no such library is loadable.
     ///    - #TV_OK else
     int16_t library_get_parameter_count(std::string const& libname,
-                                        size_t& count) const;
+                                        uint16_t& count) const;
 
     /// Get the description of a parameter of a library module.
     /// If the parameter is numeric, the min/max/default values are returned. If

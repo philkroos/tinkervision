@@ -51,7 +51,7 @@ tv::ModuleLoader::ModuleLoader(Environment const& environment)
         if (not _add_available_module(paths[i], strip_extension(modules[i]))) {
             continue;
         }
-        auto const a = availables_.back();
+        auto const& a = availables_.back();
         Log("MODULE_LOADER", a.loadpath, ": ", a.libname);
         for (auto const& p : a.parameter) {
             Log("MODULE_LOADER", p);
@@ -192,7 +192,7 @@ bool tv::ModuleLoader::destroy_module(ModuleWrapper* module) {
 
 void tv::ModuleLoader::destroy_all(void) {
     auto libs = std::vector<LibraryHandle>{};
-    for (auto lib : handles_) {
+    for (auto const& lib : handles_) {
         libs.push_back(lib.second.handle);
     }
 
@@ -228,12 +228,12 @@ bool tv::ModuleLoader::library_available(std::string const& libname) const {
 }
 
 bool tv::ModuleLoader::library_parameter_count(std::string const& libname,
-                                               size_t& count) const {
+                                               uint16_t& count) const {
     return availables_.cend() !=
            std::find_if(availables_.cbegin(), availables_.cend(),
                         [&](AvailableModule const& module) {
                if (module.libname == libname) {
-                   count = module.parameter.size();
+  		   count = static_cast<uint16_t>(module.parameter.size());
                    return true;
                }
                return false;
@@ -383,7 +383,7 @@ bool tv::ModuleLoader::_add_available_module(std::string const& path,
         // if the module is not loaded.
         auto parameters = tmp->get_parameter_count();
         for (size_t i = 0; i < parameters; ++i) {
-            auto& p = tmp->get_parameter_by_number(i);
+            auto const& p = tmp->get_parameter_by_number(i);
 
             if (p.type() == Parameter::Type::String) {
                 std::string value;
