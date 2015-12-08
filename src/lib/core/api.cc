@@ -229,8 +229,8 @@ void tv::Api::execute(void) {
 
         Image frame;
 
-        if (paused_ and active_modules()) {  // active_modules() does not
-                                             // account for modules
+        if (not paused_ and active_modules()) {  // active_modules() does not
+                                                 // account for modules
             // being 'stopped', i.e. this is true even if all modules are in
             // paused state.  Then, camera_control_ will return the last
             // image retrieved from the camera (and it will be ignored by
