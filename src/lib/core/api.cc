@@ -464,7 +464,7 @@ int16_t tv::Api::module_id(size_t library, int8_t& id) const {
 }
 
 int16_t tv::Api::library_get_parameter_count(std::string const& libname,
-                                             size_t& count) const {
+                                             uint16_t& count) const {
     if (module_loader_->library_parameter_count(libname, count)) {
         return TV_OK;
     }

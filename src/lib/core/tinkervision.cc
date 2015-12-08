@@ -240,8 +240,7 @@ int16_t tv_library_parameters_count(char const* libname, uint16_t* count) {
     tv::Log("Tinkervision::LibraryParameterCount", libname);
     /// \todo Fix types: size_t vs uint16_t
     *count = 0;
-    return tv::get_api().library_get_parameter_count(libname,
-                                                     *(size_t*)(count));
+    return tv::get_api().library_get_parameter_count(libname, *count);
 }
 
 int16_t tv_library_parameter_describe(char const* libname, uint16_t parameter,
