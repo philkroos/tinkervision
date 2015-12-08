@@ -77,12 +77,10 @@ Red-Brick and on a PC which can access the device:
 3. `git clone https://github.com/philkroos/tinkervision`
 4. `git clone https://github.com/philkroos/generators`
 5. `cd generators && git checkout tinkervision`
-6. `cd python && WITH_TINKERVISION=1 python generate_python_bindings.py`
-7. `WITH_TINKERVISION=1 python generate_python_zip.py`
-8. `mkdir /tmp/unzipped && cp tinkerforge_python_bindings_2_1_5.zip /tmp/unzipped`
-9. `cd /tmp/unzipped && unzip tinkerforge_python_bindings_2_1_5.zip`
-10. `cp source/tinkerforge /home/tf/TinkervisionTest/tinkervision/src/test/red-brick/scripts -r`
-11. `cd /home/tf/TinkervisionTest/tinkervision/src/test/red-brick/scripts`
+6. `mkdir /home/tf/Tinkervision/Test/tinkervision/src/test/red-brick/scripts/tinkerforge`
+7. `cd python && WITH_TINKERVISION=1 python generate_python_bindings.py`
+8. `cp ip_connection bindings/brick_red.py /home/tf/TinkervisionTest/tinkervision/src/test/red-brick/scripts/tinkerforge`
+9. `cd /home/tf/TinkervisionTest/tinkervision/src/test/red-brick/scripts`
 
 Then you should be able to execute the scripts, but you need the UID of your
 Red-Brick, which can be found e.g. with the Tinkerforge `brickv`. `main.py` and
