@@ -148,13 +148,10 @@ public:
             for (auto& id : ids_managed_) {
                 /// Allow interrupting execution of a specific resource.
                 /// \see exec_one_now(), exec_one_now_restarting()
-                if (interrupt_lock_.test_and_set(std::memory_order_acquire)) {
+	        while (interrupt_lock_.test_and_set(std::memory_order_acquire)) {
                     if (not resume_on_interrupt_) {
-                        break;
+                        return;
                     }
-                    while (
-                        interrupt_lock_.test_and_set(std::memory_order_acquire))
-                        ;
                 }
                 if (predicate(*(managed_[id].resource))) {
                     executor(id, *(managed_[id].resource));
