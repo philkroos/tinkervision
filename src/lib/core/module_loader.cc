@@ -228,12 +228,12 @@ bool tv::ModuleLoader::library_available(std::string const& libname) const {
 }
 
 bool tv::ModuleLoader::library_parameter_count(std::string const& libname,
-                                               size_t& count) const {
+                                               uint16_t& count) const {
     return availables_.cend() !=
            std::find_if(availables_.cbegin(), availables_.cend(),
                         [&](AvailableModule const& module) {
                if (module.libname == libname) {
-                   count = module.parameter.size();
+  		   count = static_cast<uint16_t>(module.parameter.size());
                    return true;
                }
                return false;
