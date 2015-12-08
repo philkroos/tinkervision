@@ -229,7 +229,8 @@ void tv::Api::execute(void) {
 
         Image frame;
 
-        if (active_modules()) {  // This does not account for modules
+        if (paused_ and active_modules()) {  // active_modules() does not
+                                             // account for modules
             // being 'stopped', i.e. this is true even if all modules are in
             // paused state.  Then, camera_control_ will return the last
             // image retrieved from the camera (and it will be ignored by
@@ -665,16 +666,20 @@ int16_t tv::Api::_module_load(std::string const& name, int16_t id) {
 
 void tv::Api::_disable_all_modules(void) {
 
+    paused_ = true;
     modules_->interrupt();
     modules_->exec_all([this](int16_t id, tv::ModuleWrapper& module) {
         module.disable();
         camera_control_.release();
     });
+    paused_ = false;
 }
 
 void tv::Api::_disable_module_if(
     std::function<bool(tv::ModuleWrapper const& module)> predicate) {
 
+    paused_ = true;
+    modules_->interrupt();
     modules_->exec_all(
         [this, &predicate](int16_t id, tv::ModuleWrapper& module) {
             if (predicate(module)) {
@@ -682,9 +687,12 @@ void tv::Api::_disable_module_if(
                 camera_control_.release();
             }
         });
+    paused_ = false;
 }
 
 void tv::Api::_enable_all_modules(void) {
+    paused_ = true;
+    modules_->interrupt();
     modules_->exec_all([this](int16_t id, tv::ModuleWrapper& module) {
         if (not module.enabled()) {
             if (camera_control_.acquire()) {
@@ -692,6 +700,7 @@ void tv::Api::_enable_all_modules(void) {
             }
         }
     });
+    paused_ = false;
 }
 
 int16_t tv::Api::_enable_module(int16_t id) {

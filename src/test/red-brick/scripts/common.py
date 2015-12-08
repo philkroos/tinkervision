@@ -6,6 +6,14 @@ def run(red):
     if ok != 0:
         raise Exception("vision::CameraAvailable returned error: " + str(ok))
 
+    ok = red.vision_camera_id_available(0)
+    print "Camera 0 available: ", ok
+    ok = red.vision_camera_id_available(1)
+    print "Camera 1 available: ", ok
+
+    ok = red.vision_camera_id_select(1)
+    print "Camera 1 selected: ", ok
+
     sleep(1)
     ok = red.vision_preselect_framesize(640, 480)
 

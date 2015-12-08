@@ -77,7 +77,7 @@ tv::V4L2USBCamera::V4L2USBCamera(uint8_t camera_id) : Camera(camera_id) {
     if (v4l2_log_file) {
         Log("V4L2", "Opened logfile ", v4l2_log);
     } else {
-        Log("V4L2", "Faile to open logfile ", v4l2_log, ": ", errno);
+        Log("V4L2", "Failed to open logfile ", v4l2_log, ": ", errno);
     }
 }
 
@@ -115,7 +115,7 @@ bool tv::V4L2USBCamera::open_device(uint16_t width, uint16_t height) {
         (std::string("/dev/video") + std::to_string(camera_id_)).c_str();
 
     device_ = v4l2::open(device, O_RDWR, 0);
-    Log("V4L2", "Open ", device, ": ", device_);
+    Log("V4L2", "Open ", std::string(device), ": ", device_);
 
     if (device_ == -1) {
         LogError("V4L2", "Open failed: ", strerror(errno));

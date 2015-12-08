@@ -485,6 +485,7 @@ private:
 
     std::thread executor_;        ///< Mainloop-Context executing the modules.
     bool active_ = true;          ///< While true, the mainloop is running.
+    bool paused_ = false;         ///< Pauses module execution if true
     uint32_t frameperiod_ms_{0};  ///< Minimum inverse framerate
 
     TV_Callback default_callback_ = nullptr;
