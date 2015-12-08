@@ -56,29 +56,26 @@ int16_t tv_get_buffered_result(void);
 
 /// Check if a specific camera device is available.
 /// \return
-///    - TV_CAMERA_NOT_AVAILABLE if not.
-///    - TV_OK else.
+///    - #TV_CAMERA_NOT_AVAILABLE if not.
+///    - #TV_OK else.
 int16_t tv_camera_id_available(uint8_t id);
 
 /// Select a specific camera.
 /// If the specified camera is not available in the system, another one may
 /// still be used. This is for the case that multiple cameras are available.
-/// If
-/// the library is already active with another camera and the selected one
-/// would
-/// be available too, it will be switched.
+/// If the library is already active with another camera and the selected one
+/// would be available too, it will be switched.
 /// \return
-///    - TV_CAMERA_NOT_AVAILABLE if the camera with id is not available or
-///    the
-///    global camera state changed with this method (e.g. open previously,
+///    - #TV_CAMERA_NOT_AVAILABLE if the camera with id is not available or
+///    the global camera state changed with this method (e.g. open previously,
 ///    closed now, no matter which id).
-///    - TV_OK else.
+///    - #TV_OK else.
 int16_t tv_prefer_camera_with_id(uint8_t id);
 
 /// Check if any camera device is available.
 /// \return
-///    - TV_CAMERA_NOT_AVAILABLE if not.
-///    - TV_OK else.
+///    - #TV_CAMERA_NOT_AVAILABLE if not.
+///    - #TV_OK else.
 int16_t tv_camera_available(void);
 
 /// Pause the Api, deactivating but not disabling every module.  The camera
