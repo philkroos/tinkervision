@@ -48,8 +48,9 @@ static std::atomic_flag tv_buffer_flag{
 
 #define LOW_LATENCY_CALL(code)                                           \
     tv_buffered_result = TV_RESULT_BUFFERED;                             \
-    while (tv_buffer_flag.test_and_set())                                \
-        ;                                                                \
+    if (tv_buffer_flag.test_and_set()) {                                 \
+        return tv_buffered_result;                                       \
+    }                                                                    \
     std::thread([&](void) {                                              \
         tv_buffered_result.store(code);                                  \
         tv_buffer_flag.clear();                                          \
@@ -60,7 +61,7 @@ static std::atomic_flag tv_buffer_flag{
         std::this_thread::sleep_for(std::chrono::milliseconds(100));     \
     }                                                                    \
     if (not set) {                                                       \
-        tv_buffer_flag.clear();                                          \
+      tv_buffer_flag.clear(); /* set in for-loop */                      \
     }                                                                    \
     return static_cast<int16_t>(tv_buffered_result.load());
 #else
