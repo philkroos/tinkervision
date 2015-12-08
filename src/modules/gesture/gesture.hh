@@ -2,7 +2,7 @@
 /// \author philipp.kroos@fh-bielefeld.de
 /// \date 2014-2015
 ///
-/// \brief Declaration of the class \c Gesture.
+/// \brief Declaration of the Module \c Gesture.
 ///
 /// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
 /// \sa https://github.com/Tinkerforge/red-brick

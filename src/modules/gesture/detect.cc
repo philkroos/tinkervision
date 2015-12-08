@@ -1,3 +1,29 @@
+/// \file detect.cc
+/// \author philipp.kroos@fh-bielefeld.de
+/// \date 2015
+///
+/// \brief Definition of \c Detect.
+///
+/// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
+/// \sa https://github.com/Tinkerforge/red-brick
+///
+/// \copyright
+///
+/// This program is free software; you can redistribute it and/or
+/// modify it under the terms of the GNU General Public License
+/// as published by the Free Software Foundation; either version 2
+/// of the License, or (at your option) any later version.
+///
+/// This program is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+///
+/// You should have received a copy of the GNU General Public License
+/// along with this program; if not, write to the Free Software
+/// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+/// USA.
+
 #include "detect.hh"
 
 #include <cmath>
@@ -33,6 +59,11 @@ void Detect::init(uint16_t width, uint16_t height) {
     framewidth_ = width;
     frameheight_ = height;
     bytesize_ = width * height;
+
+    if (find_) {
+        delete find_;
+    }
+    find_ = new FindObject(width, height);
 
     if (background_) {
         delete[] background_;
@@ -107,6 +138,7 @@ bool Detect::get_hand(ImageData const* data, Hand& hand, ImageData** foreground,
     if (not refined_) {
         refined_ = new ImageData[bytesize_]{0};
     }
+    std::fill_n(refined_, bytesize_, 0);
 
     for (size_t i = 0; i < bytesize_; ++i) {
         input_[i] = static_cast<uint8_t>(
@@ -121,8 +153,8 @@ bool Detect::get_hand(ImageData const* data, Hand& hand, ImageData** foreground,
     objects_.clear();
 
     // labels_[framewidth_ + 1] = 0;  // unlabel initial pixel
-    uint16_t label = 1;
-    std::vector<Pixel> current_object;
+    // uint16_t label = 1;
+    // std::vector<Pixel> current_object;
 
     for (size_t i = 0; i < bytesize_; ++i) {
         foreground_[i] =
@@ -130,9 +162,7 @@ bool Detect::get_hand(ImageData const* data, Hand& hand, ImageData** foreground,
         labels_[i] = 0;
     }
 
-    // https://en.wikipedia.org/wiki/Connected-component_labeling
-    // Method described in Watershed:
-    // http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=87344
+    /*
     for (uint16_t i = 1; i < frameheight_ - 1; ++i) {
         auto const offset = i * framewidth_;
         for (uint16_t j = 1; j < framewidth_ - 1; ++j) {
@@ -247,6 +277,16 @@ bool Detect::get_hand(ImageData const* data, Hand& hand, ImageData** foreground,
             } else {
                 refined_[i] = 0;
             }
+        }
+    }
+    */
+
+    auto& find = *find_;
+    FindObject::Result result;
+
+    if (find(result, handsize_, foreground_)) {
+        for (auto const& px : result) {
+            refined_[px.y * framewidth_ + px.x] = 255;
         }
     }
 

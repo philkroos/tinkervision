@@ -1,8 +1,8 @@
-/// \file hand.hh
+/// \file pixel.hh
 /// \author philipp.kroos@fh-bielefeld.de
 /// \date 2015
 ///
-/// \brief Declaration of \c Hand.
+/// \brief Declaration of \c Pixel, part of the gesture module.
 ///
 /// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
 /// \sa https://github.com/Tinkerforge/red-brick
@@ -24,15 +24,11 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef HAND_H
-#define HAND_H
+#include <cstdint>
+#include <cstddef>
 
-#include <cstdlib>
-
-class Hand {
-public:
-    size_t x, y, width, height;
-    size_t center_x, center_y;
+struct Pixel {
+    uint16_t x, y;
+    size_t idx;
+    Pixel(uint16_t x, uint16_t y, size_t idx) : x(x), y(y), idx(idx) {}
 };
-
-#endif

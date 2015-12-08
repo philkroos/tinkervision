@@ -1,8 +1,8 @@
-/// \file detect.hh
+/// \file find_object.hh
 /// \author philipp.kroos@fh-bielefeld.de
 /// \date 2015
 ///
-/// \brief Declaration of \c Detect, part of the gesture module.
+/// \brief Declaration of \c FindObject, part of the gesture module.
 ///
 /// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
 /// \sa https://github.com/Tinkerforge/red-brick
@@ -24,37 +24,25 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef DETECT_H
-#define DETECT_H
+#ifndef FIND_OBJECT_H
+#define FIND_OBJECT_H
 
 #include <vector>
 
-#include <image.hh>
+#include "pixel.hh"
+#include <tinkervision/image.hh>
 
-#include "hand.hh"
-#include "find_object.hh"
-
-using namespace tv;
-
-class Detect {
+/// Find the largest connected object.
+/// Based on the method described in Watershed:
+/// http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=87344, see
+/// https://en.wikipedia.org/wiki/Connected-component_labeling
+class FindObject {
 private:
-    uint16_t framewidth_, frameheight_;
-    size_t bytesize_;
-    size_t history_;     ///< Number of images for background calculation
-    size_t available_;   ///< Currently available images, 0 < x <= history_
-    uint16_t handsize_;  ///< Minimum size of connected area to be possible hand
-    uint8_t threshold_;  ///< If (pixel - background) > threshold, foreground.
-    bool detecting_;     ///< State
-
-    FindObject* find_;
-
-    uint16_t* background_{nullptr};
-    ImageData* foreground_{nullptr};
-    ImageData* input_{nullptr};
+    uint16_t width_;
+    uint16_t height_;
     uint16_t* labels_{nullptr};
-    ImageData* refined_{nullptr};
 
-    // A possible hand match
+    // A possible match
     struct Object {
         uint16_t x, y;
         uint16_t count;
@@ -65,22 +53,12 @@ private:
     };
     std::vector<Object> objects_;
 
-    struct Pixel {
-        uint16_t x, y;
-        Pixel(uint16_t x, uint16_t y) : x(x), y(y) {}
-    };
-
 public:
-    Detect(void);
-    ~Detect(void);
-    void init(uint16_t width, uint16_t height);
+    FindObject(uint16_t width, uint16_t height);
+    ~FindObject(void);
 
-    void set_fg_threshold(uint8_t value);
-    bool set_history_size(size_t size);
-    void set_hand_size(uint16_t size);
-
-    bool get_hand(ImageData const* data, Hand& hand, ImageData** foreground,
-                  ImageData** labels);
+    using Result = std::vector<Pixel>;
+    bool operator()(Result&, uint16_t minsize, tv::ImageData const* image);
 };
 
 #endif
