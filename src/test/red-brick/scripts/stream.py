@@ -10,17 +10,22 @@ def run(red):
     sleep(1)
 
     # Set framesize to a streamable size
-    ok = red.vision_preselect_framesize(640, 480)
+    ok = red.vision_set_framesize(320, 240)
 
     if ok != 0:
-        raise Exception("vision::PreselectFramesize returned error: " + str(ok))
+        raise Exception("vision::SetFramesize returned error: " + str(ok))
 
     # Stream for 60 seconds
-    id = 0
-    ok = red.vision_stream(id)
+    ok, id = red.vision_module_start("stream")
 
     if ok != 0:
         raise Exception("vision::Stream returned error: " + str(ok))
 
-    print "Streaming for 60 seconds"
-    sleep(60)
+    sleep(1)
+    ok = 1
+    while ok > 0:
+        ok, url = red.vision_string_parameter_get(id, "url")
+
+    print "Streaming for 60 seconds on", url
+    sleep(120)
+    red.vision_remove_all_modules()
