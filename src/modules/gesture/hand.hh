@@ -24,15 +24,18 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef HAND_H
-#define HAND_H
+#pragma once
 
-#include <cstdlib>
+#include <iostream>
 
-class Hand {
-public:
-    size_t x, y, width, height;
+#include <tinkervision/image.hh>
+
+struct Hand {
+    uint16_t x, y, width, height;
     size_t center_x, center_y;
 };
 
-#endif
+std::ostream& operator<<(std::ostream& o, Hand const& hand);
+
+void bgr_average(Hand const& hand, tv::ImageData const* data, size_t dataw,
+                 uint8_t& b, uint8_t& g, uint8_t& r);

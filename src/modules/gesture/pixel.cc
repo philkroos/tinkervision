@@ -1,8 +1,8 @@
-/// \file pixel.hh
+/// \file pixel.cc
 /// \author philipp.kroos@fh-bielefeld.de
 /// \date 2015
 ///
-/// \brief Declaration of \c Pixel, part of the gesture module.
+/// \brief Definiton of \c Pixel related methods, part of the gesture module.
 ///
 /// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
 /// \sa https://github.com/Tinkerforge/red-brick
@@ -24,16 +24,5 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#pragma once
-
-#include <cstdint>
-#include <cstddef>
-
-struct Pixel {
-    uint16_t x, y;
-    size_t idx;
-    Pixel(void) = default;
-    Pixel(uint16_t x, uint16_t y, size_t idx) : x(x), y(y), idx(idx) {}
-};
-
-bool operator<(Pixel const& lhs, Pixel const& rhs);
+#include "pixel.hh"
+bool operator<(Pixel const& lhs, Pixel const& rhs) { return lhs.idx < rhs.idx; }

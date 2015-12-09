@@ -49,10 +49,6 @@ Detect::~Detect(void) {
     if (input_) {
         delete[] input_;
     }
-
-    if (labels_) {
-        delete[] labels_;
-    }
 }
 
 void Detect::init(uint16_t width, uint16_t height) {
@@ -63,7 +59,9 @@ void Detect::init(uint16_t width, uint16_t height) {
     if (find_) {
         delete find_;
     }
-    find_ = new FindObject(width, height);
+    find_ = new FindObject<Hand>(
+        width, height, [this](FindObject<Hand>::Thing const& thing,
+                              Hand& hand) { return acceptor_(thing, hand); });
 
     if (background_) {
         delete[] background_;
@@ -76,10 +74,6 @@ void Detect::init(uint16_t width, uint16_t height) {
     if (input_) {
         delete[] input_;
         input_ = nullptr;
-    }
-    if (labels_) {
-        delete[] labels_;
-        labels_ = nullptr;
     }
     if (refined_) {
         delete[] refined_;
@@ -100,8 +94,8 @@ bool Detect::set_history_size(size_t size) {
     return true;
 }
 
-bool Detect::get_hand(ImageData const* data, Hand& hand, ImageData** foreground,
-                      ImageData** labels) {
+bool Detect::get_hand(ImageData const* data, Hand& hand,
+                      ImageData** foreground) {
     if (not background_) {
         background_ = new int32_t[bytesize_];
     }
@@ -128,17 +122,14 @@ bool Detect::get_hand(ImageData const* data, Hand& hand, ImageData** foreground,
         detecting_ = true;
     }
 
-    auto bgr = data;
     if (not input_) {
         input_ = new ImageData[bytesize_];
-    }
-    if (not labels_) {
-        labels_ = new uint16_t[bytesize_]{0};
     }
     if (not refined_) {
         refined_ = new ImageData[bytesize_]{0};
     }
 
+    auto bgr = data;
     for (size_t i = 0; i < bytesize_; ++i) {
         input_[i] = static_cast<uint8_t>(
             std::round(0.114 * bgr[2] + 0.587 * bgr[1] + 0.299 * bgr[0]));
@@ -149,27 +140,19 @@ bool Detect::get_hand(ImageData const* data, Hand& hand, ImageData** foreground,
     if (not foreground_) {
         foreground_ = new ImageData[bytesize_];
     }
-    objects_.clear();
 
     for (size_t i = 0; i < bytesize_; ++i) {
         foreground_[i] =
             ((std::abs(background_[i] - input_[i])) > threshold_ ? 255 : 0);
-        labels_[i] = 0;
     }
 
-    auto& find = *find_;
-    FindObject::Result result;
-
-    std::fill_n(refined_, bytesize_, 0);
-
-    if (find(result, handsize_, foreground_)) {
-        for (auto const& px : result) {
-            refined_[px.y * framewidth_ + px.x] = 255;
-        }
+    acceptor_.image = data;
+    acceptor_.framewidth = framewidth_;
+    if (not(*find_)(hand, handsize_, foreground_)) {
+        return false;
     }
 
     *foreground = foreground_;
-    *labels = refined_;
 
     return true;
 }

@@ -28,6 +28,10 @@
 #define DETECT_H
 
 #include <vector>
+#include <iostream>
+#include <algorithm>
+
+#include <opencv2/opencv.hpp>
 
 #include <image.hh>
 
@@ -46,29 +50,53 @@ private:
     uint8_t threshold_;  ///< If (pixel - background) > threshold, foreground.
     bool detecting_;     ///< State
 
-    FindObject* find_{nullptr};
-
     int32_t* background_{nullptr};
     ImageData* foreground_{nullptr};
     ImageData* input_{nullptr};
-    uint16_t* labels_{nullptr};
     ImageData* refined_{nullptr};
 
-    // A possible hand match
-    struct Object {
-        uint16_t x, y;
-        uint16_t count;
-        uint16_t label;
-        Object(void) = default;
-        Object(uint16_t x, uint16_t y, uint16_t count, uint16_t label)
-            : x(x), y(y), count(count), label(label) {}
-    };
-    std::vector<Object> objects_;
+    FindObject<Hand>* find_{nullptr};
 
-    struct Pixel {
-        uint16_t x, y;
-        Pixel(uint16_t x, uint16_t y) : x(x), y(y) {}
+    struct Acceptor {
+        ImageData const* image{nullptr};
+        size_t framewidth;
+        bool operator()(FindObject<Hand>::Thing const& thing, Hand& hand) {
+            if (not image) {
+                return false;
+            }
+
+            auto minmaxx =
+                std::minmax_element(thing.cbegin(), thing.cend(),
+                                    [](Pixel const& lhs, Pixel const& rhs) {
+                    return lhs.x < rhs.x;
+                });
+            auto minmaxy =
+                std::minmax_element(thing.cbegin(), thing.cend(),
+                                    [](Pixel const& lhs, Pixel const& rhs) {
+                    return lhs.y < rhs.y;
+                });
+
+            hand.x = thing[minmaxx.first - thing.cbegin()].x;
+            hand.width = thing[minmaxx.second - thing.cbegin()].x - hand.x;
+            hand.y = thing[minmaxy.first - thing.cbegin()].y;
+            hand.height = thing[minmaxy.second - thing.cbegin()].y - hand.y;
+
+            uint8_t b, g, r;
+            bgr_average(hand, image, framewidth, b, g, r);
+            std::cout << "--Average: " << (int)b << "," << (int)g << ","
+                      << (int)r << std::endl;
+            std::cout << "--Hand: " << hand << std::endl;
+
+            // explicit skin region, see "A Survey on Pixel-Based Skin Color
+            // Detection Techniques"
+            return r > 95 and g > 40 and b > 20 and r > g and r > b and
+                   std::abs(r - g) > 15 and
+                   (std::max(std::max(r, g), b) - std::min(std::min(r, g), b) >
+                    15);
+        }
     };
+
+    Acceptor acceptor_;
 
 public:
     Detect(void);
@@ -79,8 +107,7 @@ public:
     bool set_history_size(size_t size);
     void set_hand_size(uint16_t size);
 
-    bool get_hand(ImageData const* data, Hand& hand, ImageData** foreground,
-                  ImageData** labels);
+    bool get_hand(ImageData const* data, Hand& hand, ImageData** foreground);
 };
 
 #endif

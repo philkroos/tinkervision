@@ -1,8 +1,8 @@
-/// \file pixel.hh
+/// \file hand.hh
 /// \author philipp.kroos@fh-bielefeld.de
 /// \date 2015
 ///
-/// \brief Declaration of \c Pixel, part of the gesture module.
+/// \brief Declaration of \c Hand.
 ///
 /// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
 /// \sa https://github.com/Tinkerforge/red-brick
@@ -24,16 +24,32 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#pragma once
+#include "hand.hh"
 
-#include <cstdint>
-#include <cstddef>
+std::ostream& operator<<(std::ostream& o, Hand const& hand) {
+    o << hand.x << "," << hand.y << "-" << hand.width << "," << hand.height
+      << std::endl;
+    return o;
+}
 
-struct Pixel {
-    uint16_t x, y;
-    size_t idx;
-    Pixel(void) = default;
-    Pixel(uint16_t x, uint16_t y, size_t idx) : x(x), y(y), idx(idx) {}
-};
+void bgr_average(Hand const& hand, tv::ImageData const* data, size_t dataw,
+                 uint8_t& b, uint8_t& g, uint8_t& r) {
 
-bool operator<(Pixel const& lhs, Pixel const& rhs);
+    uint32_t b32 = 0, g32 = 0, r32 = 0;
+    auto const width = 3 * dataw;
+    auto const handx = 3 * hand.x;
+    for (size_t i = hand.y; i < hand.y + hand.height; ++i) {
+        auto ptr = data + width * i + handx;
+
+        for (size_t j = 0; j < hand.width; ++j) {
+            b32 += *ptr++;
+            g32 += *ptr++;
+            r32 += *ptr++;
+        }
+    }
+    auto const size = hand.width * hand.height;
+    assert(size > 0);
+    b = static_cast<uint8_t>(b32 / size);
+    g = static_cast<uint8_t>(g32 / size);
+    r = static_cast<uint8_t>(r32 / size);
+}

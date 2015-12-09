@@ -44,6 +44,7 @@ void tv::Gesture::value_changed(std::string const& parameter, int32_t value) {
 void tv::Gesture::execute(tv::ImageHeader const& header, ImageData const* data,
                           tv::ImageHeader const&, ImageData*) {
 
+    std::cout << "Got " << header << std::endl;
     if (header != ref_header_) {
         // different image size needs to retrigger detection
         state_ = State::Initial;
@@ -58,23 +59,22 @@ void tv::Gesture::execute(tv::ImageHeader const& header, ImageData const* data,
             break;
         case State::Detect: {
             ImageData* foreground{nullptr};
-            ImageData* labels{nullptr};
-            if (detect_.get_hand(data, hand_, &foreground, &labels)) {
-                if (foreground) {
-                    cv::Mat fg(header.height, header.width, CV_8UC1,
-                               (void*)foreground);
-                    cv::imshow("Foreground", fg);
-                    cv::waitKey(20);
-                }
 
-                if (labels) {
-                    cv::Mat lb(header.height, header.width, CV_8UC1,
-                               (void*)labels);
-                    cv::imshow("Hand", lb);
-                    cv::waitKey(20);
-                }
+            if (detect_.get_hand(data, hand_, &foreground)) {
 
-                // Log("Gesture", "Hand detected at ", hand_.center);
+                cv::Mat fg(header.height, header.width, CV_8UC1,
+                           (void*)foreground);
+                cv::imshow("Foreground", fg);
+                cv::waitKey(20);
+
+                cv::Mat lb(header.height, header.width, CV_8UC3, (void*)data);
+                cv::rectangle(lb, {(int)hand_.x, (int)hand_.y},
+                              {(int)(hand_.x + hand_.width),
+                               (int)(hand_.y + hand_.height)},
+                              {255, 0, 0}, 2);
+                // cv::imwrite("/tmp/hand.jpg", lb);
+                cv::imshow("Hand", lb);
+                cv::waitKey(20);
             }
             break;
         }
