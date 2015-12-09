@@ -57,6 +57,7 @@ public:
         cv::namedWindow("HSV");
 
         register_parameter("fg-threshold", 0, 255, 50);
+        register_parameter("bg-history", 0, 150, 20);
         register_parameter("min-hand-size", 0, 76800, 200);  // max: 320x240
     }
 

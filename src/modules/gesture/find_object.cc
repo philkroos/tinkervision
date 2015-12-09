@@ -33,10 +33,7 @@
 #include <numeric>
 
 FindObject::FindObject(uint16_t width, uint16_t height)
-    : width_(width), height_(height) {
-
-    labels_ = new uint16_t[width_ * height_];
-}
+    : width_(width), height_(height), labels_(new uint16_t[width_ * height_]) {}
 
 FindObject::~FindObject(void) {
     if (labels_) {
@@ -94,7 +91,6 @@ bool FindObject::operator()(Result& result, uint16_t minsize,
                 }
                 if (objects_.back().count < 50) {
                     objects_.pop_back();
-                    continue;
                 }
 
                 label++;

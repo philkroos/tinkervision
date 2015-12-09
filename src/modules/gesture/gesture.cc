@@ -61,7 +61,9 @@ static void auto_canny(cv::Mat& image) {
 }
 
 void tv::Gesture::value_changed(std::string const& parameter, int32_t value) {
-    if (parameter == "fg-threshold") {
+    if (parameter == "bg-history") {
+        detect_.set_history_size(static_cast<size_t>(value));
+    } else if (parameter == "fg-threshold") {
         detect_.set_fg_threshold(static_cast<uint8_t>(value));
     } else if (parameter == "min-hand-size") {
         detect_.set_hand_size(static_cast<uint16_t>(value));

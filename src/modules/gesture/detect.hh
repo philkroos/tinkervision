@@ -46,9 +46,9 @@ private:
     uint8_t threshold_;  ///< If (pixel - background) > threshold, foreground.
     bool detecting_;     ///< State
 
-    FindObject* find_;
+    FindObject* find_{nullptr};
 
-    uint16_t* background_{nullptr};
+    int32_t* background_{nullptr};
     ImageData* foreground_{nullptr};
     ImageData* input_{nullptr};
     uint16_t* labels_{nullptr};
