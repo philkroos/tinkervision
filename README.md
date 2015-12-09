@@ -89,9 +89,13 @@ Red-Brick, which can be found e.g. with the Tinkerforge `brickv`. `main.py` and
 - `./main.py <uid> colormotion`
 
 # Note
-The library searches for loadable modules in two (currently fixed) paths:
-1. `/usr/lib/tinkervision`
-2. A custom path, which is currently set to `/tmp/lib/tinkervision` for testing.
+The library searches for loadable modules in two paths:
+1. `/usr/lib/tinkervision` is fixed
+2. The subdirectory `lib` in a custom path, which is configured at compile time:
+   - `USER_PREFIX=/home/me/vision/ make`
+   The default prefix is `/home/<current-user>/tv/`. The makefile tries to create
+   a valid directory structure.
 
-This means that modules that are installed to the second path won't be available
-after reboot and have to be reinstalled.
+The provided modules will be installed to the system folder by default, but if `PRE`
+is set during `make install`, they'll be installed to the user folder:
+  `PRE=~/tv/lib make install` installs the module to the pre-configured library path.
