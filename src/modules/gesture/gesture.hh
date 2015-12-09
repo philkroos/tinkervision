@@ -53,8 +53,8 @@ private:
 
 public:
     Gesture(Environment const& envir) : Module("gesture", envir) {
-        cv::namedWindow("Canny");
-        cv::namedWindow("HSV");
+        cv::namedWindow("Foreground");
+        cv::namedWindow("Hand");
 
         register_parameter("fg-threshold", 0, 255, 50);
         register_parameter("bg-history", 0, 150, 20);
