@@ -28,6 +28,7 @@
 #define FIND_OBJECT_H
 
 #include <vector>
+#include <functional>
 
 #include "pixel.hh"
 #include <tinkervision/image.hh>
@@ -37,28 +38,49 @@
 /// http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=87344, see
 /// https://en.wikipedia.org/wiki/Connected-component_labeling
 class FindObject {
+public:
+    using Thing = std::vector<Pixel>;
+    using Result = std::vector<Pixel>;
+    using Acceptable = std::function<bool(Thing const& thing)>;
+
+    FindObject(uint16_t width, uint16_t height, Acceptable acceptable);
+    FindObject(uint16_t width, uint16_t height);
+    ~FindObject(void);
+
+    bool operator()(Result&, uint16_t minsize, tv::ImageData const* image);
+
 private:
     uint16_t width_;
     uint16_t height_;
     uint16_t* labels_{nullptr};
+    Acceptable acceptable_{nullptr};
 
-    // A possible match
-    struct Object {
-        uint16_t x, y;
-        uint16_t count;
-        uint16_t label;
-        Object(void) = default;
-        Object(uint16_t x, uint16_t y, uint16_t count, uint16_t label)
-            : x(x), y(y), count(count), label(label) {}
+    struct CurrentThing {
+        Thing* thing = nullptr;
+        size_t looking_at = 0;
+        inline void emplace(uint16_t x, uint16_t y, size_t idx) {
+            thing->emplace_back(x, y, idx);
+        }
+        inline bool next(Pixel& pixel) {
+            if (looking_at == count()) {
+                return false;
+            }
+            pixel = (*thing)[looking_at++];
+            return true;
+        }
+        inline void clean(void) {
+            looking_at = 0;
+            thing->clear();
+        }
+        inline size_t count(void) const { return thing->size(); }
+
+        inline Thing const& it(void) const { return *thing; }
+
+        CurrentThing(Thing& thing) : thing(&thing) {}
     };
-    std::vector<Object> objects_;
 
-public:
-    FindObject(uint16_t width, uint16_t height);
-    ~FindObject(void);
-
-    using Result = std::vector<Pixel>;
-    bool operator()(Result&, uint16_t minsize, tv::ImageData const* image);
+    Thing pixel_;
+    CurrentThing thing_{pixel_};
 };
 
 #endif

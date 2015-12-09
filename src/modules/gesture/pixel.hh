@@ -30,5 +30,6 @@
 struct Pixel {
     uint16_t x, y;
     size_t idx;
+    Pixel(void) = default;
     Pixel(uint16_t x, uint16_t y, size_t idx) : x(x), y(y), idx(idx) {}
 };

@@ -33,7 +33,16 @@
 #include <numeric>
 
 FindObject::FindObject(uint16_t width, uint16_t height)
-    : width_(width), height_(height), labels_(new uint16_t[width_ * height_]) {}
+    : width_(width),
+      height_(height),
+      labels_(new uint16_t[width_ * height_]),
+      acceptable_([](Thing const& thing) { return true; }) {}
+
+FindObject::FindObject(uint16_t width, uint16_t height, Acceptable acceptable)
+    : width_(width),
+      height_(height),
+      labels_(new uint16_t[width_ * height_]),
+      acceptable_(acceptable) {}
 
 FindObject::~FindObject(void) {
     if (labels_) {
@@ -45,10 +54,9 @@ bool FindObject::operator()(Result& result, uint16_t minsize,
                             tv::ImageData const* image) {
 
     std::fill_n(labels_, width_ * height_, 0);
-    std::stack<Pixel, std::vector<Pixel>> current_object;
     uint16_t label = 1;
 
-    objects_.clear();
+    Pixel pixel;  // currently looking at
 
     auto const bborder = height_ - 1;
     auto const rborder = width_ - 1;
@@ -58,39 +66,38 @@ bool FindObject::operator()(Result& result, uint16_t minsize,
         for (uint16_t j = 0; j <= rborder; ++j) {
             size_t const idx = row + j;
 
+            thing_.clean();
             if (image[idx] and not labels_[idx]) {
-                objects_.emplace_back(j, i, 1, label);
-                auto& labelling = objects_.back();
+                thing_.emplace(j, i, idx);
                 labels_[idx] = label;
-                current_object.emplace(j, i, idx);
 
-                while (not current_object.empty()) {
-                    auto const& obj = current_object.top();
-                    auto const objx = obj.x;
-                    auto const objy = obj.y;
-                    auto const px = obj.idx;
-                    current_object.pop();
+                while (thing_.next(pixel)) {
+                    auto const objx = pixel.x;
+                    auto const objy = pixel.y;
+                    auto const px = pixel.idx;
 
                     auto const rlimit = (objx == rborder ? 0 : 1);
-                    auto const blimit = (objy == bborder ? 0 : width_);
+                    auto const blimit = (objy == bborder ? 0 : 1);
 
-                    for (int y = (objy ? -width_ : 0); y <= blimit;
-                         y += width_) {
-                        auto const line = px + y;
+                    for (int y = (objy ? -1 : 0); y <= blimit; ++y) {
+                        auto const line = px + y * width_;
 
                         for (int x = (objx ? -1 : 0); x <= rlimit; ++x) {
                             auto const pos = line + x;
 
                             if (image[pos] and not labels_[pos]) {
-                                current_object.emplace(objx + x, objy + y, pos);
+                                thing_.emplace(objx + x, objy + y, pos);
                                 labels_[pos] = label;
-                                labelling.count++;
                             }
                         }
                     }
                 }
-                if (objects_.back().count < 50) {
-                    objects_.pop_back();
+                std::cout << "Got thing with " << thing_.count() << std::endl;
+                if (thing_.count() >= minsize and acceptable_(thing_.it())) {
+                    std::cout << "Found thing with " << thing_.count()
+                              << std::endl;
+                    result = thing_.it();
+                    return true;
                 }
 
                 label++;
@@ -98,7 +105,9 @@ bool FindObject::operator()(Result& result, uint16_t minsize,
             }
         }
     }
+    return false;
 
+    /*
     std::cout << "Found " << objects_.size() << " objects." << std::endl;
     if (not objects_.size()) return true;
 
@@ -128,4 +137,5 @@ bool FindObject::operator()(Result& result, uint16_t minsize,
     }
 
     return false;
+    */
 }
