@@ -46,23 +46,23 @@ static std::atomic_int tv_buffered_result{
 static std::atomic_flag tv_buffer_flag{
     ATOMIC_FLAG_INIT};  ///< Used to signal an operation is finished
 
-#define LOW_LATENCY_CALL(code)                                           \
-    tv_buffered_result = TV_RESULT_BUFFERED;                             \
-    if (tv_buffer_flag.test_and_set()) {                                 \
-        return tv_buffered_result;                                       \
-    }                                                                    \
-    std::thread([&](void) {                                              \
-        tv_buffered_result.store(code);                                  \
-        tv_buffer_flag.clear();                                          \
-                }).detach();                                             \
-    bool set(true);                                                      \
-    for (uint8_t i = 0; i < 5 and (set = tv_buffer_flag.test_and_set()); \
-         ++i) {                                                          \
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));     \
-    }                                                                    \
-    if (not set) {                                                       \
-      tv_buffer_flag.clear(); /* set in for-loop */                      \
-    }                                                                    \
+#define LOW_LATENCY_CALL(code)                                                \
+    tv_buffered_result = TV_RESULT_BUFFERED;                                  \
+    if (tv_buffer_flag.test_and_set()) {                                      \
+        return tv_buffered_result;                                            \
+    }                                                                         \
+    std::thread([&](void) {                                                   \
+        tv_buffered_result.store(code);                                       \
+        tv_buffer_flag.clear();                                               \
+                }).detach();                                                  \
+    bool set(true);                                                           \
+    for (uint8_t i = 0; i < GRAINS and (set = tv_buffer_flag.test_and_set()); \
+         ++i) {                                                               \
+        std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_GRAIN));  \
+    }                                                                         \
+    if (not set) {                                                            \
+        tv_buffer_flag.clear(); /* set in for-loop */                         \
+    }                                                                         \
     return static_cast<int16_t>(tv_buffered_result.load());
 #else
 #define LOW_LATENCY_CALL(code) return code

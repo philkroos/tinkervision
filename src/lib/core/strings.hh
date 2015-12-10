@@ -42,6 +42,7 @@ private:
         {TV_NOT_IMPLEMENTED, "Not implemented"},
         {TV_INTERNAL_ERROR, "Unknown internal error"},
         {TV_INVALID_ARGUMENT, "Invalid argument passed"},
+        {TV_BUSY, "Tinkervision busy; try again"},
         {TV_NODE_ALLOCATION_FAILED, "Allocating scene node failed"},
         {TV_NO_ACTIVE_MODULES, "No active modules"},
         // -21...

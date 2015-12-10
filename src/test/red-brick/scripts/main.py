@@ -1,20 +1,22 @@
 #!/usr/bin/python
 import sys
+import importlib
 
 # RedBrick resource wrapper
 from rb_setup import RedBrick
-# available testfiles
-import remove_all, availability, stream, common, colormotion, scenes
 
 testfiles = {
-    "remove_all": remove_all,
-    "stream": stream,
-    "availability": availability,
-    "common": common,
-    "colormotion": colormotion,
-    "scenes": scenes
+    "responsiveness": None,
+    "remove_all": None,
+    "stream": None,
+    "availability": None,
+    "common": None,
+    "colormotion": None,
+    "scenes": None,
     }
 
+for name in testfiles:
+    testfiles[name] = importlib.import_module(name)
 
 def usage_exit(prog):
     print "Usage 1 (on RedBrick):", prog, "rb-uid testfilename", \

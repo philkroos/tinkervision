@@ -468,6 +468,9 @@ private:
                        noexcept(FrameConversions()) and noexcept(Strings()) and
                        noexcept(SceneTrees()));
 
+    std::atomic_flag done_{ATOMIC_FLAG_INIT};  ///< Used to synchronize long
+    /// lasting operations, in particular _module_load()
+
     CameraControl camera_control_;  ///< Camera access abstraction
     FrameConversions conversions_;  ///< Camera frame in requested formats
     Strings result_string_map_;     ///< String mapping of Api-return values

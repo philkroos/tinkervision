@@ -81,12 +81,18 @@ Red-Brick and on a PC which can access the device:
 7. `cd python && WITH_TINKERVISION=1 python generate_python_bindings.py`
 8. `cp ip_connection bindings/brick_red.py /home/tf/TinkervisionTest/tinkervision/src/test/red-brick/scripts/tinkerforge`
 9. `cd /home/tf/TinkervisionTest/tinkervision/src/test/red-brick/scripts`
+10. `touch tinkerforge/__init__.py`
 
 Then you should be able to execute the scripts, but you need the UID of your
 Red-Brick, which can be found e.g. with the Tinkerforge `brickv`. `main.py` and
 `rb_setup.py` are utilities. The other files are tests which can be executed like:
 
 - `./main.py <uid> colormotion`
+
+If execution fails there may be another instance of ip_connection or brick_red.py in
+the system, probably from an installation of brickv. The easiest solution would be to
+remove all system-wide installed tinkerforge packages then, as well as the egg from
+Pythons site-packages.
 
 # Note
 The library searches for loadable modules in two paths:
