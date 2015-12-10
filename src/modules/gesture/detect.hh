@@ -44,6 +44,7 @@ class Detect {
 private:
     uint16_t framewidth_, frameheight_;
     size_t bytesize_;
+    size_t rgb_bytesize_;
     size_t history_;     ///< Number of images for background calculation
     size_t available_;   ///< Currently available images, 0 < x <= history_
     uint16_t handsize_;  ///< Minimum size of connected area to be possible hand

@@ -55,6 +55,7 @@ void Detect::init(uint16_t width, uint16_t height) {
     framewidth_ = width;
     frameheight_ = height;
     bytesize_ = width * height;
+    rgb_bytesize_ = bytesize_ * 3;
 
     if (find_) {
         delete find_;
@@ -97,7 +98,7 @@ bool Detect::set_history_size(size_t size) {
 bool Detect::get_hand(ImageData const* data, Hand& hand,
                       ImageData** foreground) {
     if (not background_) {
-        background_ = new int32_t[bytesize_];
+        background_ = new int32_t[rgb_bytesize_];
     }
     if (not foreground_) {
         foreground_ = new ImageData[bytesize_];
@@ -114,12 +115,8 @@ bool Detect::get_hand(ImageData const* data, Hand& hand,
     if (available_ < history_) {  // build frames for background detection
         assert(background_);
         auto bgr = data;
-        for (size_t i = 0; i < bytesize_; ++i) {
-            background_[i] =
-                background_[i] +
-                static_cast<int32_t>(std::round(
-                    0.114 * bgr[2] + 0.587 * bgr[1] + 0.299 * bgr[0]));
-            bgr += 3;
+        for (size_t i = 0; i < rgb_bytesize_; ++i) {
+            background_[i] += static_cast<int32_t>(bgr[i]);
         }
         available_++;
         std::cout << available_ << " available." << std::endl;
@@ -127,22 +124,22 @@ bool Detect::get_hand(ImageData const* data, Hand& hand,
     }
 
     else if (not detecting_) {
-        for (size_t i = 0; i < bytesize_; ++i) {
+        for (size_t i = 0; i < rgb_bytesize_; ++i) {
             background_[i] /= history_;
         }
         detecting_ = true;
     }
 
-    auto bgr = data;
+    auto rgb_back = background_;
+    auto rgb = data;
+    /// Uses the similarity metric from "View-based Detection and Analysis of
+    /// Periodic Motion" [Cutler/Davis]
+    uint16_t sim;
     for (size_t i = 0; i < bytesize_; ++i) {
-        input_[i] = static_cast<uint8_t>(
-            std::round(0.114 * bgr[2] + 0.587 * bgr[1] + 0.299 * bgr[0]));
-        bgr += 3;
-    }
-
-    for (size_t i = 0; i < bytesize_; ++i) {
-        foreground_[i] =
-            ((std::abs(background_[i] - input_[i])) > threshold_ ? 255 : 0);
+        sim = std::abs((int)*rgb++ - (int)*rgb_back++);
+        sim += std::abs((int)*rgb++ - (int)*rgb_back++);
+        sim += std::abs((int)*rgb++ - (int)*rgb_back++);
+        foreground_[i] = sim > threshold_ ? 255 : 0;
     }
 
     acceptor_.image = data;
