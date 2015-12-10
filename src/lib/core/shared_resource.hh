@@ -95,8 +95,7 @@ private:
 
 public:
     SharedResource(void)
-        : SharedResource(&SharedResource::fallback_executor, this) {
-    }
+        : SharedResource(&SharedResource::fallback_executor, this) {}
 
     template <class Callable>
     SharedResource(void (Callable::*default_executor)(int16_t, Resource&),
@@ -444,6 +443,45 @@ public:
     Resource* access_unlocked(int16_t id) {
         auto it = managed_.find(id);
         return (it == managed_.end()) ? nullptr : it->second.resource;
+    }
+
+    /// Constructs a Resource with the arguments ...args.  Prior to
+    /// construction, it is checked if another resource is allocated
+    /// under the same id.  Only the inactive resources are considered
+    /// here: If a resource with the given id is already activated, the
+    /// new resource will be constructed but never be activated.
+    /// Therefore, it is mandatory to always provide a fresh id.
+    /// \return false if the id was already allocated.
+    /// \deprecated Use insert.
+    template <typename T, typename... Args>
+    bool allocate(int16_t id, AfterAllocatedHook callback, Args... args) {
+        static_assert(std::is_convertible<T*, Resource*>::value,
+                      "Wrong type passed to allocate");
+
+        std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
+        if (exists(managed_, id)) {
+            LogWarning("SHARED_RESOURCE::allocate", "Double allocate");
+
+            return false;
+        }
+
+        try {
+            managed_[id] = ResourceContainer();
+            managed_[id].resource = new T(id, args...);
+            ids_managed_.push_back(id);
+
+        } catch (tv::ConstructionException const& ce) {
+            LogError("SHARED_RESOURCE::allocate", ce.what());
+
+            return false;
+        }
+
+        if (nullptr != callback) {
+            callback(*managed_[id].resource);
+        }
+
+        return true;
     }
 
 private:
