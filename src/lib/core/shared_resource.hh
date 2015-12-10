@@ -44,6 +44,10 @@
 #ifndef SHARED_RESOURCE_H
 #define SHARED_RESOURCE_H
 
+#ifdef __STDC_NO_ATOMICS__
+#error "Atomics not available"
+#endif
+
 #include <shared_mutex>
 #include <atomic>
 #include <unordered_map>
@@ -91,7 +95,8 @@ private:
 
 public:
     SharedResource(void)
-        : SharedResource(&SharedResource::fallback_executor, this) {}
+        : SharedResource(&SharedResource::fallback_executor, this) {
+    }
 
     template <class Callable>
     SharedResource(void (Callable::*default_executor)(int16_t, Resource&),
@@ -117,14 +122,16 @@ public:
         } else {
             std::shared_lock<std::shared_timed_mutex> lock(mutex_);
 
-            for (auto& id : ids_managed_) {
+            auto limit = ids_managed_.size();
+            auto id = ids_managed_.cbegin();
+            for (size_t i = 0; i < limit; ++i) {
                 /// but allow execution of an interrupt from exec_one_now()
                 if (interrupt_lock_.test_and_set(std::memory_order_acquire)) {
                     while (
                         interrupt_lock_.test_and_set(std::memory_order_acquire))
                         ;
                 }
-                executor(id, *(managed_[id].resource));
+                executor(*id, *(managed_[*id++].resource));
 
                 interrupt_lock_.clear();
             }
@@ -145,17 +152,21 @@ public:
         } else {
             std::shared_lock<std::shared_timed_mutex> lock(mutex_);
 
-            for (auto& id : ids_managed_) {
+            auto limit = ids_managed_.size();
+            auto id = ids_managed_.cbegin();
+            for (size_t i = 0; i < limit; ++i) {
                 /// Allow interrupting execution of a specific resource.
                 /// \see exec_one_now(), exec_one_now_restarting()
-	        while (interrupt_lock_.test_and_set(std::memory_order_acquire)) {
+                while (
+                    interrupt_lock_.test_and_set(std::memory_order_acquire)) {
                     if (not resume_on_interrupt_) {
                         return;
                     }
                 }
-                if (predicate(*(managed_[id].resource))) {
-                    executor(id, *(managed_[id].resource));
+                if (predicate(*(managed_[*id].resource))) {
+                    executor(*id, *(managed_[*id].resource));
                 }
+                id++;
 
                 interrupt_lock_.clear();
             }
@@ -246,7 +257,7 @@ public:
     /// \param[in] deallocator Optional function to be called immediately before
     /// this resource is removed.
     bool insert(int16_t id, Resource* module, Deallocator deallocator) {
-        std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+        std::shared_lock<std::shared_timed_mutex> lock(mutex_);
 
         if (exists(managed_, id)) {
             LogWarning("SHARED_RESOURCE", "Double allocate");
@@ -276,64 +287,14 @@ public:
 
         managed_.erase(id);
         ids_managed_.remove(id);
-        return true;
-    }
-
-    /// Constructs a Resource with the arguments ...args.  Prior to
-    /// construction, it is checked if another resource is allocated
-    /// under the same id.  Only the inactive resources are considered
-    /// here: If a resource with the given id is already activated, the
-    /// new resource will be constructed but never be activated.
-    /// Therefore, it is mandatory to always provide a fresh id.
-    /// \return false if the id was already allocated.
-    template <typename T, typename... Args>
-    bool allocate(int16_t id, AfterAllocatedHook callback, Args... args) {
-        static_assert(std::is_convertible<T*, Resource*>::value,
-                      "Wrong type passed to allocate");
-
-        std::unique_lock<std::shared_timed_mutex> lock(mutex_);
-
-        if (exists(managed_, id)) {
-            LogWarning("SHARED_RESOURCE::allocate", "Double allocate");
-
-            return false;
-        }
-
-        try {
-            managed_[id] = ResourceContainer();
-            managed_[id].resource = new T(id, args...);
-            ids_managed_.push_back(id);
-
-        } catch (tv::ConstructionException const& ce) {
-            LogError("SHARED_RESOURCE::allocate", ce.what());
-
-            return false;
-        }
-
-        if (nullptr != callback) {
-            callback(*managed_[id].resource);
-        }
 
         return true;
-    }
-
-    /// Marks the resource associated with id as removable.
-    /// The resource is still active, i.e. managed() would return t.
-    void free(int16_t id) {
-        std::unique_lock<std::shared_timed_mutex> lock(mutex_);
-
-        if (exists(managed_, id)) {
-            auto resource = managed_[id].resource;
-            managed_.erase(id);
-            ids_managed_.remove(id);
-            delete resource;
-        }
     }
 
     /// Removes each (active) resource for which a given predicate holds.
     /// \param[in] predicate A predicate accepting a single resource cref.
     /// \return The number of resources removed.
-    size_t free_if(std::function<bool(Resource const& resource)> predicate) {
+    size_t remove_if(std::function<bool(Resource const& resource)> predicate) {
         std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
         auto count = static_cast<size_t>(0);
@@ -353,7 +314,7 @@ public:
         return count;
     }
 
-    void free_all(void) {
+    void remove_all(void) {
         std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
         managed_.clear();

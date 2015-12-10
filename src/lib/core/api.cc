@@ -250,7 +250,7 @@ void tv::Api::execute(void) {
             }
 
             // Propagate deletion of modules marked for removal
-            modules_->free_if([](ModuleWrapper const& module) {
+            modules_->remove_if([](ModuleWrapper const& module) {
                 return module.tags() & ModuleWrapper::Tag::Removable;
             });
 
@@ -604,7 +604,7 @@ std::string const& tv::Api::system_module_path(void) const {
 void tv::Api::remove_all_modules(void) {
     _disable_all_modules();
 
-    modules_->free_all();
+    modules_->remove_all();
     idle_process_running_ = false;
     Log("Api", "All modules released");
 }
@@ -624,6 +624,13 @@ bool tv::Api::library_get_name_and_path(uint16_t count, std::string& name,
 
 int16_t tv::Api::_module_load(std::string const& name, int16_t id) {
     Log("API", "ModuleLoad ", name, " ", id);
+#ifndef DEFAULT_CALL
+    uint16_t ms = DELAY_GRAIN * (GRAINS - 2);
+#else
+    uint16_t ms = 1000;
+#endif
+    auto start = std::chrono::steady_clock::now();
+    auto maxend = start + std::chrono::milliseconds(ms);
 
     if ((*modules_)[id]) {
         return TV_INVALID_ID;
@@ -646,22 +653,43 @@ int16_t tv::Api::_module_load(std::string const& name, int16_t id) {
     }
 
     // Add modules to managed objects and register destruction handler
-    if (not modules_->insert(id, module, [this](ModuleWrapper& module) {
-            module_loader_->destroy_module(&module);
-        })) {
+    std::thread(
+        [this, module, id](void) {
+            if (not modules_->insert(id, module, [this](ModuleWrapper& module) {
+                    module_loader_->destroy_module(&module);
+                })) {
 
-        camera_control_.release();
-        return TV_MODULE_INITIALIZATION_FAILED;
+                camera_control_.release();
+                LogError("API", "Inserting a module failed");
+                return;
+                // return TV_MODULE_INITIALIZATION_FAILED;
+            }
+            done_.test_and_set();
+        }).detach();
+
+    std::this_thread::sleep_until(maxend);
+    if (done_.test_and_set()) {  // module loaded
+        std::thread([this, module](void) {
+                        /// Add the default callback to each new module
+                        if (default_callback_) {
+                            module->register_callback(default_callback_);
+                        }
+
+                        /// \todo Catch the cases in which this fails and remove
+                        /// the
+                        /// module.
+                        (void)module->enable();
+                    }).detach();
+        return TV_OK;
+    } else {
+        std::thread([this, id](void) {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(
+                            2000));  // should be loaded now
+                        module_destroy(id);
+                    }).detach();
+
+        return TV_BUSY;
     }
-
-    /// Add the default callback to each new module
-    if (default_callback_) {
-        module->register_callback(default_callback_);
-    }
-
-    /// \todo Catch the cases in which this fails and remove the module.
-    (void)module->enable();
-    return TV_OK;
 }
 
 void tv::Api::_disable_all_modules(void) {
