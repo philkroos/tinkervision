@@ -82,7 +82,7 @@ private:
             hand.height = thing[minmaxy.second - thing.cbegin()].y - hand.y;
 
             uint8_t b, g, r;
-            bgr_average(hand, image, framewidth, b, g, r);
+            bgr_average(thing, image, b, g, r);
             std::cout << "--Average: " << (int)b << "," << (int)g << ","
                       << (int)r << std::endl;
             std::cout << "--Hand: " << hand << std::endl;

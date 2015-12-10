@@ -27,8 +27,11 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
 
 #include <tinkervision/image.hh>
+
+#include "pixel.hh"
 
 struct Hand {
     uint16_t x, y, width, height;
@@ -38,4 +41,7 @@ struct Hand {
 std::ostream& operator<<(std::ostream& o, Hand const& hand);
 
 void bgr_average(Hand const& hand, tv::ImageData const* data, size_t dataw,
+                 uint8_t& b, uint8_t& g, uint8_t& r);
+
+void bgr_average(std::vector<Pixel> const& pixels, tv::ImageData const* data,
                  uint8_t& b, uint8_t& g, uint8_t& r);

@@ -19,7 +19,7 @@ INC		+= -I/usr/include/python2.7 -I/usr/include/tinkervision
 
 SO		:= gesture.so
 TV		:= interface/module.o interface/image.o interface/parameter.o
-OBJ		:= gesture.o detect.o find_object.o hand.o pixel.o $(TV)
+OBJ		:= gesture.o detect.o hand.o pixel.o $(TV)
 
 all: so
 

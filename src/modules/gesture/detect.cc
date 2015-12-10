@@ -99,6 +99,17 @@ bool Detect::get_hand(ImageData const* data, Hand& hand,
     if (not background_) {
         background_ = new int32_t[bytesize_];
     }
+    if (not foreground_) {
+        foreground_ = new ImageData[bytesize_];
+    }
+    if (not input_) {
+        input_ = new ImageData[bytesize_];
+    }
+    if (not refined_) {
+        refined_ = new ImageData[bytesize_]{0};
+    }
+
+    *foreground = foreground_;
 
     if (available_ < history_) {  // build frames for background detection
         assert(background_);
@@ -122,23 +133,11 @@ bool Detect::get_hand(ImageData const* data, Hand& hand,
         detecting_ = true;
     }
 
-    if (not input_) {
-        input_ = new ImageData[bytesize_];
-    }
-    if (not refined_) {
-        refined_ = new ImageData[bytesize_]{0};
-    }
-
     auto bgr = data;
     for (size_t i = 0; i < bytesize_; ++i) {
         input_[i] = static_cast<uint8_t>(
             std::round(0.114 * bgr[2] + 0.587 * bgr[1] + 0.299 * bgr[0]));
         bgr += 3;
-    }
-
-    // detect foreground
-    if (not foreground_) {
-        foreground_ = new ImageData[bytesize_];
     }
 
     for (size_t i = 0; i < bytesize_; ++i) {
@@ -151,8 +150,6 @@ bool Detect::get_hand(ImageData const* data, Hand& hand,
     if (not(*find_)(hand, handsize_, foreground_)) {
         return false;
     }
-
-    *foreground = foreground_;
 
     return true;
 }
