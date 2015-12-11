@@ -175,8 +175,8 @@ bool FindObject<What>::operator()(What& what, uint16_t minsize,
                 if (thing_.count() >= minsize and
                     acceptable_(thing_.it(), what)) {
 
-                    std::cout << "Found thing with " << thing_.count()
-                              << std::endl;
+                    // std::cout << "Found thing with " << thing_.count()
+                    //           << std::endl;
 
                     return true;
                 }

@@ -65,7 +65,10 @@ void tv::Gesture::execute(tv::ImageHeader const& header, ImageData const* data,
                               {(int)(hand_.x + hand_.width),
                                (int)(hand_.y + hand_.height)},
                               {255, 0, 0}, 2);
+                cv::circle(lb, {(int)hand_.centroid_x, (int)hand_.centroid_y},
+                           5, {255, 0, 0}, 2);
                 // cv::imwrite("/tmp/hand.jpg", lb);
+                std::cout << hand_ << std::endl;
                 cv::imshow("Hand", lb);
                 cv::waitKey(20);
             }

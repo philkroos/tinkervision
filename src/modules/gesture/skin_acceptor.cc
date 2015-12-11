@@ -1,8 +1,8 @@
-/// \file hand.hh
+/// \file skin_accoptor.hh
 /// \author philipp.kroos@fh-bielefeld.de
 /// \date 2015
 ///
-/// \brief Declaration of \c Hand.
+/// \brief Implementation of \c Acceptors for use with FindObject.
 ///
 /// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
 /// \sa https://github.com/Tinkerforge/red-brick
@@ -24,30 +24,32 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#pragma once
-
+#include "skin_acceptor.hh"
 #include <iostream>
-#include <vector>
 
-#include <tinkervision/image.hh>
+bool SkinAcceptor::operator()(FindObject<Hand>::Thing const& thing,
+                              Hand& hand) {
+    if (not(*this)(thing)) {
+        return false;
+    }
+    return make_hand(image, framewidth, thing, hand);
+}
 
-#include "pixel.hh"
+bool ExplicitSkinRegionAcceptor::operator()(
+    FindObject<Hand>::Thing const& thing) {
+    if (not image) {
+        return false;
+    }
 
-struct Hand {
-    uint16_t x, y;                    ///< Minima
-    uint16_t width, height;           ///< Maxima - Minima
-    uint16_t centroid_x, centroid_y;  ///< absolute
+    uint8_t b, g, r;
+    bgr_average(thing, image, b, g, r);
 
-    uint8_t b, g, r;  ///< Average around centroid
-};
+    if (not(r > 95 and g > 40 and b > 20 and r > (g + 15) and r > (b + 15))) {
 
-std::ostream& operator<<(std::ostream& o, Hand const& hand);
+        std::cout << "Rejecting " << (int)b << "," << (int)g << "," << (int)r
+                  << std::endl;
+        return false;
+    }
 
-bool make_hand(uint8_t const* frame, uint16_t framewidth,
-               std::vector<Pixel> const& pixel, Hand& hand);
-
-void bgr_average(Hand const& hand, tv::ImageData const* data, size_t dataw,
-                 uint8_t& b, uint8_t& g, uint8_t& r);
-
-void bgr_average(std::vector<Pixel> const& pixels, tv::ImageData const* data,
-                 uint8_t& b, uint8_t& g, uint8_t& r);
+    return true;
+}

@@ -37,6 +37,7 @@
 
 #include "hand.hh"
 #include "find_object.hh"
+#include "skin_acceptor.hh"
 
 using namespace tv;
 
@@ -58,46 +59,8 @@ private:
 
     FindObject<Hand>* find_{nullptr};
 
-    struct Acceptor {
-        ImageData const* image{nullptr};
-        size_t framewidth;
-        bool operator()(FindObject<Hand>::Thing const& thing, Hand& hand) {
-            if (not image) {
-                return false;
-            }
-
-            auto minmaxx =
-                std::minmax_element(thing.cbegin(), thing.cend(),
-                                    [](Pixel const& lhs, Pixel const& rhs) {
-                    return lhs.x < rhs.x;
-                });
-            auto minmaxy =
-                std::minmax_element(thing.cbegin(), thing.cend(),
-                                    [](Pixel const& lhs, Pixel const& rhs) {
-                    return lhs.y < rhs.y;
-                });
-
-            hand.x = thing[minmaxx.first - thing.cbegin()].x;
-            hand.width = thing[minmaxx.second - thing.cbegin()].x - hand.x;
-            hand.y = thing[minmaxy.first - thing.cbegin()].y;
-            hand.height = thing[minmaxy.second - thing.cbegin()].y - hand.y;
-
-            uint8_t b, g, r;
-            bgr_average(thing, image, b, g, r);
-            std::cout << "--Average: " << (int)b << "," << (int)g << ","
-                      << (int)r << std::endl;
-            std::cout << "--Hand: " << hand << std::endl;
-
-            // explicit skin region, see "A Survey on Pixel-Based Skin Color
-            // Detection Techniques"
-            return r > 95 and g > 40 and b > 20 and r > g and r > b and
-                   std::abs(r - g) > 15 and
-                   (std::max(std::max(r, g), b) - std::min(std::min(r, g), b) >
-                    15);
-        }
-    };
-
-    Acceptor acceptor_;
+    SkinAcceptor* acceptor_{nullptr};
+    std::string method_{""};
 
 public:
     Detect(void);
@@ -107,6 +70,7 @@ public:
     void set_fg_threshold(uint8_t value);
     bool set_history_size(size_t size);
     void set_hand_size(uint16_t size);
+    bool set_acceptor(std::string const& method);
 
     bool get_hand(ImageData const* data, Hand& hand, ImageData** foreground);
 };

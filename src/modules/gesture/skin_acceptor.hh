@@ -1,8 +1,8 @@
-/// \file hand.hh
+/// \file skin_acceptor.hh
 /// \author philipp.kroos@fh-bielefeld.de
 /// \date 2015
 ///
-/// \brief Declaration of \c Hand.
+/// \brief Declaration of \c Acceptors for use with FindObject.
 ///
 /// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
 /// \sa https://github.com/Tinkerforge/red-brick
@@ -26,28 +26,20 @@
 
 #pragma once
 
-#include <iostream>
-#include <vector>
+#include "find_object.hh"
+#include "hand.hh"
 
-#include <tinkervision/image.hh>
+struct SkinAcceptor {
+    virtual ~SkinAcceptor(void) = default;
+    uint8_t const* image{nullptr};
+    uint16_t framewidth{0};
 
-#include "pixel.hh"
-
-struct Hand {
-    uint16_t x, y;                    ///< Minima
-    uint16_t width, height;           ///< Maxima - Minima
-    uint16_t centroid_x, centroid_y;  ///< absolute
-
-    uint8_t b, g, r;  ///< Average around centroid
+    bool operator()(FindObject<Hand>::Thing const& thing, Hand& hand);
+    virtual bool operator()(FindObject<Hand>::Thing const& thing) = 0;
 };
 
-std::ostream& operator<<(std::ostream& o, Hand const& hand);
-
-bool make_hand(uint8_t const* frame, uint16_t framewidth,
-               std::vector<Pixel> const& pixel, Hand& hand);
-
-void bgr_average(Hand const& hand, tv::ImageData const* data, size_t dataw,
-                 uint8_t& b, uint8_t& g, uint8_t& r);
-
-void bgr_average(std::vector<Pixel> const& pixels, tv::ImageData const* data,
-                 uint8_t& b, uint8_t& g, uint8_t& r);
+/// Explicit skin region detection, see "A Survey on Pixel-Based Skin Color
+/// Detection Techniques"
+struct ExplicitSkinRegionAcceptor : public SkinAcceptor {
+    bool operator()(FindObject<Hand>::Thing const& thing) override;
+};

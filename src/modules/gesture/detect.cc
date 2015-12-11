@@ -61,8 +61,9 @@ void Detect::init(uint16_t width, uint16_t height) {
         delete find_;
     }
     find_ = new FindObject<Hand>(
-        width, height, [this](FindObject<Hand>::Thing const& thing,
-                              Hand& hand) { return acceptor_(thing, hand); });
+        width, height,
+        [this](FindObject<Hand>::Thing const& thing,
+               Hand& hand) { return (*acceptor_)(thing, hand); });
 
     if (background_) {
         delete[] background_;
@@ -80,6 +81,10 @@ void Detect::init(uint16_t width, uint16_t height) {
         delete[] refined_;
         refined_ = nullptr;
     }
+
+    if (not acceptor_) {
+        set_acceptor("explicit");
+    }
     detecting_ = false;
 }
 
@@ -92,6 +97,28 @@ bool Detect::set_history_size(size_t size) {
         return false;
     }
     history_ = size;
+    return true;
+}
+
+bool Detect::set_acceptor(std::string const& method) {
+    if (method == method_) {
+        return true;
+    }
+    SkinAcceptor* new_acceptor{nullptr};
+    if (method == "explicit") {
+        new_acceptor = new ExplicitSkinRegionAcceptor;
+    }
+
+    if (not new_acceptor) {
+        return false;
+    }
+
+    auto old_acceptor = acceptor_;
+    acceptor_ = new_acceptor;
+
+    if (old_acceptor) {
+        delete old_acceptor;
+    }
     return true;
 }
 
@@ -142,8 +169,8 @@ bool Detect::get_hand(ImageData const* data, Hand& hand,
         foreground_[i] = sim > threshold_ ? 255 : 0;
     }
 
-    acceptor_.image = data;
-    acceptor_.framewidth = framewidth_;
+    acceptor_->image = data;
+    acceptor_->framewidth = framewidth_;
     if (not(*find_)(hand, handsize_, foreground_)) {
         return false;
     }

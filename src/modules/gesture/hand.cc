@@ -26,10 +26,92 @@
 
 #include "hand.hh"
 
+#include <algorithm>
+
 std::ostream& operator<<(std::ostream& o, Hand const& hand) {
-    o << hand.x << "," << hand.y << "-" << hand.width << "," << hand.height
-      << std::endl;
+    o << "Rectangle: " << hand.x << "," << hand.y << "-" << hand.width << ","
+      << hand.height << std::endl << "Centroid: " << hand.centroid_x << ","
+      << hand.centroid_y << std::endl << "Average B,G,R: " << (int)hand.b << ","
+      << (int)hand.g << "," << (int)hand.r << std::endl;
     return o;
+}
+
+bool make_hand(uint8_t const* frame, uint16_t framewidth,
+               std::vector<Pixel> const& pixels, Hand& hand) {
+    hand.x = std::numeric_limits<uint16_t>::max();
+    hand.y = std::numeric_limits<uint16_t>::max();
+    auto maxx = std::numeric_limits<uint16_t>::min();
+    auto maxy = std::numeric_limits<uint16_t>::min();
+
+    /// Assuming a hand in upright position and knowing that the list of pixels
+    /// starts at the topmost found values, the actual color can be verified by
+    /// looking at the first n pixels. If all would be taken into account, most
+    /// likely the arm would be considered as well, which probably is not
+    /// skin-colored, thereby producing a false negative.
+    uint32_t b = 0, g = 0, r = 0;
+    uint32_t i = 0;
+    while (i++ < 2000 and i < pixels.size()) {
+        auto px = frame + pixels[i].idx * 3;
+        b += *px++;
+        g += *px++;
+        r += *px++;
+    }
+
+    if (not((r > 95) and (g > 40) and (b > 20) and (r > (g + 15)) and
+            (r > (b + 15)))) {
+        return false;
+    }
+
+    // the above values are considered the actual average skin color
+    hand.b = b / (--i);
+    hand.g = g / i;
+    hand.r = r / i;
+
+    // quick test: look for hand's end by color, allow some errors
+    uint8_t missed = 0;
+    while (missed < 10 and i < pixels.size()) {  // arbitrary 10
+        auto px = frame + pixels[++i].idx * 3;
+        b = *px++;
+        g = *px++;
+        r = *px++;
+
+        missed = (((r > 95) and (g > 40) and (b > 20) and (r > (g + 15)) and
+                   (r > (b + 15)))
+                      ? 0
+                      : missed + 1);
+    }
+
+    // get properties of hand: surrounding rectangle, centroid
+    uint32_t sumx = 0, sumy = 0;
+    for (size_t j = 0; j < i; ++j) {
+        auto const& px = pixels[j];
+
+        if (px.x < hand.x) {
+            hand.x = px.x;
+        } else if (px.x > maxx) {
+            maxx = px.x;
+        }
+        if (px.y < hand.y) {
+            hand.y = px.y;
+        } else if (px.y > maxy) {
+            maxy = px.y;
+        }
+        sumx += px.x;
+        sumy += px.y;
+    }
+    hand.width = maxx - hand.x;
+    hand.height = maxy - hand.y;
+
+    assert(i > 0);
+
+    hand.centroid_x = sumx / i;
+    hand.centroid_y = sumy / i;
+
+    assert(hand.width > 0 and hand.height > 0);
+    assert(hand.centroid_x < maxx and hand.centroid_x > hand.x);
+    assert(hand.centroid_y < maxy and hand.centroid_y > hand.y);
+
+    return true;
 }
 
 void bgr_average(Hand const& hand, tv::ImageData const* data, size_t dataw,
