@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <iostream>
 #include "module.hh"
 
 namespace tv {
@@ -34,8 +35,7 @@ class Blocking : public Module {
 public:
     Blocking(Environment const& envir) : Module("blocking", envir) {}
 
-    /// Returning None prevents this module from being executed.
-    ColorSpace input_format(void) const override { return ColorSpace::NONE; }
+    ColorSpace input_format(void) const override { return ColorSpace::BGR888; }
 
     bool outputs_image(void) const override { return false; }
 
@@ -43,7 +43,10 @@ public:
 
     void execute(tv::ImageHeader const&, tv::ImageData const*,
                  tv::ImageHeader const&, tv::ImageData*) override final {
-        std::this_thread::sleep_for(std::chrono::seconds(10));
+        auto const seconds = 10;
+        std::cout << "Blocking for " << seconds << " seconds" << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(seconds));
+        std::cout << "Done blocking" << std::endl;
     }
 };
 }
