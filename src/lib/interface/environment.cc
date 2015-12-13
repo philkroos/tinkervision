@@ -29,8 +29,12 @@
 #include "tinkervision_defines.h"
 #include "filesystem.hh"
 
+#ifdef WITH_PYTHON
 tv::Environment::Environment(void) noexcept(noexcept(std::string()) and
                                             noexcept(Python())) {}
+#else
+tv::Environment::Environment(void) noexcept(noexcept(std::string())) {}
+#endif
 
 std::string const& tv::Environment::system_modules_path(void) const {
     return system_modules_path_;
@@ -44,26 +48,43 @@ std::string const& tv::Environment::user_data_path(void) const {
     return user_data_path_;
 }
 
-std::string const& tv::Environment::user_scripts_path(void) const {
-    return user_scripts_path_;
-}
-
 std::string const& tv::Environment::user_prefix(void) const {
     return user_prefix_;
 }
 
-bool tv::Environment::Python::set_path(std::string const& path) {
-    return python_context_.set_path(path);
+#ifndef WITH_PYTHON
+bool tv::Environment::set_user_prefix(std::string const& path) {
+    if (not is_directory(path)) {
+        Log("ENVIRONMENT", "Can't set user prefix to ", path);
+        return false;
+    }
+
+    // expecting a path ending with /
+    auto dir = path;
+    if (not(dir.back() == '/')) {
+        dir.push_back('/');
+    }
+
+    if (not is_directory(dir + MODULES_FOLDER) or
+        not is_directory(dir + DATA_FOLDER)) {
+
+        Log("ENVIRONMENT", "Can't set user prefix to ", dir);
+        return false;
+    }
+
+    user_prefix_ = dir;
+    user_modules_path_ = dir + MODULES_FOLDER + "/";
+    user_data_path_ = dir + DATA_FOLDER + "/";
+
+    Log("ENVIRONMENT", "User prefix set to ", user_prefix_);
+
+    return true;
 }
 
-tv::Environment::Python& tv::Environment::Python::load(
-    std::string const& scriptname) {
-
-    script_ = scriptname;
-    return *this;
+#else
+std::string const& tv::Environment::user_scripts_path(void) const {
+    return user_scripts_path_;
 }
-
-std::string tv::Environment::Python::result(void) { return result_; }
 
 bool tv::Environment::set_user_prefix(std::string const& path) {
     if (not is_directory(path)) {
@@ -96,6 +117,19 @@ bool tv::Environment::set_user_prefix(std::string const& path) {
     return true;
 }
 
+bool tv::Environment::Python::set_path(std::string const& path) {
+    return python_context_.set_path(path);
+}
+
+tv::Environment::Python& tv::Environment::Python::load(
+    std::string const& scriptname) {
+
+    script_ = scriptname;
+    return *this;
+}
+
+std::string tv::Environment::Python::result(void) { return result_; }
+
 tv::Environment::Python& tv::Environment::Python::call(
     std::string const& function) {
 
@@ -107,3 +141,4 @@ tv::Environment::Python& tv::Environment::Python::call(
     }
     return *this;
 }
+#endif

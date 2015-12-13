@@ -24,9 +24,9 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef PYTHON_CONTEXT_H
-#define PYTHON_CONTEXT_H
+#pragma once
 
+#ifdef WITH_PYTHON
 #include <Python.h>
 #include <structmember.h>
 #include <string>
@@ -152,5 +152,4 @@ private:
     bool is_script_loaded(void);
 };
 }
-
 #endif

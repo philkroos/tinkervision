@@ -24,14 +24,16 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef ENVIRONMENT_H
-#define ENVIRONMENT_H
+#pragma once
 
 #include <string>
 #include <mutex>
 
 #include "logger.hh"
+
+#ifdef WITH_PYTHON
 #include "python_context.hh"
+#endif
 
 namespace tv {
 
@@ -51,10 +53,6 @@ public:
     /// \return user_prefix_/data_dir_.
     std::string const& user_data_path(void) const;
 
-    /// Get the path where python scripts can be loaded from.
-    /// \return user_prefix_/scripts_dir_.
-    std::string const& user_scripts_path(void) const;
-
     /// Access the user prefix, which is the root of all accessible user paths.
     /// \return user_prefix_.
     std::string const& user_prefix(void) const;
@@ -64,6 +62,11 @@ public:
     /// methods of this class have to exist.
     /// \param[in] path An existing path with user write privileges.
     bool set_user_prefix(std::string const& path);
+
+#ifdef WITH_PYTHON
+    /// Get the path where python scripts can be loaded from.
+    /// \return user_prefix_/scripts_dir_.
+    std::string const& user_scripts_path(void) const;
 
     /// Access the python context which allows execution of python scripts.
     class Python {
@@ -103,22 +106,27 @@ public:
     };
 
     Python& python(void) const { return python_; }
-
+#endif
 private:
     friend class Api;
 
+#ifndef WITH_PYTHON
+    Environment(void) noexcept(noexcept(std::string()));
+
+#else
     Environment(void) noexcept(noexcept(std::string()) and
                                noexcept(PythonContext()));
-
     Python mutable python_;
+    std::string user_scripts_path_;
+#endif
 
     std::string system_modules_path_{"/usr/lib/tinkervision/"};
     std::string user_prefix_;
     std::string user_modules_path_;
     std::string user_data_path_;
-    std::string user_scripts_path_;
 };
 
+#ifdef WITH_PYTHON
 template <typename... Args>
 Environment::Python& Environment::Python::call(std::string const& function,
                                                Args const&... args) {
@@ -151,6 +159,5 @@ void Environment::Python::add_to_format(int const& i, Args const&... args) {
     format_string_.push_back('i');
     add_to_format(args...);
 }
-}
-
 #endif
+}

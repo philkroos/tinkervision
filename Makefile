@@ -1,6 +1,10 @@
 cc		:= g++
 ccflags	:= -Wall -Werror -pedantic -shared -std=c++14 -fpic -DWITH_LOGGER
 
+ifndef NOPY
+	ccflags += -DWITH_PYTHON
+endif
+
 ifdef OCVC
 	ccflags += -DWITH_OPENCV_CAM
 endif
@@ -28,17 +32,22 @@ build_dir	:= $(addprefix $(build_prefix)/,$(parts))
 src_prefix	:= src/lib
 src_dir	:= $(addprefix $(src_prefix)/,$(parts))
 
-libs		:= -lstdc++ -lv4l2 -lm -lpython2.7
-inc		:= $(addprefix -I./$(src_prefix)/,$(parts)) \
-		   $(OCV_inc) \
-		   -I/usr/include/python2.7
+libs		:= -lstdc++ -lv4l2 -lm
+inc		:= $(addprefix -I./$(src_prefix)/,$(parts))
+# files
+ifndef NOPY
+	libs	+= -L/usr/lib/python2.7 -lpython2.7
+	inc	+= -I/usr/include/python2.7
+endif
+
 ifdef OCVC
 	libs	+= `pkg-config --libs opencv` \
 		   -lrt -lpthread -ldl
 	inc	+= -I/usr/local/include/opencv -I/usr/local/include
 endif
 
-ldflags	:= -L/usr/lib/python2.7 $(libs) -rdynamic
+ldflags	:= $(libs) -rdynamic
+
 
 # files
 src		:= $(foreach sdir,$(src_dir),$(wildcard $(sdir)/*.cc))
@@ -99,8 +108,12 @@ header		:= $(src_prefix)/core/tinkervision.h \
 		   $(src_prefix)/tools/filesystem.hh \
 		   $(src_prefix)/core/exceptions.hh \
 		   $(src_prefix)/core/logger.hh \
-		   $(src_prefix)/core/python_context.hh \
 		   $(src_prefix)/interface/image.hh
+
+ifndef NOPY
+	header += $(src_prefix)/core/python_context.hh
+endif
+
 
 install: $(build_prefix)/$(output)
 	install -m 544 $(build_prefix)/$(output) $(prefix)/lib/$(output)

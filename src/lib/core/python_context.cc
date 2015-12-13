@@ -24,6 +24,8 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
+#ifdef WITH_PYTHON
+
 #include "python_context.hh"
 
 bool tv::PythonContext::PythonScript::load(void) {
@@ -104,3 +106,4 @@ tv::PythonContext::PythonScript* tv::PythonContext::ScriptMap::get_script(
 
     return &scripts_[pyscript];
 }
+#endif
