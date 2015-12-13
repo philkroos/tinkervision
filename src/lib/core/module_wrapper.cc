@@ -38,7 +38,7 @@ void tv::ModuleWrapper::execute(tv::Image const& image) {
         current = 0;
         auto result = &tv_module_->execute(image);
 
-        if (callbacks_enabled_ and cb_ and result) {
+        if (callbacks_enabled_ and cb_ and result and *result) {
             Log("MODULE_WRAPPER", "Callback for ", module_id_, " - ", name());
             TV_ModuleResult cresult = {result->x, result->y, result->width,
                                        result->height};
