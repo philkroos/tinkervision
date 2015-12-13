@@ -1,0 +1,66 @@
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   fun:PyObject_Free
+   fun:PyGrammar_AddAccelerators
+   fun:PyParser_New
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   fun:PyParser_ASTFromString
+   fun:PyRun_StringFlags
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   fun:PyObject_Free
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:_ZN2tv13PythonContextD1Ev
+   fun:_ZN2tv11Environment6PythonD1Ev
+   fun:_ZN2tv11EnvironmentD1Ev
+   fun:_ZN2tv3ApiD1Ev
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+   fun:PyEval_EvalFrameEx
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}

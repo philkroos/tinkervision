@@ -1,0 +1,19 @@
+{
+   <tbb:strdup>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:strdup
+   obj:/usr/lib/libtbb.so.2
+   ...
+   fun:clone
+}
+{
+   <tbb:malloc>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib/libtbb.so.2
+   ...
+   fun:clone
+}

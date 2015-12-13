@@ -1,0 +1,604 @@
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   ioctl(VKI_V4L2_TRY_FMT)
+   fun:syscall
+   obj:/usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0
+   fun:v4lconvert_try_format
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   ioctl(VKI_V4L2_S_FMT)
+   fun:syscall
+   obj:/usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   fun:_itoa_word
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:_itoa_word
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   ioctl(VKI_V4L2_ENUM_FRAMEINTERVALS).reserved
+   fun:syscall
+   obj:/usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0
+   fun:v4lconvert_enum_frameintervals
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera22_set_highest_framerateER15v4l2_pix_format
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+   fun:_ZN2tv13CameraControl5_initEv
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   ioctl(VKI_V4L2_G_PARM).parm.capture.reserved
+   fun:syscall
+   obj:/usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera22_set_highest_framerateER15v4l2_pix_format
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+   fun:_ZN2tv13CameraControl5_initEv
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   ioctl(VKI_V4L2_S_PARM).parm.capture
+   fun:syscall
+   obj:/usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera22_set_highest_framerateER15v4l2_pix_format
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+   fun:_ZN2tv13CameraControl5_initEv
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:v4l2_mmap
+   fun:_ZN2tv13V4L2USBCamera16_start_capturingEv
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+   fun:_ZN2tv13CameraControl5_initEv
+   fun:_ZN2tv13CameraControl19preselect_framesizeEtt
+   fun:_ZN2tv3Api13set_framesizeEtt
+   fun:tv_set_framesize
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorIPNSt8__detail15_Hash_node_baseEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaIPNSt8__detail15_Hash_node_baseEEE8allocateERS3_m
+   fun:_ZNSt8__detail16_Hashtable_allocISaINS_10_Hash_nodeISt4pairIKPN2tv13ModuleWrapperENS3_12ModuleLoader12ModuleHandleEELb0EEEEE19_M_allocate_bucketsEm
+   fun:_ZNSt10_HashtableIPN2tv13ModuleWrapperESt4pairIKS2_NS0_12ModuleLoader12ModuleHandleEESaIS7_ENSt8__detail10_Select1stESt8equal_toIS2_ESt4hashIS2_ENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE19_M_allocate_bucketsEm
+   fun:_ZNSt10_HashtableIPN2tv13ModuleWrapperESt4pairIKS2_NS0_12ModuleLoader12ModuleHandleEESaIS7_ENSt8__detail10_Select1stESt8equal_toIS2_ESt4hashIS2_ENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE13_M_rehash_auxEmSt17integral_constantIbLb1EE
+   fun:_ZNSt10_HashtableIPN2tv13ModuleWrapperESt4pairIKS2_NS0_12ModuleLoader12ModuleHandleEESaIS7_ENSt8__detail10_Select1stESt8equal_toIS2_ESt4hashIS2_ENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE9_M_rehashEmRKm
+   fun:_ZNSt10_HashtableIPN2tv13ModuleWrapperESt4pairIKS2_NS0_12ModuleLoader12ModuleHandleEESaIS7_ENSt8__detail10_Select1stESt8equal_toIS2_ESt4hashIS2_ENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE21_M_insert_unique_nodeEmmPNS9_10_Hash_nodeIS7_Lb0EEE
+   fun:_ZNSt8__detail9_Map_baseIPN2tv13ModuleWrapperESt4pairIKS3_NS1_12ModuleLoader12ModuleHandleEESaIS8_ENS_10_Select1stESt8equal_toIS3_ESt4hashIS3_ENS_18_Mod_range_hashingENS_20_Default_ranged_hashENS_20_Prime_rehash_policyENS_17_Hashtable_traitsILb0ELb0ELb1EEELb1EEixERS5_
+   fun:_ZNSt13unordered_mapIPN2tv13ModuleWrapperENS0_12ModuleLoader12ModuleHandleESt4hashIS2_ESt8equal_toIS2_ESaISt4pairIKS2_S4_EEEixERSA_
+   fun:_ZN2tv12ModuleLoader24load_module_from_libraryEPPNS_13ModuleWrapperERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEs
+   fun:_ZN2tv3Api12_module_loadERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEs
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorIPNSt8__detail15_Hash_node_baseEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaIPNSt8__detail15_Hash_node_baseEEE8allocateERS3_m
+   fun:_ZNSt8__detail16_Hashtable_allocISaINS_10_Hash_nodeISt4pairIKsN2tv14SharedResourceINS4_13ModuleWrapperEE17ResourceContainerEELb0EEEEE19_M_allocate_bucketsEm
+   fun:_ZNSt10_HashtableIsSt4pairIKsN2tv14SharedResourceINS2_13ModuleWrapperEE17ResourceContainerEESaIS7_ENSt8__detail10_Select1stESt8equal_toIsESt4hashIsENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE19_M_allocate_bucketsEm
+   fun:_ZNSt10_HashtableIsSt4pairIKsN2tv14SharedResourceINS2_13ModuleWrapperEE17ResourceContainerEESaIS7_ENSt8__detail10_Select1stESt8equal_toIsESt4hashIsENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE13_M_rehash_auxEmSt17integral_constantIbLb1EE
+   fun:_ZNSt10_HashtableIsSt4pairIKsN2tv14SharedResourceINS2_13ModuleWrapperEE17ResourceContainerEESaIS7_ENSt8__detail10_Select1stESt8equal_toIsESt4hashIsENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE9_M_rehashEmRKm
+   fun:_ZNSt10_HashtableIsSt4pairIKsN2tv14SharedResourceINS2_13ModuleWrapperEE17ResourceContainerEESaIS7_ENSt8__detail10_Select1stESt8equal_toIsESt4hashIsENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE21_M_insert_unique_nodeEmmPNS9_10_Hash_nodeIS7_Lb0EEE
+   fun:_ZNSt8__detail9_Map_baseIsSt4pairIKsN2tv14SharedResourceINS3_13ModuleWrapperEE17ResourceContainerEESaIS8_ENS_10_Select1stESt8equal_toIsESt4hashIsENS_18_Mod_range_hashingENS_20_Default_ranged_hashENS_20_Prime_rehash_policyENS_17_Hashtable_traitsILb0ELb0ELb1EEELb1EEixERS2_
+   fun:_ZNSt13unordered_mapIsN2tv14SharedResourceINS0_13ModuleWrapperEE17ResourceContainerESt4hashIsESt8equal_toIsESaISt4pairIKsS4_EEEixERSA_
+   fun:_ZN2tv14SharedResourceINS_13ModuleWrapperEE6insertEsPS1_St8functionIFvRS1_EE
+   fun:_ZZN2tv3Api12_module_loadERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEsENKUlvE_clEv
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tag
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC1ERKS4_
+   fun:_ZN2tv12ModuleLoader21_add_available_moduleERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES8_
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tag
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC1EPKcRKS3_
+   fun:_ZN2tv11EnvironmentC1Ev
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt14_Function_base13_Base_managerISt5_BindIFSt7_Mem_fnIMN2tv14SharedResourceINS3_4NodeEEEFvsRS5_EEPS6_St12_PlaceholderILi1EESC_ILi2EEEEE15_M_init_functorERSt9_Any_dataOSG_St17integral_constantIbLb0EE
+   fun:_ZNSt14_Function_base13_Base_managerISt5_BindIFSt7_Mem_fnIMN2tv14SharedResourceINS3_4NodeEEEFvsRS5_EEPS6_St12_PlaceholderILi1EESC_ILi2EEEEE15_M_init_functorERSt9_Any_dataOSG_
+   fun:_ZNSt8functionIFvsRN2tv4NodeEEEC1ISt5_BindIFSt7_Mem_fnIMNS0_14SharedResourceIS1_EEFvsS2_EEPS9_St12_PlaceholderILi1EESE_ILi2EEEEvEET_
+   fun:_ZNSt8functionIFvsRN2tv4NodeEEEaSISt5_BindIFSt7_Mem_fnIMNS0_14SharedResourceIS1_EEFvsS2_EEPS9_St12_PlaceholderILi1EESE_ILi2EEEEEENSt9enable_ifIXsrSt6__and_IISt6__not_ISt7is_sameINSt5decayIT_E4typeES4_EESt5__or_IISt7is_voidIvESt14is_convertibleIDTclcl18__callable_functorcl7declvalIRSQ_EEEcl7declvalIsEEcl7declvalIS2_EEEEvEEEEE5valueERS4_E4typeEOSO_
+   fun:_ZN2tv14SharedResourceINS_4NodeEEC1IS2_EEMT_FvsRS1_EPS4_
+   fun:_ZN2tv14SharedResourceINS_4NodeEEC1Ev
+   fun:_ZN2tv10SceneTreesC1Ev
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt14_Function_base13_Base_managerISt5_BindIFSt7_Mem_fnIMN2tv3ApiEFvsRNS3_13ModuleWrapperEEEPS4_St12_PlaceholderILi1EESB_ILi2EEEEE15_M_init_functorERSt9_Any_dataOSF_St17integral_constantIbLb0EE
+   fun:_ZNSt14_Function_base13_Base_managerISt5_BindIFSt7_Mem_fnIMN2tv3ApiEFvsRNS3_13ModuleWrapperEEEPS4_St12_PlaceholderILi1EESB_ILi2EEEEE15_M_init_functorERSt9_Any_dataOSF_
+   fun:_ZNSt8functionIFvsRN2tv13ModuleWrapperEEEC1ISt5_BindIFSt7_Mem_fnIMNS0_3ApiEFvsS2_EEPS8_St12_PlaceholderILi1EESD_ILi2EEEEvEET_
+   fun:_ZNSt8functionIFvsRN2tv13ModuleWrapperEEEaSISt5_BindIFSt7_Mem_fnIMNS0_3ApiEFvsS2_EEPS8_St12_PlaceholderILi1EESD_ILi2EEEEEENSt9enable_ifIXsrSt6__and_IISt6__not_ISt7is_sameINSt5decayIT_E4typeES4_EESt5__or_IISt7is_voidIvESt14is_convertibleIDTclcl18__callable_functorcl7declvalIRSP_EEEcl7declvalIsEEcl7declvalIS2_EEEEvEEEEE5valueERS4_E4typeEOSN_
+   fun:_ZN2tv14SharedResourceINS_13ModuleWrapperEEC1INS_3ApiEEEMT_FvsRS1_EPS5_
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt14_Function_base13_Base_managerISt5_BindIFSt7_Mem_fnIMN2tv12ModuleLoaderEFvN8Dirwatch5EventERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESE_EEPS4_St12_PlaceholderILi1EESJ_ILi2EESJ_ILi3EEEEE15_M_init_functorERSt9_Any_dataOSO_St17integral_constantIbLb0EE
+   fun:_ZNSt14_Function_base13_Base_managerISt5_BindIFSt7_Mem_fnIMN2tv12ModuleLoaderEFvN8Dirwatch5EventERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESE_EEPS4_St12_PlaceholderILi1EESJ_ILi2EESJ_ILi3EEEEE15_M_init_functorERSt9_Any_dataOSO_
+   fun:_ZNSt8functionIFvN8Dirwatch5EventERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES9_EEC1ISt5_BindIFSt7_Mem_fnIMN2tv12ModuleLoaderEFvS1_S9_S9_EEPSG_St12_PlaceholderILi1EESL_ILi2EESL_ILi3EEEEvEET_
+   fun:_ZNSt8functionIFvN8Dirwatch5EventERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES9_EEaSISt5_BindIFSt7_Mem_fnIMN2tv12ModuleLoaderEFvS1_S9_S9_EEPSG_St12_PlaceholderILi1EESL_ILi2EESL_ILi3EEEEEENSt9enable_ifIXsrSt6__and_IISt6__not_ISt7is_sameINSt5decayIT_E4typeESB_EESt5__or_IISt7is_voidIvESt14is_convertibleIDTclcl18__callable_functorcl7declvalIRSY_EEEcl7declvalIS1_EEcl7declvalIS9_EEcl7declvalIS9_EEEEvEEEEE5valueERSB_E4typeEOSW_
+   fun:_ZN8DirwatchC1IN2tv12ModuleLoaderEEEMT_FvNS_5EventERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESC_EPS3_
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_assignERKS4_
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEaSERKS4_
+   fun:_ZN2tv11Environment15set_user_prefixERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN2tv12ModuleLoader25_load_module_from_libraryEPPNS_13ModuleWrapperERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESB_s
+   fun:_ZN2tv12ModuleLoader21_add_available_moduleERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES8_
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEE8allocateERS6_m
+   fun:_ZNSt12_Vector_baseINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE11_M_allocateEm
+   fun:_ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE19_M_emplace_back_auxIIRKS5_EEEvDpOT_
+   fun:_ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE9push_backERKS5_
+   fun:_ZN8Dirwatch21add_watched_extensionERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_mutateEmmPKcm
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_appendEPKcm
+   fun:_ZStplIcSt11char_traitsIcESaIcEENSt7__cxx1112basic_stringIT_T0_T1_EERKS8_PKS5_
+   fun:_ZN2tv11Environment15set_user_prefixERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:strdup
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tag
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC1ERKS4_
+   fun:_ZNSt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEC1IIRS6_EILm0EEIEIEEERSt5tupleIIDpT_EERSA_IIDpT1_EESt12_Index_tupleIIXspT0_EEESJ_IIXspT2_EEE
+   fun:_ZNSt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEC1IIRS6_EIEEESt21piecewise_construct_tSt5tupleIIDpT_EESB_IIDpT0_EE
+   fun:_ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEEE9constructISA_IRKSt21piecewise_construct_tSt5tupleIIRS9_EESH_IIEEEEEvPT_DpOT0_
+   fun:_ZNSt16allocator_traitsISaISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEEEE12_S_constructIS9_IRKSt21piecewise_construct_tSt5tupleIIRS8_EESH_IIEEEEENSt9enable_ifIXsrSt6__and_IINSC_18__construct_helperIT_IDpT0_EE4typeEEE5valueEvE4typeERSB_PSO_DpOSP_
+   fun:_ZNSt16allocator_traitsISaISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEEEE9constructIS9_IRKSt21piecewise_construct_tSt5tupleIIRS8_EESH_IIEEEEEDTcl12_S_constructfp_fp0_spcl7forwardIT0_Efp1_EEERSB_PT_DpOSL_
+   fun:_ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_iESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE17_M_construct_nodeIIRKSt21piecewise_construct_tSt5tupleIIRS7_EESJ_IIEEEEEvPSt13_Rb_tree_nodeIS8_EDpOT_
+   fun:_ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_iESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE14_M_create_nodeIIRKSt21piecewise_construct_tSt5tupleIIRS7_EESJ_IIEEEEEPSt13_Rb_tree_nodeIS8_EDpOT_
+   fun:_ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_iESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE22_M_emplace_hint_uniqueIIRKSt21piecewise_construct_tSt5tupleIIRS7_EESJ_IIEEEEESt17_Rb_tree_iteratorIS8_ESt23_Rb_tree_const_iteratorIS8_EDpOT_
+   fun:_ZNSt3mapINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiSt4lessIS5_ESaISt4pairIKS5_iEEEixERS9_
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEE8allocateERS6_m
+   fun:_ZNSt12_Vector_baseINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE11_M_allocateEm
+   fun:_ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE19_M_range_initializeIPKS5_EEvT_SB_St20forward_iterator_tag
+   fun:_ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EEC1ESt16initializer_listIS5_ERKS6_
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorISt23_Sp_counted_ptr_inplaceINSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS6_EEEESaISD_ELNS_12_Lock_policyE2EEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaISt23_Sp_counted_ptr_inplaceINSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS5_EEEESaISC_ELN9__gnu_cxx12_Lock_policyE2EEEE8allocateERSH_m
+   fun:_ZSt18__allocate_guardedISaISt23_Sp_counted_ptr_inplaceINSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS5_EEEESaISC_ELN9__gnu_cxx12_Lock_policyE2EEEESt15__allocated_ptrIT_ERSJ_
+   fun:_ZNSt14__shared_countILN9__gnu_cxx12_Lock_policyE2EEC1INSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS8_EEEESaISF_EISE_EEESt19_Sp_make_shared_tagPT_RKT0_DpOT1_
+   fun:_ZNSt12__shared_ptrINSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS4_EEEELN9__gnu_cxx12_Lock_policyE2EEC1ISaISB_EISA_EEESt19_Sp_make_shared_tagRKT_DpOT0_
+   fun:_ZNSt10shared_ptrINSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS4_EEEEEC1ISaISB_EISA_EEESt19_Sp_make_shared_tagRKT_DpOT0_
+   fun:_ZSt15allocate_sharedINSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS4_EEEESaISB_EISA_EESt10shared_ptrIT_ERKT0_DpOT1_
+   fun:_ZSt11make_sharedINSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS4_EEEEISA_EESt10shared_ptrIT_EDpOT0_
+   fun:_ZNSt6thread15_M_make_routineISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS3_EEEESt10shared_ptrINS_5_ImplIT_EEEOSC_
+   fun:_ZNSt6threadC1IM8DirwatchKFvvEIPS1_EEEOT_DpOT0_
+   fun:_ZN8Dirwatch5startEv
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEEEE8allocateERSB_m
+   fun:_ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_iESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE11_M_get_nodeEv
+   fun:_ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_iESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE14_M_create_nodeIIRKSt21piecewise_construct_tSt5tupleIIRS7_EESJ_IIEEEEEPSt13_Rb_tree_nodeIS8_EDpOT_
+   fun:_ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_iESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE22_M_emplace_hint_uniqueIIRKSt21piecewise_construct_tSt5tupleIIRS7_EESJ_IIEEEEESt17_Rb_tree_iteratorIS8_ESt23_Rb_tree_const_iteratorIS8_EDpOT_
+   fun:_ZNSt3mapINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiSt4lessIS5_ESaISt4pairIKS5_iEEEixERS9_
+   fun:_ZN8Dirwatch5watchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorIN2tv9ConverterEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaIN2tv9ConverterEEE8allocateERS2_m
+   fun:_ZNSt12_Vector_baseIN2tv9ConverterESaIS1_EE11_M_allocateEm
+   fun:_ZNSt6vectorIN2tv9ConverterESaIS1_EE19_M_emplace_back_auxIIRNS0_10ColorSpaceES6_EEEvDpOT_
+   fun:_ZNSt6vectorIN2tv9ConverterESaIS1_EE12emplace_backIIRNS0_10ColorSpaceES6_EEEvDpOT_
+   fun:_ZN2tv16FrameConversions13get_converterENS_10ColorSpaceES1_
+   fun:_ZN2tv16FrameConversions9get_frameERNS_5ImageENS_10ColorSpaceE
+   fun:_ZN2tv3Api11module_execEsRNS_13ModuleWrapperE
+   fun:_ZNKSt12_Mem_fn_baseIMN2tv3ApiEFvsRNS0_13ModuleWrapperEELb1EEclIIsS3_EvEEvPS1_DpOT_
+   fun:_ZNSt5_BindIFSt7_Mem_fnIMN2tv3ApiEFvsRNS1_13ModuleWrapperEEEPS2_St12_PlaceholderILi1EES9_ILi2EEEE6__callIvIOsS4_EILm0ELm1ELm2EEEET_OSt5tupleIIDpT0_EESt12_Index_tupleIIXspT1_EEE
+   fun:_ZNSt5_BindIFSt7_Mem_fnIMN2tv3ApiEFvsRNS1_13ModuleWrapperEEEPS2_St12_PlaceholderILi1EES9_ILi2EEEEclIIsS4_EvEET0_DpOT_
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN2tv9Converter11yuyv_to_bgrEv
+   fun:_ZN2tv9ConverterC1ENS_10ColorSpaceES1_
+   fun:_ZN9__gnu_cxx13new_allocatorIN2tv9ConverterEE9constructIS2_IRNS1_10ColorSpaceES6_EEEvPT_DpOT0_
+   fun:_ZNSt16allocator_traitsISaIN2tv9ConverterEEE12_S_constructIS1_IRNS0_10ColorSpaceES6_EEENSt9enable_ifIXsrSt6__and_IINS3_18__construct_helperIT_IDpT0_EE4typeEEE5valueEvE4typeERS2_PSA_DpOSB_
+   fun:_ZNSt16allocator_traitsISaIN2tv9ConverterEEE9constructIS1_IRNS0_10ColorSpaceES6_EEEDTcl12_S_constructfp_fp0_spcl7forwardIT0_Efp1_EEERS2_PT_DpOS7_
+   fun:_ZNSt6vectorIN2tv9ConverterESaIS1_EE19_M_emplace_back_auxIIRNS0_10ColorSpaceES6_EEEvDpOT_
+   fun:_ZNSt6vectorIN2tv9ConverterESaIS1_EE12emplace_backIIRNS0_10ColorSpaceES6_EEEvDpOT_
+   fun:_ZN2tv16FrameConversions13get_converterENS_10ColorSpaceES1_
+   fun:_ZN2tv16FrameConversions9get_frameERNS_5ImageENS_10ColorSpaceE
+   fun:_ZN2tv3Api11module_execEsRNS_13ModuleWrapperE
+   fun:_ZNKSt12_Mem_fn_baseIMN2tv3ApiEFvsRNS0_13ModuleWrapperEELb1EEclIIsS3_EvEEvPS1_DpOT_
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorIN2tv12ModuleLoader15AvailableModuleEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaIN2tv12ModuleLoader15AvailableModuleEEE8allocateERS3_m
+   fun:_ZNSt12_Vector_baseIN2tv12ModuleLoader15AvailableModuleESaIS2_EE11_M_allocateEm
+   fun:_ZNSt6vectorIN2tv12ModuleLoader15AvailableModuleESaIS2_EE19_M_emplace_back_auxIIS2_EEEvDpOT_
+   fun:_ZNSt6vectorIN2tv12ModuleLoader15AvailableModuleESaIS2_EE12emplace_backIIS2_EEEvDpOT_
+   fun:_ZNSt6vectorIN2tv12ModuleLoader15AvailableModuleESaIS2_EE9push_backEOS2_
+   fun:_ZN2tv12ModuleLoader21_add_available_moduleERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES8_
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorIPKN2tv9ParameterEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaIPKN2tv9ParameterEEE8allocateERS4_m
+   fun:_ZNSt12_Vector_baseIPKN2tv9ParameterESaIS3_EE11_M_allocateEm
+   fun:_ZNSt6vectorIPKN2tv9ParameterESaIS3_EE19_M_emplace_back_auxIIS3_EEEvDpOT_
+   fun:_ZNSt6vectorIPKN2tv9ParameterESaIS3_EE12emplace_backIIS3_EEEvDpOT_
+   fun:_ZNSt6vectorIPKN2tv9ParameterESaIS3_EE9push_backEOS3_
+   fun:_ZN2tv12ModuleLoader21_add_available_moduleERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES8_
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorISt5tupleIIN2tv10ColorSpaceES3_MNS2_9ConverterEFPNS2_7ConvertEvEEEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaISt5tupleIIN2tv10ColorSpaceES2_MNS1_9ConverterEFPNS1_7ConvertEvEEEEE8allocateERS9_m
+   fun:_ZNSt12_Vector_baseISt5tupleIIN2tv10ColorSpaceES2_MNS1_9ConverterEFPNS1_7ConvertEvEEESaIS8_EE11_M_allocateEm
+   fun:_ZNSt6vectorISt5tupleIIN2tv10ColorSpaceES2_MNS1_9ConverterEFPNS1_7ConvertEvEEESaIS8_EE19_M_range_initializeIPKS8_EEvT_SE_St20forward_iterator_tag
+   fun:_ZNSt6vectorISt5tupleIIN2tv10ColorSpaceES2_MNS1_9ConverterEFPNS1_7ConvertEvEEESaIS8_EEC1ESt16initializer_listIS8_ERKS9_
+   fun:_ZN2tv9ConverterC1ENS_10ColorSpaceES1_
+   fun:_ZN9__gnu_cxx13new_allocatorIN2tv9ConverterEE9constructIS2_IRNS1_10ColorSpaceES6_EEEvPT_DpOT0_
+   fun:_ZNSt16allocator_traitsISaIN2tv9ConverterEEE12_S_constructIS1_IRNS0_10ColorSpaceES6_EEENSt9enable_ifIXsrSt6__and_IINS3_18__construct_helperIT_IDpT0_EE4typeEEE5valueEvE4typeERS2_PSA_DpOSB_
+   fun:_ZNSt16allocator_traitsISaIN2tv9ConverterEEE9constructIS1_IRNS0_10ColorSpaceES6_EEEDTcl12_S_constructfp_fp0_spcl7forwardIT0_Efp1_EEERS2_PT_DpOS7_
+   fun:_ZNSt6vectorIN2tv9ConverterESaIS1_EE19_M_emplace_back_auxIIRNS0_10ColorSpaceES6_EEEvDpOT_
+   fun:_ZNSt6vectorIN2tv9ConverterESaIS1_EE12emplace_backIIRNS0_10ColorSpaceES6_EEEvDpOT_
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:allocate_stack
+   fun:pthread_create@@GLIBC_2.2.5
+   fun:_ZNSt6thread15_M_start_threadESt10shared_ptrINS_10_Impl_baseEEPFvvE
+   fun:_ZNSt6threadC1IM8DirwatchKFvvEIPS1_EEEOT_DpOT0_
+   fun:_ZN8Dirwatch5startEv
+   fun:_ZN8Dirwatch5watchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKsPKcEEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaISt13_Rb_tree_nodeISt4pairIKsPKcEEEE8allocateERS7_m
+   fun:_ZNSt8_Rb_treeIsSt4pairIKsPKcESt10_Select1stIS4_ESt4lessIsESaIS4_EE11_M_get_nodeEv
+   fun:_ZNSt8_Rb_treeIsSt4pairIKsPKcESt10_Select1stIS4_ESt4lessIsESaIS4_EE14_M_create_nodeIIRKS4_EEEPSt13_Rb_tree_nodeIS4_EDpOT_
+   fun:_ZNKSt8_Rb_treeIsSt4pairIKsPKcESt10_Select1stIS4_ESt4lessIsESaIS4_EE11_Alloc_nodeclIRKS4_EEPSt13_Rb_tree_nodeIS4_EOT_
+   fun:_ZNSt8_Rb_treeIsSt4pairIKsPKcESt10_Select1stIS4_ESt4lessIsESaIS4_EE10_M_insert_IRKS4_NSA_11_Alloc_nodeEEESt17_Rb_tree_iteratorIS4_EPSt18_Rb_tree_node_baseSI_OT_RT0_
+   fun:_ZNSt8_Rb_treeIsSt4pairIKsPKcESt10_Select1stIS4_ESt4lessIsESaIS4_EE17_M_insert_unique_IRKS4_NSA_11_Alloc_nodeEEESt17_Rb_tree_iteratorIS4_ESt23_Rb_tree_const_iteratorIS4_EOT_RT0_
+   fun:_ZNSt8_Rb_treeIsSt4pairIKsPKcESt10_Select1stIS4_ESt4lessIsESaIS4_EE16_M_insert_uniqueIPKS4_EEvT_SE_
+   fun:_ZNSt3mapIsPKcSt4lessIsESaISt4pairIKsS1_EEEC1ESt16initializer_listIS6_ERKS3_RKS7_
+   fun:_ZN2tv7StringsC1Ev
+   fun:_ZN2tv3ApiC1Ev
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znam
+   fun:_ZN2tv14ImageAllocator8allocateEttmNS_10ColorSpaceEb
+   fun:_ZN2tv13CameraControlC1Ev
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znam
+   fun:_ZN2tv14ImageAllocator8allocateEttmNS_10ColorSpaceEb
+   fun:_ZN2tv14ImageAllocator8allocateERKNS_11ImageHeaderEb
+   fun:_ZN2tv13CameraControl5_initEv
+   fun:_ZN2tv13CameraControl7acquireEv
+   fun:_ZN2tv13CameraControl7acquireEm
+   fun:_ZN2tv3Api5startEv
+   fun:_ZN2tv3Api13set_framesizeEtt
+   fun:tv_set_framesize
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znam
+   fun:_ZN2tv7ConvertclERKNS_5ImageERS1_
+   fun:_ZN2tv7ConvertclERKNS_5ImageE
+   fun:_ZNK2tv9ConverterclERKNS_5ImageE
+   fun:_ZN2tv16FrameConversions9get_frameERNS_5ImageENS_10ColorSpaceE
+   fun:_ZN2tv3Api11module_execEsRNS_13ModuleWrapperE
+   fun:_ZNKSt12_Mem_fn_baseIMN2tv3ApiEFvsRNS0_13ModuleWrapperEELb1EEclIIsS3_EvEEvPS1_DpOT_
+   fun:_ZNSt5_BindIFSt7_Mem_fnIMN2tv3ApiEFvsRNS1_13ModuleWrapperEEEPS2_St12_PlaceholderILi1EES9_ILi2EEEE6__callIvIOsS4_EILm0ELm1ELm2EEEET_OSt5tupleIIDpT0_EESt12_Index_tupleIIXspT1_EEE
+   fun:_ZNSt5_BindIFSt7_Mem_fnIMN2tv3ApiEFvsRNS1_13ModuleWrapperEEEPS2_St12_PlaceholderILi1EES9_ILi2EEEEclIIsS4_EvEET0_DpOT_
+   fun:_ZNSt17_Function_handlerIFvsRN2tv13ModuleWrapperEESt5_BindIFSt7_Mem_fnIMNS0_3ApiEFvsS2_EEPS6_St12_PlaceholderILi1EESB_ILi2EEEEE9_M_invokeERKSt9_Any_dataOsS2_
+   fun:_ZNKSt8functionIFvsRN2tv13ModuleWrapperEEEclEsS2_
+   fun:_ZN2tv14SharedResourceINS_13ModuleWrapperEE8exec_allESt8functionIFvsRS1_EE
+}

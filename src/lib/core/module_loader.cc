@@ -233,7 +233,7 @@ bool tv::ModuleLoader::library_parameter_count(std::string const& libname,
            std::find_if(availables_.cbegin(), availables_.cend(),
                         [&](AvailableModule const& module) {
                if (module.libname == libname) {
-  		   count = static_cast<uint16_t>(module.parameter.size());
+                   count = static_cast<uint16_t>(module.parameter.size());
                    return true;
                }
                return false;
@@ -316,6 +316,9 @@ tv::ModuleLoader::LibraryHandle tv::ModuleLoader::_load_module_from_library(
         LogError("MODULE_LOADER", ce.what());
         error_ = TV_MODULE_CONSTRUCTION_FAILED;
         _free_lib(handle);
+        if (*target) {
+            delete *target;
+        }
         *target = nullptr;
         return nullptr;
     }

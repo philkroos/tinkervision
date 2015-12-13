@@ -1,0 +1,170 @@
+==3686== Memcheck, a memory error detector
+==3686== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==3686== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
+==3686== Command: ./tfv-test-api
+==3686== Parent PID: 26025
+==3686== 
+==3686== Use of uninitialised value of size 8
+==3686==    at 0x5BF1C94: PyObject_Free (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5CD1DBC: PyGrammar_AddAccelerators (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5CD20A4: PyParser_New (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5CD5364: ??? (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C7AEF5: PyParser_ASTFromString (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C7B255: PyRun_StringFlags (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BD6906: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5D1308B: PyEval_EvalCodeEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BDBF3E: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5D1308B: PyEval_EvalCodeEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BDBF3E: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BDC1BF: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==  Uninitialised value was created by a heap allocation
+==3686==    at 0x4C2BBCF: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3686==    by 0x5C3B365: PyArena_New (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C7B231: PyRun_StringFlags (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BD6906: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5D1308B: PyEval_EvalCodeEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BDBF3E: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5D1308B: PyEval_EvalCodeEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BDBF3E: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BDC1BF: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BDC1BF: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5D1308B: PyEval_EvalCodeEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BD3D08: PyEval_EvalCode (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   fun:PyObject_Free
+   fun:PyGrammar_AddAccelerators
+   fun:PyParser_New
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   fun:PyParser_ASTFromString
+   fun:PyRun_StringFlags
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}
+==3686== Use of uninitialised value of size 8
+==3686==    at 0x5BF1C94: PyObject_Free (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5CBB5F0: ??? (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C9522A: ??? (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C9ADB6: ??? (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C9E1AA: PyDict_SetItem (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BFCB54: _PyModule_Clear (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C45BED: PyImport_Cleanup (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C7BE9D: Py_Finalize (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x4F1DABA: tv::PythonContext::~PythonContext() (python_context.cc:52)
+==3686==    by 0x4F2F01B: tv::Environment::Python::~Python() (environment.hh:72)
+==3686==    by 0x4F2F091: tv::Environment::~Environment() (environment.hh:42)
+==3686==    by 0x4F21761: tv::Api::~Api() (api.cc:83)
+==3686==  Uninitialised value was created by a heap allocation
+==3686==    at 0x4C2BBCF: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3686==    by 0x5C58B88: _PyObject_GC_Malloc (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C58CA5: _PyObject_GC_NewVar (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C96560: PyFrame_New (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BDC16C: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BDC1BF: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BDC1BF: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5D1308B: PyEval_EvalCodeEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BDBF3E: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5D1308B: PyEval_EvalCodeEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BD3D08: PyEval_EvalCode (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C42E63: PyImport_ExecCodeModuleEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   fun:PyObject_Free
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:_ZN2tv13PythonContextD1Ev
+   fun:_ZN2tv11Environment6PythonD1Ev
+   fun:_ZN2tv11EnvironmentD1Ev
+   fun:_ZN2tv3ApiD1Ev
+}
+==3686== 
+==3686== HEAP SUMMARY:
+==3686==     in use at exit: 530,183 bytes in 307 blocks
+==3686==   total heap usage: 5,421 allocs, 5,114 frees, 62,997,204 bytes allocated
+==3686== 
+==3686== 528 bytes in 1 blocks are possibly lost in loss record 43 of 142
+==3686==    at 0x4C2BBCF: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3686==    by 0x5C58B88: _PyObject_GC_Malloc (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C58CA5: _PyObject_GC_NewVar (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C96560: PyFrame_New (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5D128A3: PyEval_EvalCodeEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C94FBF: ??? (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C4B932: PyObject_Call (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C6E414: ??? (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C016D2: ??? (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C4B932: PyObject_Call (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C4BD9E: PyObject_CallFunctionObjArgs (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BD84A6: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+   fun:PyEval_EvalFrameEx
+}
+==3686== 536 bytes in 1 blocks are possibly lost in loss record 44 of 142
+==3686==    at 0x4C2BBCF: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3686==    by 0x5C58B88: _PyObject_GC_Malloc (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C58CA5: _PyObject_GC_NewVar (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C96560: PyFrame_New (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5D128A3: PyEval_EvalCodeEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C950BC: ??? (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C4B932: PyObject_Call (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C6E414: ??? (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C016D2: ??? (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5C4B932: PyObject_Call (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BD9601: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686==    by 0x5BDC1BF: PyEval_EvalFrameEx (in /usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0)
+==3686== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}
+==3686== LEAK SUMMARY:
+==3686==    definitely lost: 0 bytes in 0 blocks
+==3686==    indirectly lost: 0 bytes in 0 blocks
+==3686==      possibly lost: 1,064 bytes in 2 blocks
+==3686==    still reachable: 413,956 bytes in 199 blocks
+==3686==         suppressed: 115,163 bytes in 106 blocks
+==3686== Reachable blocks (those to which a pointer was found) are not shown.
+==3686== To see them, rerun with: --leak-check=full --show-leak-kinds=all
+==3686== 
+==3686== For counts of detected and suppressed errors, rerun with: -v
+==3686== ERROR SUMMARY: 4 errors from 4 contexts (suppressed: 475 from 29)

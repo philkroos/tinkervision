@@ -98,7 +98,10 @@ void Dirwatch::unwatch(std::string const& directory) {
 void Dirwatch::stop(void) {
     /// Stop and wait for the thread, then close inotify.
     stopped_ = true;
-    inotify_thread_.join();
+
+    if (inotify_thread_.joinable()) {
+        inotify_thread_.join();
+    }
     close(inotify_);
     inotify_ = 0;
     tv::Log("DIRWATCH", "Stopped");
@@ -127,7 +130,8 @@ bool Dirwatch::start(void) {
             inotify_add_watch(inotify_, directory.first.c_str(), flags_);
 
         if (watch <= 0) {
-            tv::LogError("DIRWATCH", "Could not add watch for ", directory.first);
+            tv::LogError("DIRWATCH", "Could not add watch for ",
+                         directory.first);
             return false;
         }
 
@@ -168,7 +172,7 @@ void Dirwatch::monitor(void) const {
 
         else if (length < 0) {  // should eval the error here.
             tv::LogError("DIRWATCH", "Reading from inotify: ", errno, " (",
-                     strerror(errno), ")");
+                         strerror(errno), ")");
         }
 
         // process each change event

@@ -73,11 +73,12 @@ static auto close = v4l2_close;
 tv::V4L2USBCamera::V4L2USBCamera(uint8_t camera_id) : Camera(camera_id) {
     // zero-initialize buffers for the frames to be grabbed
     frames_ = new v4l2::Frame[request_buffer_count_ * sizeof(v4l2::Frame)]();
+
     v4l2_log_file = fopen(v4l2_log, "a");
     if (v4l2_log_file) {
-        Log("V4L2", "Opened logfile ", v4l2_log);
+        Log("V4L2", "Opened logfile");
     } else {
-        Log("V4L2", "Failed to open logfile ", v4l2_log, ": ", errno);
+        Log("V4L2", "Failed to open logfile: ", errno);
     }
 }
 
@@ -91,12 +92,12 @@ tv::V4L2USBCamera::~V4L2USBCamera(void) {
             v4l2::munmap(frames_[i].start, frames_[i].length);
             frames_[i].mapped = false;
         }
+        delete[] frames_;
     }
 
     if (v4l2_log_file) {
         fclose(v4l2_log_file);
     }
-    delete[] frames_;
 }
 
 bool tv::V4L2USBCamera::is_open(void) const { return device_ != 0; }
@@ -175,7 +176,7 @@ bool tv::V4L2USBCamera::_select_requested_settings(uint16_t width,
 
     if (is_open()) {  // Todo: errornumber?
 
-        v4l2::Format format;
+        v4l2::Format format{0};
         format.type = buffer_type_;
 
         for (size_t i = 0; i < supported_resolutions_.size(); ++i) {
@@ -199,7 +200,7 @@ bool tv::V4L2USBCamera::select_best_available_settings(void) {
 
     if (is_open()) {  // Todo: errornumber?
 
-        v4l2::Format format;
+        v4l2::Format format{0};
         format.type = buffer_type_;
 
         // priority 1,2,3: pixelformat, resolution, fps
@@ -282,7 +283,7 @@ bool tv::V4L2USBCamera::_set_highest_framerate(v4l2::PixelFormat& px_format) {
     // Assumes already selected framesize
 
     // if not supported by device, just use current setting
-    v4l2::FrameIntervalEnum frame_interval;
+    v4l2::FrameIntervalEnum frame_interval{0};
 
     frame_interval.pixel_format = px_format.pixelformat;
     frame_interval.width = px_format.width;
@@ -323,7 +324,7 @@ bool tv::V4L2USBCamera::_set_highest_framerate(v4l2::PixelFormat& px_format) {
         }
     }
 
-    v4l2::StreamParameter stream_parameter;
+    v4l2::StreamParameter stream_parameter{0};
     stream_parameter.type = v4l2::BUFFER_TYPE_VIDEO_CAPTURE;
 
     if (io_operation(device_, v4l2::get_parameter, &stream_parameter) and

@@ -49,9 +49,11 @@ typedef void (*TV_LibrariesCallback)(char const* name, char const* path,
 #define TV_UNUSED_ID -1
 
 #define SYS_MODULES_PATH "/usr/lib/tinkervision/"
-#define MODULES_FOLDER "lib"      ///< Relative to USER_PREFIX (compiler define)
-#define DATA_FOLDER "data"        ///< Relative to USER_PREFIX (compiler define)
+#define MODULES_FOLDER "lib"  ///< Relative to USER_PREFIX (compiler define)
+#define DATA_FOLDER "data"    ///< Relative to USER_PREFIX (compiler define)
+#ifdef WITH_PYTHON
 #define SCRIPTS_FOLDER "scripts"  ///< Relative to USER_PREFIX (compiler define)
+#endif
 
 /* result codes */
 

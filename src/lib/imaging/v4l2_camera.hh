@@ -176,7 +176,7 @@ private:
     static const int request_buffer_count_ =
         4;  ///< Frame buffers provided to v4l
 
-    v4l2::Requestbuffers request_buffers_;
+    v4l2::Requestbuffers request_buffers_{0};
 
     v4l2::BufferType buffer_type_ =
         v4l2::BUFFER_TYPE_VIDEO_CAPTURE;  ///< recording a stream of images
@@ -185,7 +185,7 @@ private:
         v4l2::BUFFER_MEMORY_MMAP;  ///< exchanging data with the driver via
     /// memory-mapped buffers
 
-    v4l2::Buffer buffer_;  ///< 'Working' buffer; pointing to 'real' buffer
+    v4l2::Buffer buffer_{0};  ///< 'Working' buffer; pointing to 'real' buffer
     v4l2::Frame* frames_ = nullptr;  ///< memory-mapped actual buffer
 
     size_t frame_width_ = 0;     ///< resolution width

@@ -366,7 +366,7 @@ protected:
 /// Public interface to this module.
 class Converter {
 private:
-    Convert* converter_;
+    Convert* converter_{nullptr};
     Image const invalid_image_{};
 
     using Conversion =

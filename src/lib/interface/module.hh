@@ -170,6 +170,10 @@ protected:
 public:
     /// Default d'tor.
     virtual ~Module(void);
+    Module(Module const& other) = delete;
+    Module(Module&& other) = delete;
+    Module& operator=(Module const& other) = delete;
+    Module& operator=(Module&& other) = delete;
 
     using ParameterMap = std::unordered_map<std::string, Parameter*>;
 

@@ -477,6 +477,9 @@ tv::Converter::Converter(tv::ColorSpace source, tv::ColorSpace target) {
 
     if (it != conversions_.end()) {
         auto maker = std::get<2>(*it);
+        if (converter_) {
+            delete converter_;
+        }
         converter_ = (this->*maker)();
     }
 }

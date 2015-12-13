@@ -1,0 +1,32 @@
+{
+   <PyEvalFrameEx:Value8>
+   Memcheck:Value8
+   fun:PyObject_Free
+   fun:PyGrammar_AddAccelerators
+   fun:PyParser_New
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   ...
+   fun:PyEval_EvalFrameEx
+}
+{
+   <PyFree:Value8>
+   Memcheck:Value8
+   fun:PyObject_Free
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   ...
+   fun:_ZN2tv3ApiD1Ev
+}
+{
+   <PyEvalFrameEx:malloc>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   ...
+   fun:PyEval_EvalFrameEx
+}
+

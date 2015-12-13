@@ -105,11 +105,7 @@ public:
                               std::placeholders::_2);
     }
 
-    ~SharedResource(void) {
-        for (auto const& resource : managed_) {
-            if (resource.second.resource) delete resource.second.resource;
-        }
-    }
+    ~SharedResource(void) { remove_all(); }
 
     /// Execute a function on all active resources in turn. The parameter is an
     /// optional replacement for the default executor set during construction.
@@ -256,6 +252,9 @@ public:
     /// \param[in] deallocator Optional function to be called immediately before
     /// this resource is removed.
     bool insert(int16_t id, Resource* module, Deallocator deallocator) {
+        if (not deallocator) {
+            return false;
+        }
         std::shared_lock<std::shared_timed_mutex> lock(mutex_);
 
         if (exists(managed_, id)) {
@@ -279,10 +278,8 @@ public:
             return false;
         }
 
-        if (managed_[id].deallocator) {
-            Log("SHARED_RESOURCE::remove", "Id ", id);
-            managed_[id].deallocator(*managed_[id].resource);
-        }
+        Log("SHARED_RESOURCE::remove", "Id ", id);
+        managed_[id].deallocator(*managed_[id].resource);
 
         managed_.erase(id);
         ids_managed_.remove(id);
@@ -300,8 +297,7 @@ public:
         for (auto it = managed_.cbegin(); it != managed_.cend();) {
 
             if (predicate(resource(it))) {
-                // auto const resource_id = id(it);
-                // garbage_[resource_id] = &resource(it);
+                managed_[id(it)].deallocator(*managed_[id(it)].resource);
                 ids_managed_.remove(id(it));
                 managed_.erase(it++);
                 count++;
@@ -316,6 +312,10 @@ public:
     void remove_all(void) {
         std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
+        for (auto& id : ids_managed_) {
+            Log("SHARED_RESOURCE", "Removing id ", id);
+            managed_[id].deallocator(*managed_[id].resource);
+        }
         managed_.clear();
         ids_managed_.clear();
     }

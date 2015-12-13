@@ -32,8 +32,6 @@
 #include <dirent.h>
 #include <algorithm>
 
-#include "logger.hh"
-
 /*
 static std::string basename(std::string const& fullname) {
     return std::string(
@@ -99,6 +97,9 @@ void list_directory_content(std::string const& directory,
 
     auto dir = opendir(directory.c_str());
 
+    if (not dir) {
+        return;
+    }
     for (auto entry = readdir(dir); entry != NULL; entry = readdir(dir)) {
         std::string extension;
 
@@ -109,4 +110,6 @@ void list_directory_content(std::string const& directory,
             contents.push_back(entry->d_name);
         }
     }
+
+    (void)(closedir(dir));
 }

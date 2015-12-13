@@ -51,7 +51,11 @@ public:
     /// c'tor.
     /// Initialize this class with a path where libraries are to be
     /// found.
-    ModuleLoader(Environment const& environment_);
+    explicit ModuleLoader(Environment const& environment_);
+    ModuleLoader(ModuleLoader const&) = delete;
+    ModuleLoader(ModuleLoader&&) = delete;
+    ModuleLoader& operator=(ModuleLoader const&) = delete;
+    ModuleLoader& operator=(ModuleLoader&&) = delete;
 
     /// d'tor. Call destroy_all() and delete acquired resources.
     ~ModuleLoader(void);

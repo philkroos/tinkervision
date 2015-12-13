@@ -1,0 +1,1622 @@
+==330== Memcheck, a memory error detector
+==330== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==330== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
+==330== Command: ./tfv-test-api
+==330== Parent PID: 26025
+==330== 
+==330== Syscall param ioctl(VKI_V4L2_TRY_FMT) points to uninitialised byte(s)
+==330==    at 0x52C15A9: syscall (syscall.S:38)
+==330==    by 0x645E5EF: ??? (in /usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0)
+==330==    by 0x645F2AC: v4lconvert_try_format (in /usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0)
+==330==    by 0x590EDD3: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x59106F4: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==  Address 0xffefff3a4 is on thread 1's stack
+==330==  in frame #9, created by tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   ioctl(VKI_V4L2_TRY_FMT)
+   fun:syscall
+   obj:/usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0
+   fun:v4lconvert_try_format
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+}
+==330== Syscall param ioctl(VKI_V4L2_S_FMT) points to uninitialised byte(s)
+==330==    at 0x52C15A9: syscall (syscall.S:38)
+==330==    by 0x645E5EF: ??? (in /usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0)
+==330==    by 0x590EF10: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x59106F4: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==    by 0x4F5E75F: tv::CameraControl::_open_device(tv::Camera**) (cameracontrol.cc:341)
+==330==  Address 0xffeffecf4 is on thread 1's stack
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   ioctl(VKI_V4L2_S_FMT)
+   fun:syscall
+   obj:/usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+}
+==330== Conditional jump or move depends on uninitialised value(s)
+==330==    at 0x520D7E0: vfprintf (vfprintf.c:1641)
+==330==    by 0x52D68D2: __fprintf_chk (fprintf_chk.c:35)
+==330==    by 0x59130EB: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x5910796: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==    by 0x4F5E75F: tv::CameraControl::_open_device(tv::Camera**) (cameracontrol.cc:341)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+}
+==330== Use of uninitialised value of size 8
+==330==    at 0x52097BB: _itoa_word (_itoa.c:179)
+==330==    by 0x520DAC8: vfprintf (vfprintf.c:1641)
+==330==    by 0x52D68D2: __fprintf_chk (fprintf_chk.c:35)
+==330==    by 0x59130EB: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x5910796: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   fun:_itoa_word
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+}
+==330== Conditional jump or move depends on uninitialised value(s)
+==330==    at 0x52097C5: _itoa_word (_itoa.c:179)
+==330==    by 0x520DAC8: vfprintf (vfprintf.c:1641)
+==330==    by 0x52D68D2: __fprintf_chk (fprintf_chk.c:35)
+==330==    by 0x59130EB: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x5910796: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:_itoa_word
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+}
+==330== Conditional jump or move depends on uninitialised value(s)
+==330==    at 0x520DB39: vfprintf (vfprintf.c:1641)
+==330==    by 0x52D68D2: __fprintf_chk (fprintf_chk.c:35)
+==330==    by 0x59130EB: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x5910796: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==    by 0x4F5E75F: tv::CameraControl::_open_device(tv::Camera**) (cameracontrol.cc:341)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+}
+==330== Conditional jump or move depends on uninitialised value(s)
+==330==    at 0x520D8BA: vfprintf (vfprintf.c:1641)
+==330==    by 0x52D68D2: __fprintf_chk (fprintf_chk.c:35)
+==330==    by 0x59130EB: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x5910796: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==    by 0x4F5E75F: tv::CameraControl::_open_device(tv::Camera**) (cameracontrol.cc:341)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+}
+==330== Conditional jump or move depends on uninitialised value(s)
+==330==    at 0x520D94A: vfprintf (vfprintf.c:1641)
+==330==    by 0x52D68D2: __fprintf_chk (fprintf_chk.c:35)
+==330==    by 0x59130EB: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x5910796: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==    by 0x4F5E75F: tv::CameraControl::_open_device(tv::Camera**) (cameracontrol.cc:341)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+}
+==330== Conditional jump or move depends on uninitialised value(s)
+==330==    at 0x520D7E0: vfprintf (vfprintf.c:1641)
+==330==    by 0x52D68D2: __fprintf_chk (fprintf_chk.c:35)
+==330==    by 0x591310A: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x5910796: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==    by 0x4F5E75F: tv::CameraControl::_open_device(tv::Camera**) (cameracontrol.cc:341)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+}
+==330== Use of uninitialised value of size 8
+==330==    at 0x52097BB: _itoa_word (_itoa.c:179)
+==330==    by 0x520DAC8: vfprintf (vfprintf.c:1641)
+==330==    by 0x52D68D2: __fprintf_chk (fprintf_chk.c:35)
+==330==    by 0x591310A: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x5910796: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   fun:_itoa_word
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+}
+==330== Conditional jump or move depends on uninitialised value(s)
+==330==    at 0x52097C5: _itoa_word (_itoa.c:179)
+==330==    by 0x520DAC8: vfprintf (vfprintf.c:1641)
+==330==    by 0x52D68D2: __fprintf_chk (fprintf_chk.c:35)
+==330==    by 0x591310A: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x5910796: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:_itoa_word
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+}
+==330== Conditional jump or move depends on uninitialised value(s)
+==330==    at 0x520DB39: vfprintf (vfprintf.c:1641)
+==330==    by 0x52D68D2: __fprintf_chk (fprintf_chk.c:35)
+==330==    by 0x591310A: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x5910796: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==    by 0x4F5E75F: tv::CameraControl::_open_device(tv::Camera**) (cameracontrol.cc:341)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+}
+==330== Conditional jump or move depends on uninitialised value(s)
+==330==    at 0x520D8BA: vfprintf (vfprintf.c:1641)
+==330==    by 0x52D68D2: __fprintf_chk (fprintf_chk.c:35)
+==330==    by 0x591310A: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x5910796: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==    by 0x4F5E75F: tv::CameraControl::_open_device(tv::Camera**) (cameracontrol.cc:341)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+}
+==330== Conditional jump or move depends on uninitialised value(s)
+==330==    at 0x520D94A: vfprintf (vfprintf.c:1641)
+==330==    by 0x52D68D2: __fprintf_chk (fprintf_chk.c:35)
+==330==    by 0x591310A: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x5910796: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==    by 0x4F5E75F: tv::CameraControl::_open_device(tv::Camera**) (cameracontrol.cc:341)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+}
+==330== Use of uninitialised value of size 8
+==330==    at 0x5209761: _itoa_word (_itoa.c:180)
+==330==    by 0x520DAC8: vfprintf (vfprintf.c:1641)
+==330==    by 0x52D68D2: __fprintf_chk (fprintf_chk.c:35)
+==330==    by 0x591310A: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x5910796: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   fun:_itoa_word
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+}
+==330== Conditional jump or move depends on uninitialised value(s)
+==330==    at 0x5209768: _itoa_word (_itoa.c:180)
+==330==    by 0x520DAC8: vfprintf (vfprintf.c:1641)
+==330==    by 0x52D68D2: __fprintf_chk (fprintf_chk.c:35)
+==330==    by 0x591310A: ??? (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x5910796: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6DDA7: tv::V4L2USBCamera::_set_format_and_resolution(v4l2_format&, unsigned long, unsigned long) (v4l2_camera.cc:232)
+==330==    by 0x4F6DB98: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:186)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:_itoa_word
+   fun:vfprintf
+   fun:__fprintf_chk
+   obj:/usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera26_set_format_and_resolutionER11v4l2_formatmm
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+}
+==330== Syscall param ioctl(VKI_V4L2_ENUM_FRAMEINTERVALS).reserved points to uninitialised byte(s)
+==330==    at 0x52C15A9: syscall (syscall.S:38)
+==330==    by 0x645E5EF: ??? (in /usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0)
+==330==    by 0x6461D0F: v4lconvert_enum_frameintervals (in /usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0)
+==330==    by 0x5910B29: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6E0EA: tv::V4L2USBCamera::_set_highest_framerate(v4l2_pix_format&) (v4l2_camera.cc:305)
+==330==    by 0x4F6DBD1: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:190)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==    by 0x4F5E75F: tv::CameraControl::_open_device(tv::Camera**) (cameracontrol.cc:341)
+==330==    by 0x4F5E509: tv::CameraControl::_init() (cameracontrol.cc:314)
+==330==  Address 0xffefff26c is on thread 1's stack
+==330==  in frame #6, created by tv::V4L2USBCamera::_set_highest_framerate(v4l2_pix_format&) (v4l2_camera.cc:281)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6E01D: tv::V4L2USBCamera::_set_highest_framerate(v4l2_pix_format&) (v4l2_camera.cc:281)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   ioctl(VKI_V4L2_ENUM_FRAMEINTERVALS).reserved
+   fun:syscall
+   obj:/usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0
+   fun:v4lconvert_enum_frameintervals
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera22_set_highest_framerateER15v4l2_pix_format
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+   fun:_ZN2tv13CameraControl5_initEv
+}
+==330== Syscall param ioctl(VKI_V4L2_G_PARM).parm.capture.reserved points to uninitialised byte(s)
+==330==    at 0x52C15A9: syscall (syscall.S:38)
+==330==    by 0x645E5EF: ??? (in /usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0)
+==330==    by 0x5910350: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6E23A: tv::V4L2USBCamera::_set_highest_framerate(v4l2_pix_format&) (v4l2_camera.cc:329)
+==330==    by 0x4F6DBD1: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:190)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==    by 0x4F5E75F: tv::CameraControl::_open_device(tv::Camera**) (cameracontrol.cc:341)
+==330==    by 0x4F5E509: tv::CameraControl::_init() (cameracontrol.cc:314)
+==330==  Address 0xffefff29c is on thread 1's stack
+==330==  in frame #6, created by tv::V4L2USBCamera::_set_highest_framerate(v4l2_pix_format&) (v4l2_camera.cc:281)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6E01D: tv::V4L2USBCamera::_set_highest_framerate(v4l2_pix_format&) (v4l2_camera.cc:281)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   ioctl(VKI_V4L2_G_PARM).parm.capture.reserved
+   fun:syscall
+   obj:/usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera22_set_highest_framerateER15v4l2_pix_format
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+   fun:_ZN2tv13CameraControl5_initEv
+}
+==330== Syscall param ioctl(VKI_V4L2_S_PARM).parm.capture points to uninitialised byte(s)
+==330==    at 0x52C15A9: syscall (syscall.S:38)
+==330==    by 0x645E5EF: ??? (in /usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0)
+==330==    by 0x59109D7: v4l2_ioctl (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6EB83: v4l2::IOControl::operator()(int, v4l2::Request const&, void*) (v4l2_camera.hh:95)
+==330==    by 0x4F6ECCE: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*, int) (v4l2_camera.hh:218)
+==330==    by 0x4F6EE21: tv::V4L2USBCamera::io_operation(int const&, v4l2::Request const&, void*) (v4l2_camera.hh:231)
+==330==    by 0x4F6E2AA: tv::V4L2USBCamera::_set_highest_framerate(v4l2_pix_format&) (v4l2_camera.cc:337)
+==330==    by 0x4F6DBD1: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:190)
+==330==    by 0x4F6D768: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:128)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==    by 0x4F5E75F: tv::CameraControl::_open_device(tv::Camera**) (cameracontrol.cc:341)
+==330==    by 0x4F5E509: tv::CameraControl::_init() (cameracontrol.cc:314)
+==330==  Address 0xffefff29c is on thread 1's stack
+==330==  in frame #6, created by tv::V4L2USBCamera::_set_highest_framerate(v4l2_pix_format&) (v4l2_camera.cc:281)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6E01D: tv::V4L2USBCamera::_set_highest_framerate(v4l2_pix_format&) (v4l2_camera.cc:281)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   ioctl(VKI_V4L2_S_PARM).parm.capture
+   fun:syscall
+   obj:/usr/lib/x86_64-linux-gnu/libv4lconvert.so.0.0.0
+   fun:v4l2_ioctl
+   fun:_ZN4v4l29IOControlclEiRKNS_7RequestEPv
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPvi
+   fun:_ZN2tv13V4L2USBCamera12io_operationERKiRKN4v4l27RequestEPv
+   fun:_ZN2tv13V4L2USBCamera22_set_highest_framerateER15v4l2_pix_format
+   fun:_ZN2tv13V4L2USBCamera26_select_requested_settingsEtt
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+   fun:_ZN2tv13CameraControl5_initEv
+}
+==330== Conditional jump or move depends on uninitialised value(s)
+==330==    at 0x5912356: v4l2_mmap (in /usr/lib/x86_64-linux-gnu/libv4l2.so.0.0.0)
+==330==    by 0x4F6E848: tv::V4L2USBCamera::_start_capturing() (v4l2_camera.cc:418)
+==330==    by 0x4F6D77B: tv::V4L2USBCamera::open_device(unsigned short, unsigned short) (v4l2_camera.cc:129)
+==330==    by 0x4F709D1: tv::Camera::open(unsigned short, unsigned short) (camera.cc:61)
+==330==    by 0x4F5E75F: tv::CameraControl::_open_device(tv::Camera**) (cameracontrol.cc:341)
+==330==    by 0x4F5E509: tv::CameraControl::_init() (cameracontrol.cc:314)
+==330==    by 0x4F5D795: tv::CameraControl::preselect_framesize(unsigned short, unsigned short) (cameracontrol.cc:124)
+==330==    by 0x4F13DE8: tv::Api::set_framesize(unsigned short, unsigned short) (api.cc:335)
+==330==    by 0x4F3E836: tv_set_framesize (tinkervision.cc:163)
+==330==    by 0x401550: main (tfv_test_api.c:128)
+==330==  Uninitialised value was created by a stack allocation
+==330==    at 0x4F6DA7A: tv::V4L2USBCamera::_select_requested_settings(unsigned short, unsigned short) (v4l2_camera.cc:173)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:v4l2_mmap
+   fun:_ZN2tv13V4L2USBCamera16_start_capturingEv
+   fun:_ZN2tv13V4L2USBCamera11open_deviceEtt
+   fun:_ZN2tv6Camera4openEtt
+   fun:_ZN2tv13CameraControl12_open_deviceEPPNS_6CameraE
+   fun:_ZN2tv13CameraControl5_initEv
+   fun:_ZN2tv13CameraControl19preselect_framesizeEtt
+   fun:_ZN2tv3Api13set_framesizeEtt
+   fun:tv_set_framesize
+   fun:main
+}
+==330== 
+==330== Process terminating with default action of signal 6 (SIGABRT)
+==330==    at 0x51F5267: raise (raise.c:55)
+==330==    by 0x51F6EC9: abort (abort.c:89)
+==330==    by 0x5619B7C: __gnu_cxx::__verbose_terminate_handler() (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==330==    by 0x56179C5: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==330==    by 0x5617A10: std::terminate() (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==330==    by 0x56175EF: __gxx_personality_v0 (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==330==    by 0x5E32008: ??? (in /lib/x86_64-linux-gnu/libgcc_s.so.1)
+==330==    by 0x5E32363: _Unwind_ForcedUnwind (in /lib/x86_64-linux-gnu/libgcc_s.so.1)
+==330==    by 0x604895F: __pthread_unwind (unwind.c:126)
+==330==    by 0x60417A4: __do_cancel (pthreadP.h:283)
+==330==    by 0x60417A4: pthread_exit (pthread_exit.c:28)
+==330==    by 0x52D4A1A: pthread_exit (forward.c:173)
+==330==    by 0x4F4D8E0: tv::ModuleLoader::~ModuleLoader() (module_loader.cc:74)
+==330== 
+==330== HEAP SUMMARY:
+==330==     in use at exit: 5,659,468 bytes in 170 blocks
+==330==   total heap usage: 2,636 allocs, 2,466 frees, 67,686,964 bytes allocated
+==330== 
+==330== 16 bytes in 1 blocks are still reachable in loss record 1 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F34D63: __gnu_cxx::new_allocator<std::__detail::_Hash_node_base*>::allocate(unsigned long, void const*) (new_allocator.h:104)
+==330==    by 0x4F34A6A: std::allocator_traits<std::allocator<std::__detail::_Hash_node_base*> >::allocate(std::allocator<std::__detail::_Hash_node_base*>&, unsigned long) (alloc_traits.h:360)
+==330==    by 0x4F5C616: std::__detail::_Hashtable_alloc<std::allocator<std::__detail::_Hash_node<std::pair<tv::ModuleWrapper* const, tv::ModuleLoader::ModuleHandle>, false> > >::_M_allocate_buckets(unsigned long) (hashtable_policy.h:1996)
+==330==    by 0x4F5BE72: std::_Hashtable<tv::ModuleWrapper*, std::pair<tv::ModuleWrapper* const, tv::ModuleLoader::ModuleHandle>, std::allocator<std::pair<tv::ModuleWrapper* const, tv::ModuleLoader::ModuleHandle> >, std::__detail::_Select1st, std::equal_to<tv::ModuleWrapper*>, std::hash<tv::ModuleWrapper*>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_allocate_buckets(unsigned long) (hashtable.h:347)
+==330==    by 0x4F5AC9A: std::_Hashtable<tv::ModuleWrapper*, std::pair<tv::ModuleWrapper* const, tv::ModuleLoader::ModuleHandle>, std::allocator<std::pair<tv::ModuleWrapper* const, tv::ModuleLoader::ModuleHandle> >, std::__detail::_Select1st, std::equal_to<tv::ModuleWrapper*>, std::hash<tv::ModuleWrapper*>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_rehash_aux(unsigned long, std::integral_constant<bool, true>) (hashtable.h:1974)
+==330==    by 0x4F59993: std::_Hashtable<tv::ModuleWrapper*, std::pair<tv::ModuleWrapper* const, tv::ModuleLoader::ModuleHandle>, std::allocator<std::pair<tv::ModuleWrapper* const, tv::ModuleLoader::ModuleHandle> >, std::__detail::_Select1st, std::equal_to<tv::ModuleWrapper*>, std::hash<tv::ModuleWrapper*>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_rehash(unsigned long, unsigned long const&) (hashtable.h:1953)
+==330==    by 0x4F57957: std::_Hashtable<tv::ModuleWrapper*, std::pair<tv::ModuleWrapper* const, tv::ModuleLoader::ModuleHandle>, std::allocator<std::pair<tv::ModuleWrapper* const, tv::ModuleLoader::ModuleHandle> >, std::__detail::_Select1st, std::equal_to<tv::ModuleWrapper*>, std::hash<tv::ModuleWrapper*>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_insert_unique_node(unsigned long, unsigned long, std::__detail::_Hash_node<std::pair<tv::ModuleWrapper* const, tv::ModuleLoader::ModuleHandle>, false>*) (hashtable.h:1600)
+==330==    by 0x4F54A43: std::__detail::_Map_base<tv::ModuleWrapper*, std::pair<tv::ModuleWrapper* const, tv::ModuleLoader::ModuleHandle>, std::allocator<std::pair<tv::ModuleWrapper* const, tv::ModuleLoader::ModuleHandle> >, std::__detail::_Select1st, std::equal_to<tv::ModuleWrapper*>, std::hash<tv::ModuleWrapper*>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true>, true>::operator[](tv::ModuleWrapper* const&) (hashtable_policy.h:600)
+==330==    by 0x4F525B4: std::unordered_map<tv::ModuleWrapper*, tv::ModuleLoader::ModuleHandle, std::hash<tv::ModuleWrapper*>, std::equal_to<tv::ModuleWrapper*>, std::allocator<std::pair<tv::ModuleWrapper* const, tv::ModuleLoader::ModuleHandle> > >::operator[](tv::ModuleWrapper* const&) (unordered_map.h:668)
+==330==    by 0x4F4E15F: tv::ModuleLoader::load_module_from_library(tv::ModuleWrapper**, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, short) (module_loader.cc:160)
+==330==    by 0x4F15522: tv::Api::_module_load(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, short) (api.cc:640)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorIPNSt8__detail15_Hash_node_baseEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaIPNSt8__detail15_Hash_node_baseEEE8allocateERS3_m
+   fun:_ZNSt8__detail16_Hashtable_allocISaINS_10_Hash_nodeISt4pairIKPN2tv13ModuleWrapperENS3_12ModuleLoader12ModuleHandleEELb0EEEEE19_M_allocate_bucketsEm
+   fun:_ZNSt10_HashtableIPN2tv13ModuleWrapperESt4pairIKS2_NS0_12ModuleLoader12ModuleHandleEESaIS7_ENSt8__detail10_Select1stESt8equal_toIS2_ESt4hashIS2_ENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE19_M_allocate_bucketsEm
+   fun:_ZNSt10_HashtableIPN2tv13ModuleWrapperESt4pairIKS2_NS0_12ModuleLoader12ModuleHandleEESaIS7_ENSt8__detail10_Select1stESt8equal_toIS2_ESt4hashIS2_ENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE13_M_rehash_auxEmSt17integral_constantIbLb1EE
+   fun:_ZNSt10_HashtableIPN2tv13ModuleWrapperESt4pairIKS2_NS0_12ModuleLoader12ModuleHandleEESaIS7_ENSt8__detail10_Select1stESt8equal_toIS2_ESt4hashIS2_ENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE9_M_rehashEmRKm
+   fun:_ZNSt10_HashtableIPN2tv13ModuleWrapperESt4pairIKS2_NS0_12ModuleLoader12ModuleHandleEESaIS7_ENSt8__detail10_Select1stESt8equal_toIS2_ESt4hashIS2_ENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE21_M_insert_unique_nodeEmmPNS9_10_Hash_nodeIS7_Lb0EEE
+   fun:_ZNSt8__detail9_Map_baseIPN2tv13ModuleWrapperESt4pairIKS3_NS1_12ModuleLoader12ModuleHandleEESaIS8_ENS_10_Select1stESt8equal_toIS3_ESt4hashIS3_ENS_18_Mod_range_hashingENS_20_Default_ranged_hashENS_20_Prime_rehash_policyENS_17_Hashtable_traitsILb0ELb0ELb1EEELb1EEixERS5_
+   fun:_ZNSt13unordered_mapIPN2tv13ModuleWrapperENS0_12ModuleLoader12ModuleHandleESt4hashIS2_ESt8equal_toIS2_ESaISt4pairIKS2_S4_EEEixERSA_
+   fun:_ZN2tv12ModuleLoader24load_module_from_libraryEPPNS_13ModuleWrapperERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEs
+   fun:_ZN2tv3Api12_module_loadERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEs
+}
+==330== 16 bytes in 1 blocks are still reachable in loss record 2 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F34D63: __gnu_cxx::new_allocator<std::__detail::_Hash_node_base*>::allocate(unsigned long, void const*) (new_allocator.h:104)
+==330==    by 0x4F34A6A: std::allocator_traits<std::allocator<std::__detail::_Hash_node_base*> >::allocate(std::allocator<std::__detail::_Hash_node_base*>&, unsigned long) (alloc_traits.h:360)
+==330==    by 0x4F34434: std::__detail::_Hashtable_alloc<std::allocator<std::__detail::_Hash_node<std::pair<short const, tv::SharedResource<tv::ModuleWrapper>::ResourceContainer>, false> > >::_M_allocate_buckets(unsigned long) (hashtable_policy.h:1996)
+==330==    by 0x4F33A1A: std::_Hashtable<short, std::pair<short const, tv::SharedResource<tv::ModuleWrapper>::ResourceContainer>, std::allocator<std::pair<short const, tv::SharedResource<tv::ModuleWrapper>::ResourceContainer> >, std::__detail::_Select1st, std::equal_to<short>, std::hash<short>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_allocate_buckets(unsigned long) (hashtable.h:347)
+==330==    by 0x4F32688: std::_Hashtable<short, std::pair<short const, tv::SharedResource<tv::ModuleWrapper>::ResourceContainer>, std::allocator<std::pair<short const, tv::SharedResource<tv::ModuleWrapper>::ResourceContainer> >, std::__detail::_Select1st, std::equal_to<short>, std::hash<short>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_rehash_aux(unsigned long, std::integral_constant<bool, true>) (hashtable.h:1974)
+==330==    by 0x4F30F9F: std::_Hashtable<short, std::pair<short const, tv::SharedResource<tv::ModuleWrapper>::ResourceContainer>, std::allocator<std::pair<short const, tv::SharedResource<tv::ModuleWrapper>::ResourceContainer> >, std::__detail::_Select1st, std::equal_to<short>, std::hash<short>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_rehash(unsigned long, unsigned long const&) (hashtable.h:1953)
+==330==    by 0x4F2ED93: std::_Hashtable<short, std::pair<short const, tv::SharedResource<tv::ModuleWrapper>::ResourceContainer>, std::allocator<std::pair<short const, tv::SharedResource<tv::ModuleWrapper>::ResourceContainer> >, std::__detail::_Select1st, std::equal_to<short>, std::hash<short>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_insert_unique_node(unsigned long, unsigned long, std::__detail::_Hash_node<std::pair<short const, tv::SharedResource<tv::ModuleWrapper>::ResourceContainer>, false>*) (hashtable.h:1600)
+==330==    by 0x4F2C4A3: std::__detail::_Map_base<short, std::pair<short const, tv::SharedResource<tv::ModuleWrapper>::ResourceContainer>, std::allocator<std::pair<short const, tv::SharedResource<tv::ModuleWrapper>::ResourceContainer> >, std::__detail::_Select1st, std::equal_to<short>, std::hash<short>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true>, true>::operator[](short const&) (hashtable_policy.h:600)
+==330==    by 0x4F2823A: std::unordered_map<short, tv::SharedResource<tv::ModuleWrapper>::ResourceContainer, std::hash<short>, std::equal_to<short>, std::allocator<std::pair<short const, tv::SharedResource<tv::ModuleWrapper>::ResourceContainer> > >::operator[](short const&) (unordered_map.h:668)
+==330==    by 0x4F23D5B: tv::SharedResource<tv::ModuleWrapper>::insert(short, tv::ModuleWrapper*, std::function<void (tv::ModuleWrapper&)>) (shared_resource.hh:266)
+==330==    by 0x4F15219: tv::Api::_module_load(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, short)::{lambda()#1}::operator()() const (api.cc:658)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorIPNSt8__detail15_Hash_node_baseEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaIPNSt8__detail15_Hash_node_baseEEE8allocateERS3_m
+   fun:_ZNSt8__detail16_Hashtable_allocISaINS_10_Hash_nodeISt4pairIKsN2tv14SharedResourceINS4_13ModuleWrapperEE17ResourceContainerEELb0EEEEE19_M_allocate_bucketsEm
+   fun:_ZNSt10_HashtableIsSt4pairIKsN2tv14SharedResourceINS2_13ModuleWrapperEE17ResourceContainerEESaIS7_ENSt8__detail10_Select1stESt8equal_toIsESt4hashIsENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE19_M_allocate_bucketsEm
+   fun:_ZNSt10_HashtableIsSt4pairIKsN2tv14SharedResourceINS2_13ModuleWrapperEE17ResourceContainerEESaIS7_ENSt8__detail10_Select1stESt8equal_toIsESt4hashIsENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE13_M_rehash_auxEmSt17integral_constantIbLb1EE
+   fun:_ZNSt10_HashtableIsSt4pairIKsN2tv14SharedResourceINS2_13ModuleWrapperEE17ResourceContainerEESaIS7_ENSt8__detail10_Select1stESt8equal_toIsESt4hashIsENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE9_M_rehashEmRKm
+   fun:_ZNSt10_HashtableIsSt4pairIKsN2tv14SharedResourceINS2_13ModuleWrapperEE17ResourceContainerEESaIS7_ENSt8__detail10_Select1stESt8equal_toIsESt4hashIsENS9_18_Mod_range_hashingENS9_20_Default_ranged_hashENS9_20_Prime_rehash_policyENS9_17_Hashtable_traitsILb0ELb0ELb1EEEE21_M_insert_unique_nodeEmmPNS9_10_Hash_nodeIS7_Lb0EEE
+   fun:_ZNSt8__detail9_Map_baseIsSt4pairIKsN2tv14SharedResourceINS3_13ModuleWrapperEE17ResourceContainerEESaIS8_ENS_10_Select1stESt8equal_toIsESt4hashIsENS_18_Mod_range_hashingENS_20_Default_ranged_hashENS_20_Prime_rehash_policyENS_17_Hashtable_traitsILb0ELb0ELb1EEELb1EEixERS2_
+   fun:_ZNSt13unordered_mapIsN2tv14SharedResourceINS0_13ModuleWrapperEE17ResourceContainerESt4hashIsESt8equal_toIsESaISt4pairIKsS4_EEEixERSA_
+   fun:_ZN2tv14SharedResourceINS_13ModuleWrapperEE6insertEsPS1_St8functionIFvRS1_EE
+   fun:_ZZN2tv3Api12_module_loadERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEsENKUlvE_clEv
+}
+==330== 22 bytes in 1 blocks are still reachable in loss record 3 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F0F382: void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char*>(char*, char*, std::forward_iterator_tag) (basic_string.tcc:223)
+==330==    by 0x56ABECE: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==330==    by 0x4F4F7B5: tv::ModuleLoader::_add_available_module(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (module_loader.cc:384)
+==330==    by 0x4F4D32B: tv::ModuleLoader::ModuleLoader(tv::Environment const&) (module_loader.cc:51)
+==330==    by 0x4F12371: tv::Api::Api() (api.cc:55)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tag
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC1ERKS4_
+   fun:_ZN2tv12ModuleLoader21_add_available_moduleERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES8_
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 23 bytes in 1 blocks are still reachable in loss record 4 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x56ABFEC: void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char const*>(char const*, char const*, std::forward_iterator_tag) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==330==    by 0x56AC14B: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==330==    by 0x4F79069: tv::Environment::Environment() (environment.cc:36)
+==330==    by 0x4F121A4: tv::Api::Api() (api.cc:45)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tag
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC1EPKcRKS3_
+   fun:_ZN2tv11EnvironmentC1Ev
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 24 bytes in 1 blocks are still reachable in loss record 5 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F31992: std::_Function_base::_Base_manager<std::_Bind<std::_Mem_fn<void (tv::SharedResource<tv::Node>::*)(short, tv::Node&)> (tv::SharedResource<tv::Node>*, std::_Placeholder<1>, std::_Placeholder<2>)> >::_M_init_functor(std::_Any_data&, std::_Bind<std::_Mem_fn<void (tv::SharedResource<tv::Node>::*)(short, tv::Node&)> (tv::SharedResource<tv::Node>*, std::_Placeholder<1>, std::_Placeholder<2>)>&&, std::integral_constant<bool, false>) (functional:1787)
+==330==    by 0x4F30086: std::_Function_base::_Base_manager<std::_Bind<std::_Mem_fn<void (tv::SharedResource<tv::Node>::*)(short, tv::Node&)> (tv::SharedResource<tv::Node>*, std::_Placeholder<1>, std::_Placeholder<2>)> >::_M_init_functor(std::_Any_data&, std::_Bind<std::_Mem_fn<void (tv::SharedResource<tv::Node>::*)(short, tv::Node&)> (tv::SharedResource<tv::Node>*, std::_Placeholder<1>, std::_Placeholder<2>)>&&) (functional:1758)
+==330==    by 0x4F2DFB8: std::function<void (short, tv::Node&)>::function<std::_Bind<std::_Mem_fn<void (tv::SharedResource<tv::Node>::*)(short, tv::Node&)> (tv::SharedResource<tv::Node>*, std::_Placeholder<1>, std::_Placeholder<2>)>, void>(std::_Bind<std::_Mem_fn<void (tv::SharedResource<tv::Node>::*)(short, tv::Node&)> (tv::SharedResource<tv::Node>*, std::_Placeholder<1>, std::_Placeholder<2>)>) (functional:2258)
+==330==    by 0x4F2A1B3: std::enable_if<std::__and_<std::__not_<std::is_same<std::decay<std::_Bind<std::_Mem_fn<void (tv::SharedResource<tv::Node>::*)(short, tv::Node&)> (tv::SharedResource<tv::Node>*, std::_Placeholder<1>, std::_Placeholder<2>)> >::type, std::function<void (short, tv::Node&)> > >, std::__or_<std::is_void<void>, std::is_convertible<decltype ((__callable_functor((declval<std::decay<std::_Bind<std::_Mem_fn<void (tv::SharedResource<tv::Node>::*)(short, tv::Node&)> (tv::SharedResource<tv::Node>*, std::_Placeholder<1>, std::_Placeholder<2>)> >::type&>)()))((declval<short>)(), (declval<tv::Node&>)())), void> > >::value, std::function<void (short, tv::Node&)>&>::type std::function<void (short, tv::Node&)>::operator=<std::_Bind<std::_Mem_fn<void (tv::SharedResource<tv::Node>::*)(short, tv::Node&)> (tv::SharedResource<tv::Node>*, std::_Placeholder<1>, std::_Placeholder<2>)> >(std::_Bind<std::_Mem_fn<void (tv::SharedResource<tv::Node>::*)(short, tv::Node&)> (tv::SharedResource<tv::Node>*, std::_Placeholder<1>, std::_Placeholder<2>)>&&) (functional:2136)
+==330==    by 0x4F25557: tv::SharedResource<tv::Node>::SharedResource<tv::SharedResource<tv::Node> >(void (tv::SharedResource<tv::Node>::*)(short, tv::Node&), tv::SharedResource<tv::Node>*) (shared_resource.hh:104)
+==330==    by 0x4F2114C: tv::SharedResource<tv::Node>::SharedResource() (shared_resource.hh:98)
+==330==    by 0x4F1FEDB: tv::SceneTrees::SceneTrees() (scenetrees.hh:132)
+==330==    by 0x4F120F9: tv::Api::Api() (api.cc:41)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt14_Function_base13_Base_managerISt5_BindIFSt7_Mem_fnIMN2tv14SharedResourceINS3_4NodeEEEFvsRS5_EEPS6_St12_PlaceholderILi1EESC_ILi2EEEEE15_M_init_functorERSt9_Any_dataOSG_St17integral_constantIbLb0EE
+   fun:_ZNSt14_Function_base13_Base_managerISt5_BindIFSt7_Mem_fnIMN2tv14SharedResourceINS3_4NodeEEEFvsRS5_EEPS6_St12_PlaceholderILi1EESC_ILi2EEEEE15_M_init_functorERSt9_Any_dataOSG_
+   fun:_ZNSt8functionIFvsRN2tv4NodeEEEC1ISt5_BindIFSt7_Mem_fnIMNS0_14SharedResourceIS1_EEFvsS2_EEPS9_St12_PlaceholderILi1EESE_ILi2EEEEvEET_
+   fun:_ZNSt8functionIFvsRN2tv4NodeEEEaSISt5_BindIFSt7_Mem_fnIMNS0_14SharedResourceIS1_EEFvsS2_EEPS9_St12_PlaceholderILi1EESE_ILi2EEEEEENSt9enable_ifIXsrSt6__and_IISt6__not_ISt7is_sameINSt5decayIT_E4typeES4_EESt5__or_IISt7is_voidIvESt14is_convertibleIDTclcl18__callable_functorcl7declvalIRSQ_EEEcl7declvalIsEEcl7declvalIS2_EEEEvEEEEE5valueERS4_E4typeEOSO_
+   fun:_ZN2tv14SharedResourceINS_4NodeEEC1IS2_EEMT_FvsRS1_EPS4_
+   fun:_ZN2tv14SharedResourceINS_4NodeEEC1Ev
+   fun:_ZN2tv10SceneTreesC1Ev
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 24 bytes in 1 blocks are still reachable in loss record 6 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F30BC8: std::_Function_base::_Base_manager<std::_Bind<std::_Mem_fn<void (tv::Api::*)(short, tv::ModuleWrapper&)> (tv::Api*, std::_Placeholder<1>, std::_Placeholder<2>)> >::_M_init_functor(std::_Any_data&, std::_Bind<std::_Mem_fn<void (tv::Api::*)(short, tv::ModuleWrapper&)> (tv::Api*, std::_Placeholder<1>, std::_Placeholder<2>)>&&, std::integral_constant<bool, false>) (functional:1787)
+==330==    by 0x4F2E5C6: std::_Function_base::_Base_manager<std::_Bind<std::_Mem_fn<void (tv::Api::*)(short, tv::ModuleWrapper&)> (tv::Api*, std::_Placeholder<1>, std::_Placeholder<2>)> >::_M_init_functor(std::_Any_data&, std::_Bind<std::_Mem_fn<void (tv::Api::*)(short, tv::ModuleWrapper&)> (tv::Api*, std::_Placeholder<1>, std::_Placeholder<2>)>&&) (functional:1758)
+==330==    by 0x4F2ADEC: std::function<void (short, tv::ModuleWrapper&)>::function<std::_Bind<std::_Mem_fn<void (tv::Api::*)(short, tv::ModuleWrapper&)> (tv::Api*, std::_Placeholder<1>, std::_Placeholder<2>)>, void>(std::_Bind<std::_Mem_fn<void (tv::Api::*)(short, tv::ModuleWrapper&)> (tv::Api*, std::_Placeholder<1>, std::_Placeholder<2>)>) (functional:2258)
+==330==    by 0x4F25C53: std::enable_if<std::__and_<std::__not_<std::is_same<std::decay<std::_Bind<std::_Mem_fn<void (tv::Api::*)(short, tv::ModuleWrapper&)> (tv::Api*, std::_Placeholder<1>, std::_Placeholder<2>)> >::type, std::function<void (short, tv::ModuleWrapper&)> > >, std::__or_<std::is_void<void>, std::is_convertible<decltype ((__callable_functor((declval<std::decay<std::_Bind<std::_Mem_fn<void (tv::Api::*)(short, tv::ModuleWrapper&)> (tv::Api*, std::_Placeholder<1>, std::_Placeholder<2>)> >::type&>)()))((declval<short>)(), (declval<tv::ModuleWrapper&>)())), void> > >::value, std::function<void (short, tv::ModuleWrapper&)>&>::type std::function<void (short, tv::ModuleWrapper&)>::operator=<std::_Bind<std::_Mem_fn<void (tv::Api::*)(short, tv::ModuleWrapper&)> (tv::Api*, std::_Placeholder<1>, std::_Placeholder<2>)> >(std::_Bind<std::_Mem_fn<void (tv::Api::*)(short, tv::ModuleWrapper&)> (tv::Api*, std::_Placeholder<1>, std::_Placeholder<2>)>&&) (functional:2136)
+==330==    by 0x4F21957: tv::SharedResource<tv::ModuleWrapper>::SharedResource<tv::Api>(void (tv::Api::*)(short, tv::ModuleWrapper&), tv::Api*) (shared_resource.hh:104)
+==330==    by 0x4F1233D: tv::Api::Api() (api.cc:52)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt14_Function_base13_Base_managerISt5_BindIFSt7_Mem_fnIMN2tv3ApiEFvsRNS3_13ModuleWrapperEEEPS4_St12_PlaceholderILi1EESB_ILi2EEEEE15_M_init_functorERSt9_Any_dataOSF_St17integral_constantIbLb0EE
+   fun:_ZNSt14_Function_base13_Base_managerISt5_BindIFSt7_Mem_fnIMN2tv3ApiEFvsRNS3_13ModuleWrapperEEEPS4_St12_PlaceholderILi1EESB_ILi2EEEEE15_M_init_functorERSt9_Any_dataOSF_
+   fun:_ZNSt8functionIFvsRN2tv13ModuleWrapperEEEC1ISt5_BindIFSt7_Mem_fnIMNS0_3ApiEFvsS2_EEPS8_St12_PlaceholderILi1EESD_ILi2EEEEvEET_
+   fun:_ZNSt8functionIFvsRN2tv13ModuleWrapperEEEaSISt5_BindIFSt7_Mem_fnIMNS0_3ApiEFvsS2_EEPS8_St12_PlaceholderILi1EESD_ILi2EEEEEENSt9enable_ifIXsrSt6__and_IISt6__not_ISt7is_sameINSt5decayIT_E4typeES4_EESt5__or_IISt7is_voidIvESt14is_convertibleIDTclcl18__callable_functorcl7declvalIRSP_EEEcl7declvalIsEEcl7declvalIS2_EEEEvEEEEE5valueERS4_E4typeEOSN_
+   fun:_ZN2tv14SharedResourceINS_13ModuleWrapperEEC1INS_3ApiEEEMT_FvsRS1_EPS5_
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 24 bytes in 1 blocks are still reachable in loss record 7 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F5A6B3: std::_Function_base::_Base_manager<std::_Bind<std::_Mem_fn<void (tv::ModuleLoader::*)(Dirwatch::Event, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)> (tv::ModuleLoader*, std::_Placeholder<1>, std::_Placeholder<2>, std::_Placeholder<3>)> >::_M_init_functor(std::_Any_data&, std::_Bind<std::_Mem_fn<void (tv::ModuleLoader::*)(Dirwatch::Event, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)> (tv::ModuleLoader*, std::_Placeholder<1>, std::_Placeholder<2>, std::_Placeholder<3>)>&&, std::integral_constant<bool, false>) (functional:1787)
+==330==    by 0x4F58F58: std::_Function_base::_Base_manager<std::_Bind<std::_Mem_fn<void (tv::ModuleLoader::*)(Dirwatch::Event, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)> (tv::ModuleLoader*, std::_Placeholder<1>, std::_Placeholder<2>, std::_Placeholder<3>)> >::_M_init_functor(std::_Any_data&, std::_Bind<std::_Mem_fn<void (tv::ModuleLoader::*)(Dirwatch::Event, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)> (tv::ModuleLoader*, std::_Placeholder<1>, std::_Placeholder<2>, std::_Placeholder<3>)>&&) (functional:1758)
+==330==    by 0x4F56ACA: std::function<void (Dirwatch::Event, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)>::function<std::_Bind<std::_Mem_fn<void (tv::ModuleLoader::*)(Dirwatch::Event, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)> (tv::ModuleLoader*, std::_Placeholder<1>, std::_Placeholder<2>, std::_Placeholder<3>)>, void>(std::_Bind<std::_Mem_fn<void (tv::ModuleLoader::*)(Dirwatch::Event, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)> (tv::ModuleLoader*, std::_Placeholder<1>, std::_Placeholder<2>, std::_Placeholder<3>)>) (functional:2258)
+==330==    by 0x4F539CB: std::enable_if<std::__and_<std::__not_<std::is_same<std::decay<std::_Bind<std::_Mem_fn<void (tv::ModuleLoader::*)(Dirwatch::Event, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)> (tv::ModuleLoader*, std::_Placeholder<1>, std::_Placeholder<2>, std::_Placeholder<3>)> >::type, std::function<void (Dirwatch::Event, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)> > >, std::__or_<std::is_void<void>, std::is_convertible<decltype ((__callable_functor((declval<std::decay<std::_Bind<std::_Mem_fn<void (tv::ModuleLoader::*)(Dirwatch::Event, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)> (tv::ModuleLoader*, std::_Placeholder<1>, std::_Placeholder<2>, std::_Placeholder<3>)> >::type&>)()))((declval<Dirwatch::Event>)(), (declval<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>)(), (declval<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>)())), void> > >::value, std::function<void (Dirwatch::Event, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)>&>::type std::function<void (Dirwatch::Event, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)>::operator=<std::_Bind<std::_Mem_fn<void (tv::ModuleLoader::*)(Dirwatch::Event, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)> (tv::ModuleLoader*, std::_Placeholder<1>, std::_Placeholder<2>, std::_Placeholder<3>)> >(std::_Bind<std::_Mem_fn<void (tv::ModuleLoader::*)(Dirwatch::Event, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)> (tv::ModuleLoader*, std::_Placeholder<1>, std::_Placeholder<2>, std::_Placeholder<3>)>&&) (functional:2136)
+==330==    by 0x4F51788: Dirwatch::Dirwatch<tv::ModuleLoader>(void (tv::ModuleLoader::*)(Dirwatch::Event, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&), tv::ModuleLoader*) (dirwatch.hh:87)
+==330==    by 0x4F4D162: tv::ModuleLoader::ModuleLoader(tv::Environment const&) (module_loader.cc:39)
+==330==    by 0x4F12371: tv::Api::Api() (api.cc:55)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt14_Function_base13_Base_managerISt5_BindIFSt7_Mem_fnIMN2tv12ModuleLoaderEFvN8Dirwatch5EventERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESE_EEPS4_St12_PlaceholderILi1EESJ_ILi2EESJ_ILi3EEEEE15_M_init_functorERSt9_Any_dataOSO_St17integral_constantIbLb0EE
+   fun:_ZNSt14_Function_base13_Base_managerISt5_BindIFSt7_Mem_fnIMN2tv12ModuleLoaderEFvN8Dirwatch5EventERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESE_EEPS4_St12_PlaceholderILi1EESJ_ILi2EESJ_ILi3EEEEE15_M_init_functorERSt9_Any_dataOSO_
+   fun:_ZNSt8functionIFvN8Dirwatch5EventERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES9_EEC1ISt5_BindIFSt7_Mem_fnIMN2tv12ModuleLoaderEFvS1_S9_S9_EEPSG_St12_PlaceholderILi1EESL_ILi2EESL_ILi3EEEEvEET_
+   fun:_ZNSt8functionIFvN8Dirwatch5EventERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES9_EEaSISt5_BindIFSt7_Mem_fnIMN2tv12ModuleLoaderEFvS1_S9_S9_EEPSG_St12_PlaceholderILi1EESL_ILi2EESL_ILi3EEEEEENSt9enable_ifIXsrSt6__and_IISt6__not_ISt7is_sameINSt5decayIT_E4typeESB_EESt5__or_IISt7is_voidIvESt14is_convertibleIDTclcl18__callable_functorcl7declvalIRSY_EEEcl7declvalIS1_EEcl7declvalIS9_EEcl7declvalIS9_EEEEvEEEEE5valueERSB_E4typeEOSW_
+   fun:_ZN8DirwatchC1IN2tv12ModuleLoaderEEEMT_FvNS_5EventERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESC_EPS3_
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 31 bytes in 1 blocks are still reachable in loss record 10 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x56A98CE: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==330==    by 0x56A9BD8: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::operator=(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==330==    by 0x4F7933F: tv::Environment::set_user_prefix(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (environment.cc:75)
+==330==    by 0x4F121FE: tv::Api::Api() (api.cc:47)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_assignERKS4_
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEaSERKS4_
+   fun:_ZN2tv11Environment15set_user_prefixERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 32 bytes in 1 blocks are still reachable in loss record 11 of 51
+==330==    at 0x4C2DB95: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x625869E: _dlerror_run (dlerror.c:141)
+==330==    by 0x6258060: dlopen@@GLIBC_2.2.5 (dlopen.c:87)
+==330==    by 0x4F4EC0E: tv::ModuleLoader::_load_module_from_library(tv::ModuleWrapper**, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, short) (module_loader.cc:290)
+==330==    by 0x4F4F559: tv::ModuleLoader::_add_available_module(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (module_loader.cc:369)
+==330==    by 0x4F4D32B: tv::ModuleLoader::ModuleLoader(tv::Environment const&) (module_loader.cc:51)
+==330==    by 0x4F12371: tv::Api::Api() (api.cc:55)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN2tv12ModuleLoader25_load_module_from_libraryEPPNS_13ModuleWrapperERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESB_s
+   fun:_ZN2tv12ModuleLoader21_add_available_moduleERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES8_
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 32 bytes in 1 blocks are still reachable in loss record 12 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F5A43F: __gnu_cxx::new_allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::allocate(unsigned long, void const*) (new_allocator.h:104)
+==330==    by 0x4F58B4D: std::allocator_traits<std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::allocate(std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >&, unsigned long) (alloc_traits.h:360)
+==330==    by 0x4F560CB: std::_Vector_base<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::_M_allocate(unsigned long) (stl_vector.h:170)
+==330==    by 0x4F5466B: void std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::_M_emplace_back_aux<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (vector.tcc:412)
+==330==    by 0x4F52456: std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::push_back(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (stl_vector.h:923)
+==330==    by 0x4F629AA: Dirwatch::add_watched_extension(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (dirwatch.cc:150)
+==330==    by 0x4F4D51F: tv::ModuleLoader::ModuleLoader(tv::Environment const&) (module_loader.cc:62)
+==330==    by 0x4F12371: tv::Api::Api() (api.cc:55)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEE8allocateERS6_m
+   fun:_ZNSt12_Vector_baseINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE11_M_allocateEm
+   fun:_ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE19_M_emplace_back_auxIIRKS5_EEEvDpOT_
+   fun:_ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE9push_backERKS5_
+   fun:_ZN8Dirwatch21add_watched_extensionERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 35 bytes in 1 blocks are still reachable in loss record 13 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x56A9988: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==330==    by 0x56AAD22: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_append(char const*, unsigned long) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==330==    by 0x4F205A9: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, char const*) (basic_string.h:4822)
+==330==    by 0x4F7935F: tv::Environment::set_user_prefix(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (environment.cc:76)
+==330==    by 0x4F121FE: tv::Api::Api() (api.cc:47)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_mutateEmmPKcm
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_appendEPKcm
+   fun:_ZStplIcSt11char_traitsIcESaIcEENSt7__cxx1112basic_stringIT_T0_T1_EERKS8_PKS5_
+   fun:_ZN2tv11Environment15set_user_prefixERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 35 bytes in 1 blocks are still reachable in loss record 14 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x56A9988: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==330==    by 0x56AAD22: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_append(char const*, unsigned long) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==330==    by 0x4F205A9: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, char const*) (basic_string.h:4822)
+==330==    by 0x4F793DA: tv::Environment::set_user_prefix(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (environment.cc:77)
+==330==    by 0x4F121FE: tv::Api::Api() (api.cc:47)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_mutateEmmPKcm
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_appendEPKcm
+   fun:_ZStplIcSt11char_traitsIcESaIcEENSt7__cxx1112basic_stringIT_T0_T1_EERKS8_PKS5_
+   fun:_ZN2tv11Environment15set_user_prefixERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 36 bytes in 2 blocks are definitely lost in loss record 17 of 51
+==330==    at 0x4C2BBCF: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x524B429: strdup (strdup.c:42)
+==330==    by 0x7EDD2FE: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x7EE75CF: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x7EE349D: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x7EE3908: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x60406A9: start_thread (pthread_create.c:333)
+==330==    by 0x52C6EEC: clone (clone.S:109)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:strdup
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   fun:start_thread
+   fun:clone
+}
+==330== 45 bytes in 2 blocks are still reachable in loss record 18 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F0F382: void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char*>(char*, char*, std::forward_iterator_tag) (basic_string.tcc:223)
+==330==    by 0x56ABECE: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==330==    by 0x4F6764D: std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int>::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, 0ul>(std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>&, std::tuple<>&, std::_Index_tuple<0ul>, std::_Index_tuple<>) (tuple:1172)
+==330==    by 0x4F6737D: std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int>::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(std::piecewise_construct_t, std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>, std::tuple<>) (tuple:1161)
+==330==    by 0x4F6713C: _ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEEE9constructISA_IRKSt21piecewise_construct_tSt5tupleIIRS9_EESH_IIEEEEEvPT_DpOT0_ (in /usr/lib/libtinkervision.so)
+==330==    by 0x4F66EFF: _ZNSt16allocator_traitsISaISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEEEE12_S_constructIS9_IRKSt21piecewise_construct_tSt5tupleIIRS8_EESH_IIEEEEENSt9enable_ifIXsrSt6__and_IINSC_18__construct_helperIT_IDpT0_EE4typeEEE5valueEvE4typeERSB_PSO_DpOSP_ (alloc_traits.h:256)
+==330==    by 0x4F66D67: _ZNSt16allocator_traitsISaISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEEEE9constructIS9_IRKSt21piecewise_construct_tSt5tupleIIRS8_EESH_IIEEEEEDTcl12_S_constructfp_fp0_spcl7forwardIT0_Efp1_EEERSB_PT_DpOSL_ (alloc_traits.h:402)
+==330==    by 0x4F666E2: void std::_Rb_tree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int>, std::_Select1st<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >::_M_construct_node<std::piecewise_construct_t const&, std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>, std::tuple<> >(std::_Rb_tree_node<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >*, std::piecewise_construct_t const&, std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>&&, std::tuple<>&&) (stl_tree.h:529)
+==330==    by 0x4F65631: std::_Rb_tree_node<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >* std::_Rb_tree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int>, std::_Select1st<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >::_M_create_node<std::piecewise_construct_t const&, std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>, std::tuple<> >(std::piecewise_construct_t const&, std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>&&, std::tuple<>&&) (stl_tree.h:546)
+==330==    by 0x4F6423E: std::_Rb_tree_iterator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > std::_Rb_tree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int>, std::_Select1st<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >::_M_emplace_hint_unique<std::piecewise_construct_t const&, std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>, std::tuple<> >(std::_Rb_tree_const_iterator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >, std::piecewise_construct_t const&, std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>&&, std::tuple<>&&) (stl_tree.h:2170)
+==330==    by 0x4F6354E: std::map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >::operator[](std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (stl_map.h:483)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tag
+   fun:_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC1ERKS4_
+   fun:_ZNSt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEC1IIRS6_EILm0EEIEIEEERSt5tupleIIDpT_EERSA_IIDpT1_EESt12_Index_tupleIIXspT0_EEESJ_IIXspT2_EEE
+   fun:_ZNSt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEC1IIRS6_EIEEESt21piecewise_construct_tSt5tupleIIDpT_EESB_IIDpT0_EE
+   fun:_ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEEE9constructISA_IRKSt21piecewise_construct_tSt5tupleIIRS9_EESH_IIEEEEEvPT_DpOT0_
+   fun:_ZNSt16allocator_traitsISaISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEEEE12_S_constructIS9_IRKSt21piecewise_construct_tSt5tupleIIRS8_EESH_IIEEEEENSt9enable_ifIXsrSt6__and_IINSC_18__construct_helperIT_IDpT0_EE4typeEEE5valueEvE4typeERSB_PSO_DpOSP_
+   fun:_ZNSt16allocator_traitsISaISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEEEE9constructIS9_IRKSt21piecewise_construct_tSt5tupleIIRS8_EESH_IIEEEEEDTcl12_S_constructfp_fp0_spcl7forwardIT0_Efp1_EEERSB_PT_DpOSL_
+   fun:_ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_iESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE17_M_construct_nodeIIRKSt21piecewise_construct_tSt5tupleIIRS7_EESJ_IIEEEEEvPSt13_Rb_tree_nodeIS8_EDpOT_
+   fun:_ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_iESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE14_M_create_nodeIIRKSt21piecewise_construct_tSt5tupleIIRS7_EESJ_IIEEEEEPSt13_Rb_tree_nodeIS8_EDpOT_
+   fun:_ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_iESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE22_M_emplace_hint_uniqueIIRKSt21piecewise_construct_tSt5tupleIIRS7_EESJ_IIEEEEESt17_Rb_tree_iteratorIS8_ESt23_Rb_tree_const_iteratorIS8_EDpOT_
+   fun:_ZNSt3mapINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiSt4lessIS5_ESaISt4pairIKS5_iEEEixERS9_
+}
+==330== 54 bytes in 3 blocks are definitely lost in loss record 19 of 51
+==330==    at 0x4C2BBCF: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x524B429: strdup (strdup.c:42)
+==330==    by 0x7EDD276: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x7EE75CF: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x7EE349D: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x7EE3908: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x60406A9: start_thread (pthread_create.c:333)
+==330==    by 0x52C6EEC: clone (clone.S:109)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:strdup
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   fun:start_thread
+   fun:clone
+}
+==330== 64 bytes in 1 blocks are still reachable in loss record 20 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F5A43F: __gnu_cxx::new_allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::allocate(unsigned long, void const*) (new_allocator.h:104)
+==330==    by 0x4F58B4D: std::allocator_traits<std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::allocate(std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >&, unsigned long) (alloc_traits.h:360)
+==330==    by 0x4F560CB: std::_Vector_base<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::_M_allocate(unsigned long) (stl_vector.h:170)
+==330==    by 0x4F53557: void std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::_M_range_initialize<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const*>(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const*, std::forward_iterator_tag) (stl_vector.h:1287)
+==330==    by 0x4F514FB: std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::vector(std::initializer_list<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > const&) (stl_vector.h:377)
+==330==    by 0x4F4D0BF: tv::ModuleLoader::ModuleLoader(tv::Environment const&) (module_loader.cc:39)
+==330==    by 0x4F12371: tv::Api::Api() (api.cc:55)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEE8allocateERS6_m
+   fun:_ZNSt12_Vector_baseINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE11_M_allocateEm
+   fun:_ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE19_M_range_initializeIPKS5_EEvT_SB_St20forward_iterator_tag
+   fun:_ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EEC1ESt16initializer_listIS5_ERKS6_
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 64 bytes in 1 blocks are still reachable in loss record 21 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F677FD: __gnu_cxx::new_allocator<std::_Sp_counted_ptr_inplace<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >, std::allocator<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > >, (__gnu_cxx::_Lock_policy)2> >::allocate(unsigned long, void const*) (new_allocator.h:104)
+==330==    by 0x4F6769A: std::allocator_traits<std::allocator<std::_Sp_counted_ptr_inplace<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >, std::allocator<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > >, (__gnu_cxx::_Lock_policy)2> > >::allocate(std::allocator<std::_Sp_counted_ptr_inplace<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >, std::allocator<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > >, (__gnu_cxx::_Lock_policy)2> >&, unsigned long) (alloc_traits.h:360)
+==330==    by 0x4F673F5: std::__allocated_ptr<std::allocator<std::_Sp_counted_ptr_inplace<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >, std::allocator<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > >, (__gnu_cxx::_Lock_policy)2> > > std::__allocate_guarded<std::allocator<std::_Sp_counted_ptr_inplace<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >, std::allocator<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > >, (__gnu_cxx::_Lock_policy)2> > >(std::allocator<std::_Sp_counted_ptr_inplace<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >, std::allocator<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > >, (__gnu_cxx::_Lock_policy)2> >&) (allocated_ptr.h:102)
+==330==    by 0x4F671E8: std::__shared_count<(__gnu_cxx::_Lock_policy)2>::__shared_count<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >, std::allocator<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > >, std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >(std::_Sp_make_shared_tag, std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >*, std::allocator<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > > const&, std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)>&&) (shared_ptr_base.h:615)
+==330==    by 0x4F66F59: std::__shared_ptr<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >, (__gnu_cxx::_Lock_policy)2>::__shared_ptr<std::allocator<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > >, std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >(std::_Sp_make_shared_tag, std::allocator<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > > const&, std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)>&&) (shared_ptr_base.h:1097)
+==330==    by 0x4F66DC5: std::shared_ptr<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > >::shared_ptr<std::allocator<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > >, std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >(std::_Sp_make_shared_tag, std::allocator<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > > const&, std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)>&&) (shared_ptr.h:319)
+==330==    by 0x4F66B3B: std::shared_ptr<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > > std::allocate_shared<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >, std::allocator<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > >, std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >(std::allocator<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > > const&, std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)>&&) (shared_ptr.h:614)
+==330==    by 0x4F660E5: std::shared_ptr<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > > std::make_shared<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >, std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >(std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)>&&) (shared_ptr.h:630)
+==330==    by 0x4F64D6C: std::shared_ptr<std::thread::_Impl<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> > > std::thread::_M_make_routine<std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)> >(std::_Bind_simple<std::_Mem_fn<void (Dirwatch::*)() const> (Dirwatch*)>&&) (thread:204)
+==330==    by 0x4F63AC0: std::thread::thread<void (Dirwatch::*)() const, Dirwatch*>(void (Dirwatch::*&&)() const, Dirwatch*&&) (thread:137)
+==330==    by 0x4F62855: Dirwatch::start() (dirwatch.cc:143)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorISt23_Sp_counted_ptr_inplaceINSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS6_EEEESaISD_ELNS_12_Lock_policyE2EEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaISt23_Sp_counted_ptr_inplaceINSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS5_EEEESaISC_ELN9__gnu_cxx12_Lock_policyE2EEEE8allocateERSH_m
+   fun:_ZSt18__allocate_guardedISaISt23_Sp_counted_ptr_inplaceINSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS5_EEEESaISC_ELN9__gnu_cxx12_Lock_policyE2EEEESt15__allocated_ptrIT_ERSJ_
+   fun:_ZNSt14__shared_countILN9__gnu_cxx12_Lock_policyE2EEC1INSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS8_EEEESaISF_EISE_EEESt19_Sp_make_shared_tagPT_RKT0_DpOT1_
+   fun:_ZNSt12__shared_ptrINSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS4_EEEELN9__gnu_cxx12_Lock_policyE2EEC1ISaISB_EISA_EEESt19_Sp_make_shared_tagRKT_DpOT0_
+   fun:_ZNSt10shared_ptrINSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS4_EEEEEC1ISaISB_EISA_EEESt19_Sp_make_shared_tagRKT_DpOT0_
+   fun:_ZSt15allocate_sharedINSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS4_EEEESaISB_EISA_EESt10shared_ptrIT_ERKT0_DpOT1_
+   fun:_ZSt11make_sharedINSt6thread5_ImplISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS4_EEEEISA_EESt10shared_ptrIT_EDpOT0_
+   fun:_ZNSt6thread15_M_make_routineISt12_Bind_simpleIFSt7_Mem_fnIM8DirwatchKFvvEEPS3_EEEESt10shared_ptrINS_5_ImplIT_EEEOSC_
+   fun:_ZNSt6threadC1IM8DirwatchKFvvEIPS1_EEEOT_DpOT0_
+   fun:_ZN8Dirwatch5startEv
+}
+==330== 72 bytes in 1 blocks are still reachable in loss record 22 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F66E9B: __gnu_cxx::new_allocator<std::_Rb_tree_node<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >::allocate(unsigned long, void const*) (new_allocator.h:104)
+==330==    by 0x4F66D03: std::allocator_traits<std::allocator<std::_Rb_tree_node<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > > >::allocate(std::allocator<std::_Rb_tree_node<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >&, unsigned long) (alloc_traits.h:360)
+==330==    by 0x4F6660A: std::_Rb_tree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int>, std::_Select1st<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >::_M_get_node() (stl_tree.h:491)
+==330==    by 0x4F655EA: std::_Rb_tree_node<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >* std::_Rb_tree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int>, std::_Select1st<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >::_M_create_node<std::piecewise_construct_t const&, std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>, std::tuple<> >(std::piecewise_construct_t const&, std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>&&, std::tuple<>&&) (stl_tree.h:545)
+==330==    by 0x4F6423E: std::_Rb_tree_iterator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > std::_Rb_tree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int>, std::_Select1st<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >::_M_emplace_hint_unique<std::piecewise_construct_t const&, std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>, std::tuple<> >(std::_Rb_tree_const_iterator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >, std::piecewise_construct_t const&, std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>&&, std::tuple<>&&) (stl_tree.h:2170)
+==330==    by 0x4F6354E: std::map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >::operator[](std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (stl_map.h:483)
+==330==    by 0x4F621D8: Dirwatch::watch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (dirwatch.cc:66)
+==330==    by 0x4F4D56A: tv::ModuleLoader::ModuleLoader(tv::Environment const&) (module_loader.cc:63)
+==330==    by 0x4F12371: tv::Api::Api() (api.cc:55)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEEEE8allocateERSB_m
+   fun:_ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_iESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE11_M_get_nodeEv
+   fun:_ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_iESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE14_M_create_nodeIIRKSt21piecewise_construct_tSt5tupleIIRS7_EESJ_IIEEEEEPSt13_Rb_tree_nodeIS8_EDpOT_
+   fun:_ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_iESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE22_M_emplace_hint_uniqueIIRKSt21piecewise_construct_tSt5tupleIIRS7_EESJ_IIEEEEESt17_Rb_tree_iteratorIS8_ESt23_Rb_tree_const_iteratorIS8_EDpOT_
+   fun:_ZNSt3mapINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiSt4lessIS5_ESaISt4pairIKS5_iEEEixERS9_
+   fun:_ZN8Dirwatch5watchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+}
+==330== 72 bytes in 1 blocks are still reachable in loss record 23 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F66E9B: __gnu_cxx::new_allocator<std::_Rb_tree_node<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >::allocate(unsigned long, void const*) (new_allocator.h:104)
+==330==    by 0x4F66D03: std::allocator_traits<std::allocator<std::_Rb_tree_node<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > > >::allocate(std::allocator<std::_Rb_tree_node<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >&, unsigned long) (alloc_traits.h:360)
+==330==    by 0x4F6660A: std::_Rb_tree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int>, std::_Select1st<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >::_M_get_node() (stl_tree.h:491)
+==330==    by 0x4F655EA: std::_Rb_tree_node<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >* std::_Rb_tree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int>, std::_Select1st<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >::_M_create_node<std::piecewise_construct_t const&, std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>, std::tuple<> >(std::piecewise_construct_t const&, std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>&&, std::tuple<>&&) (stl_tree.h:545)
+==330==    by 0x4F6423E: std::_Rb_tree_iterator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > std::_Rb_tree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int>, std::_Select1st<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >::_M_emplace_hint_unique<std::piecewise_construct_t const&, std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>, std::tuple<> >(std::_Rb_tree_const_iterator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> >, std::piecewise_construct_t const&, std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>&&, std::tuple<>&&) (stl_tree.h:2170)
+==330==    by 0x4F6354E: std::map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, int> > >::operator[](std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (stl_map.h:483)
+==330==    by 0x4F621D8: Dirwatch::watch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (dirwatch.cc:66)
+==330==    by 0x4F4D597: tv::ModuleLoader::ModuleLoader(tv::Environment const&) (module_loader.cc:64)
+==330==    by 0x4F12371: tv::Api::Api() (api.cc:55)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiEEEE8allocateERSB_m
+   fun:_ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_iESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE11_M_get_nodeEv
+   fun:_ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_iESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE14_M_create_nodeIIRKSt21piecewise_construct_tSt5tupleIIRS7_EESJ_IIEEEEEPSt13_Rb_tree_nodeIS8_EDpOT_
+   fun:_ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_iESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE22_M_emplace_hint_uniqueIIRKSt21piecewise_construct_tSt5tupleIIRS7_EESJ_IIEEEEESt17_Rb_tree_iteratorIS8_ESt23_Rb_tree_const_iteratorIS8_EDpOT_
+   fun:_ZNSt3mapINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEiSt4lessIS5_ESaISt4pairIKS5_iEEEixERS9_
+   fun:_ZN8Dirwatch5watchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+}
+==330== 72 bytes in 1 blocks are still reachable in loss record 24 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F2FC17: __gnu_cxx::new_allocator<tv::Converter>::allocate(unsigned long, void const*) (new_allocator.h:104)
+==330==    by 0x4F2D7BB: std::allocator_traits<std::allocator<tv::Converter> >::allocate(std::allocator<tv::Converter>&, unsigned long) (alloc_traits.h:360)
+==330==    by 0x4F29B1F: std::_Vector_base<tv::Converter, std::allocator<tv::Converter> >::_M_allocate(unsigned long) (stl_vector.h:170)
+==330==    by 0x4F248E9: void std::vector<tv::Converter, std::allocator<tv::Converter> >::_M_emplace_back_aux<tv::ColorSpace&, tv::ColorSpace&>(tv::ColorSpace&, tv::ColorSpace&) (vector.tcc:412)
+==330==    by 0x4F20B62: void std::vector<tv::Converter, std::allocator<tv::Converter> >::emplace_back<tv::ColorSpace&, tv::ColorSpace&>(tv::ColorSpace&, tv::ColorSpace&) (vector.tcc:101)
+==330==    by 0x4F1EE63: tv::FrameConversions::get_converter(tv::ColorSpace, tv::ColorSpace) (convert.hh:485)
+==330==    by 0x4F1F03F: tv::FrameConversions::get_frame(tv::Image&, tv::ColorSpace) (convert.hh:520)
+==330==    by 0x4F12FBA: tv::Api::module_exec(short, tv::ModuleWrapper&) (api.cc:182)
+==330==    by 0x4F3370D: void std::_Mem_fn_base<void (tv::Api::*)(short, tv::ModuleWrapper&), true>::operator()<short, tv::ModuleWrapper&, void>(tv::Api*, short&&, tv::ModuleWrapper&) const (in /usr/lib/libtinkervision.so)
+==330==    by 0x4F3244E: void std::_Bind<std::_Mem_fn<void (tv::Api::*)(short, tv::ModuleWrapper&)> (tv::Api*, std::_Placeholder<1>, std::_Placeholder<2>)>::__call<void, short&&, tv::ModuleWrapper&, 0ul, 1ul, 2ul>(std::tuple<short&&, tv::ModuleWrapper&>&&, std::_Index_tuple<0ul, 1ul, 2ul>) (functional:1074)
+==330==    by 0x4F30C84: void std::_Bind<std::_Mem_fn<void (tv::Api::*)(short, tv::ModuleWrapper&)> (tv::Api*, std::_Placeholder<1>, std::_Placeholder<2>)>::operator()<short, tv::ModuleWrapper&, void>(short&&, tv::ModuleWrapper&) (functional:1133)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorIN2tv9ConverterEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaIN2tv9ConverterEEE8allocateERS2_m
+   fun:_ZNSt12_Vector_baseIN2tv9ConverterESaIS1_EE11_M_allocateEm
+   fun:_ZNSt6vectorIN2tv9ConverterESaIS1_EE19_M_emplace_back_auxIIRNS0_10ColorSpaceES6_EEEvDpOT_
+   fun:_ZNSt6vectorIN2tv9ConverterESaIS1_EE12emplace_backIIRNS0_10ColorSpaceES6_EEEvDpOT_
+   fun:_ZN2tv16FrameConversions13get_converterENS_10ColorSpaceES1_
+   fun:_ZN2tv16FrameConversions9get_frameERNS_5ImageENS_10ColorSpaceE
+   fun:_ZN2tv3Api11module_execEsRNS_13ModuleWrapperE
+   fun:_ZNKSt12_Mem_fn_baseIMN2tv3ApiEFvsRNS0_13ModuleWrapperEELb1EEclIIsS3_EvEEvPS1_DpOT_
+   fun:_ZNSt5_BindIFSt7_Mem_fnIMN2tv3ApiEFvsRNS1_13ModuleWrapperEEEPS2_St12_PlaceholderILi1EES9_ILi2EEEE6__callIvIOsS4_EILm0ELm1ELm2EEEET_OSt5tupleIIDpT0_EESt12_Index_tupleIIXspT1_EEE
+   fun:_ZNSt5_BindIFSt7_Mem_fnIMN2tv3ApiEFvsRNS1_13ModuleWrapperEEEPS2_St12_PlaceholderILi1EES9_ILi2EEEEclIIsS4_EvEET0_DpOT_
+}
+==330== 72 bytes in 4 blocks are still reachable in loss record 25 of 51
+==330==    at 0x4C2BBCF: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x524B429: strdup (strdup.c:42)
+==330==    by 0x7EDD2FE: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x7EE75CF: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x7EE349D: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x7EE3908: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x60406A9: start_thread (pthread_create.c:333)
+==330==    by 0x52C6EEC: clone (clone.S:109)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   fun:start_thread
+   fun:clone
+}
+==330== 80 bytes in 1 blocks are still reachable in loss record 26 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F1E896: tv::Converter::yuyv_to_bgr() (convert.hh:402)
+==330==    by 0x4F6B3E3: tv::Converter::Converter(tv::ColorSpace, tv::ColorSpace) (convert.cc:483)
+==330==    by 0x4F2D747: _ZN9__gnu_cxx13new_allocatorIN2tv9ConverterEE9constructIS2_IRNS1_10ColorSpaceES6_EEEvPT_DpOT0_ (in /usr/lib/libtinkervision.so)
+==330==    by 0x4F29A00: _ZNSt16allocator_traitsISaIN2tv9ConverterEEE12_S_constructIS1_IRNS0_10ColorSpaceES6_EEENSt9enable_ifIXsrSt6__and_IINS3_18__construct_helperIT_IDpT0_EE4typeEEE5valueEvE4typeERS2_PSA_DpOSB_ (alloc_traits.h:256)
+==330==    by 0x4F2489B: _ZNSt16allocator_traitsISaIN2tv9ConverterEEE9constructIS1_IRNS0_10ColorSpaceES6_EEEDTcl12_S_constructfp_fp0_spcl7forwardIT0_Efp1_EEERS2_PT_DpOS7_ (alloc_traits.h:402)
+==330==    by 0x4F2494D: void std::vector<tv::Converter, std::allocator<tv::Converter> >::_M_emplace_back_aux<tv::ColorSpace&, tv::ColorSpace&>(tv::ColorSpace&, tv::ColorSpace&) (vector.tcc:416)
+==330==    by 0x4F20B62: void std::vector<tv::Converter, std::allocator<tv::Converter> >::emplace_back<tv::ColorSpace&, tv::ColorSpace&>(tv::ColorSpace&, tv::ColorSpace&) (vector.tcc:101)
+==330==    by 0x4F1EE63: tv::FrameConversions::get_converter(tv::ColorSpace, tv::ColorSpace) (convert.hh:485)
+==330==    by 0x4F1F03F: tv::FrameConversions::get_frame(tv::Image&, tv::ColorSpace) (convert.hh:520)
+==330==    by 0x4F12FBA: tv::Api::module_exec(short, tv::ModuleWrapper&) (api.cc:182)
+==330==    by 0x4F3370D: void std::_Mem_fn_base<void (tv::Api::*)(short, tv::ModuleWrapper&), true>::operator()<short, tv::ModuleWrapper&, void>(tv::Api*, short&&, tv::ModuleWrapper&) const (in /usr/lib/libtinkervision.so)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN2tv9Converter11yuyv_to_bgrEv
+   fun:_ZN2tv9ConverterC1ENS_10ColorSpaceES1_
+   fun:_ZN9__gnu_cxx13new_allocatorIN2tv9ConverterEE9constructIS2_IRNS1_10ColorSpaceES6_EEEvPT_DpOT0_
+   fun:_ZNSt16allocator_traitsISaIN2tv9ConverterEEE12_S_constructIS1_IRNS0_10ColorSpaceES6_EEENSt9enable_ifIXsrSt6__and_IINS3_18__construct_helperIT_IDpT0_EE4typeEEE5valueEvE4typeERS2_PSA_DpOSB_
+   fun:_ZNSt16allocator_traitsISaIN2tv9ConverterEEE9constructIS1_IRNS0_10ColorSpaceES6_EEEDTcl12_S_constructfp_fp0_spcl7forwardIT0_Efp1_EEERS2_PT_DpOS7_
+   fun:_ZNSt6vectorIN2tv9ConverterESaIS1_EE19_M_emplace_back_auxIIRNS0_10ColorSpaceES6_EEEvDpOT_
+   fun:_ZNSt6vectorIN2tv9ConverterESaIS1_EE12emplace_backIIRNS0_10ColorSpaceES6_EEEvDpOT_
+   fun:_ZN2tv16FrameConversions13get_converterENS_10ColorSpaceES1_
+   fun:_ZN2tv16FrameConversions9get_frameERNS_5ImageENS_10ColorSpaceE
+   fun:_ZN2tv3Api11module_execEsRNS_13ModuleWrapperE
+   fun:_ZNKSt12_Mem_fn_baseIMN2tv3ApiEFvsRNS0_13ModuleWrapperEELb1EEclIIsS3_EvEEvPS1_DpOT_
+}
+==330== 88 bytes in 1 blocks are still reachable in loss record 27 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F5C015: __gnu_cxx::new_allocator<tv::ModuleLoader::AvailableModule>::allocate(unsigned long, void const*) (new_allocator.h:104)
+==330==    by 0x4F5B193: std::allocator_traits<std::allocator<tv::ModuleLoader::AvailableModule> >::allocate(std::allocator<tv::ModuleLoader::AvailableModule>&, unsigned long) (alloc_traits.h:360)
+==330==    by 0x4F5A1CF: std::_Vector_base<tv::ModuleLoader::AvailableModule, std::allocator<tv::ModuleLoader::AvailableModule> >::_M_allocate(unsigned long) (stl_vector.h:170)
+==330==    by 0x4F58691: void std::vector<tv::ModuleLoader::AvailableModule, std::allocator<tv::ModuleLoader::AvailableModule> >::_M_emplace_back_aux<tv::ModuleLoader::AvailableModule>(tv::ModuleLoader::AvailableModule&&) (vector.tcc:412)
+==330==    by 0x4F55F2C: void std::vector<tv::ModuleLoader::AvailableModule, std::allocator<tv::ModuleLoader::AvailableModule> >::emplace_back<tv::ModuleLoader::AvailableModule>(tv::ModuleLoader::AvailableModule&&) (vector.tcc:101)
+==330==    by 0x4F532B7: std::vector<tv::ModuleLoader::AvailableModule, std::allocator<tv::ModuleLoader::AvailableModule> >::push_back(tv::ModuleLoader::AvailableModule&&) (stl_vector.h:932)
+==330==    by 0x4F4F7DF: tv::ModuleLoader::_add_available_module(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (module_loader.cc:384)
+==330==    by 0x4F4D32B: tv::ModuleLoader::ModuleLoader(tv::Environment const&) (module_loader.cc:51)
+==330==    by 0x4F12371: tv::Api::Api() (api.cc:55)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorIN2tv12ModuleLoader15AvailableModuleEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaIN2tv12ModuleLoader15AvailableModuleEEE8allocateERS3_m
+   fun:_ZNSt12_Vector_baseIN2tv12ModuleLoader15AvailableModuleESaIS2_EE11_M_allocateEm
+   fun:_ZNSt6vectorIN2tv12ModuleLoader15AvailableModuleESaIS2_EE19_M_emplace_back_auxIIS2_EEEvDpOT_
+   fun:_ZNSt6vectorIN2tv12ModuleLoader15AvailableModuleESaIS2_EE12emplace_backIIS2_EEEvDpOT_
+   fun:_ZNSt6vectorIN2tv12ModuleLoader15AvailableModuleESaIS2_EE9push_backEOS2_
+   fun:_ZN2tv12ModuleLoader21_add_available_moduleERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES8_
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+}
+==330== 128 bytes in 1 blocks are still reachable in loss record 28 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F12199: tv::Api::Api() (api.cc:45)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 128 bytes in 1 blocks are still reachable in loss record 29 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F328B9: __gnu_cxx::new_allocator<tv::Parameter const*>::allocate(unsigned long, void const*) (new_allocator.h:104)
+==330==    by 0x4F3136E: std::allocator_traits<std::allocator<tv::Parameter const*> >::allocate(std::allocator<tv::Parameter const*>&, unsigned long) (alloc_traits.h:360)
+==330==    by 0x4F2F25F: std::_Vector_base<tv::Parameter const*, std::allocator<tv::Parameter const*> >::_M_allocate(unsigned long) (stl_vector.h:170)
+==330==    by 0x4F588FB: void std::vector<tv::Parameter const*, std::allocator<tv::Parameter const*> >::_M_emplace_back_aux<tv::Parameter const*>(tv::Parameter const*&&) (vector.tcc:412)
+==330==    by 0x4F55FBC: void std::vector<tv::Parameter const*, std::allocator<tv::Parameter const*> >::emplace_back<tv::Parameter const*>(tv::Parameter const*&&) (vector.tcc:101)
+==330==    by 0x4F532F7: std::vector<tv::Parameter const*, std::allocator<tv::Parameter const*> >::push_back(tv::Parameter const*&&) (stl_vector.h:932)
+==330==    by 0x4F4FA1A: tv::ModuleLoader::_add_available_module(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (module_loader.cc:401)
+==330==    by 0x4F4D32B: tv::ModuleLoader::ModuleLoader(tv::Environment const&) (module_loader.cc:51)
+==330==    by 0x4F12371: tv::Api::Api() (api.cc:55)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorIPKN2tv9ParameterEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaIPKN2tv9ParameterEEE8allocateERS4_m
+   fun:_ZNSt12_Vector_baseIPKN2tv9ParameterESaIS3_EE11_M_allocateEm
+   fun:_ZNSt6vectorIPKN2tv9ParameterESaIS3_EE19_M_emplace_back_auxIIS3_EEEvDpOT_
+   fun:_ZNSt6vectorIPKN2tv9ParameterESaIS3_EE12emplace_backIIS3_EEEvDpOT_
+   fun:_ZNSt6vectorIPKN2tv9ParameterESaIS3_EE9push_backEOS3_
+   fun:_ZN2tv12ModuleLoader21_add_available_moduleERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES8_
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+}
+==330== 144 bytes in 3 blocks are still reachable in loss record 30 of 51
+==330==    at 0x4C2BBCF: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x7EDD257: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x7EE75CF: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x7EE349D: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x7EE3908: ??? (in /usr/lib/libtbb.so.2)
+==330==    by 0x60406A9: start_thread (pthread_create.c:333)
+==330==    by 0x52C6EEC: clone (clone.S:109)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   obj:/usr/lib/libtbb.so.2
+   fun:start_thread
+   fun:clone
+}
+==330== 176 bytes in 1 blocks are still reachable in loss record 31 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F12309: tv::Api::Api() (api.cc:52)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 264 bytes in 1 blocks are still reachable in loss record 34 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F2FB48: __gnu_cxx::new_allocator<std::tuple<tv::ColorSpace, tv::ColorSpace, tv::Convert* (tv::Converter::*)()> >::allocate(unsigned long, void const*) (new_allocator.h:104)
+==330==    by 0x4F2D62A: std::allocator_traits<std::allocator<std::tuple<tv::ColorSpace, tv::ColorSpace, tv::Convert* (tv::Converter::*)()> > >::allocate(std::allocator<std::tuple<tv::ColorSpace, tv::ColorSpace, tv::Convert* (tv::Converter::*)()> >&, unsigned long) (alloc_traits.h:360)
+==330==    by 0x4F297A3: std::_Vector_base<std::tuple<tv::ColorSpace, tv::ColorSpace, tv::Convert* (tv::Converter::*)()>, std::allocator<std::tuple<tv::ColorSpace, tv::ColorSpace, tv::Convert* (tv::Converter::*)()> > >::_M_allocate(unsigned long) (stl_vector.h:170)
+==330==    by 0x4F246E7: void std::vector<std::tuple<tv::ColorSpace, tv::ColorSpace, tv::Convert* (tv::Converter::*)()>, std::allocator<std::tuple<tv::ColorSpace, tv::ColorSpace, tv::Convert* (tv::Converter::*)()> > >::_M_range_initialize<std::tuple<tv::ColorSpace, tv::ColorSpace, tv::Convert* (tv::Converter::*)()> const*>(std::tuple<tv::ColorSpace, tv::ColorSpace, tv::Convert* (tv::Converter::*)()> const*, std::tuple<tv::ColorSpace, tv::ColorSpace, tv::Convert* (tv::Converter::*)()> const*, std::forward_iterator_tag) (stl_vector.h:1287)
+==330==    by 0x4F20961: std::vector<std::tuple<tv::ColorSpace, tv::ColorSpace, tv::Convert* (tv::Converter::*)()>, std::allocator<std::tuple<tv::ColorSpace, tv::ColorSpace, tv::Convert* (tv::Converter::*)()> > >::vector(std::initializer_list<std::tuple<tv::ColorSpace, tv::ColorSpace, tv::Convert* (tv::Converter::*)()> >, std::allocator<std::tuple<tv::ColorSpace, tv::ColorSpace, tv::Convert* (tv::Converter::*)()> > const&) (stl_vector.h:377)
+==330==    by 0x4F6B2F3: tv::Converter::Converter(tv::ColorSpace, tv::ColorSpace) (convert.cc:470)
+==330==    by 0x4F2D747: _ZN9__gnu_cxx13new_allocatorIN2tv9ConverterEE9constructIS2_IRNS1_10ColorSpaceES6_EEEvPT_DpOT0_ (in /usr/lib/libtinkervision.so)
+==330==    by 0x4F29A00: _ZNSt16allocator_traitsISaIN2tv9ConverterEEE12_S_constructIS1_IRNS0_10ColorSpaceES6_EEENSt9enable_ifIXsrSt6__and_IINS3_18__construct_helperIT_IDpT0_EE4typeEEE5valueEvE4typeERS2_PSA_DpOSB_ (alloc_traits.h:256)
+==330==    by 0x4F2489B: _ZNSt16allocator_traitsISaIN2tv9ConverterEEE9constructIS1_IRNS0_10ColorSpaceES6_EEEDTcl12_S_constructfp_fp0_spcl7forwardIT0_Efp1_EEERS2_PT_DpOS7_ (alloc_traits.h:402)
+==330==    by 0x4F2494D: void std::vector<tv::Converter, std::allocator<tv::Converter> >::_M_emplace_back_aux<tv::ColorSpace&, tv::ColorSpace&>(tv::ColorSpace&, tv::ColorSpace&) (vector.tcc:416)
+==330==    by 0x4F20B62: void std::vector<tv::Converter, std::allocator<tv::Converter> >::emplace_back<tv::ColorSpace&, tv::ColorSpace&>(tv::ColorSpace&, tv::ColorSpace&) (vector.tcc:101)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorISt5tupleIIN2tv10ColorSpaceES3_MNS2_9ConverterEFPNS2_7ConvertEvEEEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaISt5tupleIIN2tv10ColorSpaceES2_MNS1_9ConverterEFPNS1_7ConvertEvEEEEE8allocateERS9_m
+   fun:_ZNSt12_Vector_baseISt5tupleIIN2tv10ColorSpaceES2_MNS1_9ConverterEFPNS1_7ConvertEvEEESaIS8_EE11_M_allocateEm
+   fun:_ZNSt6vectorISt5tupleIIN2tv10ColorSpaceES2_MNS1_9ConverterEFPNS1_7ConvertEvEEESaIS8_EE19_M_range_initializeIPKS8_EEvT_SE_St20forward_iterator_tag
+   fun:_ZNSt6vectorISt5tupleIIN2tv10ColorSpaceES2_MNS1_9ConverterEFPNS1_7ConvertEvEEESaIS8_EEC1ESt16initializer_listIS8_ERKS9_
+   fun:_ZN2tv9ConverterC1ENS_10ColorSpaceES1_
+   fun:_ZN9__gnu_cxx13new_allocatorIN2tv9ConverterEE9constructIS2_IRNS1_10ColorSpaceES6_EEEvPT_DpOT0_
+   fun:_ZNSt16allocator_traitsISaIN2tv9ConverterEEE12_S_constructIS1_IRNS0_10ColorSpaceES6_EEENSt9enable_ifIXsrSt6__and_IINS3_18__construct_helperIT_IDpT0_EE4typeEEE5valueEvE4typeERS2_PSA_DpOSB_
+   fun:_ZNSt16allocator_traitsISaIN2tv9ConverterEEE9constructIS1_IRNS0_10ColorSpaceES6_EEEDTcl12_S_constructfp_fp0_spcl7forwardIT0_Efp1_EEERS2_PT_DpOS7_
+   fun:_ZNSt6vectorIN2tv9ConverterESaIS1_EE19_M_emplace_back_auxIIRNS0_10ColorSpaceES6_EEEvDpOT_
+   fun:_ZNSt6vectorIN2tv9ConverterESaIS1_EE12emplace_backIIRNS0_10ColorSpaceES6_EEEvDpOT_
+}
+==330== 280 bytes in 1 blocks are still reachable in loss record 35 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F12355: tv::Api::Api() (api.cc:55)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 608 bytes in 1 blocks are possibly lost in loss record 37 of 51
+==330==    at 0x4C2DB95: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x40134B4: allocate_dtv (dl-tls.c:322)
+==330==    by 0x40134B4: _dl_allocate_tls (dl-tls.c:544)
+==330==    by 0x60410D2: allocate_stack (allocatestack.c:588)
+==330==    by 0x60410D2: pthread_create@@GLIBC_2.2.5 (pthread_create.c:537)
+==330==    by 0x5643172: std::thread::_M_start_thread(std::shared_ptr<std::thread::_Impl_base>, void (*)()) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==330==    by 0x4F63AED: std::thread::thread<void (Dirwatch::*)() const, Dirwatch*>(void (Dirwatch::*&&)() const, Dirwatch*&&) (thread:137)
+==330==    by 0x4F62855: Dirwatch::start() (dirwatch.cc:143)
+==330==    by 0x4F620AD: Dirwatch::watch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (dirwatch.cc:52)
+==330==    by 0x4F4D56A: tv::ModuleLoader::ModuleLoader(tv::Environment const&) (module_loader.cc:63)
+==330==    by 0x4F12371: tv::Api::Api() (api.cc:55)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:allocate_stack
+   fun:pthread_create@@GLIBC_2.2.5
+   fun:_ZNSt6thread15_M_start_threadESt10shared_ptrINS_10_Impl_baseEEPFvvE
+   fun:_ZNSt6threadC1IM8DirwatchKFvvEIPS1_EEEOT_DpOT0_
+   fun:_ZN8Dirwatch5startEv
+   fun:_ZN8Dirwatch5watchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+   fun:_ZN2tv12ModuleLoaderC1ERKNS_11EnvironmentE
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 656 bytes in 1 blocks are still reachable in loss record 38 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F15E5F: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 1,104 bytes in 23 blocks are still reachable in loss record 41 of 51
+==330==    at 0x4C2C12F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F345F8: __gnu_cxx::new_allocator<std::_Rb_tree_node<std::pair<short const, char const*> > >::allocate(unsigned long, void const*) (new_allocator.h:104)
+==330==    by 0x4F33BEB: std::allocator_traits<std::allocator<std::_Rb_tree_node<std::pair<short const, char const*> > > >::allocate(std::allocator<std::_Rb_tree_node<std::pair<short const, char const*> > >&, unsigned long) (alloc_traits.h:360)
+==330==    by 0x4F32B1A: std::_Rb_tree<short, std::pair<short const, char const*>, std::_Select1st<std::pair<short const, char const*> >, std::less<short>, std::allocator<std::pair<short const, char const*> > >::_M_get_node() (stl_tree.h:491)
+==330==    by 0x4F31663: std::_Rb_tree_node<std::pair<short const, char const*> >* std::_Rb_tree<short, std::pair<short const, char const*>, std::_Select1st<std::pair<short const, char const*> >, std::less<short>, std::allocator<std::pair<short const, char const*> > >::_M_create_node<std::pair<short const, char const*> const&>(std::pair<short const, char const*> const&) (stl_tree.h:545)
+==330==    by 0x4F2FA2E: std::_Rb_tree_node<std::pair<short const, char const*> >* std::_Rb_tree<short, std::pair<short const, char const*>, std::_Select1st<std::pair<short const, char const*> >, std::less<short>, std::allocator<std::pair<short const, char const*> > >::_Alloc_node::operator()<std::pair<short const, char const*> const&>(std::pair<short const, char const*> const&) const (stl_tree.h:459)
+==330==    by 0x4F2D3F9: std::_Rb_tree_iterator<std::pair<short const, char const*> > std::_Rb_tree<short, std::pair<short const, char const*>, std::_Select1st<std::pair<short const, char const*> >, std::less<short>, std::allocator<std::pair<short const, char const*> > >::_M_insert_<std::pair<short const, char const*> const&, std::_Rb_tree<short, std::pair<short const, char const*>, std::_Select1st<std::pair<short const, char const*> >, std::less<short>, std::allocator<std::pair<short const, char const*> > >::_Alloc_node>(std::_Rb_tree_node_base*, std::_Rb_tree_node_base*, std::pair<short const, char const*> const&, std::_Rb_tree<short, std::pair<short const, char const*>, std::_Select1st<std::pair<short const, char const*> >, std::less<short>, std::allocator<std::pair<short const, char const*> > >::_Alloc_node&) (stl_tree.h:1509)
+==330==    by 0x4F29483: std::_Rb_tree_iterator<std::pair<short const, char const*> > std::_Rb_tree<short, std::pair<short const, char const*>, std::_Select1st<std::pair<short const, char const*> >, std::less<short>, std::allocator<std::pair<short const, char const*> > >::_M_insert_unique_<std::pair<short const, char const*> const&, std::_Rb_tree<short, std::pair<short const, char const*>, std::_Select1st<std::pair<short const, char const*> >, std::less<short>, std::allocator<std::pair<short const, char const*> > >::_Alloc_node>(std::_Rb_tree_const_iterator<std::pair<short const, char const*> >, std::pair<short const, char const*> const&, std::_Rb_tree<short, std::pair<short const, char const*>, std::_Select1st<std::pair<short const, char const*> >, std::less<short>, std::allocator<std::pair<short const, char const*> > >::_Alloc_node&) (stl_tree.h:1978)
+==330==    by 0x4F243EA: void std::_Rb_tree<short, std::pair<short const, char const*>, std::_Select1st<std::pair<short const, char const*> >, std::less<short>, std::allocator<std::pair<short const, char const*> > >::_M_insert_unique<std::pair<short const, char const*> const*>(std::pair<short const, char const*> const*, std::pair<short const, char const*> const*) (stl_tree.h:2224)
+==330==    by 0x4F20720: std::map<short, char const*, std::less<short>, std::allocator<std::pair<short const, char const*> > >::map(std::initializer_list<std::pair<short const, char const*> >, std::less<short> const&, std::allocator<std::pair<short const, char const*> > const&) (stl_map.h:215)
+==330==    by 0x4F1E667: tv::Strings::Strings() (strings.hh:86)
+==330==    by 0x4F120E4: tv::Api::Api() (api.cc:41)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKsPKcEEE8allocateEmPKv
+   fun:_ZNSt16allocator_traitsISaISt13_Rb_tree_nodeISt4pairIKsPKcEEEE8allocateERS7_m
+   fun:_ZNSt8_Rb_treeIsSt4pairIKsPKcESt10_Select1stIS4_ESt4lessIsESaIS4_EE11_M_get_nodeEv
+   fun:_ZNSt8_Rb_treeIsSt4pairIKsPKcESt10_Select1stIS4_ESt4lessIsESaIS4_EE14_M_create_nodeIIRKS4_EEEPSt13_Rb_tree_nodeIS4_EDpOT_
+   fun:_ZNKSt8_Rb_treeIsSt4pairIKsPKcESt10_Select1stIS4_ESt4lessIsESaIS4_EE11_Alloc_nodeclIRKS4_EEPSt13_Rb_tree_nodeIS4_EOT_
+   fun:_ZNSt8_Rb_treeIsSt4pairIKsPKcESt10_Select1stIS4_ESt4lessIsESaIS4_EE10_M_insert_IRKS4_NSA_11_Alloc_nodeEEESt17_Rb_tree_iteratorIS4_EPSt18_Rb_tree_node_baseSI_OT_RT0_
+   fun:_ZNSt8_Rb_treeIsSt4pairIKsPKcESt10_Select1stIS4_ESt4lessIsESaIS4_EE17_M_insert_unique_IRKS4_NSA_11_Alloc_nodeEEESt17_Rb_tree_iteratorIS4_ESt23_Rb_tree_const_iteratorIS4_EOT_RT0_
+   fun:_ZNSt8_Rb_treeIsSt4pairIKsPKcESt10_Select1stIS4_ESt4lessIsESaIS4_EE16_M_insert_uniqueIPKS4_EEvT_SE_
+   fun:_ZNSt3mapIsPKcSt4lessIsESaISt4pairIKsS1_EEEC1ESt16initializer_listIS6_ERKS3_RKS7_
+   fun:_ZN2tv7StringsC1Ev
+   fun:_ZN2tv3ApiC1Ev
+}
+==330== 921,600 bytes in 1 blocks are still reachable in loss record 49 of 51
+==330==    at 0x4C2C84F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F771D7: tv::ImageAllocator::allocate(unsigned short, unsigned short, unsigned long, tv::ColorSpace, bool) (image.cc:83)
+==330==    by 0x4F5D2BD: tv::CameraControl::CameraControl() (cameracontrol.cc:45)
+==330==    by 0x4F120BA: tv::Api::Api() (api.cc:41)
+==330==    by 0x4F15E6A: tv::get_api() (api.cc:777)
+==330==    by 0x4F3DC24: tv_valid (tinkervision.cc:87)
+==330==    by 0x4012F3: main (tfv_test_api.c:98)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znam
+   fun:_ZN2tv14ImageAllocator8allocateEttmNS_10ColorSpaceEb
+   fun:_ZN2tv13CameraControlC1Ev
+   fun:_ZN2tv3ApiC1Ev
+   fun:_ZN2tv7get_apiEv
+   fun:tv_valid
+   fun:main
+}
+==330== 1,843,200 bytes in 1 blocks are still reachable in loss record 50 of 51
+==330==    at 0x4C2C84F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F771D7: tv::ImageAllocator::allocate(unsigned short, unsigned short, unsigned long, tv::ColorSpace, bool) (image.cc:83)
+==330==    by 0x4F5EC2C: tv::ImageAllocator::allocate(tv::ImageHeader const&, bool) (image.hh:169)
+==330==    by 0x4F5E547: tv::CameraControl::_init() (cameracontrol.cc:317)
+==330==    by 0x4F5D93D: tv::CameraControl::acquire() (cameracontrol.cc:170)
+==330==    by 0x4F5D8A2: tv::CameraControl::acquire(unsigned long) (cameracontrol.cc:149)
+==330==    by 0x4F12A12: tv::Api::start() (api.cc:110)
+==330==    by 0x4F13D56: tv::Api::set_framesize(unsigned short, unsigned short) (api.cc:327)
+==330==    by 0x4F3E836: tv_set_framesize (tinkervision.cc:163)
+==330==    by 0x40195F: main (tfv_test_api.c:235)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znam
+   fun:_ZN2tv14ImageAllocator8allocateEttmNS_10ColorSpaceEb
+   fun:_ZN2tv14ImageAllocator8allocateERKNS_11ImageHeaderEb
+   fun:_ZN2tv13CameraControl5_initEv
+   fun:_ZN2tv13CameraControl7acquireEv
+   fun:_ZN2tv13CameraControl7acquireEm
+   fun:_ZN2tv3Api5startEv
+   fun:_ZN2tv3Api13set_framesizeEtt
+   fun:tv_set_framesize
+   fun:main
+}
+==330== 2,764,800 bytes in 1 blocks are still reachable in loss record 51 of 51
+==330==    at 0x4C2C84F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==330==    by 0x4F699AB: tv::Convert::operator()(tv::Image const&, tv::Image&) (convert.cc:57)
+==330==    by 0x4F69852: tv::Convert::operator()(tv::Image const&) (convert.cc:34)
+==330==    by 0x4F6B525: tv::Converter::operator()(tv::Image const&) const (convert.cc:507)
+==330==    by 0x4F1F10A: tv::FrameConversions::get_frame(tv::Image&, tv::ColorSpace) (convert.hh:529)
+==330==    by 0x4F12FBA: tv::Api::module_exec(short, tv::ModuleWrapper&) (api.cc:182)
+==330==    by 0x4F3370D: void std::_Mem_fn_base<void (tv::Api::*)(short, tv::ModuleWrapper&), true>::operator()<short, tv::ModuleWrapper&, void>(tv::Api*, short&&, tv::ModuleWrapper&) const (in /usr/lib/libtinkervision.so)
+==330==    by 0x4F3244E: void std::_Bind<std::_Mem_fn<void (tv::Api::*)(short, tv::ModuleWrapper&)> (tv::Api*, std::_Placeholder<1>, std::_Placeholder<2>)>::__call<void, short&&, tv::ModuleWrapper&, 0ul, 1ul, 2ul>(std::tuple<short&&, tv::ModuleWrapper&>&&, std::_Index_tuple<0ul, 1ul, 2ul>) (functional:1074)
+==330==    by 0x4F30C84: void std::_Bind<std::_Mem_fn<void (tv::Api::*)(short, tv::ModuleWrapper&)> (tv::Api*, std::_Placeholder<1>, std::_Placeholder<2>)>::operator()<short, tv::ModuleWrapper&, void>(short&&, tv::ModuleWrapper&) (functional:1133)
+==330==    by 0x4F2E634: std::_Function_handler<void (short, tv::ModuleWrapper&), std::_Bind<std::_Mem_fn<void (tv::Api::*)(short, tv::ModuleWrapper&)> (tv::Api*, std::_Placeholder<1>, std::_Placeholder<2>)> >::_M_invoke(std::_Any_data const&, short&&, tv::ModuleWrapper&) (functional:1871)
+==330==    by 0x4F282A0: std::function<void (short, tv::ModuleWrapper&)>::operator()(short, tv::ModuleWrapper&) const (functional:2271)
+==330==    by 0x4F23668: tv::SharedResource<tv::ModuleWrapper>::exec_all(std::function<void (short, tv::ModuleWrapper&)>) (shared_resource.hh:129)
+==330== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znam
+   fun:_ZN2tv7ConvertclERKNS_5ImageERS1_
+   fun:_ZN2tv7ConvertclERKNS_5ImageE
+   fun:_ZNK2tv9ConverterclERKNS_5ImageE
+   fun:_ZN2tv16FrameConversions9get_frameERNS_5ImageENS_10ColorSpaceE
+   fun:_ZN2tv3Api11module_execEsRNS_13ModuleWrapperE
+   fun:_ZNKSt12_Mem_fn_baseIMN2tv3ApiEFvsRNS0_13ModuleWrapperEELb1EEclIIsS3_EvEEvPS1_DpOT_
+   fun:_ZNSt5_BindIFSt7_Mem_fnIMN2tv3ApiEFvsRNS1_13ModuleWrapperEEEPS2_St12_PlaceholderILi1EES9_ILi2EEEE6__callIvIOsS4_EILm0ELm1ELm2EEEET_OSt5tupleIIDpT0_EESt12_Index_tupleIIXspT1_EEE
+   fun:_ZNSt5_BindIFSt7_Mem_fnIMN2tv3ApiEFvsRNS1_13ModuleWrapperEEEPS2_St12_PlaceholderILi1EES9_ILi2EEEEclIIsS4_EvEET0_DpOT_
+   fun:_ZNSt17_Function_handlerIFvsRN2tv13ModuleWrapperEESt5_BindIFSt7_Mem_fnIMNS0_3ApiEFvsS2_EEPS6_St12_PlaceholderILi1EESB_ILi2EEEEE9_M_invokeERKSt9_Any_dataOsS2_
+   fun:_ZNKSt8functionIFvsRN2tv13ModuleWrapperEEEclEsS2_
+   fun:_ZN2tv14SharedResourceINS_13ModuleWrapperEE8exec_allESt8functionIFvsRS1_EE
+}
+==330== LEAK SUMMARY:
+==330==    definitely lost: 90 bytes in 5 blocks
+==330==    indirectly lost: 0 bytes in 0 blocks
+==330==      possibly lost: 608 bytes in 1 blocks
+==330==    still reachable: 5,533,423 bytes in 60 blocks
+==330==         suppressed: 125,347 bytes in 104 blocks
+==330== 
+==330== For counts of detected and suppressed errors, rerun with: -v
+==330== ERROR SUMMARY: 743 errors from 23 contexts (suppressed: 0 from 0)

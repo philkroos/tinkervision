@@ -1,0 +1,219 @@
+==32448== Memcheck, a memory error detector
+==32448== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==32448== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
+==32448== Command: ./valgrind
+==32448== Parent PID: 26025
+==32448== 
+==32448== 
+==32448== HEAP SUMMARY:
+==32448==     in use at exit: 117,722 bytes in 127 blocks
+==32448==   total heap usage: 209 allocs, 82 frees, 125,706 bytes allocated
+==32448== 
+==32448== 800 bytes in 25 blocks are still reachable in loss record 1 of 7
+==32448==    at 0x4C2BBCF: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==32448==    by 0x4016625: _dl_close_worker.part.0 (dl-close.c:381)
+==32448==    by 0x4016E57: _dl_close_worker (dl-close.c:125)
+==32448==    by 0x4016E57: _dl_close (dl-close.c:775)
+==32448==    by 0x4010463: _dl_catch_error (dl-error.c:187)
+==32448==    by 0x4E3962C: _dlerror_run (dlerror.c:163)
+==32448==    by 0x4E390BE: dlclose (dlclose.c:46)
+==32448==    by 0x401381: main (in /home/philipp/tinkerforge/tinkervision/src/test/valgrind)
+==32448== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:_dl_close_worker.part.0
+   fun:_dl_close_worker
+   fun:_dl_close
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlclose
+   fun:main
+}
+==32448== 1,000 bytes in 25 blocks are still reachable in loss record 2 of 7
+==32448==    at 0x4C2BBCF: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==32448==    by 0x401AD49: strdup (strdup.c:42)
+==32448==    by 0x401801E: _dl_load_cache_lookup (dl-cache.c:311)
+==32448==    by 0x4009078: _dl_map_object (dl-load.c:2291)
+==32448==    by 0x400DA91: openaux (dl-deps.c:63)
+==32448==    by 0x4010463: _dl_catch_error (dl-error.c:187)
+==32448==    by 0x400E0C5: _dl_map_object_deps (dl-deps.c:254)
+==32448==    by 0x401524C: dl_open_worker (dl-open.c:274)
+==32448==    by 0x4010463: _dl_catch_error (dl-error.c:187)
+==32448==    by 0x40149A2: _dl_open (dl-open.c:663)
+==32448==    by 0x4E38FC8: dlopen_doit (dlopen.c:66)
+==32448==    by 0x4010463: _dl_catch_error (dl-error.c:187)
+==32448== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:_dl_load_cache_lookup
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+}
+==32448== 1,000 bytes in 25 blocks are still reachable in loss record 3 of 7
+==32448==    at 0x4C2BBCF: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==32448==    by 0x400C13F: _dl_new_object (dl-object.c:165)
+==32448==    by 0x40068A4: _dl_map_object_from_fd (dl-load.c:1004)
+==32448==    by 0x4008E6F: _dl_map_object (dl-load.c:2425)
+==32448==    by 0x400DA91: openaux (dl-deps.c:63)
+==32448==    by 0x4010463: _dl_catch_error (dl-error.c:187)
+==32448==    by 0x400E0C5: _dl_map_object_deps (dl-deps.c:254)
+==32448==    by 0x401524C: dl_open_worker (dl-open.c:274)
+==32448==    by 0x4010463: _dl_catch_error (dl-error.c:187)
+==32448==    by 0x40149A2: _dl_open (dl-open.c:663)
+==32448==    by 0x4E38FC8: dlopen_doit (dlopen.c:66)
+==32448==    by 0x4010463: _dl_catch_error (dl-error.c:187)
+==32448== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+}
+==32448== 4,608 bytes in 25 blocks are still reachable in loss record 4 of 7
+==32448==    at 0x4C2DB95: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==32448==    by 0x4011D2D: _dl_check_map_versions (dl-version.c:293)
+==32448==    by 0x40157C0: dl_open_worker (dl-open.c:280)
+==32448==    by 0x4010463: _dl_catch_error (dl-error.c:187)
+==32448==    by 0x40149A2: _dl_open (dl-open.c:663)
+==32448==    by 0x4E38FC8: dlopen_doit (dlopen.c:66)
+==32448==    by 0x4010463: _dl_catch_error (dl-error.c:187)
+==32448==    by 0x4E3962C: _dlerror_run (dlerror.c:163)
+==32448==    by 0x4E39060: dlopen@@GLIBC_2.2.5 (dlopen.c:87)
+==32448==    by 0x4012DC: main (in /home/philipp/tinkerforge/tinkervision/src/test/valgrind)
+==32448== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:_dl_check_map_versions
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:main
+}
+==32448== 8,032 bytes in 1 blocks are still reachable in loss record 5 of 7
+==32448==    at 0x4C2DB95: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==32448==    by 0x400A497: do_lookup_unique (dl-lookup.c:268)
+==32448==    by 0x400A497: do_lookup_x (dl-lookup.c:487)
+==32448==    by 0x400AC00: _dl_lookup_symbol_x (dl-lookup.c:775)
+==32448==    by 0x400C8FA: elf_machine_rela (dl-machine.h:277)
+==32448==    by 0x400C8FA: elf_dynamic_do_Rela (do-rel.h:137)
+==32448==    by 0x400C8FA: _dl_relocate_object (dl-reloc.c:264)
+==32448==    by 0x40154B0: dl_open_worker (dl-open.c:429)
+==32448==    by 0x4010463: _dl_catch_error (dl-error.c:187)
+==32448==    by 0x40149A2: _dl_open (dl-open.c:663)
+==32448==    by 0x4E38FC8: dlopen_doit (dlopen.c:66)
+==32448==    by 0x4010463: _dl_catch_error (dl-error.c:187)
+==32448==    by 0x4E3962C: _dlerror_run (dlerror.c:163)
+==32448==    by 0x4E39060: dlopen@@GLIBC_2.2.5 (dlopen.c:87)
+==32448==    by 0x4012DC: main (in /home/philipp/tinkerforge/tinkervision/src/test/valgrind)
+==32448== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:do_lookup_unique
+   fun:do_lookup_x
+   fun:_dl_lookup_symbol_x
+   fun:elf_machine_rela
+   fun:elf_dynamic_do_Rela
+   fun:_dl_relocate_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:main
+}
+==32448== 29,578 bytes in 25 blocks are still reachable in loss record 6 of 7
+==32448==    at 0x4C2DB95: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==32448==    by 0x400BE36: _dl_new_object (dl-object.c:75)
+==32448==    by 0x40068A4: _dl_map_object_from_fd (dl-load.c:1004)
+==32448==    by 0x4008E6F: _dl_map_object (dl-load.c:2425)
+==32448==    by 0x400DA91: openaux (dl-deps.c:63)
+==32448==    by 0x4010463: _dl_catch_error (dl-error.c:187)
+==32448==    by 0x400E0C5: _dl_map_object_deps (dl-deps.c:254)
+==32448==    by 0x401524C: dl_open_worker (dl-open.c:274)
+==32448==    by 0x4010463: _dl_catch_error (dl-error.c:187)
+==32448==    by 0x40149A2: _dl_open (dl-open.c:663)
+==32448==    by 0x4E38FC8: dlopen_doit (dlopen.c:66)
+==32448==    by 0x4010463: _dl_catch_error (dl-error.c:187)
+==32448== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+}
+==32448== 72,704 bytes in 1 blocks are still reachable in loss record 7 of 7
+==32448==    at 0x4C2BBCF: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==32448==    by 0x50C61FF: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==32448==    by 0x40105B9: call_init.part.0 (dl-init.c:72)
+==32448==    by 0x40106CA: call_init (dl-init.c:30)
+==32448==    by 0x40106CA: _dl_init (dl-init.c:120)
+==32448==    by 0x4000D09: ??? (in /lib/x86_64-linux-gnu/ld-2.21.so)
+==32448== 
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21
+   fun:call_init.part.0
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.21.so
+}
+==32448== LEAK SUMMARY:
+==32448==    definitely lost: 0 bytes in 0 blocks
+==32448==    indirectly lost: 0 bytes in 0 blocks
+==32448==      possibly lost: 0 bytes in 0 blocks
+==32448==    still reachable: 117,722 bytes in 127 blocks
+==32448==         suppressed: 0 bytes in 0 blocks
+==32448== 
+==32448== For counts of detected and suppressed errors, rerun with: -v
+==32448== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
