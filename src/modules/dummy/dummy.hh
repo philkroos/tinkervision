@@ -32,9 +32,7 @@
 namespace tv {
 class Dummy : public Module {
 public:
-    Dummy(Environment const& envir) : Module("dummy", envir) {
-        environment.python().load("dummy").call("say_hi", "from", "Py");
-    }
+    Dummy(Environment const& envir) : Module("dummy", envir) {}
 
     /// Returning None prevents this module from being executed.
     ColorSpace input_format(void) const override { return ColorSpace::NONE; }

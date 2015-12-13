@@ -29,10 +29,8 @@
 #include <cassert>
 #include <algorithm>
 
+#include "common.hh"
 #include "module_loader.hh"
-#include "exceptions.hh"
-#include "filesystem.hh"
-#include "logger.hh"
 
 tv::ModuleLoader::ModuleLoader(Environment const& environment)
     : environment_(environment),

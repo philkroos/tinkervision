@@ -24,13 +24,9 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef CAMERA_H
-#define CAMERA_H
+#pragma once
 
-#include <opencv2/opencv.hpp>
-
-#include "tinkervision_defines.h"
-#include "image.hh"
+#include "common.hh"
 
 namespace tv {
 
@@ -83,5 +79,3 @@ private:
     Image image_{};  ///< Image container, data filled by subclass
 };
 }
-
-#endif /* CAMERA_H */

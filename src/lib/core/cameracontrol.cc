@@ -24,19 +24,19 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
+#include "cameracontrol.hh"
+
 #include <thread>
 #include <chrono>
 #include <fstream>
 
-#include "cameracontrol.hh"
-#include "logger.hh"
+#include "common.hh"
+
 #ifdef WITH_OPENCV_CAM
 #include "opencv_camera.hh"
 #else
 #include "v4l2_camera.hh"
 #endif
-
-#include "filesystem.hh"
 
 tv::CameraControl::~CameraControl(void) { release_all(); }
 

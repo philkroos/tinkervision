@@ -24,15 +24,14 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef NODE_H
-#define NODE_H
+#pragma once
 
 #include <cassert>
 #include <vector>
 #include <algorithm>
 
+#include "common.hh"
 #include "module_wrapper.hh"
-#include "image.hh"
 #include "shared_resource.hh"
 
 namespace tv {
@@ -152,5 +151,3 @@ private:
     std::vector<int16_t> scenes_;
 };
 }
-
-#endif

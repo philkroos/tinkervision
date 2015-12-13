@@ -24,13 +24,18 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef TINKERVISION_DEFINES_H
-#define TINKERVISION_DEFINES_H
+#pragma once
 
 #include <stdint.h>
 
 ///< Maximum length of strings in and out of Tinkervision (including '\0')
 #define TV_STRING_SIZE 30
+#define SYS_MODULES_PATH "/usr/lib/tinkervision/"
+#define MODULES_FOLDER "lib"  ///< Relative to USER_PREFIX (compiler define)
+#define DATA_FOLDER "data"    ///< Relative to USER_PREFIX (compiler define)
+#ifdef WITH_PYTHON
+#define SCRIPTS_FOLDER "scripts"  ///< Relative to USER_PREFIX (compiler define)
+#endif
 
 typedef struct TV_ModuleResult {
     int32_t x;
@@ -47,13 +52,6 @@ typedef void (*TV_LibrariesCallback)(char const* name, char const* path,
                                      int8_t status, void* context);
 
 #define TV_UNUSED_ID -1
-
-#define SYS_MODULES_PATH "/usr/lib/tinkervision/"
-#define MODULES_FOLDER "lib"  ///< Relative to USER_PREFIX (compiler define)
-#define DATA_FOLDER "data"    ///< Relative to USER_PREFIX (compiler define)
-#ifdef WITH_PYTHON
-#define SCRIPTS_FOLDER "scripts"  ///< Relative to USER_PREFIX (compiler define)
-#endif
 
 /* result codes */
 
@@ -103,5 +101,3 @@ typedef void (*TV_LibrariesCallback)(char const* name, char const* path,
 /* Callback/Result request errors: */
 #define TV_RESULT_NOT_AVAILABLE -61
 #define TV_GLOBAL_CALLBACK_ACTIVE -62
-
-#endif

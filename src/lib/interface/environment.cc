@@ -26,8 +26,15 @@
 
 #include "environment.hh"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include "tinkervision_defines.h"
-#include "filesystem.hh"
+
+static bool is_dir(std::string const& fullname) {
+    struct stat buffer;
+    return (stat(fullname.c_str(), &buffer) == 0) and S_ISDIR(buffer.st_mode);
+}
 
 #ifdef WITH_PYTHON
 tv::Environment::Environment(void) noexcept(noexcept(std::string()) and
@@ -54,8 +61,7 @@ std::string const& tv::Environment::user_prefix(void) const {
 
 #ifndef WITH_PYTHON
 bool tv::Environment::set_user_prefix(std::string const& path) {
-    if (not is_directory(path)) {
-        Log("ENVIRONMENT", "Can't set user prefix to ", path);
+    if (not is_dir(path)) {
         return false;
     }
 
@@ -65,18 +71,13 @@ bool tv::Environment::set_user_prefix(std::string const& path) {
         dir.push_back('/');
     }
 
-    if (not is_directory(dir + MODULES_FOLDER) or
-        not is_directory(dir + DATA_FOLDER)) {
-
-        Log("ENVIRONMENT", "Can't set user prefix to ", dir);
+    if (not is_dir(dir + MODULES_FOLDER) or not is_dir(dir + DATA_FOLDER)) {
         return false;
     }
 
     user_prefix_ = dir;
     user_modules_path_ = dir + MODULES_FOLDER + "/";
     user_data_path_ = dir + DATA_FOLDER + "/";
-
-    Log("ENVIRONMENT", "User prefix set to ", user_prefix_);
 
     return true;
 }
@@ -87,8 +88,7 @@ std::string const& tv::Environment::user_scripts_path(void) const {
 }
 
 bool tv::Environment::set_user_prefix(std::string const& path) {
-    if (not is_directory(path)) {
-        Log("ENVIRONMENT", "Can't set user prefix to ", path);
+    if (not is_dir(path)) {
         return false;
     }
 
@@ -98,12 +98,10 @@ bool tv::Environment::set_user_prefix(std::string const& path) {
         dir.push_back('/');
     }
 
-    if (not is_directory(dir + MODULES_FOLDER) or
-        not is_directory(dir + DATA_FOLDER) or
-        not is_directory(dir + SCRIPTS_FOLDER) or
+    if (not is_dir(dir + MODULES_FOLDER) or not is_dir(dir + DATA_FOLDER) or
+        not is_dir(dir + SCRIPTS_FOLDER) or
         not Environment::python_.set_path(dir + SCRIPTS_FOLDER)) {
 
-        Log("ENVIRONMENT", "Can't set user prefix to ", dir);
         return false;
     }
 
@@ -111,8 +109,6 @@ bool tv::Environment::set_user_prefix(std::string const& path) {
     user_modules_path_ = dir + MODULES_FOLDER + "/";
     user_data_path_ = dir + DATA_FOLDER + "/";
     user_scripts_path_ = dir + SCRIPTS_FOLDER + "/";
-
-    Log("ENVIRONMENT", "User prefix set to ", user_prefix_);
 
     return true;
 }

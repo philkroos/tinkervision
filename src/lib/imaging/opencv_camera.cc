@@ -27,7 +27,6 @@
 #ifdef WITH_OPENCV_CAM
 
 #include "opencv_camera.hh"
-#include "logger.hh"
 
 tv::OpenCvUSBCamera::OpenCvUSBCamera(uint8_t camera_id) : Camera(camera_id) {}
 

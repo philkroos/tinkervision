@@ -24,9 +24,8 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#if defined(WITH_LOGGER)
-
 #include "logger.hh"
+
 #include "module_wrapper.hh"
 #include "module.hh"
 #include "scenetrees.hh"
@@ -137,5 +136,3 @@ std::ostream& tv::operator<<(std::ostream& os, NumericalParameter& p) {
     os << p.name() << ": " << value << " [" << p.min() << "," << p.max() << "]";
     return os;
 }
-
-#endif

@@ -24,10 +24,7 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef V4L2_CAMERA_H
-#define V4L2_CAMERA_H
-
-#ifndef WITH_OPENCV_CAM
+#pragma once
 
 #include <array>
 
@@ -44,9 +41,8 @@
 #include <linux/videodev2.h>
 #include <libv4l2.h>
 
-// baseclass
+#include "common.hh"
 #include "camera.hh"
-#include "logger.hh"
 
 // aliases for v4l2 types and functions plus definition of related types
 namespace v4l2 {
@@ -232,6 +228,3 @@ private:
     }
 };
 }
-#endif
-
-#endif

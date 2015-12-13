@@ -25,6 +25,7 @@
 /// USA.
 
 #ifndef WITH_OPENCV_CAM
+#include "v4l2_camera.hh"
 
 #include <cstring>  // memset
 
@@ -38,8 +39,6 @@
 #include <linux/videodev2.h>
 #include <libv4l2.h>
 #include <cstdio>
-
-#include "v4l2_camera.hh"
 
 namespace v4l2 {
 

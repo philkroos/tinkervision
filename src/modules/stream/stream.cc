@@ -91,7 +91,6 @@ void tv::Stream::execute(tv::ImageHeader const& header,
         });
 
         url_ = rtsp_server_->rtspURL(session_);
-        Log("STREAM", "Streaming on ", url_);
         set("url", url_);
     }
 

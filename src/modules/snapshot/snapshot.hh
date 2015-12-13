@@ -32,8 +32,6 @@
 #include <array>
 #include <string>
 
-#include "filesystem.hh"  // check if set path is correctly
-
 namespace tv {
 /// Save the current image to disk.
 class Snapshot : public Module {

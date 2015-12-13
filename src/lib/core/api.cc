@@ -26,15 +26,12 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
+#include "api.hh"
+
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "api.hh"
 #include "module_wrapper.hh"
-
-#ifndef USR_PREFIX
-#error USR_PREFIX not defined
-#endif
 
 tv::Api::Api(void) noexcept(noexcept(CameraControl()) and
                             noexcept(FrameConversions()) and

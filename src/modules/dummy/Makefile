@@ -1,17 +1,17 @@
 CC		:= g++
+CCFLAGS	:= -Wall -Werror -std=c++14 -shared -fPIC
 
 ifeq ($(DEBUG),yes)
-	CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
+	CCFLAGS	+= -g -O0
 else
-	CCFLAGS	:= -Wall -Werror -O3 -std=c++11 -shared -fPIC
+	CCFLAGS	+= -O3
 endif
 
 ifndef PRE
 	PRE = /usr/lib/tinkervision
 endif
 
-LDFLAGS	:= -L/usr/lib/python2.7 -lpython2.7
-INC		:= -I/usr/include/python2.7 -I/usr/include/tinkervision
+INC		:= -I/usr/include/tinkervision
 
 SO		:= dummy.so
 TV		:= interface/module.o interface/image.o \

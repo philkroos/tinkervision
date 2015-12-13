@@ -41,16 +41,14 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef SCENETREES_H
-#define SCENETREES_H
+#pragma once
 
 #include <map>
 
-#include "tinkervision_defines.h"
+#include "common.hh"
 #include "shared_resource.hh"
 #include "node.hh"
 #include "scene.hh"
-#include "logger.hh"
 
 namespace tv {
 
@@ -170,5 +168,3 @@ private:
     }
 };
 }
-
-#endif

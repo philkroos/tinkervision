@@ -36,14 +36,13 @@
 #include <algorithm>
 #include <chrono>
 
-#include "filesystem.hh"
-#include "logger.hh"
+#include "common.hh"
 
-Dirwatch::Dirwatch(Callback on_change) : on_change_(on_change) {}
+tv::Dirwatch::Dirwatch(Callback on_change) : on_change_(on_change) {}
 
-Dirwatch::~Dirwatch(void) { stop(); }
+tv::Dirwatch::~Dirwatch(void) { stop(); }
 
-bool Dirwatch::watch(std::string const& directory) {
+bool tv::Dirwatch::watch(std::string const& directory) {
     if (not is_directory(directory)) {
         return false;
     }
@@ -71,7 +70,7 @@ bool Dirwatch::watch(std::string const& directory) {
     return true;
 }
 
-void Dirwatch::unwatch(std::string const& directory) {
+void tv::Dirwatch::unwatch(std::string const& directory) {
     if (inotify_ <= 0) {  // must be running
         tv::LogError("DIRWATCH", "Unwatch: inotify_ invalid: ", inotify_);
         return;
@@ -95,7 +94,7 @@ void Dirwatch::unwatch(std::string const& directory) {
     }
 }
 
-void Dirwatch::stop(void) {
+void tv::Dirwatch::stop(void) {
     /// Stop and wait for the thread, then close inotify.
     stopped_ = true;
 
@@ -107,7 +106,7 @@ void Dirwatch::stop(void) {
     tv::Log("DIRWATCH", "Stopped");
 }
 
-bool Dirwatch::start(void) {
+bool tv::Dirwatch::start(void) {
     if (inotify_ != 0) {
         return false;
     }
@@ -146,11 +145,11 @@ bool Dirwatch::start(void) {
     return true;
 }
 
-void Dirwatch::add_watched_extension(std::string const& ext) {
+void tv::Dirwatch::add_watched_extension(std::string const& ext) {
     extensions_.push_back(ext);
 }
 
-void Dirwatch::monitor(void) const {
+void tv::Dirwatch::monitor(void) const {
 
     auto const event_size = sizeof(struct inotify_event);
     // buffer space for 10 events, see man inotify

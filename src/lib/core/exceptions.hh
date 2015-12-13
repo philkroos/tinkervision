@@ -24,8 +24,7 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef EXCEPTIONS_H
-#define EXCEPTIONS_H
+#pragma once
 
 #include <exception>
 
@@ -53,4 +52,3 @@ public:
     ~ConstructionException(void) override = default;
 };
 }
-#endif /* EXCEPTIONS_H */

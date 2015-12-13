@@ -24,8 +24,7 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef DIRWATCH_H
-#define DIRWATCH_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -34,6 +33,8 @@
 #include <thread>
 
 #include <sys/inotify.h>
+
+namespace tv {
 
 /// Monitor one or more directories for changes.
 /// The list of events registered is enumerated in Event.
@@ -130,5 +131,4 @@ public:
     /// every file in the registered directories.
     void reset_extension_filter(void) { extensions_.clear(); }
 };
-
-#endif
+}

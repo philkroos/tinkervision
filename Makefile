@@ -1,8 +1,12 @@
 cc		:= g++
-ccflags	:= -Wall -Werror -pedantic -shared -std=c++14 -fpic -DWITH_LOGGER
+ccflags	:= -Wall -Werror -pedantic -shared -std=c++14 -fpic
 
 ifndef NOPY
 	ccflags += -DWITH_PYTHON
+endif
+
+ifndef NOLOG
+	ccflags += -DWITH_LOGGER
 endif
 
 ifdef OCVC
@@ -26,14 +30,23 @@ else
 endif
 
 # structure
-parts		:= core tools imaging debug interface
+parts		:= core tools imaging interface
+
+ifndef NOLOG
+	parts	+= logger
+endif
+
+ifndef NOPY
+	parts	+= python
+endif
+
 build_prefix	:= build
 build_dir	:= $(addprefix $(build_prefix)/,$(parts))
 src_prefix	:= src/lib
 src_dir	:= $(addprefix $(src_prefix)/,$(parts))
 
 libs		:= -lstdc++ -lv4l2 -lm
-inc		:= $(addprefix -I./$(src_prefix)/,$(parts))
+inc		:= -I$(src_prefix) $(addprefix -I./$(src_prefix)/,$(parts))
 # files
 ifndef NOPY
 	libs	+= -L/usr/lib/python2.7 -lpython2.7
@@ -47,7 +60,6 @@ ifdef OCVC
 endif
 
 ldflags	:= $(libs) -rdynamic
-
 
 # files
 src		:= $(foreach sdir,$(src_dir),$(wildcard $(sdir)/*.cc))
@@ -107,11 +119,14 @@ header		:= $(src_prefix)/core/tinkervision.h \
 		   $(src_prefix)/interface/result.hh \
 		   $(src_prefix)/tools/filesystem.hh \
 		   $(src_prefix)/core/exceptions.hh \
-		   $(src_prefix)/core/logger.hh \
 		   $(src_prefix)/interface/image.hh
 
 ifndef NOPY
-	header += $(src_prefix)/core/python_context.hh
+	header += $(src_prefix)/python/python_context.hh
+endif
+
+ifndef NOLOG
+	header += $(src_prefix)/logger/logger.hh
 endif
 
 
@@ -120,4 +135,8 @@ install: $(build_prefix)/$(output)
 	mkdir -p $(prefix)/include/tinkervision/
 	install -m 544 $(header) $(prefix)/include/tinkervision/
 
-.PHONY: install
+uninstall:
+	rm -rf $(prefix)/lib/$(output)
+	rm -rf $(prefix)/include/tinkervision/
+
+.PHONY: install uninstall

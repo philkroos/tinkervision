@@ -34,7 +34,6 @@ void tv::Colormatch::execute(tv::ImageHeader const& header,
                              ImageData const* data, tv::ImageHeader const&,
                              ImageData*) {
 
-    Log("COLORMATCH", "execute");
     cv::Mat cv_image(header.height, header.width, CV_8UC3);
     std::copy_n(data, header.bytesize, cv_image.data);
 
@@ -86,7 +85,6 @@ void tv::Colormatch::execute(tv::ImageHeader const& header,
     }
 
     if (contours.size()) {  // call back with center of finding
-        Log("COLORMATCH", "Found at ", rect.x, " ", rect.y);
         result_.x = rect.x + (rect.width / 2);
         result_.y = rect.y + (rect.height / 2);
     }

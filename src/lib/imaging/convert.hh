@@ -24,8 +24,7 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef CONVERT_H
-#define CONVERT_H
+#pragma once
 
 #include <cmath>
 #include <array>
@@ -35,9 +34,7 @@
 #include <limits>
 #include <cassert>
 
-#include "image.hh"
-#include "tinkervision_defines.h"
-#include "logger.hh"
+#include "common.hh"
 
 namespace tv {
 
@@ -550,4 +547,3 @@ public:
     }
 };
 }
-#endif

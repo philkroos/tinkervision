@@ -24,10 +24,10 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
+#include "scenetrees.hh"
+
 #include <thread>
 #include <chrono>
-
-#include "scenetrees.hh"
 
 int16_t tv::SceneTrees::scene_start(int16_t scene_id, int16_t module_id) {
 

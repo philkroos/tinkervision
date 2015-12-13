@@ -26,14 +26,10 @@
 
 #pragma once
 
-#ifdef WITH_PYTHON
 #include <Python.h>
 #include <structmember.h>
 #include <string>
 #include <unordered_map>
-
-#include "filesystem.hh"
-#include "logger.hh"
 
 namespace tv {
 
@@ -62,13 +58,11 @@ class PythonContext {
             auto fun = PyObject_GetAttrString(module_, function.c_str());
 
             if (fun == nullptr) {
-                LogError("PYTHON_CONTEXT", "For function from ", script_);
                 return false;
             }
 
             auto arguments = Py_BuildValue(format.c_str(), args...);
             if (arguments == nullptr) {
-                LogError("PYTHON_CONTEXT", "For arguments ", args...);
                 return false;
             }
 
@@ -77,7 +71,6 @@ class PythonContext {
             Py_DECREF(fun);
             Py_DECREF(arguments);
             if (res == nullptr) {
-                LogError("PYTHON_CONTEXT", "For result from ", script_);
                 return false;
             }
 
@@ -86,11 +79,7 @@ class PythonContext {
             } else if (PyInt_Check(res)) {
                 result = std::to_string(PyInt_AsLong(res));
             } else {
-                LogWarning("PYTHON_CONTEXT", "Invalid result from ", script_,
-                           ": ", res->ob_type->tp_name);
             }
-
-            Log("PYTHON_CONTEXT", "Result from ", script_, ": ", result);
 
             Py_DECREF(res);
 
@@ -152,4 +141,3 @@ private:
     bool is_script_loaded(void);
 };
 }
-#endif

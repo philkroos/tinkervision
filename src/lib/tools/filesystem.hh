@@ -24,8 +24,7 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef FILESYSTEM_H
-#define FILESYSTEM_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -33,6 +32,7 @@
 #include <functional>
 #include <thread>
 
+namespace tv {
 /// Split the extension from a filename.
 /// \param[in] filename name of a file with or without directory part.
 /// \param[inout] extension The extension, if any, else empty string.
@@ -83,5 +83,4 @@ void list_directory_content(std::string const& directory,
                             std::function<bool(std::string const& filename,
                                                std::string const& extension,
                                                bool is_regular_file)> filter);
-
-#endif
+}

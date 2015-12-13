@@ -30,8 +30,16 @@
 #include <fstream>
 #include <algorithm>
 #include <opencv2/opencv.hpp>
+// is_directory
+#include <sys/types.h>
+#include <sys/stat.h>
 
 DEFINE_VISION_MODULE(Snapshot)
+
+static bool is_directory(std::string const& fullname) {
+    struct stat buffer;
+    return (stat(fullname.c_str(), &buffer) == 0) and S_ISDIR(buffer.st_mode);
+}
 
 tv::Snapshot::~Snapshot(void) {
     if (image_.data) {
@@ -53,8 +61,6 @@ void tv::Snapshot::execute(tv::ImageHeader const& header,
 
             // cv::imshow("Exec", image);
             // cv::waitKey(20);
-        } else {
-            Log("SNAPSHOT", "Requested ", format_, ", got", header.format);
         }
 
         if (not image_.data) {
@@ -70,7 +76,6 @@ void tv::Snapshot::execute(tv::ImageHeader const& header,
 
 tv::Result const& tv::Snapshot::get_result(void) const {
     if (not image_.data) {
-        LogError("SNAPSHOT", "No data");
         return filename_;
     }
 
@@ -88,19 +93,14 @@ tv::Result const& tv::Snapshot::get_result(void) const {
             ofs.write(data, image_.header.bytesize);
         }
         ofs.close();
-        Log("SNAPSHOT", "Wrote image as: ", filename_.result);
     } else if (image_.header.format == ColorSpace::BGR888) {
         cv::Mat image(image_.header.height, image_.header.width, CV_8UC3,
                       (void*)image_.data);
 
         cv::imwrite(filename_.result, image);
-        Log("SNAPSHOT", "Wrote image as: ", filename_.result);
 
         // cv::imshow("Snapshot", image);
         // cv::waitKey(20);
-
-    } else {
-        LogError("SNAPSHOT", "Invalid format ", image_.header.format);
     }
 
     return filename_;
@@ -140,7 +140,6 @@ void tv::Snapshot::value_changed(std::string const& parameter,
                 image_.data = nullptr;
             }
         }
-        Log("SNAPSHOT", "Selected format: ", format_);
     }
 
     auto& target =

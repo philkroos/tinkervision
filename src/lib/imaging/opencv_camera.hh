@@ -24,15 +24,12 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef OPENCV_CAMERA_H
-#define OPENCV_CAMERA_H
-
-#ifdef WITH_OPENCV_CAM
+#pragma once
 
 #include <opencv2/opencv.hpp>
 
+#include "common.hh"
 #include "camera.hh"
-#include "image.hh"
 
 namespace tv {
 
@@ -67,6 +64,3 @@ private:
     void _retrieve_properties(void);
 };
 }
-
-#endif
-#endif

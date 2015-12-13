@@ -24,9 +24,27 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifdef WITH_PYTHON
-
 #include "python_context.hh"
+
+#include <algorithm>
+
+static bool is_dir(std::string const& fullname) {
+    struct stat buffer;
+    return (stat(fullname.c_str(), &buffer) == 0) and S_ISDIR(buffer.st_mode);
+}
+
+static std::string strip(std::string const& filename, std::string& extension) {
+    auto rev_it = std::find(filename.rbegin(), filename.rend(), '.');
+
+    if (rev_it == filename.rend() or
+        rev_it == filename.rend() - 1) {  // no extension or dotfile
+        extension = "";
+        return filename;
+    }
+
+    extension = std::string(rev_it.base(), filename.cend());
+    return std::string(filename.cbegin(), rev_it.base() - 1);
+}
 
 bool tv::PythonContext::PythonScript::load(void) {
     if (module_ != nullptr) {  // already loaded
@@ -35,7 +53,6 @@ bool tv::PythonContext::PythonScript::load(void) {
     auto module_name = PyString_FromString(script_.c_str());
 
     if (module_name == nullptr) {
-        LogError("PYTHON_CONTEXT", "For script ", script_);
         return false;
     }
 
@@ -43,7 +60,6 @@ bool tv::PythonContext::PythonScript::load(void) {
     Py_DECREF(module_name);
 
     if (module_ == nullptr) {
-        LogError("PYTHON_CONTEXT", "For module ", script_);
         return false;
     }
     return true;
@@ -55,8 +71,7 @@ bool tv::PythonContext::is_valid_context(void) { return initialized_; }
 
 bool tv::PythonContext::set_path(std::string const& pythonpath) noexcept {
     try {
-        if (not is_directory(pythonpath)) {
-            LogError("PYTHON_CONTEXT", "Not a valid path: ", pythonpath);
+        if (not is_dir(pythonpath)) {
             return false;
         }
 
@@ -66,7 +81,6 @@ bool tv::PythonContext::set_path(std::string const& pythonpath) noexcept {
         auto addpath =
             std::string("import sys; sys.path.append('") + pythonpath + "');";
         if (0 != PyRun_SimpleString(addpath.c_str())) {
-            LogError("PYTHON_CONTEXT", "PyRun error setting path ", pythonpath);
             return false;
         }
 
@@ -77,12 +91,10 @@ bool tv::PythonContext::set_path(std::string const& pythonpath) noexcept {
             module_path_.push_back('/');
         }
 
-        Log("PYTHON_CONTEXT", "Set path: ", pythonpath);
         initialized_ = true;
         return true;
 
     } catch (...) {
-        LogError("PYTHON_CONTEXT", "Error setting path ", pythonpath);
     }
 
     return false;
@@ -92,7 +104,7 @@ tv::PythonContext::PythonScript* tv::PythonContext::ScriptMap::get_script(
     std::string const& script) {
 
     auto ext = std::string();
-    auto pyscript = strip_extension(script, ext);
+    auto pyscript = strip(script, ext);
 
     /// Script name can be passed without extension, in which case
     /// .py is assumed, or with extension .py.
@@ -106,4 +118,3 @@ tv::PythonContext::PythonScript* tv::PythonContext::ScriptMap::get_script(
 
     return &scripts_[pyscript];
 }
-#endif

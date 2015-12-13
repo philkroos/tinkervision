@@ -25,15 +25,11 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef IMAGING_H
-#define IMAGING_H
+#pragma once
 
 #include <cassert>
-
-#include <chrono>  // timestamp
+#include <chrono>
 #include <string>
-
-#include "tinkervision_defines.h"
 
 namespace tv {
 
@@ -188,5 +184,3 @@ public:
     Image const& operator()(void) const { return image_; }
 };
 }
-
-#endif

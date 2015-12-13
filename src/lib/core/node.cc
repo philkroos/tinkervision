@@ -25,7 +25,6 @@
 /// USA.
 
 #include "node.hh"
-#include "logger.hh"
 #include "scenetrees.hh"
 
 tv::Node::Node(int16_t node_id, int16_t scene_id, int16_t module_id,

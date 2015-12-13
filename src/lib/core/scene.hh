@@ -24,10 +24,12 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
+#pragma once
+
 #include <list>
 #include <cassert>
 
-#include "tinkervision_defines.h"
+#include "common.hh"
 #include "shared_resource.hh"
 #include "module_wrapper.hh"
 #include "node.hh"

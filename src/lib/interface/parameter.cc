@@ -55,18 +55,13 @@ bool tv::StringParameter::get(std::string& value) const {
 tv::NumericalParameter::NumericalParameter(std::string const& name, int32_t min,
                                            int32_t max, int32_t init)
     : Parameter(Parameter::Type::Numerical, name),
-      min_(min),
+      min_(min > max ? max : min),
       max_(max),
       value_(init) {
 
-    if (min_ > max_) {
-        LogError("PARAMETER", "Min > Max ", min_, " ", max_);
-    }
     if (value_ > max_) {
-        LogError("PARAMETER", "Init: ", value_);
         value_ = max_;
     } else if (value_ < min_) {
-        LogError("PARAMETER", "Init: ", value_);
         value_ = min_;
     }
 }

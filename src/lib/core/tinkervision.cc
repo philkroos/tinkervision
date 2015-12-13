@@ -35,7 +35,6 @@
 #include <thread>
 
 #include "api.hh"
-#include "logger.hh"
 
 extern "C" {
 

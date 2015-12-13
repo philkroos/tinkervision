@@ -24,24 +24,9 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#pragma once
 
-#if !defined(WITH_LOGGER)
 #include <string>
-namespace tv {
-
-template <typename... Args>
-void Log(std::string const& prefix, Args const&... args) {}
-template <typename... Args>
-void LogDebug(std::string const& prefix, Args const&... args) {}
-template <typename... Args>
-void LogError(std::string const& prefix, Args const&... args) {}
-template <typename... Args>
-void LogWarning(std::string const& prefix, Args const&... args) {}
-
-#else
-
 #include <fstream>
 #include <iostream>
 #include <bitset>
@@ -49,7 +34,7 @@ void LogWarning(std::string const& prefix, Args const&... args) {}
 #include <iomanip>
 #include <mutex>
 
-#include "image.hh"
+#include "common.hh"
 
 namespace tv {
 
@@ -158,6 +143,4 @@ std::ostream& operator<<(std::ostream& os, uint8_t id);
 std::ostream& operator<<(std::ostream& os, StringParameter& parameter);
 std::ostream& operator<<(std::ostream& os, NumericalParameter& parameter);
 
-#endif
 }
-#endif

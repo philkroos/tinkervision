@@ -41,8 +41,7 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef SHARED_RESOURCE_H
-#define SHARED_RESOURCE_H
+#pragma once
 
 #ifdef __STDC_NO_ATOMICS__
 #error "Atomics not available"
@@ -55,9 +54,7 @@
 #include <algorithm>
 #include <functional>
 
-#include "tinkervision_defines.h"
-#include "exceptions.hh"
-#include "logger.hh"
+#include "common.hh"
 
 namespace tv {
 
@@ -534,5 +531,3 @@ private:
     }
 };
 }
-
-#endif

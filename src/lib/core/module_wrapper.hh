@@ -24,18 +24,14 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef MODULE_WRAPPER_H
-#define MODULE_WRAPPER_H
+#pragma once
 
 #include <typeinfo>
 #include <type_traits>
 #include <cassert>
 #include <vector>
 
-#include "tinkervision_defines.h"
-#include "image.hh"
-#include "bitflag.hh"
-#include "logger.hh"
+#include "common.hh"
 #include "module.hh"
 
 namespace tv {
@@ -253,4 +249,3 @@ public:
     Module* executable(void) { return tv_module_; }
 };
 }
-#endif

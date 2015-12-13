@@ -25,8 +25,7 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef BITFLAG_H
-#define BITFLAG_H
+#pragma once
 
 #include <type_traits>
 
@@ -48,5 +47,3 @@ inline Bits& operator|=(Bits& lhs, Bits const& rhs) {
     lhs = static_cast<Bits>(static_cast<T>(lhs) | static_cast<T>(rhs));
     return lhs;
 }
-
-#endif

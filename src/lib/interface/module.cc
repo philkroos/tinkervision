@@ -27,12 +27,9 @@
 #include "module.hh"
 
 tv::Module::Module(const char* name, tv::Environment const& envir)
-    : environment(envir), name_{name} {
-    Log("EXECUTABLE", "Constructor for ", name);
-}
+    : environment(envir), name_{name} {}
 
 tv::Module::~Module(void) {
-    Log("EXECUTABLE", "Destructor for ", name_);
     for (auto& parameter : parameter_map_) {
         if (parameter.second) {
             delete parameter.second;
@@ -41,10 +38,7 @@ tv::Module::~Module(void) {
 }
 
 bool tv::Module::initialize(void) {
-    Log("MODULE", "Initializing ", name_);
-
     if (init_error_) {
-        LogError("MODULE", "Initializing failed during construction");
         return false;
     }
 
@@ -58,7 +52,6 @@ bool tv::Module::initialize(void) {
     /// - Call init(), in case the module wants to do more initialization work.
     init();
 
-    Log("MODULE", " ", outputs_image_, can_have_result_, expected_format_);
     initialized_ = true;
 
     return true;
@@ -73,8 +66,6 @@ bool tv::Module::has_parameter(std::string const& parameter) const {
 bool tv::Module::register_parameter(std::string const& name, int32_t min,
                                     int32_t max, int32_t init) {
     if (max < min or init < min or init > max) {
-        LogError("MODULE", name_, ": Invalid values: ", min, " ", max, " ",
-                 init);
         init_error_ = true;
         return false;
     }
@@ -87,7 +78,6 @@ bool tv::Module::register_parameter(
         verify) {
 
     if (init.size() >= TV_STRING_SIZE) {
-        LogError("MODULE", name_, ": Parameter default value too long ", init);
         init_error_ = true;
         return false;
     }
@@ -102,14 +92,12 @@ bool tv::Module::register_parameter_typed(std::string const& name,
     }
 
     if (parameter_map_.find(name) != parameter_map_.cend()) {
-        LogError("MODULE", name_, ": Parameter passed twice ", name);
         init_error_ = true;
         return false;
     }
 
     /// The parameter name must not exceed #TV_STRING_SIZE characters
     if (name.size() >= TV_STRING_SIZE) {
-        LogError("MODULE", name_, ": Parameter name too long ", name);
         init_error_ = true;
         return false;
     }

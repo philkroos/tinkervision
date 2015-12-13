@@ -29,8 +29,6 @@
 #include <string>
 #include <mutex>
 
-#include "logger.hh"
-
 #ifdef WITH_PYTHON
 #include "python_context.hh"
 #endif

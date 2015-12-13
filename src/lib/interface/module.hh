@@ -24,8 +24,7 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef MODULE_H
-#define MODULE_H
+#pragma once
 
 #include <vector>
 #include <unordered_map>
@@ -34,10 +33,8 @@
 
 #include "image.hh"
 #include "tinkervision_defines.h"
-#include "logger.hh"
 #include "parameter.hh"
 #include "environment.hh"
-
 #include "result.hh"
 
 namespace tv {
@@ -324,5 +321,3 @@ private:
         return new tv::name(envir);                               \
     }                                                             \
     extern "C" void destroy(tv::name* module) { delete module; }
-
-#endif

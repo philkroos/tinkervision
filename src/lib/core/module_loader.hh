@@ -24,14 +24,15 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
+#pragma once
+
 #include <unordered_map>
 #include <vector>
 #include <dlfcn.h>
 
+#include "common.hh"
 #include "module_wrapper.hh"
-#include "filesystem.hh"
 #include "dirwatch.hh"
-#include "environment.hh"
 
 namespace tv {
 

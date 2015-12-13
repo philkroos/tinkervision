@@ -1,8 +1,8 @@
-/// \file window.cc
+/// \file common.hh
 /// \author philipp.kroos@fh-bielefeld.de
-/// \date 2014-2015
+/// \date 2015
 ///
-/// \brief Implementation unit for window.hh.
+/// \brief Common header file for the library.
 ///
 /// This file is part of Tinkervision - Vision Library for Tinkerforge Redbrick
 /// \sa https://github.com/Tinkerforge/red-brick
@@ -24,4 +24,32 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#include "window.hh"
+#pragma once
+
+#ifndef USR_PREFIX
+#error USR_PREFIX not defined
+#endif
+
+namespace tv {}
+
+#include "tinkervision_defines.h"
+#include "image.hh"
+#include "filesystem.hh"
+#include "bitflag.hh"
+#include "exceptions.hh"
+#include "strings.hh"
+
+#ifndef WITH_LOGGER
+namespace tv {
+template <typename... Args>
+inline void Log(char const* prefix, Args const&... args) {}
+template <typename... Args>
+inline void LogDebug(char const* prefix, Args const&... args) {}
+template <typename... Args>
+inline void LogError(char const* prefix, Args const&... args) {}
+template <typename... Args>
+inline void LogWarning(char const* prefix, Args const&... args) {}
+}
+#else
+#include "logger.hh"
+#endif

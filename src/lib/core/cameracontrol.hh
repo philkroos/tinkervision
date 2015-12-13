@@ -24,14 +24,13 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
-#ifndef CAMERACONTROL_H
-#define CAMERACONTROL_H
+#pragma once
 
 #include <sys/stat.h>  // stat, for _device_exists()
 #include <string>
 #include <mutex>
 
-#include "image.hh"
+#include "common.hh"
 #include "convert.hh"
 #include "camera.hh"
 
@@ -184,5 +183,3 @@ private:
     bool _update_from_fallback(void);
 };
 }
-
-#endif

@@ -24,6 +24,8 @@
 /// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 /// USA.
 
+#pragma once
+
 #include <chrono>
 #include <thread>
 #include <mutex>
@@ -34,15 +36,11 @@
 #include <tuple>
 #include <cstring>
 
-#include "strings.hh"
-#include "tinkervision_defines.h"
+#include "common.hh"
 #include "cameracontrol.hh"
-#include "image.hh"
 #include "scenetrees.hh"
 #include "module_loader.hh"
 #include "shared_resource.hh"
-#include "environment.hh"
-#include "logger.hh"
 
 namespace tv {
 

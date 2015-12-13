@@ -28,8 +28,6 @@
 
 #include <chrono>
 
-#include "logger.hh"
-
 tv::Camera::Camera(uint8_t camera_id) : camera_id_(camera_id) {}
 
 bool tv::Camera::get_frame(tv::Image& image) {
