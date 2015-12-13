@@ -44,9 +44,9 @@ struct Result {
     int32_t height{-1};      /// Fourth value, -1 means unset.
     std::string result{""};  /// Fifth value, "" means unset.
 
-    /// A result is valid if at least x is > 0 or the string has been set.
+    /// A result is valid if x is >= 0 or the string has been set.
     operator bool(void) const {
-        return x > 0 or (result != "" and result.size() < TV_STRING_SIZE);
+        return x >= 0 or (result != "" and result.size() < TV_STRING_SIZE);
     }
 };
 }
