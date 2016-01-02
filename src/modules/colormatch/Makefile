@@ -1,12 +1,12 @@
 CC		:= g++
 
 INC		:= `pkg-config --cflags opencv`
-LDFLAGS	:= `pkg-config --libs opencv`
+LDFLAGS	:= `pkg-config --libs opencv` -shared
 
 ifeq ($(DEBUG),yes)
-	CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
+	CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -fPIC -DDEBUG
 else
-	CCFLAGS	:= -Wall -Werror -O3 -std=c++11 -shared -fPIC
+	CCFLAGS	:= -Wall -Werror -O3 -std=c++11 -fPIC
 endif
 
 ifndef PRE
@@ -26,7 +26,7 @@ all: so
 	$(CC) $(CCFLAGS) -c $< -o $@ $(INC)
 
 so: $(OBJ)
-	$(CC) -shared -o $(SO) $(OBJ) $(LDFLAGS)
+	$(CC) -o $(SO) $(OBJ) $(LDFLAGS)
 
 .phony:
 	clean

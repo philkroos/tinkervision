@@ -1,8 +1,8 @@
 CC		:= g++
 
 INC		:= `pkg-config --cflags opencv`
-LDFLAGS	:= `pkg-config --libs opencv`
-CCFLAGS	:= -Wall -Werror -std=c++11 -shared -fPIC -DWITH_LOGGER
+LDFLAGS	:= `pkg-config --libs opencv` -shared
+CCFLAGS	:= -Wall -Werror -std=c++11 -fPIC -DWITH_LOGGER
 
 ifeq ($(DEBUG),yes)
 	CCFLAGS	+= -g -O0 -DDEBUG
@@ -27,7 +27,7 @@ all: so
 	$(CC) $(CCFLAGS) -c $< -o $@ $(INC)
 
 so: $(OBJ)
-	$(CC) -shared -o $(SO) $(OBJ) $(LDFLAGS)
+	$(CC) -o $(SO) $(OBJ) $(LDFLAGS)
 
 .phony:
 	clean

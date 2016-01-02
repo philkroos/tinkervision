@@ -1,5 +1,5 @@
 CC		:= g++
-CCFLAGS	:= -Wall -Werror -O3 -std=c++11 -shared -fPIC -DWITH_LOGGER
+CCFLAGS	:= -Wall -Werror -O3 -std=c++11 -fPIC -DWITH_LOGGER
 
 # Includes for LIVE555 streamer and opencv
 LIVE_MODULES	:= BasicUsageEnvironment UsageEnvironment groupsock liveMedia
@@ -8,14 +8,14 @@ INC		:= $(addprefix -I/usr/local/include/,$(LIVE_MODULES))
 # Libraries for live555 streamer, video compression and opencv
 LIBS_LIVE       := $(addprefix -l,$(LIVE_MODULES))
 LIBS_X264	:= -lx264
-LDFLAGS	:= $(LIBS_X264) $(LIBS_LIVE) -rdynamic
+LDFLAGS	:= $(LIBS_X264) $(LIBS_LIVE) -rdynamic -shared
 
 ifndef PRE
 	PRE = /usr/lib/tinkervision
 endif
 
 ifeq ($(DEBUG),yes)
-	CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
+	CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -fPIC -DDEBUG
 	INC		+= `pkg-config --cflags opencv`
 	LDFLAGS	+= `pkg-config --libs opencv`
 endif
@@ -35,7 +35,7 @@ all: so
 	$(CC) $(CCFLAGS) -c $< -o $@ $(INC)
 
 so: $(OBJ)
-	$(CC) -shared -o $(SO) $(OBJ) $(LDFLAGS)
+	$(CC) -o $(SO) $(OBJ) $(LDFLAGS)
 
 .phony:
 	clean

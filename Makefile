@@ -1,5 +1,5 @@
 cc		:= g++
-ccflags	:= -Wall -Werror -pedantic -shared -std=c++14 -fpic
+ccflags	:= -Wall -Werror -pedantic -std=c++14 -fPIC
 
 ifndef NOPY
 	ccflags += -DWITH_PYTHON
@@ -59,11 +59,11 @@ ifdef OCVC
 	inc	+= -I/usr/local/include/opencv -I/usr/local/include
 endif
 
-ldflags	:= $(libs) -rdynamic
+ldflags	:= $(libs) -rdynamic -shared
 
 # files
 src		:= $(foreach sdir,$(src_dir),$(wildcard $(sdir)/*.cc))
-obj		:= $(patsubst $(src_prefix)/%.cc,build/%.o,$(src))
+obj		:= $(patsubst $(src_prefix)/%.cc,$(build_prefix)/%.o,$(src))
 output		:= libtinkervision.so
 
 
@@ -88,7 +88,7 @@ directories: $(build_dir) user_paths
 
 # actual targets
 lib: directories $(obj)
-	$(cc) -shared -o $(build_prefix)/$(output) $(obj) $(ldflags)
+	$(cc) -o $(build_prefix)/$(output) $(obj) $(ldflags)
 ifndef DEBUG
 	strip $(build_prefix)/$(output)
 endif
@@ -135,8 +135,8 @@ install: $(build_prefix)/$(output)
 	mkdir -p $(prefix)/include/tinkervision/
 	install -m 544 $(header) $(prefix)/include/tinkervision/
 
-uninstall:
+remove:
 	rm -rf $(prefix)/lib/$(output)
 	rm -rf $(prefix)/include/tinkervision/
 
-.PHONY: install uninstall
+.PHONY: clean install remove

@@ -1,5 +1,5 @@
 CC		:= g++
-CCFLAGS	:= -Wall -Werror -std=c++14 -shared -fPIC
+CCFLAGS	:= -Wall -Werror -std=c++14 -fPIC
 
 ifeq ($(DEBUG),yes)
 	CCFLAGS	+= -g -O0

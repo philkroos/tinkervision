@@ -1,18 +1,18 @@
 CC		:= g++
 
 ifeq ($(DEBUG),yes)
-	CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -shared -fPIC -DDEBUG
+	CCFLAGS	:= -Wall -Werror -g -O0 -std=c++11 -fPIC -DDEBUG
 	INC		:= `pkg-config --cflags opencv`
 	LDFLAGS	:= `pkg-config --libs opencv`
 else
-	CCFLAGS	:= -Wall -Werror -O3 -std=c++11 -shared -fPIC
+	CCFLAGS	:= -Wall -Werror -O3 -std=c++11 -fPIC
 endif
 
 ifndef PRE
 	PRE = /usr/lib/tinkervision
 endif
 
-LDFLAGS	+= -L/usr/lib/python2.7 -lpython2.7
+LDFLAGS	+= -L/usr/lib/python2.7 -lpython2.7 -shared
 INC		+= -I/usr/include/python2.7 -I/usr/include/tinkervision
 
 SO		:= downscale.so
@@ -25,7 +25,7 @@ all: so
 	$(CC) $(CCFLAGS) -c $< -o $@ $(INC)
 
 so: $(OBJ)
-	$(CC) -shared -o $(SO) $(OBJ) $(LDFLAGS)
+	$(CC) -o $(SO) $(OBJ) $(LDFLAGS)
 
 .phony:
 	clean
